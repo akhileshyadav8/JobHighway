@@ -11,7 +11,6 @@ import { SearchableSelect } from "@/components/ui/SearchableSelect";
 
 const FILTER_CONFIG = {
   "Job Type": ["All", "Full Time", "Internship", "Contract"],
-  "Batch": ["All", "2023", "2024", "2025", "2026"],
   "Work Mode": ["All", "Remote", "Hybrid", "Onsite"]
 };
 
@@ -38,7 +37,7 @@ const UK_LOC_KEYWORDS = [
 ];
 
 const GERMANY_LOC_KEYWORDS = [
-  "germany", "deutschland", "berlin", "munich", "münchen", "frankfurt", "hamburg", "cologne"
+  "germany", "deutschland", "berlin", "munich", "münchen", "frankfurt", "hamburg", "cologne", "karlsruhe", "stuttgart", "düsseldorf"
 ];
 
 const CANADA_LOC_KEYWORDS = [
@@ -51,6 +50,54 @@ const IRELAND_LOC_KEYWORDS = [
 
 const AUSTRALIA_LOC_KEYWORDS = [
   "australia", "sydney", "melbourne", "brisbane", "perth", "canberra"
+];
+
+const FR_LOC_KEYWORDS = [
+  "france", "paris", "lyon", "marseille", "toulouse", "nice", "nantes", "bordeaux"
+];
+
+const JP_LOC_KEYWORDS = [
+  "japan", "tokyo", "osaka", "kyoto", "yokohama"
+];
+
+const SG_LOC_KEYWORDS = [
+  "singapore", "sg"
+];
+
+const AE_LOC_KEYWORDS = [
+  "united arab emirates", "uae", "dubai", "abu dhabi"
+];
+
+const NL_LOC_KEYWORDS = [
+  "netherlands", "amsterdam", "rotterdam", "utrecht", "hague", "eindhoven"
+];
+
+const PL_LOC_KEYWORDS = [
+  "poland", "polska", "warsaw", "krakow", "wroclaw", "gdansk", "poznan"
+];
+
+const ES_LOC_KEYWORDS = [
+  "spain", "espana", "madrid", "barcelona", "valencia", "seville", "malaga"
+];
+
+const CH_LOC_KEYWORDS = [
+  "switzerland", "schweiz", "zurich", "geneva", "basel", "lausanne", "bern"
+];
+
+const SE_LOC_KEYWORDS = [
+  "sweden", "sverige", "stockholm", "gothenburg", "malmo"
+];
+
+const IT_LOC_KEYWORDS = [
+  "italy", "italia", "milan", "rome", "turin", "florence", "bologna"
+];
+
+const BR_LOC_KEYWORDS = [
+  "brazil", "brasil", "são paulo", "sao paulo", "rio de janeiro"
+];
+
+const MX_LOC_KEYWORDS = [
+  "mexico", "mexico city", "guadalajara", "monterrey"
 ];
 
 interface InteractiveJobFeedProps {
@@ -67,7 +114,6 @@ export function InteractiveJobFeed({ initialJobs, stats }: InteractiveJobFeedPro
   const [sortBy, setSortBy] = useState<"newest" | "salary" | "fresher">("newest");
   const [activeFilters, setActiveFilters] = useState<Record<string, string>>({
     "Job Type": "All",
-    "Batch": "All",
     "Work Mode": "All"
   });
   const [visibleCount, setVisibleCount] = useState(9);
@@ -96,14 +142,6 @@ export function InteractiveJobFeed({ initialJobs, stats }: InteractiveJobFeedPro
     { label: "💼 Full Time", value: "Full Time" },
     { label: "💼 Internship", value: "Internship" },
     { label: "💼 Contract", value: "Contract" }
-  ], []);
-
-  const batchOptions = useMemo(() => [
-    { label: "🎓 All Batches", value: "All" },
-    { label: "🎓 2026 Batch", value: "2026" },
-    { label: "🎓 2025 Batch", value: "2025" },
-    { label: "🎓 2024 Batch", value: "2024" },
-    { label: "🎓 2023 Batch", value: "2023" }
   ], []);
 
   const workModeOptions = useMemo(() => [
@@ -288,7 +326,6 @@ export function InteractiveJobFeed({ initialJobs, stats }: InteractiveJobFeedPro
     setSortBy("newest");
     setActiveFilters({
       "Job Type": "All",
-      "Batch": "All",
       "Work Mode": "All"
     });
     setVisibleCount(9);
@@ -385,6 +422,42 @@ export function InteractiveJobFeed({ initialJobs, stats }: InteractiveJobFeedPro
             return AUSTRALIA_LOC_KEYWORDS.some(k => loc.includes(k));
           });
           if (!isAU) return false;
+        } else if (country === "france") {
+          const isFR = job.location.some(l => FR_LOC_KEYWORDS.some(k => l.toLowerCase().includes(k)));
+          if (!isFR) return false;
+        } else if (country === "japan") {
+          const isJP = job.location.some(l => JP_LOC_KEYWORDS.some(k => l.toLowerCase().includes(k)));
+          if (!isJP) return false;
+        } else if (country === "singapore") {
+          const isSG = job.location.some(l => SG_LOC_KEYWORDS.some(k => l.toLowerCase().includes(k)));
+          if (!isSG) return false;
+        } else if (country === "united arab emirates" || country === "uae") {
+          const isAE = job.location.some(l => AE_LOC_KEYWORDS.some(k => l.toLowerCase().includes(k)));
+          if (!isAE) return false;
+        } else if (country === "netherlands") {
+          const isNL = job.location.some(l => NL_LOC_KEYWORDS.some(k => l.toLowerCase().includes(k)));
+          if (!isNL) return false;
+        } else if (country === "poland") {
+          const isPL = job.location.some(l => PL_LOC_KEYWORDS.some(k => l.toLowerCase().includes(k)));
+          if (!isPL) return false;
+        } else if (country === "spain") {
+          const isES = job.location.some(l => ES_LOC_KEYWORDS.some(k => l.toLowerCase().includes(k)));
+          if (!isES) return false;
+        } else if (country === "switzerland") {
+          const isCH = job.location.some(l => CH_LOC_KEYWORDS.some(k => l.toLowerCase().includes(k)));
+          if (!isCH) return false;
+        } else if (country === "sweden") {
+          const isSE = job.location.some(l => SE_LOC_KEYWORDS.some(k => l.toLowerCase().includes(k)));
+          if (!isSE) return false;
+        } else if (country === "italy") {
+          const isIT = job.location.some(l => IT_LOC_KEYWORDS.some(k => l.toLowerCase().includes(k)));
+          if (!isIT) return false;
+        } else if (country === "brazil") {
+          const isBR = job.location.some(l => BR_LOC_KEYWORDS.some(k => l.toLowerCase().includes(k)));
+          if (!isBR) return false;
+        } else if (country === "mexico") {
+          const isMX = job.location.some(l => MX_LOC_KEYWORDS.some(k => l.toLowerCase().includes(k)));
+          if (!isMX) return false;
         } else if (country === "remote") {
           const isRemote = (job.work_mode || "").toLowerCase() === "remote" || job.location.some(l => l.toLowerCase().includes("remote"));
           if (!isRemote) return false;
@@ -489,27 +562,85 @@ export function InteractiveJobFeed({ initialJobs, stats }: InteractiveJobFeedPro
         }
       }
 
-      // Job Type filter
+      // Job Type filter (Smart Matching with Title & Employment Type)
       if (activeFilters["Job Type"] !== "All") {
-        const filterType = activeFilters["Job Type"].toLowerCase().replace(/\s|-/g, "");
-        const jobType = (job.employment_type || "").toLowerCase().replace(/\s|-/g, "");
-        if (!jobType.includes(filterType) && !filterType.includes(jobType)) {
-          return false;
+        const filter = activeFilters["Job Type"].toLowerCase();
+        const titleLower = (job.title || "").toLowerCase();
+        const empTypeLower = (job.employment_type || "").toLowerCase();
+
+        if (filter === "internship") {
+          const isIntern =
+            titleLower.includes("intern") ||
+            titleLower.includes("co-op") ||
+            titleLower.includes("trainee") ||
+            titleLower.includes("apprentice") ||
+            empTypeLower.includes("intern");
+          if (!isIntern) return false;
+        } else if (filter === "contract") {
+          const isContract =
+            empTypeLower.includes("contract") ||
+            empTypeLower.includes("short term") ||
+            empTypeLower.includes("temp") ||
+            titleLower.includes("contract") ||
+            titleLower.includes("freelance");
+          if (!isContract) return false;
+        } else if (filter === "full time") {
+          const isIntern =
+            titleLower.includes("intern") ||
+            titleLower.includes("co-op") ||
+            titleLower.includes("trainee") ||
+            titleLower.includes("apprentice") ||
+            empTypeLower.includes("intern");
+          const isContract =
+            empTypeLower.includes("contract") ||
+            empTypeLower.includes("short term") ||
+            titleLower.includes("contract");
+          const isFull =
+            !isIntern &&
+            !isContract &&
+            (empTypeLower.includes("full") ||
+              empTypeLower.includes("permanent") ||
+              titleLower.includes("full-time") ||
+              titleLower.includes("full time") ||
+              !empTypeLower);
+          if (!isFull) return false;
+        } else {
+          const filterNormalized = filter.replace(/\s|-/g, "");
+          const empNormalized = empTypeLower.replace(/\s|-/g, "");
+          if (!empNormalized.includes(filterNormalized) && !titleLower.includes(filter)) {
+            return false;
+          }
         }
       }
 
-      // Batch filter
-      if (activeFilters["Batch"] !== "All") {
-        const batch = activeFilters["Batch"];
-        if (!job.eligible_batches || !job.eligible_batches.includes(batch)) {
-          return false;
-        }
-      }
-
-      // Work Mode filter
+      // Work Mode filter (Smart Synonyms: Onsite/In-Office, Remote, Hybrid)
       if (activeFilters["Work Mode"] !== "All") {
-        if ((job.work_mode || "").toLowerCase() !== activeFilters["Work Mode"].toLowerCase()) {
-          return false;
+        const targetMode = activeFilters["Work Mode"].toLowerCase();
+        const workModeLower = (job.work_mode || "").toLowerCase();
+        const locationLower = (job.location || []).join(" ").toLowerCase();
+
+        if (targetMode === "onsite") {
+          const isOnsite =
+            workModeLower.includes("office") ||
+            workModeLower.includes("onsite") ||
+            workModeLower.includes("on-site") ||
+            workModeLower.includes("in-person") ||
+            (!workModeLower.includes("remote") &&
+              !workModeLower.includes("hybrid") &&
+              !locationLower.includes("remote"));
+          if (!isOnsite) return false;
+        } else if (targetMode === "remote") {
+          const isRemote =
+            workModeLower === "remote" ||
+            workModeLower.includes("remote") ||
+            locationLower.includes("remote") ||
+            locationLower.includes("work from anywhere");
+          if (!isRemote) return false;
+        } else if (targetMode === "hybrid") {
+          const isHybrid =
+            workModeLower.includes("hybrid") ||
+            locationLower.includes("hybrid");
+          if (!isHybrid) return false;
         }
       }
 
@@ -660,8 +791,8 @@ export function InteractiveJobFeed({ initialJobs, stats }: InteractiveJobFeedPro
               />
             </div>
 
-            {/* Row 2: Job Type, Batch, Work Mode, Sort Order */}
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+            {/* Row 2: Job Type, Work Mode, Sort Order */}
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
               {/* 5. Job Type Dropdown */}
               <SearchableSelect
                 ariaLabel="Job Type"
@@ -673,18 +804,7 @@ export function InteractiveJobFeed({ initialJobs, stats }: InteractiveJobFeedPro
                 searchPlaceholder="Search job type..."
               />
 
-              {/* 6. Batch Dropdown */}
-              <SearchableSelect
-                ariaLabel="Graduation Batch"
-                icon={<GraduationCap className="w-3.5 h-3.5" />}
-                options={batchOptions}
-                value={activeFilters["Batch"]}
-                onChange={(val) => toggleFilter("Batch", val)}
-                placeholder="🎓 All Batches"
-                searchPlaceholder="Search batch..."
-              />
-
-              {/* 7. Work Mode Dropdown */}
+              {/* 6. Work Mode Dropdown */}
               <SearchableSelect
                 ariaLabel="Work Mode"
                 icon={<Laptop className="w-3.5 h-3.5" />}
@@ -695,7 +815,7 @@ export function InteractiveJobFeed({ initialJobs, stats }: InteractiveJobFeedPro
                 searchPlaceholder="Search work mode..."
               />
 
-              {/* 8. Sort Order Dropdown */}
+              {/* 7. Sort Order Dropdown */}
               <SearchableSelect
                 ariaLabel="Sort Order"
                 icon={<ArrowUpDown className="w-3.5 h-3.5" />}
@@ -736,11 +856,6 @@ export function InteractiveJobFeed({ initialJobs, stats }: InteractiveJobFeedPro
                 {activeFilters["Job Type"] !== "All" && (
                   <span className="bg-teal-50 dark:bg-teal-900/40 text-teal-800 dark:text-teal-300 px-2 py-0.5 rounded-full border border-teal-200 dark:border-teal-800">
                     💼 {activeFilters["Job Type"]}
-                  </span>
-                )}
-                {activeFilters["Batch"] !== "All" && (
-                  <span className="bg-teal-50 dark:bg-teal-900/40 text-teal-800 dark:text-teal-300 px-2 py-0.5 rounded-full border border-teal-200 dark:border-teal-800">
-                    🎓 {activeFilters["Batch"]} Batch
                   </span>
                 )}
                 {activeFilters["Work Mode"] !== "All" && (
