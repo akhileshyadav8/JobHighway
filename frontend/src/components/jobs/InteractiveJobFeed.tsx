@@ -3,7 +3,7 @@
 import { useState, useMemo } from "react";
 import { Job, OverviewStats } from "@/lib/api";
 import { JobCard } from "@/components/jobs/JobCard";
-import { Search, X, RotateCcw, Sparkles, MapPin, Globe, Building2, ArrowUpDown, Clock, Navigation } from "lucide-react";
+import { Search, X, RotateCcw, Sparkles, MapPin, Globe, Building2, ArrowUpDown, Clock, Navigation, Briefcase, GraduationCap, Laptop } from "lucide-react";
 import { formatRelativeTime } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { ALL_WORLD_COUNTRIES, COUNTRY_STATES, STATE_CITIES } from "@/lib/world_locations";
@@ -426,7 +426,7 @@ export function InteractiveJobFeed({ initialJobs, stats }: InteractiveJobFeedPro
   return (
     <div className="flex flex-col min-h-screen">
       {/* Hero Section */}
-      <section className="bg-gradient-to-br from-slate-900 via-teal-950 to-cyan-900 pt-16 pb-14 px-4 shadow-inner">
+      <section className="bg-gradient-to-br from-slate-900 via-teal-950 to-cyan-900 pt-12 pb-9 px-4 shadow-inner">
         <div className="container mx-auto text-center max-w-4xl">
           <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-teal-500/10 border border-teal-400/20 text-teal-300 text-xs font-semibold mb-6">
             <Sparkles className="w-3.5 h-3.5 text-teal-400 animate-spin" style={{ animationDuration: '4s' }} />
@@ -482,191 +482,234 @@ export function InteractiveJobFeed({ initialJobs, stats }: InteractiveJobFeedPro
         </div>
       </section>
 
-      {/* Interactive Hierarchical Filters: Country -> State -> City -> Company -> Sort */}
-      <div className="w-full border-b border-slate-200 dark:border-slate-800 bg-white/95 dark:bg-slate-950/95 backdrop-blur sticky top-16 z-40 shadow-sm">
-        <div className="container mx-auto px-4 py-3.5">
-          {/* Top Row: 5 Responsive Dropdowns */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3 pb-3 border-b border-slate-100 dark:border-slate-800/80">
-            {/* 1. Country Dropdown (All 50+ World Countries) */}
-            <div className="flex flex-col gap-1">
-              <label className="text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 flex items-center gap-1">
-                <Globe className="w-3.5 h-3.5 text-teal-600 dark:text-teal-400" />
-                <span>1. Country:</span>
-              </label>
-              <select
-                value={selectedCountry}
-                onChange={(e) => handleCountryChange(e.target.value)}
-                className="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl px-2.5 py-2 text-xs md:text-sm text-slate-900 dark:text-slate-100 font-medium focus:outline-none focus:ring-2 focus:ring-teal-500 cursor-pointer shadow-sm"
-              >
-                {ALL_WORLD_COUNTRIES.map(c => (
-                  <option key={c.value} value={c.value}>
-                    {c.label}
-                  </option>
-                ))}
-              </select>
-            </div>
-
-            {/* 2. State Dropdown (Dynamically enabled based on Country) */}
-            <div className="flex flex-col gap-1">
-              <label className="text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 flex items-center gap-1">
-                <Navigation className="w-3.5 h-3.5 text-teal-600 dark:text-teal-400" />
-                <span>2. State / Region:</span>
-              </label>
-              <select
-                value={selectedState}
-                disabled={selectedCountry === "All" || selectedCountry === "Remote"}
-                onChange={(e) => handleStateChange(e.target.value)}
-                className={`w-full border rounded-xl px-2.5 py-2 text-xs md:text-sm font-medium focus:outline-none focus:ring-2 focus:ring-teal-500 shadow-sm transition-all ${
-                  selectedCountry === "All" || selectedCountry === "Remote"
-                    ? "bg-slate-100/70 dark:bg-slate-900/40 border-slate-200 dark:border-slate-800 text-slate-400 cursor-not-allowed"
-                    : "bg-slate-50 dark:bg-slate-900 border-teal-300 dark:border-teal-700/60 text-slate-900 dark:text-slate-100 cursor-pointer ring-1 ring-teal-500/20"
-                }`}
-              >
-                {selectedCountry === "All" ? (
-                  <option value="All">← Pick Country First</option>
-                ) : (
-                  (availableStates || []).filter(s => Boolean(s?.value)).map(s => (
-                    <option key={s.value} value={s.value}>
-                      {s.label}
-                    </option>
-                  ))
-                )}
-              </select>
-            </div>
-
-            {/* 3. City Dropdown (Dynamically enabled based on State/Country) */}
-            <div className="flex flex-col gap-1">
-              <label className="text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 flex items-center gap-1">
-                <MapPin className="w-3.5 h-3.5 text-teal-600 dark:text-teal-400" />
-                <span>3. City:</span>
-              </label>
-              <select
-                value={selectedCity}
-                disabled={selectedCountry === "All" || selectedCountry === "Remote"}
-                onChange={(e) => {
-                  setSelectedCity(e.target.value);
-                  setVisibleCount(9);
-                }}
-                className={`w-full border rounded-xl px-2.5 py-2 text-xs md:text-sm font-medium focus:outline-none focus:ring-2 focus:ring-teal-500 shadow-sm transition-all ${
-                  selectedCountry === "All" || selectedCountry === "Remote"
-                    ? "bg-slate-100/70 dark:bg-slate-900/40 border-slate-200 dark:border-slate-800 text-slate-400 cursor-not-allowed"
-                    : "bg-slate-50 dark:bg-slate-900 border-teal-300 dark:border-teal-700/60 text-slate-900 dark:text-slate-100 cursor-pointer ring-1 ring-teal-500/20"
-                }`}
-              >
-                {selectedCountry === "All" ? (
-                  <option value="All">← Pick Country First</option>
-                ) : (
-                  (availableCities || []).filter(c => Boolean(c?.value)).map(c => (
+      {/* Sleek Compact Sticky Filter Bar */}
+      <div className="w-full border-b border-slate-200/90 dark:border-slate-800/90 bg-white/95 dark:bg-slate-950/95 backdrop-blur-md sticky top-16 z-40 shadow-xs">
+        <div className="container mx-auto px-4 py-2.5 max-w-[1440px]">
+          {/* 2-Tier Compact Grid: Row 1 = Location & Company, Row 2 = Job Type, Batch, Work Mode, Sort */}
+          <div className="flex flex-col gap-2">
+            {/* Row 1: Location & Company Filters */}
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+              {/* 1. Country */}
+              <div className="relative flex items-center">
+                <Globe className="w-3.5 h-3.5 text-teal-600 dark:text-teal-400 absolute left-2.5 pointer-events-none" />
+                <select
+                  aria-label="Country"
+                  value={selectedCountry}
+                  onChange={(e) => handleCountryChange(e.target.value)}
+                  className="w-full pl-8 pr-7 py-1.5 text-xs md:text-sm font-medium bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-lg text-slate-800 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-teal-500 cursor-pointer shadow-2xs hover:border-slate-300 dark:hover:border-slate-700 transition-colors"
+                >
+                  {ALL_WORLD_COUNTRIES.map(c => (
                     <option key={c.value} value={c.value}>
                       {c.label}
                     </option>
-                  ))
-                )}
-              </select>
-            </div>
-
-            {/* 4. Company Dropdown */}
-            <div className="flex flex-col gap-1">
-              <label className="text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 flex items-center gap-1">
-                <Building2 className="w-3.5 h-3.5 text-teal-600 dark:text-teal-400" />
-                <span>4. Company:</span>
-              </label>
-              <select
-                value={selectedCompany}
-                onChange={(e) => {
-                  setSelectedCompany(e.target.value);
-                  setVisibleCount(9);
-                }}
-                className="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl px-2.5 py-2 text-xs md:text-sm text-slate-900 dark:text-slate-100 font-medium focus:outline-none focus:ring-2 focus:ring-teal-500 cursor-pointer shadow-sm"
-              >
-                <option value="All">🏢 All Companies</option>
-                {(availableCompanies || []).map(comp => (
-                  <option key={comp.slug} value={comp.slug}>
-                    {comp.name}
-                  </option>
-                ))}
-              </select>
-            </div>
-
-            {/* 5. Sort Dropdown */}
-            <div className="flex flex-col gap-1">
-              <label className="text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 flex items-center gap-1">
-                <ArrowUpDown className="w-3.5 h-3.5 text-teal-600 dark:text-teal-400" />
-                <span>5. Sort Order:</span>
-              </label>
-              <select
-                value={sortBy}
-                onChange={(e) => setSortBy(e.target.value as any)}
-                className="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl px-2.5 py-2 text-xs md:text-sm text-slate-900 dark:text-slate-100 font-medium focus:outline-none focus:ring-2 focus:ring-teal-500 cursor-pointer shadow-sm"
-              >
-                <option value="newest">🔥 Newest First (Last 1 Month)</option>
-                <option value="salary">💰 Highest Salary</option>
-                <option value="fresher">🎯 Fresher Friendly (0–1 Yrs)</option>
-              </select>
-            </div>
-          </div>
-
-          {/* Bottom Row: Category Filter Pills */}
-          <div className="flex flex-col gap-2 pt-2.5">
-            {Object.entries(FILTER_CONFIG).map(([category, options]) => (
-              <div key={category} className="flex items-center gap-3 overflow-x-auto pb-1 scrollbar-hide">
-                <span className="text-xs font-bold text-slate-500 uppercase tracking-wider whitespace-nowrap min-w-[75px]">
-                  {category}
-                </span>
-                <div className="flex gap-1.5">
-                  {options.map((option) => {
-                    const isActive = activeFilters[category] === option;
-                    return (
-                      <button
-                        key={option}
-                        onClick={() => toggleFilter(category, option)}
-                        className={`px-3 py-1 text-xs md:text-sm font-medium rounded-full whitespace-nowrap transition-all border ${
-                          isActive
-                            ? "bg-teal-600 border-teal-600 text-white shadow-sm scale-105"
-                            : "bg-slate-100/80 border-slate-200 text-slate-700 hover:bg-slate-200/80 dark:bg-slate-900 dark:border-slate-800 dark:text-slate-300 dark:hover:bg-slate-800"
-                        }`}
-                      >
-                        {option}
-                      </button>
-                    );
-                  })}
-                </div>
+                  ))}
+                </select>
               </div>
-            ))}
+
+              {/* 2. State / Region */}
+              <div className="relative flex items-center">
+                <Navigation className="w-3.5 h-3.5 text-teal-600 dark:text-teal-400 absolute left-2.5 pointer-events-none" />
+                <select
+                  aria-label="State or Region"
+                  value={selectedState}
+                  disabled={selectedCountry === "All" || selectedCountry === "Remote"}
+                  onChange={(e) => handleStateChange(e.target.value)}
+                  className={`w-full pl-8 pr-7 py-1.5 text-xs md:text-sm font-medium border rounded-lg shadow-2xs transition-colors ${
+                    selectedCountry === "All" || selectedCountry === "Remote"
+                      ? "bg-slate-100/70 dark:bg-slate-900/40 border-slate-200 dark:border-slate-800 text-slate-400 cursor-not-allowed"
+                      : "bg-slate-50 dark:bg-slate-900 border-teal-300 dark:border-teal-700/60 text-slate-800 dark:text-slate-100 cursor-pointer ring-1 ring-teal-500/20 hover:border-teal-400"
+                  }`}
+                >
+                  {selectedCountry === "All" ? (
+                    <option value="All">← Pick Country First</option>
+                  ) : (
+                    (availableStates || []).filter(s => Boolean(s?.value)).map(s => (
+                      <option key={s.value} value={s.value}>
+                        {s.label}
+                      </option>
+                    ))
+                  )}
+                </select>
+              </div>
+
+              {/* 3. City */}
+              <div className="relative flex items-center">
+                <MapPin className="w-3.5 h-3.5 text-teal-600 dark:text-teal-400 absolute left-2.5 pointer-events-none" />
+                <select
+                  aria-label="City"
+                  value={selectedCity}
+                  disabled={selectedCountry === "All" || selectedCountry === "Remote"}
+                  onChange={(e) => {
+                    setSelectedCity(e.target.value);
+                    setVisibleCount(9);
+                  }}
+                  className={`w-full pl-8 pr-7 py-1.5 text-xs md:text-sm font-medium border rounded-lg shadow-2xs transition-colors ${
+                    selectedCountry === "All" || selectedCountry === "Remote"
+                      ? "bg-slate-100/70 dark:bg-slate-900/40 border-slate-200 dark:border-slate-800 text-slate-400 cursor-not-allowed"
+                      : "bg-slate-50 dark:bg-slate-900 border-teal-300 dark:border-teal-700/60 text-slate-800 dark:text-slate-100 cursor-pointer ring-1 ring-teal-500/20 hover:border-teal-400"
+                  }`}
+                >
+                  {selectedCountry === "All" ? (
+                    <option value="All">← Pick Country First</option>
+                  ) : (
+                    (availableCities || []).filter(c => Boolean(c?.value)).map(c => (
+                      <option key={c.value} value={c.value}>
+                        {c.label}
+                      </option>
+                    ))
+                  )}
+                </select>
+              </div>
+
+              {/* 4. Company */}
+              <div className="relative flex items-center">
+                <Building2 className="w-3.5 h-3.5 text-teal-600 dark:text-teal-400 absolute left-2.5 pointer-events-none" />
+                <select
+                  aria-label="Company"
+                  value={selectedCompany}
+                  onChange={(e) => {
+                    setSelectedCompany(e.target.value);
+                    setVisibleCount(9);
+                  }}
+                  className="w-full pl-8 pr-7 py-1.5 text-xs md:text-sm font-medium bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-lg text-slate-800 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-teal-500 cursor-pointer shadow-2xs hover:border-slate-300 dark:hover:border-slate-700 transition-colors"
+                >
+                  <option value="All">🏢 All Companies</option>
+                  {(availableCompanies || []).map(comp => (
+                    <option key={comp.slug} value={comp.slug}>
+                      {comp.name}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            </div>
+
+            {/* Row 2: Job Type, Batch, Work Mode, Sort Order */}
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+              {/* 5. Job Type Dropdown */}
+              <div className="relative flex items-center">
+                <Briefcase className="w-3.5 h-3.5 text-teal-600 dark:text-teal-400 absolute left-2.5 pointer-events-none" />
+                <select
+                  aria-label="Job Type"
+                  value={activeFilters["Job Type"]}
+                  onChange={(e) => toggleFilter("Job Type", e.target.value)}
+                  className={`w-full pl-8 pr-7 py-1.5 text-xs md:text-sm font-medium border rounded-lg shadow-2xs transition-colors cursor-pointer ${
+                    activeFilters["Job Type"] !== "All"
+                      ? "bg-teal-50 dark:bg-teal-950/40 border-teal-400 dark:border-teal-600 text-teal-900 dark:text-teal-200 font-semibold"
+                      : "bg-slate-50 dark:bg-slate-900 border-slate-200 dark:border-slate-800 text-slate-800 dark:text-slate-100 hover:border-slate-300 dark:hover:border-slate-700"
+                  }`}
+                >
+                  <option value="All">💼 All Job Types</option>
+                  <option value="Full Time">💼 Full Time</option>
+                  <option value="Internship">💼 Internship</option>
+                  <option value="Contract">💼 Contract</option>
+                </select>
+              </div>
+
+              {/* 6. Batch Dropdown */}
+              <div className="relative flex items-center">
+                <GraduationCap className="w-3.5 h-3.5 text-teal-600 dark:text-teal-400 absolute left-2.5 pointer-events-none" />
+                <select
+                  aria-label="Graduation Batch"
+                  value={activeFilters["Batch"]}
+                  onChange={(e) => toggleFilter("Batch", e.target.value)}
+                  className={`w-full pl-8 pr-7 py-1.5 text-xs md:text-sm font-medium border rounded-lg shadow-2xs transition-colors cursor-pointer ${
+                    activeFilters["Batch"] !== "All"
+                      ? "bg-teal-50 dark:bg-teal-950/40 border-teal-400 dark:border-teal-600 text-teal-900 dark:text-teal-200 font-semibold"
+                      : "bg-slate-50 dark:bg-slate-900 border-slate-200 dark:border-slate-800 text-slate-800 dark:text-slate-100 hover:border-slate-300 dark:hover:border-slate-700"
+                  }`}
+                >
+                  <option value="All">🎓 All Batches</option>
+                  <option value="2026">🎓 2026 Batch</option>
+                  <option value="2025">🎓 2025 Batch</option>
+                  <option value="2024">🎓 2024 Batch</option>
+                  <option value="2023">🎓 2023 Batch</option>
+                </select>
+              </div>
+
+              {/* 7. Work Mode Dropdown */}
+              <div className="relative flex items-center">
+                <Laptop className="w-3.5 h-3.5 text-teal-600 dark:text-teal-400 absolute left-2.5 pointer-events-none" />
+                <select
+                  aria-label="Work Mode"
+                  value={activeFilters["Work Mode"]}
+                  onChange={(e) => toggleFilter("Work Mode", e.target.value)}
+                  className={`w-full pl-8 pr-7 py-1.5 text-xs md:text-sm font-medium border rounded-lg shadow-2xs transition-colors cursor-pointer ${
+                    activeFilters["Work Mode"] !== "All"
+                      ? "bg-teal-50 dark:bg-teal-950/40 border-teal-400 dark:border-teal-600 text-teal-900 dark:text-teal-200 font-semibold"
+                      : "bg-slate-50 dark:bg-slate-900 border-slate-200 dark:border-slate-800 text-slate-800 dark:text-slate-100 hover:border-slate-300 dark:hover:border-slate-700"
+                  }`}
+                >
+                  <option value="All">💻 All Work Modes</option>
+                  <option value="Remote">💻 Remote</option>
+                  <option value="Hybrid">💻 Hybrid</option>
+                  <option value="Onsite">🏢 Onsite</option>
+                </select>
+              </div>
+
+              {/* 8. Sort Order Dropdown */}
+              <div className="relative flex items-center">
+                <ArrowUpDown className="w-3.5 h-3.5 text-teal-600 dark:text-teal-400 absolute left-2.5 pointer-events-none" />
+                <select
+                  aria-label="Sort Order"
+                  value={sortBy}
+                  onChange={(e) => setSortBy(e.target.value as any)}
+                  className="w-full pl-8 pr-7 py-1.5 text-xs md:text-sm font-medium bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-lg text-slate-800 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-teal-500 cursor-pointer shadow-2xs hover:border-slate-300 dark:hover:border-slate-700 transition-colors"
+                >
+                  <option value="newest">🔥 Newest First</option>
+                  <option value="salary">💰 Highest Salary</option>
+                  <option value="fresher">🎯 Fresher Friendly (0–1 Yrs)</option>
+                </select>
+              </div>
+            </div>
           </div>
 
-          {/* Active Filter summary & Reset */}
+          {/* Active Filter Summary & Reset Bar */}
           {isFiltered && (
-            <div className="mt-2.5 pt-2 border-t border-slate-100 dark:border-slate-800/80 flex items-center justify-between text-xs flex-wrap gap-2">
-              <span className="text-teal-700 dark:text-teal-400 font-semibold flex items-center gap-1.5 flex-wrap">
-                <span>Showing {filteredAndSortedJobs.length} matching {filteredAndSortedJobs.length === 1 ? "posting" : "postings"}</span>
+            <div className="mt-2 pt-2 border-t border-slate-100 dark:border-slate-800/80 flex items-center justify-between text-xs flex-wrap gap-2">
+              <div className="flex items-center gap-1.5 flex-wrap text-teal-700 dark:text-teal-400 font-medium">
+                <span>Showing <strong>{filteredAndSortedJobs.length}</strong> matching {filteredAndSortedJobs.length === 1 ? "posting" : "postings"}</span>
                 {selectedCountry !== "All" && (
-                  <span className="bg-teal-100 dark:bg-teal-900/40 text-teal-800 dark:text-teal-300 px-2 py-0.5 rounded-full">
-                    {selectedCountry}
+                  <span className="bg-teal-50 dark:bg-teal-900/40 text-teal-800 dark:text-teal-300 px-2 py-0.5 rounded-full border border-teal-200 dark:border-teal-800">
+                    🌍 {selectedCountry}
                   </span>
                 )}
                 {selectedState !== "All" && (
-                  <span className="bg-teal-100 dark:bg-teal-900/40 text-teal-800 dark:text-teal-300 px-2 py-0.5 rounded-full">
-                    State: {selectedState}
+                  <span className="bg-teal-50 dark:bg-teal-900/40 text-teal-800 dark:text-teal-300 px-2 py-0.5 rounded-full border border-teal-200 dark:border-teal-800">
+                    📍 {selectedState}
                   </span>
                 )}
                 {selectedCity !== "All" && (
-                  <span className="bg-teal-100 dark:bg-teal-900/40 text-teal-800 dark:text-teal-300 px-2 py-0.5 rounded-full">
-                    📍 {selectedCity}
+                  <span className="bg-teal-50 dark:bg-teal-900/40 text-teal-800 dark:text-teal-300 px-2 py-0.5 rounded-full border border-teal-200 dark:border-teal-800">
+                    🏙️ {selectedCity}
                   </span>
                 )}
                 {selectedCompany !== "All" && (
-                  <span className="bg-teal-100 dark:bg-teal-900/40 text-teal-800 dark:text-teal-300 px-2 py-0.5 rounded-full">
+                  <span className="bg-teal-50 dark:bg-teal-900/40 text-teal-800 dark:text-teal-300 px-2 py-0.5 rounded-full border border-teal-200 dark:border-teal-800">
                     🏢 {availableCompanies.find(c => c.slug === selectedCompany)?.name || selectedCompany}
                   </span>
                 )}
-              </span>
+                {activeFilters["Job Type"] !== "All" && (
+                  <span className="bg-teal-50 dark:bg-teal-900/40 text-teal-800 dark:text-teal-300 px-2 py-0.5 rounded-full border border-teal-200 dark:border-teal-800">
+                    💼 {activeFilters["Job Type"]}
+                  </span>
+                )}
+                {activeFilters["Batch"] !== "All" && (
+                  <span className="bg-teal-50 dark:bg-teal-900/40 text-teal-800 dark:text-teal-300 px-2 py-0.5 rounded-full border border-teal-200 dark:border-teal-800">
+                    🎓 {activeFilters["Batch"]} Batch
+                  </span>
+                )}
+                {activeFilters["Work Mode"] !== "All" && (
+                  <span className="bg-teal-50 dark:bg-teal-900/40 text-teal-800 dark:text-teal-300 px-2 py-0.5 rounded-full border border-teal-200 dark:border-teal-800">
+                    💻 {activeFilters["Work Mode"]}
+                  </span>
+                )}
+              </div>
               <button
                 onClick={resetFilters}
-                className="flex items-center gap-1 text-red-600 hover:text-red-700 font-semibold transition-colors bg-red-50 dark:bg-red-950/40 px-2.5 py-1 rounded-full border border-red-200 dark:border-red-900/40"
+                className="flex items-center gap-1 text-red-600 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300 font-semibold transition-colors bg-red-50 dark:bg-red-950/40 px-2.5 py-0.5 rounded-full border border-red-200 dark:border-red-900/40 text-xs"
               >
                 <RotateCcw className="w-3 h-3" />
-                Reset All Filters
+                Reset All
               </button>
             </div>
           )}
@@ -674,8 +717,8 @@ export function InteractiveJobFeed({ initialJobs, stats }: InteractiveJobFeedPro
       </div>
 
       {/* Job Feed List */}
-      <section className="py-10 bg-slate-50 dark:bg-slate-950 flex-1">
-        <div className="container mx-auto px-4 max-w-7xl">
+      <section className="py-8 bg-slate-50 dark:bg-slate-950 flex-1">
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-[1440px]">
           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 mb-6">
             <div>
               <h2 className="text-2xl font-bold text-slate-900 dark:text-white flex items-center gap-2">
@@ -688,14 +731,14 @@ export function InteractiveJobFeed({ initialJobs, stats }: InteractiveJobFeedPro
                 Direct official career portal openings verified through company career systems
               </p>
             </div>
-            <div className="text-xs font-semibold text-slate-600 dark:text-slate-300 bg-white dark:bg-slate-900 px-3 py-1.5 rounded-full border border-slate-200 dark:border-slate-800 shadow-sm">
+            <div className="text-xs font-semibold text-slate-600 dark:text-slate-300 bg-white dark:bg-slate-900 px-3 py-1.5 rounded-full border border-slate-200 dark:border-slate-800 shadow-2xs">
               Showing {displayedJobs.length} of {filteredAndSortedJobs.length} postings
             </div>
           </div>
 
           {/* Job Grid or Empty State */}
           {displayedJobs.length > 0 ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 lg:gap-6">
               {displayedJobs.map((job) => (
                 <JobCard key={job.id} job={job} />
               ))}
