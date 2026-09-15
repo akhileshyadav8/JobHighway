@@ -29,6 +29,8 @@ jobs:
       - name: Run Real-Time Job Ingestion from ATS APIs
         env:
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
+          ADZUNA_APP_ID: ${{ secrets.ADZUNA_APP_ID }}
+          ADZUNA_APP_KEY: ${{ secrets.ADZUNA_APP_KEY }}
         run: |
           python backend/scripts/sync_real_production_jobs.py
 
