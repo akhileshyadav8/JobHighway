@@ -4,13 +4,14 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Job } from "@/lib/api";
-import { formatSalary, formatRelativeTime, formatDate, getWorkModeColor, getEmploymentTypeColor } from "@/lib/utils";
+import { formatSalary, formatRelativeTime, formatDate, getWorkModeColor, getEmploymentTypeColor, sanitizeJobSkills } from "@/lib/utils";
 
 interface JobCardProps {
   job: Job;
 }
 
 export function JobCard({ job }: JobCardProps) {
+  const displaySkills = sanitizeJobSkills(job.skills_required, job.title, job.description_text);
   return (
     <Card className="bg-white dark:bg-slate-900/90 border border-slate-200/90 dark:border-slate-800/90 hover:border-teal-400/80 dark:hover:border-teal-600/70 shadow-xs hover:shadow-xl hover:shadow-slate-200/60 dark:hover:shadow-teal-950/20 transition-all duration-200 rounded-2xl flex flex-col h-full overflow-hidden group">
       <CardContent className="p-5 flex-1">
@@ -81,16 +82,16 @@ export function JobCard({ job }: JobCardProps) {
           </div>
         )}
 
-        {job.skills_required && job.skills_required.length > 0 && (
+        {displaySkills && displaySkills.length > 0 && (
           <div className="flex flex-wrap gap-1 mt-auto pt-2 border-t border-slate-100 dark:border-slate-800/60">
-            {job.skills_required.slice(0, 3).map((skill, i) => (
+            {displaySkills.slice(0, 3).map((skill, i) => (
               <span key={i} className="text-xs bg-slate-100 dark:bg-slate-800 px-2 py-0.5 rounded-md text-slate-600 dark:text-slate-300 font-medium">
                 {skill}
               </span>
             ))}
-            {job.skills_required.length > 3 && (
+            {displaySkills.length > 3 && (
               <span className="text-xs bg-slate-100 dark:bg-slate-800 px-1.5 py-0.5 rounded-md text-slate-500 dark:text-slate-400 font-medium">
-                +{job.skills_required.length - 3}
+                +{displaySkills.length - 3}
               </span>
             )}
           </div>

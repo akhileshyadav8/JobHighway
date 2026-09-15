@@ -16,6 +16,7 @@ import { QuickInfo } from "@/components/jobs/QuickInfo";
 import { Card, CardContent } from "@/components/ui/card";
 import { MessageSquare, Users } from "lucide-react";
 import Link from "next/link";
+import { sanitizeJobSkills } from "@/lib/utils";
 
 export const revalidate = 60;
 
@@ -70,20 +71,23 @@ export default async function JobDetailPage({ params }: { params: Promise<{ slug
         <CTABanner job={job} />
 
         {/* Section 6: Skills Required */}
-        {job.skills_required && job.skills_required.length > 0 && (
-          <Card className="mb-6">
-            <CardContent className="p-6">
-              <h2 className="text-lg font-bold flex items-center gap-2 mb-4 uppercase">
-                🛠 SKILLS REQUIRED
-              </h2>
-              <div className="flex flex-wrap gap-2">
-                {job.skills_required.map((skill, i) => (
-                  <SkillBadge key={i} name={skill} index={i} />
-                ))}
-              </div>
-            </CardContent>
-          </Card>
-        )}
+        {(() => {
+          const displaySkills = sanitizeJobSkills(job.skills_required, job.title, job.description_text);
+          return displaySkills && displaySkills.length > 0 ? (
+            <Card className="mb-6">
+              <CardContent className="p-6">
+                <h2 className="text-lg font-bold flex items-center gap-2 mb-4 uppercase">
+                  🛠 SKILLS REQUIRED
+                </h2>
+                <div className="flex flex-wrap gap-2">
+                  {displaySkills.map((skill, i) => (
+                    <SkillBadge key={i} name={skill} index={i} />
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+          ) : null;
+        })()}
 
         {/* Section 7: Interview Experience */}
         <InterviewExperience experience={job.interview_experience} />

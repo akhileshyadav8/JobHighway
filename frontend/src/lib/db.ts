@@ -1,5 +1,6 @@
 import { Pool } from 'pg';
 import { Job, OverviewStats } from './api';
+import { sanitizeJobSkills } from './utils';
 
 let pool: Pool | null = null;
 
@@ -99,7 +100,7 @@ export async function getLiveJobsFromDb(limit: number = 200000): Promise<Job[] |
       min_cgpa: row.min_cgpa ? Number(row.min_cgpa) : null,
       min_percentage: row.min_percentage ? Number(row.min_percentage) : null,
       backlog_allowed: row.backlog_allowed ?? null,
-      skills_required: Array.isArray(row.skills_required) ? row.skills_required : [],
+      skills_required: sanitizeJobSkills(row.skills_required, row.title, row.description_text),
       skills_preferred: Array.isArray(row.skills_preferred) ? row.skills_preferred : null,
       job_url: row.job_url || '#',
       apply_url: row.apply_url || row.job_url || '#',

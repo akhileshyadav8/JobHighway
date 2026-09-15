@@ -105,3 +105,109 @@ export function getRatingColor(rating: string | null): string {
       return "bg-gray-500 text-white";
   }
 }
+
+const DUMMY_SKILL_SETS = new Set([
+  'problem solving,software engineering,system architecture',
+  'agile methodologies,software development,teamwork',
+  'communication,problem solving,professional skills',
+  'communication,software engineering',
+  'engineering,technology',
+]);
+
+export function sanitizeJobSkills(
+  skills: string[] | null | undefined,
+  title: string = "",
+  description: string = ""
+): string[] {
+  const normCurrent = Array.isArray(skills)
+    ? skills.map(s => s.trim().toLowerCase()).filter(Boolean)
+    : [];
+
+  const key = normCurrent.slice().sort().join(',');
+  const isGeneric = normCurrent.length === 0 || DUMMY_SKILL_SETS.has(key);
+
+  if (!isGeneric && normCurrent.length >= 2) {
+    return skills!;
+  }
+
+  const combined = ` ${title} ${description} `.toLowerCase();
+  const detected: string[] = [];
+
+  const check = (regex: RegExp, name: string) => {
+    if (regex.test(combined) && !detected.includes(name)) {
+      detected.push(name);
+    }
+  };
+
+  // Data & Analytics
+  check(/\bpython\b/, 'Python');
+  check(/\b(sql|postgres|postgresql|mysql)\b/, 'SQL');
+  check(/\btableau\b/, 'Tableau');
+  check(/\bpower\s*bi\b/, 'Power BI');
+  check(/\bexcel\b/, 'Excel');
+  check(/\b(data\s+analysis|analytics)\b/, 'Data Analysis');
+  check(/\b(business\s+intelligence|dashboards?)\b/, 'Business Intelligence');
+  check(/\bstatistics\b/, 'Statistics');
+  check(/\b(machine\s+learning|ml)\b/, 'Machine Learning');
+  check(/\b(deep\s+learning|pytorch|tensorflow)\b/, 'PyTorch / ML');
+  check(/\b(spark|pyspark|etl|airflow)\b/, 'ETL & Spark');
+
+  // Engineering & Frontend
+  check(/\b(react|reactjs)\b/, 'React');
+  check(/\btypescript\b/, 'TypeScript');
+  check(/\bjavascript\b/, 'JavaScript');
+  check(/\bnext\.?js\b/, 'Next.js');
+  check(/\b(node\.?js|express)\b/, 'Node.js');
+  check(/\bjava\b(?!script)/, 'Java');
+  check(/\b(c\+\+|cpp)\b/, 'C++');
+  check(/\bc#\b/, 'C#');
+  check(/\b(golang|go)\b/, 'Go');
+  check(/\b(aws|amazon\s+web\s+services)\b/, 'AWS');
+  check(/\b(azure)\b/, 'Azure');
+  check(/\b(docker|kubernetes|k8s)\b/, 'Docker / K8s');
+  check(/\b(ci[/-]cd|terraform)\b/, 'DevOps');
+  check(/\b(rest\s*api|microservices)\b/, 'Microservices');
+
+  // QA, Product & Roles
+  check(/\b(selenium|cypress|playwright|qa)\b/, 'Test Automation');
+  check(/\b(product\s+management|agile|scrum)\b/, 'Product Strategy');
+  check(/\b(figma|ui\/ux)\b/, 'UI/UX Design');
+  check(/\b(cybersecurity|security)\b/, 'Cybersecurity');
+  check(/\b(technical\s+support|troubleshooting)\b/, 'Technical Support');
+
+  // Role fallbacks
+  if (detected.length < 3) {
+    const t = title.toLowerCase();
+    if (/analyst|business\s+intelligence|data\s+analytics/.test(t)) {
+      ['SQL', 'Python', 'Tableau', 'Excel', 'Data Analysis'].forEach(s => {
+        if (!detected.includes(s) && detected.length < 4) detected.push(s);
+      });
+    } else if (/data\s+scientist|machine\s+learning/.test(t)) {
+      ['Python', 'Machine Learning', 'SQL', 'Statistics'].forEach(s => {
+        if (!detected.includes(s) && detected.length < 4) detected.push(s);
+      });
+    } else if (/frontend|react|web\s+developer/.test(t)) {
+      ['React', 'TypeScript', 'JavaScript', 'HTML/CSS'].forEach(s => {
+        if (!detected.includes(s) && detected.length < 4) detected.push(s);
+      });
+    } else if (/backend|api|server/.test(t)) {
+      ['Python', 'Node.js', 'REST APIs', 'SQL', 'Docker'].forEach(s => {
+        if (!detected.includes(s) && detected.length < 4) detected.push(s);
+      });
+    } else if (/devops|sre|cloud|infra/.test(t)) {
+      ['AWS', 'Docker', 'Kubernetes', 'CI/CD', 'Linux'].forEach(s => {
+        if (!detected.includes(s) && detected.length < 4) detected.push(s);
+      });
+    } else if (/support|it\s+support/.test(t)) {
+      ['Technical Support', 'Troubleshooting', 'Linux', 'SQL'].forEach(s => {
+        if (!detected.includes(s) && detected.length < 4) detected.push(s);
+      });
+    } else {
+      ['Software Development', 'Problem Solving', 'Communication'].forEach(s => {
+        if (!detected.includes(s) && detected.length < 3) detected.push(s);
+      });
+    }
+  }
+
+  return detected.slice(0, 5);
+}
