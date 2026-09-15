@@ -19,7 +19,7 @@ function getPool(): Pool | null {
   return pool;
 }
 
-export async function getLiveJobsFromDb(limit: number = 50000): Promise<Job[] | null> {
+export async function getLiveJobsFromDb(limit: number = 200000): Promise<Job[] | null> {
   const p = getPool();
   if (!p) return null;
 
