@@ -6,7 +6,7 @@ export const dynamic = 'force-dynamic';
 
 export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url);
-  const limit = parseInt(searchParams.get('limit') || '300', 10);
+  const limit = parseInt(searchParams.get('limit') || '6000', 10);
   const since = searchParams.get('since');
 
   try {
