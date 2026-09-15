@@ -1,179 +1,1265 @@
 // ISO Standard List of Countries
 export const ALL_WORLD_COUNTRIES = [
-  { label: "🌍 All Countries (Worldwide)", value: "All" },
-  { label: "🌐 Fully Remote (Work From Anywhere)", value: "Remote" },
-  { label: "🇮🇳 India", value: "India" },
-  { label: "🇺🇸 United States", value: "United States" },
-  { label: "🇬🇧 United Kingdom", value: "United Kingdom" },
-  { label: "🇩🇪 Germany", value: "Germany" },
-  { label: "🇨🇦 Canada", value: "Canada" },
-  { label: "🇸🇬 Singapore", value: "Singapore" },
-  { label: "🇦🇺 Australia", value: "Australia" },
-  { label: "🇦🇪 United Arab Emirates", value: "UAE" },
-  { label: "🇳🇱 Netherlands", value: "Netherlands" },
-  { label: "🇮🇪 Ireland", value: "Ireland" },
-  { label: "🇫🇷 France", value: "France" },
-  { label: "🇨🇭 Switzerland", value: "Switzerland" },
-  { label: "🇯🇵 Japan", value: "Japan" },
-  { label: "🇸🇪 Sweden", value: "Sweden" },
-  { label: "🇵🇱 Poland", value: "Poland" },
-  { label: "🇪🇸 Spain", value: "Spain" },
-  { label: "🇮🇹 Italy", value: "Italy" },
-  { label: "🇧🇷 Brazil", value: "Brazil" },
-  { label: "🇲🇽 Mexico", value: "Mexico" },
-  { label: "🇿🇦 South Africa", value: "South Africa" },
-  { label: "🇳🇿 New Zealand", value: "New Zealand" },
-  { label: "🇩🇰 Denmark", value: "Denmark" },
-  { label: "🇳🇴 Norway", value: "Norway" },
-  { label: "🇫🇮 Finland", value: "Finland" },
-  { label: "🇦🇹 Austria", value: "Austria" },
-  { label: "🇧🇪 Belgium", value: "Belgium" },
-  { label: "🇵🇹 Portugal", value: "Portugal" },
-  { label: "🇮🇱 Israel", value: "Israel" },
-  { label: "🇰🇷 South Korea", value: "South Korea" },
-  { label: "🇲🇾 Malaysia", value: "Malaysia" },
-  { label: "🇮🇩 Indonesia", value: "Indonesia" },
-  { label: "🇵🇭 Philippines", value: "Philippines" },
-  { label: "🇹🇭 Thailand", value: "Thailand" },
-  { label: "🇻🇳 Vietnam", value: "Vietnam" },
-  { label: "🇸🇦 Saudi Arabia", value: "Saudi Arabia" },
-  { label: "🇶🇦 Qatar", value: "Qatar" },
-  { label: "🇪🇬 Egypt", value: "Egypt" },
-  { label: "🇳🇬 Nigeria", value: "Nigeria" },
-  { label: "🇰🇪 Kenya", value: "Kenya" },
-  { label: "🇦🇷 Argentina", value: "Argentina" },
-  { label: "🇨🇱 Chile", value: "Chile" },
-  { label: "🇨🇴 Colombia", value: "Colombia" },
-  { label: "🇨🇿 Czech Republic", value: "Czech Republic" },
-  { label: "🇷🇴 Romania", value: "Romania" },
-  { label: "🇭🇺 Hungary", value: "Hungary" },
-  { label: "🇬🇷 Greece", value: "Greece" },
-  { label: "🇹🇷 Turkey", value: "Turkey" },
-  { label: "🇺🇦 Ukraine", value: "Ukraine" },
-  { label: "🇵🇰 Pakistan", value: "Pakistan" },
-  { label: "🇧🇩 Bangladesh", value: "Bangladesh" },
-  { label: "🇱🇰 Sri Lanka", value: "Sri Lanka" },
-  { label: "🇳🇵 Nepal", value: "Nepal" },
-  { label: "🇦🇫 Afghanistan", value: "Afghanistan" },
-  { label: "🇦🇱 Albania", value: "Albania" },
-  { label: "🇩🇿 Algeria", value: "Algeria" },
-  { label: "🇦🇩 Andorra", value: "Andorra" },
-  { label: "🇦🇴 Angola", value: "Angola" },
-  { label: "🇦🇬 Antigua and Barbuda", value: "Antigua and Barbuda" },
-  { label: "🇦🇲 Armenia", value: "Armenia" },
-  { label: "🇦🇿 Azerbaijan", value: "Azerbaijan" },
-  { label: "🇧🇸 Bahamas", value: "Bahamas" },
-  { label: "🇧🇭 Bahrain", value: "Bahrain" },
-  { label: "🇧🇧 Barbados", value: "Barbados" },
-  { label: "🇧🇾 Belarus", value: "Belarus" },
-  { label: "🇧🇿 Belize", value: "Belize" },
-  { label: "🇧🇯 Benin", value: "Benin" },
-  { label: "🇧🇹 Bhutan", value: "Bhutan" },
-  { label: "🇧🇴 Bolivia", value: "Bolivia" },
-  { label: "🇧🇦 Bosnia and Herzegovina", value: "Bosnia and Herzegovina" },
-  { label: "🇧🇼 Botswana", value: "Botswana" },
-  { label: "🇧🇳 Brunei", value: "Brunei" },
-  { label: "🇧🇬 Bulgaria", value: "Bulgaria" },
-  { label: "🇧🇫 Burkina Faso", value: "Burkina Faso" },
-  { label: "🇧🇮 Burundi", value: "Burundi" },
-  { label: "🇰🇭 Cambodia", value: "Cambodia" },
-  { label: "🇨🇲 Cameroon", value: "Cameroon" },
-  { label: "🇨🇻 Cape Verde", value: "Cape Verde" },
-  { label: "🇨🇫 Central African Republic", value: "Central African Republic" },
-  { label: "🇹🇩 Chad", value: "Chad" },
-  { label: "🇨🇳 China", value: "China" },
-  { label: "🇨🇬 Congo", value: "Congo" },
-  { label: "🇨🇷 Costa Rica", value: "Costa Rica" },
-  { label: "🇭🇷 Croatia", value: "Croatia" },
-  { label: "🇨🇺 Cuba", value: "Cuba" },
-  { label: "🇨🇾 Cyprus", value: "Cyprus" },
-  { label: "🇩🇯 Djibouti", value: "Djibouti" },
-  { label: "🇩🇲 Dominica", value: "Dominica" },
-  { label: "🇩🇴 Dominican Republic", value: "Dominican Republic" },
-  { label: "🇪🇨 Ecuador", value: "Ecuador" },
-  { label: "🇸🇻 El Salvador", value: "El Salvador" },
-  { label: "🇬🇶 Equatorial Guinea", value: "Equatorial Guinea" },
-  { label: "🇪🇷 Eritrea", value: "Eritrea" },
-  { label: "🇪🇪 Estonia", value: "Estonia" },
-  { label: "🇪🇹 Ethiopia", value: "Ethiopia" },
-  { label: "🇫🇯 Fiji", value: "Fiji" },
-  { label: "🇬🇦 Gabon", value: "Gabon" },
-  { label: "🇬🇲 Gambia", value: "Gambia" },
-  { label: "🇬🇪 Georgia", value: "Georgia" },
-  { label: "🇬🇭 Ghana", value: "Ghana" },
-  { label: "🇬🇩 Grenada", value: "Grenada" },
-  { label: "🇬🇹 Guatemala", value: "Guatemala" },
-  { label: "🇬🇳 Guinea", value: "Guinea" },
-  { label: "🇬🇾 Guyana", value: "Guyana" },
-  { label: "🇭🇹 Haiti", value: "Haiti" },
-  { label: "🇭🇳 Honduras", value: "Honduras" },
-  { label: "🇭🇰 Hong Kong", value: "Hong Kong" },
-  { label: "🇮🇸 Iceland", value: "Iceland" },
-  { label: "🇮🇷 Iran", value: "Iran" },
-  { label: "🇮🇶 Iraq", value: "Iraq" },
-  { label: "🇯🇲 Jamaica", value: "Jamaica" },
-  { label: "🇯🇴 Jordan", value: "Jordan" },
-  { label: "🇰🇿 Kazakhstan", value: "Kazakhstan" },
-  { label: "🇰🇼 Kuwait", value: "Kuwait" },
-  { label: "🇰🇬 Kyrgyzstan", value: "Kyrgyzstan" },
-  { label: "🇱🇦 Laos", value: "Laos" },
-  { label: "🇱🇻 Latvia", value: "Latvia" },
-  { label: "🇱🇧 Lebanon", value: "Lebanon" },
-  { label: "🇱🇸 Lesotho", value: "Lesotho" },
-  { label: "🇱🇷 Liberia", value: "Liberia" },
-  { label: "🇱🇾 Libya", value: "Libya" },
-  { label: "🇱🇮 Liechtenstein", value: "Liechtenstein" },
-  { label: "🇱🇹 Lithuania", value: "Lithuania" },
-  { label: "🇱🇺 Luxembourg", value: "Luxembourg" },
-  { label: "🇲🇴 Macau", value: "Macau" },
-  { label: "🇲🇬 Madagascar", value: "Madagascar" },
-  { label: "🇲🇼 Malawi", value: "Malawi" },
-  { label: "🇲🇻 Maldives", value: "Maldives" },
-  { label: "🇲🇱 Mali", value: "Mali" },
-  { label: "🇲🇹 Malta", value: "Malta" },
-  { label: "🇲🇷 Mauritania", value: "Mauritania" },
-  { label: "🇲🇺 Mauritius", value: "Mauritius" },
-  { label: "🇲🇩 Moldova", value: "Moldova" },
-  { label: "🇲🇨 Monaco", value: "Monaco" },
-  { label: "🇲🇳 Mongolia", value: "Mongolia" },
-  { label: "🇲🇪 Montenegro", value: "Montenegro" },
-  { label: "🇲🇦 Morocco", value: "Morocco" },
-  { label: "🇲🇿 Mozambique", value: "Mozambique" },
-  { label: "🇲🇲 Myanmar", value: "Myanmar" },
-  { label: "🇳🇦 Namibia", value: "Namibia" },
-  { label: "🇳🇮 Nicaragua", value: "Nicaragua" },
-  { label: "🇳🇪 Niger", value: "Niger" },
-  { label: "🇲🇰 North Macedonia", value: "North Macedonia" },
-  { label: "🇴🇲 Oman", value: "Oman" },
-  { label: "🇵🇦 Panama", value: "Panama" },
-  { label: "🇵🇬 Papua New Guinea", value: "Papua New Guinea" },
-  { label: "🇵🇾 Paraguay", value: "Paraguay" },
-  { label: "🇵🇪 Peru", value: "Peru" },
-  { label: "🇷🇼 Rwanda", value: "Rwanda" },
-  { label: "🇸🇳 Senegal", value: "Senegal" },
-  { label: "🇷🇸 Serbia", value: "Serbia" },
-  { label: "🇸🇨 Seychelles", value: "Seychelles" },
-  { label: "🇸🇱 Sierra Leone", value: "Sierra Leone" },
-  { label: "🇸🇰 Slovakia", value: "Slovakia" },
-  { label: "🇸🇮 Slovenia", value: "Slovenia" },
-  { label: "🇸🇴 Somalia", value: "Somalia" },
-  { label: "🇸🇩 Sudan", value: "Sudan" },
-  { label: "🇸🇾 Syria", value: "Syria" },
-  { label: "🇹🇼 Taiwan", value: "Taiwan" },
-  { label: "🇹🇯 Tajikistan", value: "Tajikistan" },
-  { label: "🇹🇿 Tanzania", value: "Tanzania" },
-  { label: "🇹🇱 Timor-Leste", value: "Timor-Leste" },
-  { label: "🇹🇬 Togo", value: "Togo" },
-  { label: "🇹🇹 Trinidad and Tobago", value: "Trinidad and Tobago" },
-  { label: "🇹🇳 Tunisia", value: "Tunisia" },
-  { label: "🇹🇲 Turkmenistan", value: "Turkmenistan" },
-  { label: "🇺🇬 Uganda", value: "Uganda" },
-  { label: "🇺🇾 Uruguay", value: "Uruguay" },
-  { label: "🇺🇿 Uzbekistan", value: "Uzbekistan" },
-  { label: "🇻🇪 Venezuela", value: "Venezuela" },
-  { label: "🇾🇪 Yemen", value: "Yemen" },
-  { label: "🇿🇲 Zambia", value: "Zambia" },
-  { label: "🇿🇼 Zimbabwe", value: "Zimbabwe" },
+  {
+    "label": "🌍 All Countries (Worldwide)",
+    "value": "All",
+    "code": "All"
+  },
+  {
+    "label": "🌐 Fully Remote (Work From Anywhere)",
+    "value": "Remote",
+    "code": "Remote"
+  },
+  {
+    "label": "🇮🇳 India",
+    "value": "India",
+    "code": "IN"
+  },
+  {
+    "label": "🇺🇸 United States",
+    "value": "United States",
+    "code": "US"
+  },
+  {
+    "label": "🇬🇧 United Kingdom",
+    "value": "United Kingdom",
+    "code": "GB"
+  },
+  {
+    "label": "🇩🇪 Germany",
+    "value": "Germany",
+    "code": "DE"
+  },
+  {
+    "label": "🇨🇦 Canada",
+    "value": "Canada",
+    "code": "CA"
+  },
+  {
+    "label": "🇸🇬 Singapore",
+    "value": "Singapore",
+    "code": "SG"
+  },
+  {
+    "label": "🇦🇺 Australia",
+    "value": "Australia",
+    "code": "AU"
+  },
+  {
+    "label": "🇦🇪 United Arab Emirates",
+    "value": "United Arab Emirates",
+    "code": "AE"
+  },
+  {
+    "label": "🇳🇱 Netherlands",
+    "value": "Netherlands",
+    "code": "NL"
+  },
+  {
+    "label": "🇮🇪 Ireland",
+    "value": "Ireland",
+    "code": "IE"
+  },
+  {
+    "label": "🇫🇷 France",
+    "value": "France",
+    "code": "FR"
+  },
+  {
+    "label": "🇨🇭 Switzerland",
+    "value": "Switzerland",
+    "code": "CH"
+  },
+  {
+    "label": "🇯🇵 Japan",
+    "value": "Japan",
+    "code": "JP"
+  },
+  {
+    "label": "🇸🇪 Sweden",
+    "value": "Sweden",
+    "code": "SE"
+  },
+  {
+    "label": "🇵🇱 Poland",
+    "value": "Poland",
+    "code": "PL"
+  },
+  {
+    "label": "🇪🇸 Spain",
+    "value": "Spain",
+    "code": "ES"
+  },
+  {
+    "label": "🇮🇹 Italy",
+    "value": "Italy",
+    "code": "IT"
+  },
+  {
+    "label": "🇧🇷 Brazil",
+    "value": "Brazil",
+    "code": "BR"
+  },
+  {
+    "label": "🇲🇽 Mexico",
+    "value": "Mexico",
+    "code": "MX"
+  },
+  {
+    "label": "🇿🇦 South Africa",
+    "value": "South Africa",
+    "code": "ZA"
+  },
+  {
+    "label": "🇳🇿 New Zealand",
+    "value": "New Zealand",
+    "code": "NZ"
+  },
+  {
+    "label": "🇩🇰 Denmark",
+    "value": "Denmark",
+    "code": "DK"
+  },
+  {
+    "label": "🇳🇴 Norway",
+    "value": "Norway",
+    "code": "NO"
+  },
+  {
+    "label": "🇫🇮 Finland",
+    "value": "Finland",
+    "code": "FI"
+  },
+  {
+    "label": "🇦🇹 Austria",
+    "value": "Austria",
+    "code": "AT"
+  },
+  {
+    "label": "🇧🇪 Belgium",
+    "value": "Belgium",
+    "code": "BE"
+  },
+  {
+    "label": "🇵🇹 Portugal",
+    "value": "Portugal",
+    "code": "PT"
+  },
+  {
+    "label": "🇮🇱 Israel",
+    "value": "Israel",
+    "code": "IL"
+  },
+  {
+    "label": "🇰🇷 South Korea",
+    "value": "South Korea",
+    "code": "KR"
+  },
+  {
+    "label": "🇲🇾 Malaysia",
+    "value": "Malaysia",
+    "code": "MY"
+  },
+  {
+    "label": "🇮🇩 Indonesia",
+    "value": "Indonesia",
+    "code": "ID"
+  },
+  {
+    "label": "🇵🇭 Philippines",
+    "value": "Philippines",
+    "code": "PH"
+  },
+  {
+    "label": "🇹🇭 Thailand",
+    "value": "Thailand",
+    "code": "TH"
+  },
+  {
+    "label": "🇻🇳 Vietnam",
+    "value": "Vietnam",
+    "code": "VN"
+  },
+  {
+    "label": "🇸🇦 Saudi Arabia",
+    "value": "Saudi Arabia",
+    "code": "SA"
+  },
+  {
+    "label": "🇶🇦 Qatar",
+    "value": "Qatar",
+    "code": "QA"
+  },
+  {
+    "label": "🇪🇬 Egypt",
+    "value": "Egypt",
+    "code": "EG"
+  },
+  {
+    "label": "🇳🇬 Nigeria",
+    "value": "Nigeria",
+    "code": "NG"
+  },
+  {
+    "label": "🇰🇪 Kenya",
+    "value": "Kenya",
+    "code": "KE"
+  },
+  {
+    "label": "🇦🇫 Afghanistan",
+    "value": "Afghanistan",
+    "code": "AF"
+  },
+  {
+    "label": "🇦🇽 Aland Islands",
+    "value": "Aland Islands",
+    "code": "AX"
+  },
+  {
+    "label": "🇦🇱 Albania",
+    "value": "Albania",
+    "code": "AL"
+  },
+  {
+    "label": "🇩🇿 Algeria",
+    "value": "Algeria",
+    "code": "DZ"
+  },
+  {
+    "label": "🇦🇸 American Samoa",
+    "value": "American Samoa",
+    "code": "AS"
+  },
+  {
+    "label": "🇦🇩 Andorra",
+    "value": "Andorra",
+    "code": "AD"
+  },
+  {
+    "label": "🇦🇴 Angola",
+    "value": "Angola",
+    "code": "AO"
+  },
+  {
+    "label": "🇦🇮 Anguilla",
+    "value": "Anguilla",
+    "code": "AI"
+  },
+  {
+    "label": "🇦🇶 Antarctica",
+    "value": "Antarctica",
+    "code": "AQ"
+  },
+  {
+    "label": "🇦🇬 Antigua And Barbuda",
+    "value": "Antigua And Barbuda",
+    "code": "AG"
+  },
+  {
+    "label": "🇦🇷 Argentina",
+    "value": "Argentina",
+    "code": "AR"
+  },
+  {
+    "label": "🇦🇲 Armenia",
+    "value": "Armenia",
+    "code": "AM"
+  },
+  {
+    "label": "🇦🇼 Aruba",
+    "value": "Aruba",
+    "code": "AW"
+  },
+  {
+    "label": "🇦🇿 Azerbaijan",
+    "value": "Azerbaijan",
+    "code": "AZ"
+  },
+  {
+    "label": "🇧🇭 Bahrain",
+    "value": "Bahrain",
+    "code": "BH"
+  },
+  {
+    "label": "🇧🇩 Bangladesh",
+    "value": "Bangladesh",
+    "code": "BD"
+  },
+  {
+    "label": "🇧🇧 Barbados",
+    "value": "Barbados",
+    "code": "BB"
+  },
+  {
+    "label": "🇧🇾 Belarus",
+    "value": "Belarus",
+    "code": "BY"
+  },
+  {
+    "label": "🇧🇿 Belize",
+    "value": "Belize",
+    "code": "BZ"
+  },
+  {
+    "label": "🇧🇯 Benin",
+    "value": "Benin",
+    "code": "BJ"
+  },
+  {
+    "label": "🇧🇲 Bermuda",
+    "value": "Bermuda",
+    "code": "BM"
+  },
+  {
+    "label": "🇧🇹 Bhutan",
+    "value": "Bhutan",
+    "code": "BT"
+  },
+  {
+    "label": "🇧🇴 Bolivia",
+    "value": "Bolivia",
+    "code": "BO"
+  },
+  {
+    "label": "🇧🇶 Bonaire, Sint Eustatius and Saba",
+    "value": "Bonaire, Sint Eustatius and Saba",
+    "code": "BQ"
+  },
+  {
+    "label": "🇧🇦 Bosnia and Herzegovina",
+    "value": "Bosnia and Herzegovina",
+    "code": "BA"
+  },
+  {
+    "label": "🇧🇼 Botswana",
+    "value": "Botswana",
+    "code": "BW"
+  },
+  {
+    "label": "🇧🇻 Bouvet Island",
+    "value": "Bouvet Island",
+    "code": "BV"
+  },
+  {
+    "label": "🇮🇴 British Indian Ocean Territory",
+    "value": "British Indian Ocean Territory",
+    "code": "IO"
+  },
+  {
+    "label": "🇧🇳 Brunei",
+    "value": "Brunei",
+    "code": "BN"
+  },
+  {
+    "label": "🇧🇬 Bulgaria",
+    "value": "Bulgaria",
+    "code": "BG"
+  },
+  {
+    "label": "🇧🇫 Burkina Faso",
+    "value": "Burkina Faso",
+    "code": "BF"
+  },
+  {
+    "label": "🇧🇮 Burundi",
+    "value": "Burundi",
+    "code": "BI"
+  },
+  {
+    "label": "🇰🇭 Cambodia",
+    "value": "Cambodia",
+    "code": "KH"
+  },
+  {
+    "label": "🇨🇲 Cameroon",
+    "value": "Cameroon",
+    "code": "CM"
+  },
+  {
+    "label": "🇨🇻 Cape Verde",
+    "value": "Cape Verde",
+    "code": "CV"
+  },
+  {
+    "label": "🇰🇾 Cayman Islands",
+    "value": "Cayman Islands",
+    "code": "KY"
+  },
+  {
+    "label": "🇨🇫 Central African Republic",
+    "value": "Central African Republic",
+    "code": "CF"
+  },
+  {
+    "label": "🇹🇩 Chad",
+    "value": "Chad",
+    "code": "TD"
+  },
+  {
+    "label": "🇨🇱 Chile",
+    "value": "Chile",
+    "code": "CL"
+  },
+  {
+    "label": "🇨🇳 China",
+    "value": "China",
+    "code": "CN"
+  },
+  {
+    "label": "🇨🇽 Christmas Island",
+    "value": "Christmas Island",
+    "code": "CX"
+  },
+  {
+    "label": "🇨🇨 Cocos (Keeling) Islands",
+    "value": "Cocos (Keeling) Islands",
+    "code": "CC"
+  },
+  {
+    "label": "🇨🇴 Colombia",
+    "value": "Colombia",
+    "code": "CO"
+  },
+  {
+    "label": "🇰🇲 Comoros",
+    "value": "Comoros",
+    "code": "KM"
+  },
+  {
+    "label": "🇨🇬 Congo",
+    "value": "Congo",
+    "code": "CG"
+  },
+  {
+    "label": "🇨🇰 Cook Islands",
+    "value": "Cook Islands",
+    "code": "CK"
+  },
+  {
+    "label": "🇨🇷 Costa Rica",
+    "value": "Costa Rica",
+    "code": "CR"
+  },
+  {
+    "label": "🇨🇮 Cote D'Ivoire (Ivory Coast)",
+    "value": "Cote D'Ivoire (Ivory Coast)",
+    "code": "CI"
+  },
+  {
+    "label": "🇭🇷 Croatia",
+    "value": "Croatia",
+    "code": "HR"
+  },
+  {
+    "label": "🇨🇺 Cuba",
+    "value": "Cuba",
+    "code": "CU"
+  },
+  {
+    "label": "🇨🇼 Curaçao",
+    "value": "Curaçao",
+    "code": "CW"
+  },
+  {
+    "label": "🇨🇾 Cyprus",
+    "value": "Cyprus",
+    "code": "CY"
+  },
+  {
+    "label": "🇨🇿 Czech Republic",
+    "value": "Czech Republic",
+    "code": "CZ"
+  },
+  {
+    "label": "🇨🇩 Democratic Republic of the Congo",
+    "value": "Democratic Republic of the Congo",
+    "code": "CD"
+  },
+  {
+    "label": "🇩🇯 Djibouti",
+    "value": "Djibouti",
+    "code": "DJ"
+  },
+  {
+    "label": "🇩🇲 Dominica",
+    "value": "Dominica",
+    "code": "DM"
+  },
+  {
+    "label": "🇩🇴 Dominican Republic",
+    "value": "Dominican Republic",
+    "code": "DO"
+  },
+  {
+    "label": "🇹🇱 East Timor",
+    "value": "East Timor",
+    "code": "TL"
+  },
+  {
+    "label": "🇪🇨 Ecuador",
+    "value": "Ecuador",
+    "code": "EC"
+  },
+  {
+    "label": "🇸🇻 El Salvador",
+    "value": "El Salvador",
+    "code": "SV"
+  },
+  {
+    "label": "🇬🇶 Equatorial Guinea",
+    "value": "Equatorial Guinea",
+    "code": "GQ"
+  },
+  {
+    "label": "🇪🇷 Eritrea",
+    "value": "Eritrea",
+    "code": "ER"
+  },
+  {
+    "label": "🇪🇪 Estonia",
+    "value": "Estonia",
+    "code": "EE"
+  },
+  {
+    "label": "🇪🇹 Ethiopia",
+    "value": "Ethiopia",
+    "code": "ET"
+  },
+  {
+    "label": "🇫🇰 Falkland Islands",
+    "value": "Falkland Islands",
+    "code": "FK"
+  },
+  {
+    "label": "🇫🇴 Faroe Islands",
+    "value": "Faroe Islands",
+    "code": "FO"
+  },
+  {
+    "label": "🇫🇯 Fiji Islands",
+    "value": "Fiji Islands",
+    "code": "FJ"
+  },
+  {
+    "label": "🇬🇫 French Guiana",
+    "value": "French Guiana",
+    "code": "GF"
+  },
+  {
+    "label": "🇵🇫 French Polynesia",
+    "value": "French Polynesia",
+    "code": "PF"
+  },
+  {
+    "label": "🇹🇫 French Southern Territories",
+    "value": "French Southern Territories",
+    "code": "TF"
+  },
+  {
+    "label": "🇬🇦 Gabon",
+    "value": "Gabon",
+    "code": "GA"
+  },
+  {
+    "label": "🇬🇪 Georgia",
+    "value": "Georgia",
+    "code": "GE"
+  },
+  {
+    "label": "🇬🇭 Ghana",
+    "value": "Ghana",
+    "code": "GH"
+  },
+  {
+    "label": "🇬🇮 Gibraltar",
+    "value": "Gibraltar",
+    "code": "GI"
+  },
+  {
+    "label": "🇬🇷 Greece",
+    "value": "Greece",
+    "code": "GR"
+  },
+  {
+    "label": "🇬🇱 Greenland",
+    "value": "Greenland",
+    "code": "GL"
+  },
+  {
+    "label": "🇬🇩 Grenada",
+    "value": "Grenada",
+    "code": "GD"
+  },
+  {
+    "label": "🇬🇵 Guadeloupe",
+    "value": "Guadeloupe",
+    "code": "GP"
+  },
+  {
+    "label": "🇬🇺 Guam",
+    "value": "Guam",
+    "code": "GU"
+  },
+  {
+    "label": "🇬🇹 Guatemala",
+    "value": "Guatemala",
+    "code": "GT"
+  },
+  {
+    "label": "🇬🇬 Guernsey and Alderney",
+    "value": "Guernsey and Alderney",
+    "code": "GG"
+  },
+  {
+    "label": "🇬🇳 Guinea",
+    "value": "Guinea",
+    "code": "GN"
+  },
+  {
+    "label": "🇬🇼 Guinea-Bissau",
+    "value": "Guinea-Bissau",
+    "code": "GW"
+  },
+  {
+    "label": "🇬🇾 Guyana",
+    "value": "Guyana",
+    "code": "GY"
+  },
+  {
+    "label": "🇭🇹 Haiti",
+    "value": "Haiti",
+    "code": "HT"
+  },
+  {
+    "label": "🇭🇲 Heard Island and McDonald Islands",
+    "value": "Heard Island and McDonald Islands",
+    "code": "HM"
+  },
+  {
+    "label": "🇭🇳 Honduras",
+    "value": "Honduras",
+    "code": "HN"
+  },
+  {
+    "label": "🇭🇰 Hong Kong S.A.R.",
+    "value": "Hong Kong S.A.R.",
+    "code": "HK"
+  },
+  {
+    "label": "🇭🇺 Hungary",
+    "value": "Hungary",
+    "code": "HU"
+  },
+  {
+    "label": "🇮🇸 Iceland",
+    "value": "Iceland",
+    "code": "IS"
+  },
+  {
+    "label": "🇮🇷 Iran",
+    "value": "Iran",
+    "code": "IR"
+  },
+  {
+    "label": "🇮🇶 Iraq",
+    "value": "Iraq",
+    "code": "IQ"
+  },
+  {
+    "label": "🇯🇲 Jamaica",
+    "value": "Jamaica",
+    "code": "JM"
+  },
+  {
+    "label": "🇯🇪 Jersey",
+    "value": "Jersey",
+    "code": "JE"
+  },
+  {
+    "label": "🇯🇴 Jordan",
+    "value": "Jordan",
+    "code": "JO"
+  },
+  {
+    "label": "🇰🇿 Kazakhstan",
+    "value": "Kazakhstan",
+    "code": "KZ"
+  },
+  {
+    "label": "🇰🇮 Kiribati",
+    "value": "Kiribati",
+    "code": "KI"
+  },
+  {
+    "label": "🇽🇰 Kosovo",
+    "value": "Kosovo",
+    "code": "XK"
+  },
+  {
+    "label": "🇰🇼 Kuwait",
+    "value": "Kuwait",
+    "code": "KW"
+  },
+  {
+    "label": "🇰🇬 Kyrgyzstan",
+    "value": "Kyrgyzstan",
+    "code": "KG"
+  },
+  {
+    "label": "🇱🇦 Laos",
+    "value": "Laos",
+    "code": "LA"
+  },
+  {
+    "label": "🇱🇻 Latvia",
+    "value": "Latvia",
+    "code": "LV"
+  },
+  {
+    "label": "🇱🇧 Lebanon",
+    "value": "Lebanon",
+    "code": "LB"
+  },
+  {
+    "label": "🇱🇸 Lesotho",
+    "value": "Lesotho",
+    "code": "LS"
+  },
+  {
+    "label": "🇱🇷 Liberia",
+    "value": "Liberia",
+    "code": "LR"
+  },
+  {
+    "label": "🇱🇾 Libya",
+    "value": "Libya",
+    "code": "LY"
+  },
+  {
+    "label": "🇱🇮 Liechtenstein",
+    "value": "Liechtenstein",
+    "code": "LI"
+  },
+  {
+    "label": "🇱🇹 Lithuania",
+    "value": "Lithuania",
+    "code": "LT"
+  },
+  {
+    "label": "🇱🇺 Luxembourg",
+    "value": "Luxembourg",
+    "code": "LU"
+  },
+  {
+    "label": "🇲🇴 Macau S.A.R.",
+    "value": "Macau S.A.R.",
+    "code": "MO"
+  },
+  {
+    "label": "🇲🇰 Macedonia",
+    "value": "Macedonia",
+    "code": "MK"
+  },
+  {
+    "label": "🇲🇬 Madagascar",
+    "value": "Madagascar",
+    "code": "MG"
+  },
+  {
+    "label": "🇲🇼 Malawi",
+    "value": "Malawi",
+    "code": "MW"
+  },
+  {
+    "label": "🇲🇻 Maldives",
+    "value": "Maldives",
+    "code": "MV"
+  },
+  {
+    "label": "🇲🇱 Mali",
+    "value": "Mali",
+    "code": "ML"
+  },
+  {
+    "label": "🇲🇹 Malta",
+    "value": "Malta",
+    "code": "MT"
+  },
+  {
+    "label": "🇮🇲 Man (Isle of)",
+    "value": "Man (Isle of)",
+    "code": "IM"
+  },
+  {
+    "label": "🇲🇭 Marshall Islands",
+    "value": "Marshall Islands",
+    "code": "MH"
+  },
+  {
+    "label": "🇲🇶 Martinique",
+    "value": "Martinique",
+    "code": "MQ"
+  },
+  {
+    "label": "🇲🇷 Mauritania",
+    "value": "Mauritania",
+    "code": "MR"
+  },
+  {
+    "label": "🇲🇺 Mauritius",
+    "value": "Mauritius",
+    "code": "MU"
+  },
+  {
+    "label": "🇾🇹 Mayotte",
+    "value": "Mayotte",
+    "code": "YT"
+  },
+  {
+    "label": "🇫🇲 Micronesia",
+    "value": "Micronesia",
+    "code": "FM"
+  },
+  {
+    "label": "🇲🇩 Moldova",
+    "value": "Moldova",
+    "code": "MD"
+  },
+  {
+    "label": "🇲🇨 Monaco",
+    "value": "Monaco",
+    "code": "MC"
+  },
+  {
+    "label": "🇲🇳 Mongolia",
+    "value": "Mongolia",
+    "code": "MN"
+  },
+  {
+    "label": "🇲🇪 Montenegro",
+    "value": "Montenegro",
+    "code": "ME"
+  },
+  {
+    "label": "🇲🇸 Montserrat",
+    "value": "Montserrat",
+    "code": "MS"
+  },
+  {
+    "label": "🇲🇦 Morocco",
+    "value": "Morocco",
+    "code": "MA"
+  },
+  {
+    "label": "🇲🇿 Mozambique",
+    "value": "Mozambique",
+    "code": "MZ"
+  },
+  {
+    "label": "🇲🇲 Myanmar",
+    "value": "Myanmar",
+    "code": "MM"
+  },
+  {
+    "label": "🇳🇦 Namibia",
+    "value": "Namibia",
+    "code": "NA"
+  },
+  {
+    "label": "🇳🇷 Nauru",
+    "value": "Nauru",
+    "code": "NR"
+  },
+  {
+    "label": "🇳🇵 Nepal",
+    "value": "Nepal",
+    "code": "NP"
+  },
+  {
+    "label": "🇳🇨 New Caledonia",
+    "value": "New Caledonia",
+    "code": "NC"
+  },
+  {
+    "label": "🇳🇮 Nicaragua",
+    "value": "Nicaragua",
+    "code": "NI"
+  },
+  {
+    "label": "🇳🇪 Niger",
+    "value": "Niger",
+    "code": "NE"
+  },
+  {
+    "label": "🇳🇺 Niue",
+    "value": "Niue",
+    "code": "NU"
+  },
+  {
+    "label": "🇳🇫 Norfolk Island",
+    "value": "Norfolk Island",
+    "code": "NF"
+  },
+  {
+    "label": "🇰🇵 North Korea",
+    "value": "North Korea",
+    "code": "KP"
+  },
+  {
+    "label": "🇲🇵 Northern Mariana Islands",
+    "value": "Northern Mariana Islands",
+    "code": "MP"
+  },
+  {
+    "label": "🇴🇲 Oman",
+    "value": "Oman",
+    "code": "OM"
+  },
+  {
+    "label": "🇵🇰 Pakistan",
+    "value": "Pakistan",
+    "code": "PK"
+  },
+  {
+    "label": "🇵🇼 Palau",
+    "value": "Palau",
+    "code": "PW"
+  },
+  {
+    "label": "🇵🇸 Palestinian Territory Occupied",
+    "value": "Palestinian Territory Occupied",
+    "code": "PS"
+  },
+  {
+    "label": "🇵🇦 Panama",
+    "value": "Panama",
+    "code": "PA"
+  },
+  {
+    "label": "🇵🇬 Papua new Guinea",
+    "value": "Papua new Guinea",
+    "code": "PG"
+  },
+  {
+    "label": "🇵🇾 Paraguay",
+    "value": "Paraguay",
+    "code": "PY"
+  },
+  {
+    "label": "🇵🇪 Peru",
+    "value": "Peru",
+    "code": "PE"
+  },
+  {
+    "label": "🇵🇳 Pitcairn Island",
+    "value": "Pitcairn Island",
+    "code": "PN"
+  },
+  {
+    "label": "🇵🇷 Puerto Rico",
+    "value": "Puerto Rico",
+    "code": "PR"
+  },
+  {
+    "label": "🇷🇪 Reunion",
+    "value": "Reunion",
+    "code": "RE"
+  },
+  {
+    "label": "🇷🇴 Romania",
+    "value": "Romania",
+    "code": "RO"
+  },
+  {
+    "label": "🇷🇺 Russia",
+    "value": "Russia",
+    "code": "RU"
+  },
+  {
+    "label": "🇷🇼 Rwanda",
+    "value": "Rwanda",
+    "code": "RW"
+  },
+  {
+    "label": "🇸🇭 Saint Helena",
+    "value": "Saint Helena",
+    "code": "SH"
+  },
+  {
+    "label": "🇰🇳 Saint Kitts And Nevis",
+    "value": "Saint Kitts And Nevis",
+    "code": "KN"
+  },
+  {
+    "label": "🇱🇨 Saint Lucia",
+    "value": "Saint Lucia",
+    "code": "LC"
+  },
+  {
+    "label": "🇵🇲 Saint Pierre and Miquelon",
+    "value": "Saint Pierre and Miquelon",
+    "code": "PM"
+  },
+  {
+    "label": "🇻🇨 Saint Vincent And The Grenadines",
+    "value": "Saint Vincent And The Grenadines",
+    "code": "VC"
+  },
+  {
+    "label": "🇧🇱 Saint-Barthelemy",
+    "value": "Saint-Barthelemy",
+    "code": "BL"
+  },
+  {
+    "label": "🇲🇫 Saint-Martin (French part)",
+    "value": "Saint-Martin (French part)",
+    "code": "MF"
+  },
+  {
+    "label": "🇼🇸 Samoa",
+    "value": "Samoa",
+    "code": "WS"
+  },
+  {
+    "label": "🇸🇲 San Marino",
+    "value": "San Marino",
+    "code": "SM"
+  },
+  {
+    "label": "🇸🇹 Sao Tome and Principe",
+    "value": "Sao Tome and Principe",
+    "code": "ST"
+  },
+  {
+    "label": "🇸🇳 Senegal",
+    "value": "Senegal",
+    "code": "SN"
+  },
+  {
+    "label": "🇷🇸 Serbia",
+    "value": "Serbia",
+    "code": "RS"
+  },
+  {
+    "label": "🇸🇨 Seychelles",
+    "value": "Seychelles",
+    "code": "SC"
+  },
+  {
+    "label": "🇸🇱 Sierra Leone",
+    "value": "Sierra Leone",
+    "code": "SL"
+  },
+  {
+    "label": "🇸🇽 Sint Maarten (Dutch part)",
+    "value": "Sint Maarten (Dutch part)",
+    "code": "SX"
+  },
+  {
+    "label": "🇸🇰 Slovakia",
+    "value": "Slovakia",
+    "code": "SK"
+  },
+  {
+    "label": "🇸🇮 Slovenia",
+    "value": "Slovenia",
+    "code": "SI"
+  },
+  {
+    "label": "🇸🇧 Solomon Islands",
+    "value": "Solomon Islands",
+    "code": "SB"
+  },
+  {
+    "label": "🇸🇴 Somalia",
+    "value": "Somalia",
+    "code": "SO"
+  },
+  {
+    "label": "🇬🇸 South Georgia",
+    "value": "South Georgia",
+    "code": "GS"
+  },
+  {
+    "label": "🇸🇸 South Sudan",
+    "value": "South Sudan",
+    "code": "SS"
+  },
+  {
+    "label": "🇱🇰 Sri Lanka",
+    "value": "Sri Lanka",
+    "code": "LK"
+  },
+  {
+    "label": "🇸🇩 Sudan",
+    "value": "Sudan",
+    "code": "SD"
+  },
+  {
+    "label": "🇸🇷 Suriname",
+    "value": "Suriname",
+    "code": "SR"
+  },
+  {
+    "label": "🇸🇯 Svalbard And Jan Mayen Islands",
+    "value": "Svalbard And Jan Mayen Islands",
+    "code": "SJ"
+  },
+  {
+    "label": "🇸🇿 Swaziland",
+    "value": "Swaziland",
+    "code": "SZ"
+  },
+  {
+    "label": "🇸🇾 Syria",
+    "value": "Syria",
+    "code": "SY"
+  },
+  {
+    "label": "🇹🇼 Taiwan",
+    "value": "Taiwan",
+    "code": "TW"
+  },
+  {
+    "label": "🇹🇯 Tajikistan",
+    "value": "Tajikistan",
+    "code": "TJ"
+  },
+  {
+    "label": "🇹🇿 Tanzania",
+    "value": "Tanzania",
+    "code": "TZ"
+  },
+  {
+    "label": "🇧🇸 The Bahamas",
+    "value": "The Bahamas",
+    "code": "BS"
+  },
+  {
+    "label": "🇬🇲 The Gambia",
+    "value": "The Gambia",
+    "code": "GM"
+  },
+  {
+    "label": "🇹🇬 Togo",
+    "value": "Togo",
+    "code": "TG"
+  },
+  {
+    "label": "🇹🇰 Tokelau",
+    "value": "Tokelau",
+    "code": "TK"
+  },
+  {
+    "label": "🇹🇴 Tonga",
+    "value": "Tonga",
+    "code": "TO"
+  },
+  {
+    "label": "🇹🇹 Trinidad And Tobago",
+    "value": "Trinidad And Tobago",
+    "code": "TT"
+  },
+  {
+    "label": "🇹🇳 Tunisia",
+    "value": "Tunisia",
+    "code": "TN"
+  },
+  {
+    "label": "🇹🇷 Turkey",
+    "value": "Turkey",
+    "code": "TR"
+  },
+  {
+    "label": "🇹🇲 Turkmenistan",
+    "value": "Turkmenistan",
+    "code": "TM"
+  },
+  {
+    "label": "🇹🇨 Turks And Caicos Islands",
+    "value": "Turks And Caicos Islands",
+    "code": "TC"
+  },
+  {
+    "label": "🇹🇻 Tuvalu",
+    "value": "Tuvalu",
+    "code": "TV"
+  },
+  {
+    "label": "🇺🇬 Uganda",
+    "value": "Uganda",
+    "code": "UG"
+  },
+  {
+    "label": "🇺🇦 Ukraine",
+    "value": "Ukraine",
+    "code": "UA"
+  },
+  {
+    "label": "🇺🇲 United States Minor Outlying Islands",
+    "value": "United States Minor Outlying Islands",
+    "code": "UM"
+  },
+  {
+    "label": "🇺🇾 Uruguay",
+    "value": "Uruguay",
+    "code": "UY"
+  },
+  {
+    "label": "🇺🇿 Uzbekistan",
+    "value": "Uzbekistan",
+    "code": "UZ"
+  },
+  {
+    "label": "🇻🇺 Vanuatu",
+    "value": "Vanuatu",
+    "code": "VU"
+  },
+  {
+    "label": "🇻🇦 Vatican City State (Holy See)",
+    "value": "Vatican City State (Holy See)",
+    "code": "VA"
+  },
+  {
+    "label": "🇻🇪 Venezuela",
+    "value": "Venezuela",
+    "code": "VE"
+  },
+  {
+    "label": "🇻🇬 Virgin Islands (British)",
+    "value": "Virgin Islands (British)",
+    "code": "VG"
+  },
+  {
+    "label": "🇻🇮 Virgin Islands (US)",
+    "value": "Virgin Islands (US)",
+    "code": "VI"
+  },
+  {
+    "label": "🇼🇫 Wallis And Futuna Islands",
+    "value": "Wallis And Futuna Islands",
+    "code": "WF"
+  },
+  {
+    "label": "🇪🇭 Western Sahara",
+    "value": "Western Sahara",
+    "code": "EH"
+  },
+  {
+    "label": "🇾🇪 Yemen",
+    "value": "Yemen",
+    "code": "YE"
+  },
+  {
+    "label": "🇿🇲 Zambia",
+    "value": "Zambia",
+    "code": "ZM"
+  },
+  {
+    "label": "🇿🇼 Zimbabwe",
+    "value": "Zimbabwe",
+    "code": "ZW"
+  }
 ];
 
 // Comprehensive States dictionary per Country

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { Job, OverviewStats } from "@/lib/api";
 import { JobCard } from "@/components/jobs/JobCard";
 import { Search, X, RotateCcw, Sparkles, MapPin, Globe, Building2, ArrowUpDown, Clock, Navigation, Briefcase, GraduationCap, Laptop } from "lucide-react";
@@ -82,7 +82,13 @@ export function InteractiveJobFeed({ initialJobs, stats }: InteractiveJobFeedPro
     return Array.from(map.entries()).map(([slug, name]) => ({ slug, name }));
   }, [initialJobs]);
 
-  // States for selected country
+  // Dynamic States & Cities from server API (covering all 250 countries, 5,000+ states, 150,000+ cities)
+  const [dynamicStates, setDynamicStates] = useState<{ label: string; value: string; code?: string }[]>([]);
+  const [dynamicCities, setDynamicCities] = useState<{ label: string; value: string }[]>([]);
+  const [loadingStates, setLoadingStates] = useState(false);
+  const [loadingCities, setLoadingCities] = useState(false);
+
+  // States for selected country (fallback)
   const availableStates = useMemo(() => {
     if (selectedCountry === "All" || selectedCountry === "Remote") {
       return [];
@@ -96,7 +102,7 @@ export function InteractiveJobFeed({ initialJobs, stats }: InteractiveJobFeedPro
     ];
   }, [selectedCountry]);
 
-  // Cities for selected country and state
+  // Cities for selected country and state (fallback)
   const availableCities = useMemo(() => {
     if (selectedCountry === "All" || selectedCountry === "Remote") {
       return [];
@@ -143,6 +149,77 @@ export function InteractiveJobFeed({ initialJobs, stats }: InteractiveJobFeedPro
 
     return (cities || []).filter(c => Boolean(c && typeof c.label === "string" && typeof c.value === "string"));
   }, [selectedCountry, selectedState, initialJobs]);
+
+  // Fetch all world states dynamically on-demand
+  useEffect(() => {
+    if (selectedCountry === "All" || selectedCountry === "Remote") {
+      setDynamicStates([]);
+      return;
+    }
+
+    let isMounted = true;
+    setLoadingStates(true);
+
+    fetch(`/api/locations/states?country=${encodeURIComponent(selectedCountry)}`)
+      .then(res => res.json())
+      .then((data) => {
+        if (isMounted) {
+          if (Array.isArray(data) && data.length > 0) {
+            setDynamicStates(data);
+          } else {
+            setDynamicStates(availableStates);
+          }
+          setLoadingStates(false);
+        }
+      })
+      .catch((err) => {
+        console.warn("Failed to load states from API:", err);
+        if (isMounted) {
+          setDynamicStates(availableStates);
+          setLoadingStates(false);
+        }
+      });
+
+    return () => {
+      isMounted = false;
+    };
+  }, [selectedCountry, availableStates]);
+
+  // Fetch all world cities dynamically on-demand
+  useEffect(() => {
+    if (selectedCountry === "All" || selectedCountry === "Remote") {
+      setDynamicCities([]);
+      return;
+    }
+
+    let isMounted = true;
+    setLoadingCities(true);
+
+    const stateParam = selectedState !== "All" ? `&state=${encodeURIComponent(selectedState)}` : '';
+    fetch(`/api/locations/cities?country=${encodeURIComponent(selectedCountry)}${stateParam}`)
+      .then(res => res.json())
+      .then((data) => {
+        if (isMounted) {
+          if (Array.isArray(data) && data.length > 0) {
+            setDynamicCities(data);
+          } else {
+            setDynamicCities(availableCities);
+          }
+          setLoadingCities(false);
+        }
+      })
+      .catch((err) => {
+        console.warn("Failed to load cities from API:", err);
+        if (isMounted) {
+          setDynamicCities(availableCities);
+          setLoadingCities(false);
+        }
+      });
+
+    return () => {
+      isMounted = false;
+    };
+  }, [selectedCountry, selectedState, availableCities]);
 
   const handleCountryChange = (country: string) => {
     setSelectedCountry(country);
@@ -512,7 +589,7 @@ export function InteractiveJobFeed({ initialJobs, stats }: InteractiveJobFeedPro
                 <select
                   aria-label="State or Region"
                   value={selectedState}
-                  disabled={selectedCountry === "All" || selectedCountry === "Remote"}
+                  disabled={selectedCountry === "All" || selectedCountry === "Remote" || loadingStates}
                   onChange={(e) => handleStateChange(e.target.value)}
                   className={`w-full pl-8 pr-7 py-1.5 text-xs md:text-sm font-medium border rounded-lg shadow-2xs transition-colors ${
                     selectedCountry === "All" || selectedCountry === "Remote"
@@ -522,9 +599,11 @@ export function InteractiveJobFeed({ initialJobs, stats }: InteractiveJobFeedPro
                 >
                   {selectedCountry === "All" ? (
                     <option value="All">← Pick Country First</option>
+                  ) : loadingStates ? (
+                    <option value="All">⏳ Loading States...</option>
                   ) : (
-                    (availableStates || []).filter(s => Boolean(s?.value)).map(s => (
-                      <option key={s.value} value={s.value}>
+                    (dynamicStates.length > 0 ? dynamicStates : availableStates).filter(s => Boolean(s?.value)).map((s, idx) => (
+                      <option key={`${s.value}-${idx}`} value={s.value}>
                         {s.label}
                       </option>
                     ))
@@ -538,7 +617,7 @@ export function InteractiveJobFeed({ initialJobs, stats }: InteractiveJobFeedPro
                 <select
                   aria-label="City"
                   value={selectedCity}
-                  disabled={selectedCountry === "All" || selectedCountry === "Remote"}
+                  disabled={selectedCountry === "All" || selectedCountry === "Remote" || loadingCities}
                   onChange={(e) => {
                     setSelectedCity(e.target.value);
                     setVisibleCount(9);
@@ -551,9 +630,11 @@ export function InteractiveJobFeed({ initialJobs, stats }: InteractiveJobFeedPro
                 >
                   {selectedCountry === "All" ? (
                     <option value="All">← Pick Country First</option>
+                  ) : loadingCities ? (
+                    <option value="All">⏳ Loading Cities...</option>
                   ) : (
-                    (availableCities || []).filter(c => Boolean(c?.value)).map(c => (
-                      <option key={c.value} value={c.value}>
+                    (dynamicCities.length > 0 ? dynamicCities : availableCities).filter(c => Boolean(c?.value)).map((c, idx) => (
+                      <option key={`${c.value}-${idx}`} value={c.value}>
                         {c.label}
                       </option>
                     ))
