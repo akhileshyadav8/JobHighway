@@ -7,6 +7,7 @@ import { Search, X, RotateCcw, Sparkles, MapPin, Globe, Building2, ArrowUpDown, 
 import { formatRelativeTime } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { ALL_WORLD_COUNTRIES, COUNTRY_STATES, STATE_CITIES } from "@/lib/world_locations";
+import { SearchableSelect } from "@/components/ui/SearchableSelect";
 
 const FILTER_CONFIG = {
   "Job Type": ["All", "Full Time", "Internship", "Contract"],
@@ -81,6 +82,42 @@ export function InteractiveJobFeed({ initialJobs, stats }: InteractiveJobFeedPro
     });
     return Array.from(map.entries()).map(([slug, name]) => ({ slug, name }));
   }, [initialJobs]);
+
+  const companyOptions = useMemo(() => [
+    { label: "🏢 All Companies", value: "All" },
+    ...availableCompanies.map(comp => ({
+      label: `🏢 ${comp.name}`,
+      value: comp.slug
+    }))
+  ], [availableCompanies]);
+
+  const jobTypeOptions = useMemo(() => [
+    { label: "💼 All Job Types", value: "All" },
+    { label: "💼 Full Time", value: "Full Time" },
+    { label: "💼 Internship", value: "Internship" },
+    { label: "💼 Contract", value: "Contract" }
+  ], []);
+
+  const batchOptions = useMemo(() => [
+    { label: "🎓 All Batches", value: "All" },
+    { label: "🎓 2026 Batch", value: "2026" },
+    { label: "🎓 2025 Batch", value: "2025" },
+    { label: "🎓 2024 Batch", value: "2024" },
+    { label: "🎓 2023 Batch", value: "2023" }
+  ], []);
+
+  const workModeOptions = useMemo(() => [
+    { label: "💻 All Work Modes", value: "All" },
+    { label: "💻 Remote", value: "Remote" },
+    { label: "💻 Hybrid", value: "Hybrid" },
+    { label: "🏢 Onsite", value: "Onsite" }
+  ], []);
+
+  const sortOptions = useMemo(() => [
+    { label: "🔥 Newest First", value: "newest" },
+    { label: "💰 Highest Salary", value: "salary" },
+    { label: "🎯 Fresher Friendly (0–1 Yrs)", value: "fresher" }
+  ], []);
 
   // Dynamic States & Cities from server API (covering all 250 countries, 5,000+ states, 150,000+ cities)
   const [dynamicStates, setDynamicStates] = useState<{ label: string; value: string; code?: string }[]>([]);
@@ -567,180 +604,107 @@ export function InteractiveJobFeed({ initialJobs, stats }: InteractiveJobFeedPro
             {/* Row 1: Location & Company Filters */}
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
               {/* 1. Country */}
-              <div className="relative flex items-center">
-                <Globe className="w-3.5 h-3.5 text-teal-600 dark:text-teal-400 absolute left-2.5 pointer-events-none" />
-                <select
-                  aria-label="Country"
-                  value={selectedCountry}
-                  onChange={(e) => handleCountryChange(e.target.value)}
-                  className="w-full pl-8 pr-7 py-1.5 text-xs md:text-sm font-medium bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-lg text-slate-800 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-teal-500 cursor-pointer shadow-2xs hover:border-slate-300 dark:hover:border-slate-700 transition-colors"
-                >
-                  {ALL_WORLD_COUNTRIES.map(c => (
-                    <option key={c.value} value={c.value}>
-                      {c.label}
-                    </option>
-                  ))}
-                </select>
-              </div>
+              <SearchableSelect
+                ariaLabel="Country"
+                icon={<Globe className="w-3.5 h-3.5" />}
+                options={ALL_WORLD_COUNTRIES}
+                value={selectedCountry}
+                onChange={handleCountryChange}
+                placeholder="🌍 All Countries"
+                searchPlaceholder="Search 250+ countries..."
+              />
 
               {/* 2. State / Region */}
-              <div className="relative flex items-center">
-                <Navigation className="w-3.5 h-3.5 text-teal-600 dark:text-teal-400 absolute left-2.5 pointer-events-none" />
-                <select
-                  aria-label="State or Region"
-                  value={selectedState}
-                  disabled={selectedCountry === "All" || selectedCountry === "Remote" || loadingStates}
-                  onChange={(e) => handleStateChange(e.target.value)}
-                  className={`w-full pl-8 pr-7 py-1.5 text-xs md:text-sm font-medium border rounded-lg shadow-2xs transition-colors ${
-                    selectedCountry === "All" || selectedCountry === "Remote"
-                      ? "bg-slate-100/70 dark:bg-slate-900/40 border-slate-200 dark:border-slate-800 text-slate-400 cursor-not-allowed"
-                      : "bg-slate-50 dark:bg-slate-900 border-teal-300 dark:border-teal-700/60 text-slate-800 dark:text-slate-100 cursor-pointer ring-1 ring-teal-500/20 hover:border-teal-400"
-                  }`}
-                >
-                  {selectedCountry === "All" ? (
-                    <option value="All">← Pick Country First</option>
-                  ) : loadingStates ? (
-                    <option value="All">⏳ Loading States...</option>
-                  ) : (
-                    (dynamicStates.length > 0 ? dynamicStates : availableStates).filter(s => Boolean(s?.value)).map((s, idx) => (
-                      <option key={`${s.value}-${idx}`} value={s.value}>
-                        {s.label}
-                      </option>
-                    ))
-                  )}
-                </select>
-              </div>
+              <SearchableSelect
+                ariaLabel="State or Region"
+                icon={<Navigation className="w-3.5 h-3.5" />}
+                options={dynamicStates.length > 0 ? dynamicStates : availableStates}
+                value={selectedState}
+                disabled={selectedCountry === "All" || selectedCountry === "Remote"}
+                loading={loadingStates}
+                loadingText="⏳ Loading States..."
+                onChange={handleStateChange}
+                placeholder={selectedCountry === "All" ? "← Pick Country First" : "📍 All States"}
+                searchPlaceholder="Search states / regions..."
+              />
 
               {/* 3. City */}
-              <div className="relative flex items-center">
-                <MapPin className="w-3.5 h-3.5 text-teal-600 dark:text-teal-400 absolute left-2.5 pointer-events-none" />
-                <select
-                  aria-label="City"
-                  value={selectedCity}
-                  disabled={selectedCountry === "All" || selectedCountry === "Remote" || loadingCities}
-                  onChange={(e) => {
-                    setSelectedCity(e.target.value);
-                    setVisibleCount(9);
-                  }}
-                  className={`w-full pl-8 pr-7 py-1.5 text-xs md:text-sm font-medium border rounded-lg shadow-2xs transition-colors ${
-                    selectedCountry === "All" || selectedCountry === "Remote"
-                      ? "bg-slate-100/70 dark:bg-slate-900/40 border-slate-200 dark:border-slate-800 text-slate-400 cursor-not-allowed"
-                      : "bg-slate-50 dark:bg-slate-900 border-teal-300 dark:border-teal-700/60 text-slate-800 dark:text-slate-100 cursor-pointer ring-1 ring-teal-500/20 hover:border-teal-400"
-                  }`}
-                >
-                  {selectedCountry === "All" ? (
-                    <option value="All">← Pick Country First</option>
-                  ) : loadingCities ? (
-                    <option value="All">⏳ Loading Cities...</option>
-                  ) : (
-                    (dynamicCities.length > 0 ? dynamicCities : availableCities).filter(c => Boolean(c?.value)).map((c, idx) => (
-                      <option key={`${c.value}-${idx}`} value={c.value}>
-                        {c.label}
-                      </option>
-                    ))
-                  )}
-                </select>
-              </div>
+              <SearchableSelect
+                ariaLabel="City"
+                icon={<MapPin className="w-3.5 h-3.5" />}
+                options={dynamicCities.length > 0 ? dynamicCities : availableCities}
+                value={selectedCity}
+                disabled={selectedCountry === "All" || selectedCountry === "Remote"}
+                loading={loadingCities}
+                loadingText="⏳ Loading Cities..."
+                onChange={(val) => {
+                  setSelectedCity(val);
+                  setVisibleCount(9);
+                }}
+                placeholder={selectedCountry === "All" ? "← Pick Country First" : "🏙️ All Cities"}
+                searchPlaceholder="Search cities..."
+              />
 
               {/* 4. Company */}
-              <div className="relative flex items-center">
-                <Building2 className="w-3.5 h-3.5 text-teal-600 dark:text-teal-400 absolute left-2.5 pointer-events-none" />
-                <select
-                  aria-label="Company"
-                  value={selectedCompany}
-                  onChange={(e) => {
-                    setSelectedCompany(e.target.value);
-                    setVisibleCount(9);
-                  }}
-                  className="w-full pl-8 pr-7 py-1.5 text-xs md:text-sm font-medium bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-lg text-slate-800 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-teal-500 cursor-pointer shadow-2xs hover:border-slate-300 dark:hover:border-slate-700 transition-colors"
-                >
-                  <option value="All">🏢 All Companies</option>
-                  {(availableCompanies || []).map(comp => (
-                    <option key={comp.slug} value={comp.slug}>
-                      {comp.name}
-                    </option>
-                  ))}
-                </select>
-              </div>
+              <SearchableSelect
+                ariaLabel="Company"
+                icon={<Building2 className="w-3.5 h-3.5" />}
+                options={companyOptions}
+                value={selectedCompany}
+                onChange={(val) => {
+                  setSelectedCompany(val);
+                  setVisibleCount(9);
+                }}
+                placeholder="🏢 All Companies"
+                searchPlaceholder="Search companies..."
+              />
             </div>
 
             {/* Row 2: Job Type, Batch, Work Mode, Sort Order */}
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
               {/* 5. Job Type Dropdown */}
-              <div className="relative flex items-center">
-                <Briefcase className="w-3.5 h-3.5 text-teal-600 dark:text-teal-400 absolute left-2.5 pointer-events-none" />
-                <select
-                  aria-label="Job Type"
-                  value={activeFilters["Job Type"]}
-                  onChange={(e) => toggleFilter("Job Type", e.target.value)}
-                  className={`w-full pl-8 pr-7 py-1.5 text-xs md:text-sm font-medium border rounded-lg shadow-2xs transition-colors cursor-pointer ${
-                    activeFilters["Job Type"] !== "All"
-                      ? "bg-teal-50 dark:bg-teal-950/40 border-teal-400 dark:border-teal-600 text-teal-900 dark:text-teal-200 font-semibold"
-                      : "bg-slate-50 dark:bg-slate-900 border-slate-200 dark:border-slate-800 text-slate-800 dark:text-slate-100 hover:border-slate-300 dark:hover:border-slate-700"
-                  }`}
-                >
-                  <option value="All">💼 All Job Types</option>
-                  <option value="Full Time">💼 Full Time</option>
-                  <option value="Internship">💼 Internship</option>
-                  <option value="Contract">💼 Contract</option>
-                </select>
-              </div>
+              <SearchableSelect
+                ariaLabel="Job Type"
+                icon={<Briefcase className="w-3.5 h-3.5" />}
+                options={jobTypeOptions}
+                value={activeFilters["Job Type"]}
+                onChange={(val) => toggleFilter("Job Type", val)}
+                placeholder="💼 All Job Types"
+                searchPlaceholder="Search job type..."
+              />
 
               {/* 6. Batch Dropdown */}
-              <div className="relative flex items-center">
-                <GraduationCap className="w-3.5 h-3.5 text-teal-600 dark:text-teal-400 absolute left-2.5 pointer-events-none" />
-                <select
-                  aria-label="Graduation Batch"
-                  value={activeFilters["Batch"]}
-                  onChange={(e) => toggleFilter("Batch", e.target.value)}
-                  className={`w-full pl-8 pr-7 py-1.5 text-xs md:text-sm font-medium border rounded-lg shadow-2xs transition-colors cursor-pointer ${
-                    activeFilters["Batch"] !== "All"
-                      ? "bg-teal-50 dark:bg-teal-950/40 border-teal-400 dark:border-teal-600 text-teal-900 dark:text-teal-200 font-semibold"
-                      : "bg-slate-50 dark:bg-slate-900 border-slate-200 dark:border-slate-800 text-slate-800 dark:text-slate-100 hover:border-slate-300 dark:hover:border-slate-700"
-                  }`}
-                >
-                  <option value="All">🎓 All Batches</option>
-                  <option value="2026">🎓 2026 Batch</option>
-                  <option value="2025">🎓 2025 Batch</option>
-                  <option value="2024">🎓 2024 Batch</option>
-                  <option value="2023">🎓 2023 Batch</option>
-                </select>
-              </div>
+              <SearchableSelect
+                ariaLabel="Graduation Batch"
+                icon={<GraduationCap className="w-3.5 h-3.5" />}
+                options={batchOptions}
+                value={activeFilters["Batch"]}
+                onChange={(val) => toggleFilter("Batch", val)}
+                placeholder="🎓 All Batches"
+                searchPlaceholder="Search batch..."
+              />
 
               {/* 7. Work Mode Dropdown */}
-              <div className="relative flex items-center">
-                <Laptop className="w-3.5 h-3.5 text-teal-600 dark:text-teal-400 absolute left-2.5 pointer-events-none" />
-                <select
-                  aria-label="Work Mode"
-                  value={activeFilters["Work Mode"]}
-                  onChange={(e) => toggleFilter("Work Mode", e.target.value)}
-                  className={`w-full pl-8 pr-7 py-1.5 text-xs md:text-sm font-medium border rounded-lg shadow-2xs transition-colors cursor-pointer ${
-                    activeFilters["Work Mode"] !== "All"
-                      ? "bg-teal-50 dark:bg-teal-950/40 border-teal-400 dark:border-teal-600 text-teal-900 dark:text-teal-200 font-semibold"
-                      : "bg-slate-50 dark:bg-slate-900 border-slate-200 dark:border-slate-800 text-slate-800 dark:text-slate-100 hover:border-slate-300 dark:hover:border-slate-700"
-                  }`}
-                >
-                  <option value="All">💻 All Work Modes</option>
-                  <option value="Remote">💻 Remote</option>
-                  <option value="Hybrid">💻 Hybrid</option>
-                  <option value="Onsite">🏢 Onsite</option>
-                </select>
-              </div>
+              <SearchableSelect
+                ariaLabel="Work Mode"
+                icon={<Laptop className="w-3.5 h-3.5" />}
+                options={workModeOptions}
+                value={activeFilters["Work Mode"]}
+                onChange={(val) => toggleFilter("Work Mode", val)}
+                placeholder="💻 All Work Modes"
+                searchPlaceholder="Search work mode..."
+              />
 
               {/* 8. Sort Order Dropdown */}
-              <div className="relative flex items-center">
-                <ArrowUpDown className="w-3.5 h-3.5 text-teal-600 dark:text-teal-400 absolute left-2.5 pointer-events-none" />
-                <select
-                  aria-label="Sort Order"
-                  value={sortBy}
-                  onChange={(e) => setSortBy(e.target.value as any)}
-                  className="w-full pl-8 pr-7 py-1.5 text-xs md:text-sm font-medium bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-lg text-slate-800 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-teal-500 cursor-pointer shadow-2xs hover:border-slate-300 dark:hover:border-slate-700 transition-colors"
-                >
-                  <option value="newest">🔥 Newest First</option>
-                  <option value="salary">💰 Highest Salary</option>
-                  <option value="fresher">🎯 Fresher Friendly (0–1 Yrs)</option>
-                </select>
-              </div>
+              <SearchableSelect
+                ariaLabel="Sort Order"
+                icon={<ArrowUpDown className="w-3.5 h-3.5" />}
+                options={sortOptions}
+                value={sortBy}
+                onChange={(val) => setSortBy(val as any)}
+                placeholder="🔥 Newest First"
+                searchPlaceholder="Search sort order..."
+              />
             </div>
           </div>
 
