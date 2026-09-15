@@ -82,22 +82,46 @@ export interface OverviewStats {
   last_updated: string;
 }
 
+import { getLiveJobsFromDb, getLiveStatsFromDb } from './db';
+
 export async function getJobs(params?: Record<string, string>): Promise<PaginatedResponse<Job>> {
+  // 1. Try Live Supabase Database directly on server
+  if (typeof window === 'undefined') {
+    try {
+      const liveJobs = await getLiveJobsFromDb(300);
+      if (liveJobs && liveJobs.length > 0) {
+        return {
+          items: liveJobs,
+          total: liveJobs.length,
+          page: 1,
+          page_size: liveJobs.length,
+          total_pages: 1
+        };
+      }
+    } catch (e) {
+      console.warn('Server direct DB query failed, falling back:', e);
+    }
+  }
+
+  // 2. Try API_BASE if configured
   try {
     const query = params ? new URLSearchParams(params).toString() : '';
-    const res = await fetch(`${API_BASE}/jobs${query ? `?${query}` : ''}`, { next: { revalidate: 60 } });
-    if (!res.ok) throw new Error('Failed to fetch jobs');
-    return res.json();
+    const res = await fetch(`${API_BASE}/jobs${query ? `?${query}` : ''}`, { next: { revalidate: 30 } });
+    if (res.ok) {
+      return res.json();
+    }
   } catch (error) {
-    console.warn('API getJobs failed, using mock data');
-    return {
-      items: mockJobs,
-      total: mockJobs.length,
-      page: 1,
-      page_size: 10,
-      total_pages: 1
-    };
+    // ignore and fallback
   }
+
+  // 3. Fallback to mockJobs (real_jobs.json)
+  return {
+    items: mockJobs,
+    total: mockJobs.length,
+    page: 1,
+    page_size: 10,
+    total_pages: 1
+  };
 }
 
 export async function getJobBySlug(slug: string): Promise<Job> {
@@ -174,12 +198,20 @@ export async function getCompanyJobs(slug: string): Promise<PaginatedResponse<Jo
 }
 
 export async function getOverviewStats(): Promise<OverviewStats> {
+  if (typeof window === 'undefined') {
+    try {
+      const liveStats = await getLiveStatsFromDb();
+      if (liveStats) return liveStats;
+    } catch (e) {
+      console.warn('Server direct stats DB query failed:', e);
+    }
+  }
+
   try {
     const res = await fetch(`${API_BASE}/stats/overview`, { next: { revalidate: 60 } });
-    if (!res.ok) throw new Error('Failed to fetch stats');
-    return res.json();
+    if (res.ok) return res.json();
   } catch (error) {
-    console.warn('API getOverviewStats failed, using mock data');
-    return mockStats;
+    // fallback
   }
+  return mockStats;
 }

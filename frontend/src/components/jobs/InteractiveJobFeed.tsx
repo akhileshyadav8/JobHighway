@@ -106,6 +106,8 @@ interface InteractiveJobFeedProps {
 }
 
 export function InteractiveJobFeed({ initialJobs, stats }: InteractiveJobFeedProps) {
+  const [jobsList, setJobsList] = useState<Job[]>(initialJobs);
+  const [incomingJobs, setIncomingJobs] = useState<Job[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCountry, setSelectedCountry] = useState("All");
   const [selectedState, setSelectedState] = useState("All");
@@ -118,16 +120,53 @@ export function InteractiveJobFeed({ initialJobs, stats }: InteractiveJobFeedPro
   });
   const [visibleCount, setVisibleCount] = useState(9);
 
+  // Sync state if initialJobs changes (e.g. server revalidation)
+  useEffect(() => {
+    setJobsList(initialJobs);
+  }, [initialJobs]);
+
+  // Real-time live polling: checks every 30 seconds for newly added jobs in live database
+  useEffect(() => {
+    const poller = setInterval(async () => {
+      try {
+        const res = await fetch('/api/jobs?limit=50');
+        if (res.ok) {
+          const data = await res.json();
+          if (data.items && Array.isArray(data.items)) {
+            const currentSlugs = new Set(jobsList.map(j => j.slug));
+            const newOnes = data.items.filter((j: Job) => !currentSlugs.has(j.slug));
+            if (newOnes.length > 0) {
+              setIncomingJobs(newOnes);
+            }
+          }
+        }
+      } catch (err) {
+        // silent fallback
+      }
+    }, 30000);
+
+    return () => clearInterval(poller);
+  }, [jobsList]);
+
+  const applyIncomingJobs = () => {
+    setJobsList(prev => {
+      const prevSlugs = new Set(prev.map(p => p.slug));
+      const fresh = incomingJobs.filter(j => !prevSlugs.has(j.slug));
+      return [...fresh, ...prev];
+    });
+    setIncomingJobs([]);
+  };
+
   // Available companies in dataset
   const availableCompanies = useMemo(() => {
     const map = new Map<string, string>();
-    initialJobs.forEach(j => {
+    jobsList.forEach(j => {
       if (j.company?.name && j.company?.slug) {
         map.set(j.company.slug, j.company.name);
       }
     });
     return Array.from(map.entries()).map(([slug, name]) => ({ slug, name }));
-  }, [initialJobs]);
+  }, [jobsList]);
 
   const companyOptions = useMemo(() => [
     { label: "🏢 All Companies", value: "All" },
@@ -198,7 +237,7 @@ export function InteractiveJobFeed({ initialJobs, stats }: InteractiveJobFeedPro
     if (!cities || cities.length === 0) {
       const extractedSet = new Set<string>();
       const countryLower = selectedCountry.toLowerCase();
-      (initialJobs || []).forEach(job => {
+      (jobsList || []).forEach(job => {
         if (job.location && Array.isArray(job.location)) {
           job.location.forEach(loc => {
             if (loc.toLowerCase().includes(countryLower)) {
@@ -223,7 +262,7 @@ export function InteractiveJobFeed({ initialJobs, stats }: InteractiveJobFeedPro
     }
 
     return (cities || []).filter(c => Boolean(c && typeof c.label === "string" && typeof c.value === "string"));
-  }, [selectedCountry, selectedState, initialJobs]);
+  }, [selectedCountry, selectedState, jobsList]);
 
   // Fetch all world states dynamically on-demand
   useEffect(() => {
@@ -349,7 +388,7 @@ export function InteractiveJobFeed({ initialJobs, stats }: InteractiveJobFeedPro
     const THIRTY_DAYS_MS = 30 * 24 * 60 * 60 * 1000;
 
     // 1. Filter jobs
-    const filtered = initialJobs.filter(job => {
+    const filtered = jobsList.filter(job => {
       // Recency check: only jobs from last 1 month
       const postTime = new Date(job.posted_at || job.first_seen_at).getTime();
       if ((now - postTime) > THIRTY_DAYS_MS) {
@@ -664,7 +703,7 @@ export function InteractiveJobFeed({ initialJobs, stats }: InteractiveJobFeedPro
       const timeB = new Date(b.posted_at || b.first_seen_at).getTime();
       return timeB - timeA;
     });
-  }, [initialJobs, searchQuery, selectedCountry, selectedState, selectedCity, selectedCompany, sortBy, activeFilters]);
+  }, [jobsList, searchQuery, selectedCountry, selectedState, selectedCity, selectedCompany, sortBy, activeFilters]);
 
   const displayedJobs = filteredAndSortedJobs.slice(0, visibleCount);
 
@@ -895,6 +934,34 @@ export function InteractiveJobFeed({ initialJobs, stats }: InteractiveJobFeedPro
               Showing {displayedJobs.length} of {filteredAndSortedJobs.length} postings
             </div>
           </div>
+
+          {/* Real-Time Live Job Discovery Alert */}
+          {incomingJobs.length > 0 && (
+            <div className="mb-6 p-4 rounded-2xl bg-gradient-to-r from-emerald-500/15 via-teal-500/10 to-cyan-500/15 border border-emerald-500/30 dark:border-emerald-500/40 flex items-center justify-between shadow-lg shadow-emerald-950/10 animate-pulse">
+              <div className="flex items-center gap-3">
+                <span className="relative flex h-3 w-3">
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                  <span className="relative inline-flex rounded-full h-3 w-3 bg-emerald-500"></span>
+                </span>
+                <div>
+                  <h4 className="text-sm font-bold text-emerald-800 dark:text-emerald-300 flex items-center gap-1.5">
+                    <Sparkles className="w-4 h-4 text-emerald-500" />
+                    <span>🔥 {incomingJobs.length} New Live Job{incomingJobs.length > 1 ? 's' : ''} Just Discovered!</span>
+                  </h4>
+                  <p className="text-xs text-emerald-700/80 dark:text-emerald-400/80">
+                    Fresh verified postings detected in real-time. Click to update your feed instantly.
+                  </p>
+                </div>
+              </div>
+              <Button
+                size="sm"
+                onClick={applyIncomingJobs}
+                className="bg-emerald-600 hover:bg-emerald-500 text-white font-semibold text-xs px-4 py-2 h-auto rounded-xl shadow-md shadow-emerald-600/20 transition-all cursor-pointer"
+              >
+                Update Feed Now
+              </Button>
+            </div>
+          )}
 
           {/* Job Grid or Empty State */}
           {displayedJobs.length > 0 ? (
