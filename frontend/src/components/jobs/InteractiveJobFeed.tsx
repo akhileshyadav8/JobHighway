@@ -710,36 +710,39 @@ export function InteractiveJobFeed({ initialJobs, stats }: InteractiveJobFeedPro
   return (
     <div className="flex flex-col min-h-screen">
       {/* Hero Section */}
-      <section className="bg-gradient-to-br from-slate-900 via-teal-950 to-cyan-900 pt-12 pb-9 px-4 shadow-inner">
-        <div className="container mx-auto text-center max-w-4xl">
-          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-teal-500/10 border border-teal-400/20 text-teal-300 text-xs font-semibold mb-6">
-            <Sparkles className="w-3.5 h-3.5 text-teal-400 animate-spin" style={{ animationDuration: '4s' }} />
+      <section className="relative overflow-hidden bg-gradient-to-b from-white via-slate-50/60 to-slate-100/70 dark:from-slate-950 dark:via-slate-900/80 dark:to-slate-950 pt-14 pb-10 px-4 border-b border-slate-200/80 dark:border-slate-800/80">
+        {/* Subtle background glow effect */}
+        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-7xl h-64 bg-gradient-to-r from-teal-400/10 via-emerald-400/10 to-cyan-400/10 blur-3xl -z-10 pointer-events-none" />
+
+        <div className="container mx-auto text-center max-w-4xl relative z-10">
+          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-teal-50 dark:bg-teal-500/15 border border-teal-500/20 text-teal-700 dark:text-teal-300 text-xs font-semibold mb-6 shadow-2xs">
+            <Sparkles className="w-3.5 h-3.5 text-teal-600 dark:text-teal-400 animate-spin" style={{ animationDuration: '4s' }} />
             <span>Official ATS Job Stream • Directly On Company Portals</span>
           </div>
           
-          <h1 className="text-4xl md:text-5xl lg:text-6xl font-extrabold text-white mb-6 tracking-tight">
+          <h1 className="text-4xl md:text-5xl lg:text-6xl font-extrabold text-slate-900 dark:text-white mb-5 tracking-tight leading-tight">
             Discover Jobs Minutes After They&apos;re Posted
           </h1>
-          <p className="text-base md:text-lg text-teal-100/80 mb-8 max-w-2xl mx-auto leading-relaxed">
+          <p className="text-base md:text-lg text-slate-600 dark:text-slate-400 mb-8 max-w-2xl mx-auto leading-relaxed">
             Real official career portal postings with zero delays. Apply straight on the official company domain without third-party registration.
           </p>
 
           {/* Interactive Search Bar */}
           <div className="relative w-full max-w-2xl mx-auto">
             <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-              <Search className="h-5 w-5 text-teal-500" />
+              <Search className="h-5 w-5 text-teal-600 dark:text-teal-400" />
             </div>
             <input
               type="text"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="Search by role (e.g. SDE, Data Analyst), company, skills, or city..."
-              className="block w-full pl-12 pr-10 py-4 border-0 rounded-2xl bg-white/95 dark:bg-slate-900 text-slate-900 dark:text-white placeholder-slate-400 shadow-2xl focus:ring-4 focus:ring-teal-400/40 outline-none text-base transition-all"
+              className="block w-full pl-12 pr-10 py-3.5 md:py-4 border border-slate-200 dark:border-slate-800 rounded-2xl bg-white dark:bg-slate-900/95 text-slate-900 dark:text-white placeholder-slate-400 shadow-lg shadow-slate-200/40 dark:shadow-2xl focus:border-teal-500 dark:focus:border-teal-400 focus:ring-4 focus:ring-teal-500/15 outline-none text-sm md:text-base transition-all"
             />
             {searchQuery && (
               <button
                 onClick={() => setSearchQuery("")}
-                className="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-400 hover:text-slate-600 dark:hover:text-white transition-colors"
+                className="absolute inset-y-0 right-0 pr-3.5 flex items-center text-slate-400 hover:text-slate-600 dark:hover:text-white transition-colors"
                 title="Clear search"
               >
                 <X className="h-5 w-5" />
@@ -748,19 +751,19 @@ export function InteractiveJobFeed({ initialJobs, stats }: InteractiveJobFeedPro
           </div>
 
           {/* Live Stats & Freshness Indicator */}
-          <div className="mt-8 flex flex-wrap justify-center items-center gap-3 text-xs md:text-sm text-teal-100/70">
-            <span className="flex items-center gap-1.5 bg-white/5 px-3 py-1 rounded-full border border-white/10">
-              <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
-              {stats.total_jobs.toLocaleString()} active jobs monitored
+          <div className="mt-8 flex flex-wrap justify-center items-center gap-2.5 text-xs md:text-sm text-slate-600 dark:text-slate-400">
+            <span className="flex items-center gap-1.5 bg-white dark:bg-slate-900/80 px-3 py-1.5 rounded-full border border-slate-200 dark:border-slate-800 shadow-2xs font-medium">
+              <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+              <strong className="text-slate-900 dark:text-white">{stats.total_jobs.toLocaleString()}</strong> active jobs monitored
             </span>
-            <span>•</span>
-            <span className="bg-white/5 px-3 py-1 rounded-full border border-white/10">
-              {stats.total_companies.toLocaleString()} official portals
+            <span className="text-slate-300 dark:text-slate-700 hidden sm:inline">•</span>
+            <span className="bg-white dark:bg-slate-900/80 px-3 py-1.5 rounded-full border border-slate-200 dark:border-slate-800 shadow-2xs font-medium">
+              <strong className="text-slate-900 dark:text-white">{stats.total_companies.toLocaleString()}</strong> official portals
             </span>
-            <span>•</span>
-            <span className="bg-white/5 px-3 py-1 rounded-full border border-white/10 flex items-center gap-1">
-              <Clock className="w-3.5 h-3.5 text-teal-400" />
-              Last 1 month only • Newest on top
+            <span className="text-slate-300 dark:text-slate-700 hidden sm:inline">•</span>
+            <span className="bg-white dark:bg-slate-900/80 px-3 py-1.5 rounded-full border border-slate-200 dark:border-slate-800 shadow-2xs flex items-center gap-1.5 font-medium">
+              <Clock className="w-3.5 h-3.5 text-teal-600 dark:text-teal-400" />
+              <span>Last 1 month only • Newest on top</span>
             </span>
           </div>
         </div>
@@ -937,18 +940,18 @@ export function InteractiveJobFeed({ initialJobs, stats }: InteractiveJobFeedPro
 
           {/* Real-Time Live Job Discovery Alert */}
           {incomingJobs.length > 0 && (
-            <div className="mb-6 p-4 rounded-2xl bg-gradient-to-r from-emerald-500/15 via-teal-500/10 to-cyan-500/15 border border-emerald-500/30 dark:border-emerald-500/40 flex items-center justify-between shadow-lg shadow-emerald-950/10 animate-pulse">
+            <div className="mb-6 p-4 rounded-2xl bg-emerald-50/90 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-500/40 flex items-center justify-between shadow-sm">
               <div className="flex items-center gap-3">
                 <span className="relative flex h-3 w-3">
                   <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
                   <span className="relative inline-flex rounded-full h-3 w-3 bg-emerald-500"></span>
                 </span>
                 <div>
-                  <h4 className="text-sm font-bold text-emerald-800 dark:text-emerald-300 flex items-center gap-1.5">
-                    <Sparkles className="w-4 h-4 text-emerald-500" />
+                  <h4 className="text-sm font-bold text-emerald-900 dark:text-emerald-300 flex items-center gap-1.5">
+                    <Sparkles className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
                     <span>🔥 {incomingJobs.length} New Live Job{incomingJobs.length > 1 ? 's' : ''} Just Discovered!</span>
                   </h4>
-                  <p className="text-xs text-emerald-700/80 dark:text-emerald-400/80">
+                  <p className="text-xs text-emerald-700/90 dark:text-emerald-400/80">
                     Fresh verified postings detected in real-time. Click to update your feed instantly.
                   </p>
                 </div>
@@ -971,7 +974,7 @@ export function InteractiveJobFeed({ initialJobs, stats }: InteractiveJobFeedPro
               ))}
             </div>
           ) : (
-            <div className="text-center py-20 bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-8 shadow-sm">
+            <div className="text-center py-20 bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-8 shadow-2xs">
               <div className="text-5xl mb-4">📍</div>
               <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-2">
                 No active postings found for this selection
@@ -979,7 +982,7 @@ export function InteractiveJobFeed({ initialJobs, stats }: InteractiveJobFeedPro
               <p className="text-slate-500 max-w-md mx-auto mb-6 text-sm">
                 No openings in &quot;{selectedCity !== 'All' ? selectedCity : selectedState !== 'All' ? selectedState : selectedCountry !== 'All' ? selectedCountry : searchQuery}&quot; within the last 1 month matching your filters.
               </p>
-              <Button onClick={resetFilters} className="bg-teal-600 hover:bg-teal-700 text-white font-semibold">
+              <Button onClick={resetFilters} className="bg-teal-600 hover:bg-teal-700 text-white font-semibold rounded-xl cursor-pointer">
                 <RotateCcw className="w-4 h-4 mr-2" />
                 Reset Filters & Show All
               </Button>
@@ -993,7 +996,7 @@ export function InteractiveJobFeed({ initialJobs, stats }: InteractiveJobFeedPro
                 size="lg"
                 variant="outline"
                 onClick={() => setVisibleCount(prev => prev + 9)}
-                className="min-w-[240px] rounded-xl hover:border-teal-500 hover:text-teal-600 transition-all font-semibold shadow-sm"
+                className="min-w-[240px] rounded-xl bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-100 border border-slate-200 dark:border-slate-800 hover:border-teal-500 hover:text-teal-600 dark:hover:text-teal-400 transition-all font-semibold shadow-2xs cursor-pointer"
               >
                 Load More Opportunities ({filteredAndSortedJobs.length - visibleCount} remaining)
               </Button>
