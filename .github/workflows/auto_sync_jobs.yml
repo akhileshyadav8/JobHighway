@@ -1,4 +1,4 @@
-﻿name: Automatic Real-Time Job Discovery & Sync
+name: Automatic Real-Time Job Discovery & Sync
 
 on:
   schedule:
@@ -14,9 +14,13 @@ jobs:
     permissions:
       contents: write
 
+    timeout-minutes: 30
+
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Set up Python 3.11
         uses: actions/setup-python@v5
@@ -45,5 +49,6 @@ jobs:
             echo "No new JSON file changes to commit."
           else
             git commit -m "chore(sync): auto-sync latest 30-day verified job postings"
-            git push
+            git pull --rebase origin main || true
+            git push origin main || (git pull --rebase origin main && git push origin main)
           fi

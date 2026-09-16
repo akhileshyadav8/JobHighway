@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getArticleBySlug, getAllArticles } from "@/lib/blog_articles";
-import { ArrowLeft, Clock, Calendar, Sparkles, CheckCircle2, Lightbulb, Briefcase, ArrowRight, Share2, Tag, BookOpen } from "lucide-react";
+import { ArrowLeft, Clock, Calendar, Sparkles, CheckCircle2, Lightbulb, Briefcase, ArrowRight, Share2, Tag, BookOpen, ExternalLink } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import type { Metadata } from "next";
@@ -173,6 +173,46 @@ export default async function ArticlePage({ params }: Props) {
             </section>
           ))}
         </main>
+
+        {/* Curated External Resources & Practice Platforms */}
+        {article.resources && article.resources.length > 0 && (
+          <section className="mb-14 bg-white dark:bg-slate-900 rounded-3xl p-8 sm:p-10 border border-teal-200/80 dark:border-teal-900/60 shadow-sm">
+            <div className="flex items-center gap-2 mb-2">
+              <span className="w-2.5 h-2.5 rounded-full bg-teal-500 animate-pulse" />
+              <h3 className="text-xl sm:text-2xl font-bold text-slate-900 dark:text-white">
+                Curated Practice Platforms & External Resources
+              </h3>
+            </div>
+            <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mb-6">
+              Official reference sheets, simulators, and live practice environments to master this playbook.
+            </p>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              {article.resources.map((res, i) => (
+                <a
+                  key={i}
+                  href={res.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="group block p-4 rounded-2xl bg-slate-50 dark:bg-slate-950/60 hover:bg-teal-50/50 dark:hover:bg-teal-950/20 border border-slate-200 dark:border-slate-800 hover:border-teal-300 dark:hover:border-teal-700/60 transition-all hover:shadow-sm"
+                >
+                  <div className="flex items-start justify-between gap-2 mb-2">
+                    <span className="text-[11px] font-bold uppercase tracking-wider text-teal-700 dark:text-teal-300 bg-teal-100/70 dark:bg-teal-950 px-2.5 py-0.5 rounded-full border border-teal-200/50 dark:border-teal-800">
+                      {res.category.replace("_", " ")}
+                    </span>
+                    <ExternalLink className="w-4 h-4 text-slate-400 group-hover:text-teal-600 dark:group-hover:text-teal-400 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
+                  </div>
+                  <h4 className="font-bold text-sm text-slate-900 dark:text-white group-hover:text-teal-600 dark:group-hover:text-teal-400 transition-colors mb-1">
+                    {res.title}
+                  </h4>
+                  <p className="text-xs text-slate-600 dark:text-slate-400 line-clamp-2 leading-relaxed">
+                    {res.description}
+                  </p>
+                </a>
+              ))}
+            </div>
+          </section>
+        )}
 
         {/* Contextual Jobs CTA Banner */}
         {article.relatedJobsQuery && (

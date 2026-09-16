@@ -1,16 +1,105 @@
+"use client";
+
+import { useState, useEffect } from "react";
 import Link from "next/link";
-import { MapPin, Clock, Briefcase, GraduationCap, Building2, Calendar } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { MapPin, Clock, Briefcase, GraduationCap, Building2, Calendar, Bookmark, CheckCircle2 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Job } from "@/lib/api";
 import { formatSalary, formatRelativeTime, formatDate, getWorkModeColor, getEmploymentTypeColor, sanitizeJobSkills } from "@/lib/utils";
+import { getCurrentUser, markJobApplied, isJobApplied, toggleBookmark, isJobBookmarked } from "@/lib/auth";
+import { trackEvent } from "@/lib/telemetry";
 
 interface JobCardProps {
   job: Job;
 }
 
 export function JobCard({ job }: JobCardProps) {
+  const router = useRouter();
+  const [applied, setApplied] = useState(false);
+  const [bookmarked, setBookmarked] = useState(false);
+
+  useEffect(() => {
+    const stringJobId = String(job.id);
+    const user = getCurrentUser();
+    if (user) {
+      setApplied(isJobApplied(user.id, stringJobId));
+      setBookmarked(isJobBookmarked(user.id, stringJobId));
+    }
+    const syncState = () => {
+      const u = getCurrentUser();
+      if (u) {
+        setApplied(isJobApplied(u.id, stringJobId));
+        setBookmarked(isJobBookmarked(u.id, stringJobId));
+      }
+    };
+    window.addEventListener("jobpulse_applications_change", syncState);
+    window.addEventListener("jobpulse_bookmarks_change", syncState);
+    return () => {
+      window.removeEventListener("jobpulse_applications_change", syncState);
+      window.removeEventListener("jobpulse_bookmarks_change", syncState);
+    };
+  }, [job.id]);
+
+  const handleApplyClick = () => {
+    trackEvent("apply_click", {
+      jobId: String(job.id),
+      title: job.title,
+      company: job.company.name
+    });
+    const user = getCurrentUser();
+    if (user) {
+      markJobApplied(user.id, {
+        jobId: String(job.id),
+        title: job.title,
+        company: job.company.name,
+        location: job.location.join(", ") || "Remote",
+        salary: formatSalary(job.salary_min, job.salary_max, job.salary_currency, job.salary_period, true),
+        applyUrl: job.apply_url || ""
+      });
+      setApplied(true);
+    }
+  };
+
+  const handleToggleBookmark = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    const user = getCurrentUser();
+    if (!user) {
+      router.push("/login");
+      return;
+    }
+    const isSaved = toggleBookmark(user.id, {
+      jobId: String(job.id),
+      title: job.title,
+      company: job.company.name,
+      location: job.location.join(", ") || "Remote",
+      salary: formatSalary(job.salary_min, job.salary_max, job.salary_currency, job.salary_period, true),
+      applyUrl: job.apply_url || ""
+    });
+    setBookmarked(isSaved);
+  };
+
+  const handleQuickMarkApplied = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    const user = getCurrentUser();
+    if (!user) {
+      router.push("/login");
+      return;
+    }
+    markJobApplied(user.id, {
+      jobId: String(job.id),
+      title: job.title,
+      company: job.company.name,
+      location: job.location.join(", ") || "Remote",
+      salary: formatSalary(job.salary_min, job.salary_max, job.salary_currency, job.salary_period, true),
+      applyUrl: job.apply_url || ""
+    });
+    setApplied(true);
+  };
   const displaySkills = sanitizeJobSkills(job.skills_required, job.title, job.description_text);
   const handleJobClick = () => {
     if (typeof window !== "undefined") {
@@ -136,7 +225,31 @@ export function JobCard({ job }: JobCardProps) {
           <Clock className="w-3.5 h-3.5 mr-1 text-slate-400" />
           <span suppressHydrationWarning>{formatRelativeTime(job.posted_at || job.first_seen_at)}</span>
         </div>
-        <div className="flex gap-2 shrink-0">
+        <div className="flex items-center gap-1.5 shrink-0">
+          <button
+            onClick={handleToggleBookmark}
+            className={`p-2 rounded-lg border transition-all cursor-pointer ${
+              bookmarked
+                ? "bg-teal-50 dark:bg-teal-950/60 border-teal-300 dark:border-teal-800 text-teal-600 dark:text-teal-400"
+                : "border-slate-200 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200"
+            }`}
+            title={bookmarked ? "Saved in Wishlist" : "Save to Wishlist"}
+          >
+            <Bookmark className={`w-3.5 h-3.5 ${bookmarked ? "fill-current" : ""}`} />
+          </button>
+
+          <button
+            onClick={handleQuickMarkApplied}
+            className={`p-2 rounded-lg border transition-all cursor-pointer ${
+              applied
+                ? "bg-emerald-50 dark:bg-emerald-950/60 border-emerald-300 dark:border-emerald-800 text-emerald-600 dark:text-emerald-400"
+                : "border-slate-200 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-400 hover:text-emerald-600"
+            }`}
+            title={applied ? "Tracked as Applied" : "Mark as Applied in Dashboard"}
+          >
+            <CheckCircle2 className={`w-3.5 h-3.5 ${applied ? "fill-current text-white dark:text-slate-900 bg-emerald-500 rounded-full" : ""}`} />
+          </button>
+
           <Link
             href={`/jobs/${job.slug}`}
             onClick={handleJobClick}
@@ -144,9 +257,11 @@ export function JobCard({ job }: JobCardProps) {
           >
             Details
           </Link>
+
           {job.apply_url && (
             <a
               href={job.apply_url}
+              onClick={handleApplyClick}
               target="_blank"
               rel="noopener noreferrer"
               className="inline-flex items-center justify-center px-3.5 py-2 text-xs font-bold rounded-lg bg-teal-600 hover:bg-teal-500 text-white shadow-xs hover:shadow-md active:scale-95 transition-all cursor-pointer"

@@ -4,13 +4,25 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { usePathname } from 'next/navigation';
-import { Menu, X, Briefcase, Building2, BookOpen, Info, Mail } from 'lucide-react';
+import { Menu, X, Briefcase, Building2, BookOpen, Info, Mail, User as UserIcon, Shield } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { ThemeToggle } from '@/components/ui/ThemeToggle';
+import { getCurrentUser, User } from '@/lib/auth';
 
 export function Navbar() {
   const pathname = usePathname();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [user, setUser] = useState<User | null>(null);
+
+  // Sync auth state
+  useEffect(() => {
+    setUser(getCurrentUser());
+    const handleAuthChange = () => {
+      setUser(getCurrentUser());
+    };
+    window.addEventListener("jobpulse_auth_change", handleAuthChange);
+    return () => window.removeEventListener("jobpulse_auth_change", handleAuthChange);
+  }, []);
 
   // Close mobile menu whenever route changes
   useEffect(() => {
@@ -99,6 +111,46 @@ export function Navbar() {
 
         {/* Actions */}
         <div className="flex items-center gap-2 sm:gap-3">
+          {user ? (
+            <div className="hidden sm:flex items-center gap-2">
+              {user.role === "admin" && (
+                <Link href="/admin">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="text-xs font-bold border-teal-300 dark:border-teal-800 text-teal-700 dark:text-teal-300 rounded-xl hover:bg-teal-50 dark:hover:bg-teal-950/40 cursor-pointer"
+                  >
+                    <Shield className="w-3.5 h-3.5 mr-1" />
+                    Admin
+                  </Button>
+                </Link>
+              )}
+
+              <Link href="/dashboard">
+                <Button
+                  size="sm"
+                  className="text-xs font-bold bg-teal-600 hover:bg-teal-500 text-white rounded-xl shadow-xs cursor-pointer flex items-center gap-2"
+                >
+                  <div className="w-5 h-5 rounded-full bg-teal-700 text-white flex items-center justify-center text-[11px] font-black">
+                    {user.name.charAt(0)}
+                  </div>
+                  <span className="max-w-[110px] truncate">{user.name.split(" ")[0]}</span>
+                </Button>
+              </Link>
+            </div>
+          ) : (
+            <Link href="/login" className="hidden sm:inline-block">
+              <Button
+                variant="outline"
+                size="sm"
+                className="text-xs font-bold rounded-xl border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-200 hover:border-teal-500 hover:text-teal-600 dark:hover:text-teal-400 cursor-pointer"
+              >
+                <UserIcon className="w-3.5 h-3.5 mr-1.5" />
+                Sign In
+              </Button>
+            </Link>
+          )}
+
           <ThemeToggle />
           <Button
             variant="ghost"
@@ -138,6 +190,48 @@ export function Navbar() {
               </Link>
             );
           })}
+
+          <div className="pt-3 mt-3 border-t border-slate-100 dark:border-slate-800/80 space-y-1.5">
+            {user ? (
+              <>
+                <Link
+                  href="/dashboard"
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-bold bg-teal-600 text-white shadow-xs"
+                >
+                  <UserIcon className="w-4 h-4" />
+                  <span>{user.name}&apos;s Dashboard</span>
+                </Link>
+                {user.role === "admin" && (
+                  <Link
+                    href="/admin"
+                    onClick={() => setMobileMenuOpen(false)}
+                    className="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-bold border border-teal-300 dark:border-teal-800 text-teal-700 dark:text-teal-300"
+                  >
+                    <Shield className="w-4 h-4" />
+                    <span>Admin Operations Console</span>
+                  </Link>
+                )}
+              </>
+            ) : (
+              <div className="grid grid-cols-2 gap-2">
+                <Link
+                  href="/login"
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="px-3.5 py-2.5 rounded-xl text-xs font-bold text-center border border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300"
+                >
+                  Sign In
+                </Link>
+                <Link
+                  href="/register"
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="px-3.5 py-2.5 rounded-xl text-xs font-bold text-center bg-teal-600 text-white shadow-xs"
+                >
+                  Create Account
+                </Link>
+              </div>
+            )}
+          </div>
         </div>
       )}
     </header>

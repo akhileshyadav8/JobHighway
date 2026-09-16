@@ -1,7 +1,8 @@
-﻿'use client';
+'use client';
 
 import { useEffect, useState, useRef } from 'react';
 import { usePathname, useSearchParams } from 'next/navigation';
+import { trackEvent } from '@/lib/telemetry';
 
 export function NavigationProgressBar() {
   const pathname = usePathname();
@@ -15,8 +16,9 @@ export function NavigationProgressBar() {
     timersRef.current = [];
   };
 
-  // Complete navigation when route changes
+  // Track pageview and complete navigation when route changes
   useEffect(() => {
+    trackEvent("pageview");
     if (isNavigating) {
       clearAllTimers();
       setProgress(100);

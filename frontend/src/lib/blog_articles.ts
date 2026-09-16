@@ -1,3 +1,10 @@
+export interface BlogResource {
+  title: string;
+  url: string;
+  description: string;
+  category: "practice" | "cheat_sheet" | "documentation" | "tool" | "template";
+}
+
 export interface BlogArticle {
   id: string;
   slug: string;
@@ -13,6 +20,7 @@ export interface BlogArticle {
   tags: string[];
   keyTakeaways: string[];
   relatedJobsQuery?: string;
+  resources?: BlogResource[];
   sections: {
     heading: string;
     content: string[];
@@ -39,6 +47,26 @@ export const BLOG_ARTICLES: BlogArticle[] = [
     summary: "Most candidates apply weeks after a job is published when hundreds of applicants are already in the pipeline. Here is how applying within the first 1 hour via ATS triggers increases shortlisting odds by 5x.",
     tags: ["Off Campus", "Freshers", "Hiring", "Career Strategy"],
     relatedJobsQuery: "Software Engineer",
+    resources: [
+      {
+        title: "Huntr Job Tracker & Application Pipeline",
+        url: "https://www.huntr.co",
+        description: "Visual Kanban board to organize job submissions, interviews, and recruiter follow-ups in one workspace.",
+        category: "tool"
+      },
+      {
+        title: "Levels.fyi Verified Job Board & Compensation",
+        url: "https://www.levels.fyi/jobs",
+        description: "Real-time tech job openings filtered by verified salary bands and company levels.",
+        category: "practice"
+      },
+      {
+        title: "Simplify Copilot for Job Applications",
+        url: "https://simplify.jobs",
+        description: "Browser extension that autofills repetitive ATS application forms across Greenhouse, Lever, and Workday in 1-click.",
+        category: "tool"
+      }
+    ],
     keyTakeaways: [
       "90% of recruiters review applications in chronological batches of 25–50 candidates.",
       "Applying within the first 60 minutes gives you an uncrowded recruiter review window.",
@@ -100,6 +128,32 @@ Best,
     summary: "A comprehensive breakdown of CTEs, Window Functions (ROW_NUMBER, DENSE_RANK), joins, and optimization questions commonly tested in technical assessments.",
     tags: ["SQL", "Data Analyst", "Interview", "PostgreSQL"],
     relatedJobsQuery: "Data Analyst",
+    resources: [
+      {
+        title: "StrataScratch FAANG SQL Interview Platform",
+        url: "https://www.stratascratch.com",
+        description: "Over 600+ real SQL questions asked by Meta, Airbnb, Google, and Amazon with live execution sandboxes.",
+        category: "practice"
+      },
+      {
+        title: "LeetCode Top SQL 50 Study Plan",
+        url: "https://leetcode.com/studyplan/top-sql-50",
+        description: "Curated 50-problem progressive SQL roadmap covering joins, aggregation, CTEs, and window functions.",
+        category: "practice"
+      },
+      {
+        title: "PostgreSQL Official Window Functions Documentation",
+        url: "https://www.postgresql.org/docs/current/tutorial-window.html",
+        description: "Authoritative reference on PARTITION BY, frame clauses, RANK vs DENSE_RANK, and lead/lag functions.",
+        category: "documentation"
+      },
+      {
+        title: "Mode Analytics SQL Interactive Tutorial",
+        url: "https://mode.com/sql-tutorial",
+        description: "Comprehensive hands-on guide from intermediate subqueries to advanced analytics queries.",
+        category: "practice"
+      }
+    ],
     keyTakeaways: [
       "Master DENSE_RANK() vs ROW_NUMBER() for Nth highest salary problems.",
       "Understand why WHERE filters rows before aggregation while HAVING filters after GROUP BY.",
@@ -200,6 +254,26 @@ HAVING COUNT(*) >= 3;`
     summary: "Learn what really happens when your resume enters an Applicant Tracking System. Discover formatting rules, keyword density matching, and common myths.",
     tags: ["ATS", "Resume", "Tech Jobs", "Career Guide"],
     relatedJobsQuery: "Engineer",
+    resources: [
+      {
+        title: "Jobscan ATS Resume Checker",
+        url: "https://www.jobscan.co",
+        description: "Simulates Greenhouse and Taleo parsers to compare your resume against target job description keywords.",
+        category: "tool"
+      },
+      {
+        title: "Ashby Platform Architecture & Ingestion Guide",
+        url: "https://www.ashbyhq.com",
+        description: "Technical deep-dive on modern recruiting pipelines, structured feedback, and candidate stage flows.",
+        category: "documentation"
+      },
+      {
+        title: "Overleaf Deedy / Jake ATS LaTeX Resume Template",
+        url: "https://www.overleaf.com/latex/templates/jakes-resume/syzsqbzwffcs",
+        description: "The gold standard single-column LaTeX resume template engineered for 100% ATS text extraction.",
+        category: "template"
+      }
+    ],
     keyTakeaways: [
       "Modern ATS systems do NOT auto-reject resumes purely based on AI scores — humans still review candidate lists.",
       "Complex multi-column resume templates fail text extraction in 40% of parsing engines.",
@@ -244,6 +318,32 @@ HAVING COUNT(*) >= 3;`
     summary: "A masterclass curriculum for cracking technical rounds at Google, Amazon, Microsoft, and high-paying startups. Master the 12 core algorithmic patterns, the 5-step communication framework, and the curated 75 must-solve problem checklist.",
     tags: ["DSA", "LeetCode", "SDE", "Freshers", "Algorithms", "Interview Prep"],
     relatedJobsQuery: "Software Development Engineer",
+    resources: [
+      {
+        title: "Striver's SDE Sheet & A2Z DSA Course",
+        url: "https://takeuforward.org/strivers-a2z-dsa-course/strivers-a2z-dsa-course-sheet-2",
+        description: "The gold standard 455-problem step-by-step curriculum with video solutions, intuition, and C++/Java/Python implementations.",
+        category: "practice"
+      },
+      {
+        title: "NeetCode 150 Pattern Roadmap",
+        url: "https://neetcode.io/practice",
+        description: "Interactive visual tree and pattern breakdown for the top 150 LeetCode coding interview questions.",
+        category: "practice"
+      },
+      {
+        title: "VisuAlgo - Visualizing Data Structures and Algorithms",
+        url: "https://visualgo.net",
+        description: "Interactive animated visualizations of Trees, Graphs, Sorting, Dynamic Programming, and Heaps.",
+        category: "tool"
+      },
+      {
+        title: "Big-O Cheat Sheet",
+        url: "https://www.bigocheatsheet.com",
+        description: "Quick-reference asymptotic time & space complexity reference for all major algorithms and data structures.",
+        category: "cheat_sheet"
+      }
+    ],
     keyTakeaways: [
       "Mastering 12 core patterns beats grinding 600 random LeetCode questions — product companies test pattern recognition, not memorization.",
       "80% of entry-level coding rounds revolve around Arrays, HashMaps, Two Pointers, Sliding Window, and Binary Search.",
@@ -420,6 +520,26 @@ HAVING COUNT(*) >= 3;`
     summary: "Discover the exact resume structure used by candidates hired at Google, Stripe, and top unicorns. Bullet formulas, metric verification, and design guidelines.",
     tags: ["Resume", "Career", "ATS", "Job Search"],
     relatedJobsQuery: "Frontend Engineer",
+    resources: [
+      {
+        title: "Jake's Resume Overleaf LaTeX Source",
+        url: "https://www.overleaf.com/latex/templates/jakes-resume/syzsqbzwffcs",
+        description: "Official LaTeX source code used by over 100,000 engineers to land interviews at Meta, Google, and Apple.",
+        category: "template"
+      },
+      {
+        title: "Harvard Action Verbs for Strong Resumes",
+        url: "https://careerservices.fas.harvard.edu/blog/2022/10/17/action-verbs-for-resumes/",
+        description: "Curated list of 195+ active leadership and technical impact verbs categorized by project scope.",
+        category: "cheat_sheet"
+      },
+      {
+        title: "ResumeWorded Score & ATS Checker",
+        url: "https://resumeworded.com",
+        description: "Free AI resume evaluation scoring bullet strength, brevity, repetition, and metric quantification.",
+        category: "tool"
+      }
+    ],
     keyTakeaways: [
       "Use Google's 'X-Y-Z' formula for bullet points: Accomplished [X], measured by [Y], by doing [Z].",
       "Keep technical skills organized by category: Languages, Frameworks, Cloud/Databases, Tools.",
@@ -465,6 +585,26 @@ HAVING COUNT(*) >= 3;`
     summary: "FAANG is no longer the only path to top-tier compensation. High-growth fintech, AI infrastructure startups, and global remote companies frequently outpay legacy tech giants.",
     tags: ["High Salary", "Fintech", "Remote Work", "Compensation"],
     relatedJobsQuery: "Full Stack Engineer",
+    resources: [
+      {
+        title: "Levels.fyi Global Compensation Benchmarks",
+        url: "https://www.levels.fyi",
+        description: "Verified salary breakdowns, equity vesting schedules, and level mappings across 1,500+ tech companies.",
+        category: "tool"
+      },
+      {
+        title: "The Pragmatic Engineer Newsletter & Benchmarks",
+        url: "https://newsletter.pragmaticengineer.com",
+        description: "In-depth engineering compensation tiers (Tier 1 local, Tier 2 multinational, Tier 3 global tech) analysis by Gergely Orosz.",
+        category: "documentation"
+      },
+      {
+        title: "Wellfound (formerly AngelList Talent)",
+        url: "https://wellfound.com",
+        description: "Search early-stage and high-growth venture-backed startups with transparent equity and salary ranges.",
+        category: "practice"
+      }
+    ],
     keyTakeaways: [
       "Companies like Stripe, Datadog, Linear, and Canva offer higher base salaries and flexible remote models.",
       "AI Infrastructure and FinTech offer 20-35% salary premiums over traditional enterprise IT.",
@@ -499,6 +639,32 @@ HAVING COUNT(*) >= 3;`
     summary: "Freshers and junior engineers don't need to design YouTube from scratch. Master the core building blocks: Caching (Redis), Load Balancing, Database Indexing, Rate Limiting, and Low-Level Object-Oriented Design.",
     tags: ["System Design", "LLD", "HLD", "Architecture", "Freshers", "Interview Prep"],
     relatedJobsQuery: "Backend Engineer",
+    resources: [
+      {
+        title: "The System Design Primer by Donne Martin",
+        url: "https://github.com/donnemartin/system-design-primer",
+        description: "Over 270,000 stars on GitHub — the definitive open-source guide to designing large-scale distributed systems.",
+        category: "documentation"
+      },
+      {
+        title: "ByteByteGo System Design Newsletter & Courses",
+        url: "https://bytebytego.com",
+        description: "Visual architectural diagrams explaining YouTube, WhatsApp, Stripe, and Discord backend designs by Alex Xu.",
+        category: "practice"
+      },
+      {
+        title: "Redis University & Hands-on Lab",
+        url: "https://university.redis.com",
+        description: "Free official certifications on in-memory caching patterns, Redis data structures, and pub/sub pipelines.",
+        category: "practice"
+      },
+      {
+        title: "Refactoring.Guru Design Patterns Reference",
+        url: "https://refactoring.guru/design-patterns",
+        description: "Visual guides to Creational, Structural, and Behavioral OOP patterns essential for Machine Coding rounds.",
+        category: "cheat_sheet"
+      }
+    ],
     keyTakeaways: [
       "Junior system design interviews focus on trade-offs (Latency vs Consistency) rather than massive cloud complexity.",
       "Understand why a B+ Tree index speeds up WHERE queries but slows down INSERT operations.",
@@ -607,6 +773,26 @@ class CheckoutProcessor {
     summary: "Stop sending 'Sir please refer me' with an attached resume. Discover word-for-word message scripts that have a 45%+ response rate from Engineering Managers and Senior SDEs.",
     tags: ["Referrals", "Networking", "Cold Email", "LinkedIn", "Job Search"],
     relatedJobsQuery: "Software Engineer",
+    resources: [
+      {
+        title: "Apollo.io B2B Lead Intelligence & Email Finder",
+        url: "https://www.apollo.io",
+        description: "Find verified corporate email addresses of Engineering Managers and Talent Partners at target companies.",
+        category: "tool"
+      },
+      {
+        title: "Hunter.io Domain Search & Email Verifier",
+        url: "https://hunter.io",
+        description: "Discover email patterns (e.g. {first}.{last}@company.com) for any tech employer in seconds.",
+        category: "tool"
+      },
+      {
+        title: "Mailmeteor Cold Email Spam Checker",
+        url: "https://mailmeteor.com/spam-checker",
+        description: "Analyze cold outreach subject lines and body copy to ensure your message avoids Gmail spam filters.",
+        category: "tool"
+      }
+    ],
     keyTakeaways: [
       "95% of referral requests get ignored because they create work for the employee instead of removing friction.",
       "Always provide the exact Job ID / Requisition URL, a 1-sentence relevant qualification, and your contact info in the first message.",
@@ -672,6 +858,88 @@ Best regards,
           "2. Starting with 'Dear Sir/Madam' or 'Respected Sir' — tech culture is informal and first-name based.",
           "3. Asking for a referral to a role you don't meet basic requirements for (e.g. asking for SDE-3 when you are a 0-experience fresher).",
           "4. Sending messages on Saturday or Sunday evening when notifications get buried by Monday morning work emails. Best time: Tuesday to Thursday, 9:30 AM to 11:30 AM."
+        ]
+      }
+    ]
+  },
+  {
+    id: "9",
+    slug: "core-cs-fundamentals-os-dbms-networks",
+    title: "Core CS Fundamentals Masterclass: Operating Systems, DBMS & Computer Networks",
+    category: "Tech Guide",
+    readTime: "12 min read",
+    date: "Jul 15, 2026",
+    author: {
+      name: "JobPulse Tech Mentors",
+      role: "Systems & Core CS Panel"
+    },
+    summary: "A high-yield interview refresher on Process vs Thread, Virtual Memory & Paging, ACID Transactions, Indexing internals (B+ Tree vs Hash), TCP 3-Way Handshake, and DNS flow.",
+    tags: ["OS", "DBMS", "Computer Networks", "Concurrency", "Interview Prep"],
+    relatedJobsQuery: "Systems Engineer",
+    resources: [
+      {
+        title: "Gate Smashers Core CS Playlists",
+        url: "https://www.youtube.com/@GateSmashers",
+        description: "India's highest rated video breakdowns on Operating Systems, DBMS, and Networking fundamentals.",
+        category: "practice"
+      },
+      {
+        title: "CMU Database Systems (15-445/645) by Andy Pavlo",
+        url: "https://15445.courses.cs.cmu.edu",
+        description: "World-class lecture notes on buffer pool managers, B+ Trees, concurrency control, and logging engines.",
+        category: "documentation"
+      },
+      {
+        title: "Computer Networks: A Systems Approach",
+        url: "https://book.systemsapproach.org",
+        description: "Open-source comprehensive textbook covering IP routing, TCP congestion control, and modern HTTP/3 protocol stacks.",
+        category: "documentation"
+      },
+      {
+        title: "Operating Systems: Three Easy Pieces (OSTEP)",
+        url: "https://pages.cs.wisc.edu/~remzi/OSTEP/",
+        description: "Free complete textbook explaining Virtualization, Concurrency (Locks, Semaphores), and Persistence.",
+        category: "cheat_sheet"
+      }
+    ],
+    keyTakeaways: [
+      "Process has independent address space; threads share heap and global data but have private stacks.",
+      "Deadlock requires 4 simultaneous conditions: Mutual Exclusion, Hold & Wait, No Preemption, Circular Wait.",
+      "ACID: Atomicity (undo logs), Consistency (constraints), Isolation (locks / MVCC), Durability (WAL write-ahead log).",
+      "TCP guarantees ordered reliable stream via sequence numbers & ACKs; UDP provides low-latency unordered datagrams.",
+      "DNS resolution cascades: Browser Cache -> OS Hosts Cache -> Resolving DNS Server -> Root DNS -> TLD (.com) -> Authoritative Nameserver."
+    ],
+    sections: [
+      {
+        heading: "1. Operating Systems: Process vs Thread & Concurrency",
+        content: [
+          "A Process is an instance of a program in execution with its own virtual memory address space (Text, Data, Heap, Stack). A Thread is the smallest unit of execution inside a process.",
+          "Because threads share memory, context switching between threads within the same process is significantly faster than inter-process context switching (which requires flushing the CPU TLB cache).",
+          "Synchronization Primitives: A Mutex is a locking mechanism (ownership: only the locker can unlock). A Semaphore is a signaling mechanism (counter value allows N concurrent threads)."
+        ],
+        tips: [
+          "Interviewers often ask how to prevent deadlocks: Breaking Circular Wait (ordering lock acquisition) is the most practical industry technique.",
+          "Know the difference between User Level Threads (green threads) and Kernel Level Threads (1:1 OS scheduling)."
+        ]
+      },
+      {
+        heading: "2. DBMS Internals: Why B+ Trees Rule Relational Engines",
+        content: [
+          "Why do PostgreSQL and MySQL InnoDB use B+ Trees instead of Binary Search Trees or Hash Indexes for default primary keys?",
+          "1. Disk Page Alignment: B+ Trees have a high fan-out (order 100+), meaning a tree of height 3 can store millions of records, requiring at most 3 disk I/O operations.",
+          "2. Range Scans: In a B+ Tree, all data records are stored in the leaf nodes, which are linked together in a doubly-linked list. A query like `WHERE age BETWEEN 20 AND 30` only needs one tree traversal to the start leaf, followed by linear pointer traversals.",
+          "Hash indexes offer O(1) point lookups but completely fail on range scans (`> `, `<`, `BETWEEN`)."
+        ]
+      },
+      {
+        heading: "3. Computer Networks: The Journey of a URL in the Browser",
+        content: [
+          "When you type 'https://jobpulse.io/jobs' and hit Enter:",
+          "1. DNS Resolution: Browser checks local cache -> OS cache -> ISP resolver -> Root Server (.) -> TLD (.io) -> Authoritative NS returns IP.",
+          "2. TCP 3-Way Handshake: Client sends SYN -> Server responds SYN-ACK -> Client sends ACK.",
+          "3. TLS 1.3 Handshake: Client Hello -> Server Key Exchange + Certificate -> Symmetric Session Key established (AES-GCM).",
+          "4. HTTP GET Request: Browser transmits HTTP request headers; reverse proxy (Nginx/Cloudflare) terminates SSL and proxies to upstream server.",
+          "5. DOM Rendering: Browser parses HTML, fetches CSS/JS bundles, builds DOM + CSSOM, runs Layout, and Paints pixels."
         ]
       }
     ]

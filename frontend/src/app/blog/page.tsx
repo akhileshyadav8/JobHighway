@@ -11,6 +11,7 @@ const CATEGORIES = ["All", "Career Strategy", "Interview Prep", "Tech Guide", "C
 export default function BlogPage() {
   const [selectedCategory, setSelectedCategory] = useState<string>("All");
   const [searchQuery, setSearchQuery] = useState("");
+  const [visibleCount, setVisibleCount] = useState(6);
 
   const filteredArticles = useMemo(() => {
     return BLOG_ARTICLES.filter((article) => {
@@ -31,6 +32,10 @@ export default function BlogPage() {
       return true;
     });
   }, [selectedCategory, searchQuery]);
+
+  const displayedArticles = useMemo(() => {
+    return filteredArticles.slice(0, visibleCount);
+  }, [filteredArticles, visibleCount]);
 
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-slate-950 py-16">
@@ -117,56 +122,69 @@ export default function BlogPage() {
             </button>
           </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-            {filteredArticles.map((article) => (
-              <Link
-                key={article.id}
-                href={`/blog/${article.slug}`}
-                className="group block h-full focus:outline-none focus:ring-2 focus:ring-teal-500 rounded-3xl"
-              >
-                <Card className="h-full hover:shadow-xl transition-all duration-300 dark:bg-slate-900 border-slate-200 dark:border-slate-800 group-hover:border-teal-400/80 dark:group-hover:border-teal-500/80 group-hover:-translate-y-1 flex flex-col justify-between rounded-3xl">
-                  <CardContent className="p-7 sm:p-8 flex flex-col h-full">
-                    <div>
-                      <div className="flex items-center justify-between text-xs text-slate-500 dark:text-slate-400 mb-4">
-                        <span className="font-bold uppercase tracking-wider text-teal-700 dark:text-teal-300 bg-teal-50 dark:bg-teal-950/60 px-3 py-1 rounded-full border border-teal-200 dark:border-teal-800">
-                          {article.category}
-                        </span>
-                        <span className="flex items-center gap-1">
-                          <Clock className="w-3.5 h-3.5" />
-                          {article.readTime}
-                        </span>
-                      </div>
-
-                      <h2 className="text-xl sm:text-2xl font-bold text-slate-900 dark:text-white group-hover:text-teal-600 dark:group-hover:text-teal-400 transition-colors mb-3 leading-snug">
-                        {article.title}
-                      </h2>
-
-                      <p className="text-sm text-slate-600 dark:text-slate-300 leading-relaxed mb-6 line-clamp-3 font-normal">
-                        {article.summary}
-                      </p>
-                    </div>
-
-                    <div className="pt-4 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between mt-auto flex-wrap gap-2">
-                      <div className="flex gap-1.5 flex-wrap">
-                        {article.tags.slice(0, 3).map((tag) => (
-                          <span
-                            key={tag}
-                            className="text-xs bg-slate-100 dark:bg-slate-800 px-2 py-0.5 rounded text-slate-600 dark:text-slate-300 font-medium"
-                          >
-                            #{tag}
+          <>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+              {displayedArticles.map((article) => (
+                <Link
+                  key={article.id}
+                  href={`/blog/${article.slug}`}
+                  className="group block h-full focus:outline-none focus:ring-2 focus:ring-teal-500 rounded-3xl"
+                >
+                  <Card className="h-full hover:shadow-xl transition-all duration-300 dark:bg-slate-900 border-slate-200 dark:border-slate-800 group-hover:border-teal-400/80 dark:group-hover:border-teal-500/80 group-hover:-translate-y-1 flex flex-col justify-between rounded-3xl">
+                    <CardContent className="p-7 sm:p-8 flex flex-col h-full">
+                      <div>
+                        <div className="flex items-center justify-between text-xs text-slate-500 dark:text-slate-400 mb-4">
+                          <span className="font-bold uppercase tracking-wider text-teal-700 dark:text-teal-300 bg-teal-50 dark:bg-teal-950/60 px-3 py-1 rounded-full border border-teal-200 dark:border-teal-800">
+                            {article.category}
                           </span>
-                        ))}
+                          <span className="flex items-center gap-1">
+                            <Clock className="w-3.5 h-3.5" />
+                            {article.readTime}
+                          </span>
+                        </div>
+
+                        <h2 className="text-xl sm:text-2xl font-bold text-slate-900 dark:text-white group-hover:text-teal-600 dark:group-hover:text-teal-400 transition-colors mb-3 leading-snug">
+                          {article.title}
+                        </h2>
+
+                        <p className="text-sm text-slate-600 dark:text-slate-300 leading-relaxed mb-6 line-clamp-3 font-normal">
+                          {article.summary}
+                        </p>
                       </div>
 
-                      <span className="text-xs font-bold text-teal-600 dark:text-teal-400 inline-flex items-center gap-1.5 group-hover:translate-x-1.5 transition-transform">
-                        Read Guide <ArrowRight className="w-3.5 h-3.5" />
-                      </span>
-                    </div>
-                  </CardContent>
-                </Card>
-              </Link>
-            ))}
-          </div>
+                      <div className="pt-4 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between mt-auto flex-wrap gap-2">
+                        <div className="flex gap-1.5 flex-wrap">
+                          {article.tags.slice(0, 3).map((tag) => (
+                            <span
+                              key={tag}
+                              className="text-xs bg-slate-100 dark:bg-slate-800 px-2 py-0.5 rounded text-slate-600 dark:text-slate-300 font-medium"
+                            >
+                              #{tag}
+                            </span>
+                          ))}
+                        </div>
+
+                        <span className="text-xs font-bold text-teal-600 dark:text-teal-400 inline-flex items-center gap-1.5 group-hover:translate-x-1.5 transition-transform">
+                          Read Guide <ArrowRight className="w-3.5 h-3.5" />
+                        </span>
+                      </div>
+                    </CardContent>
+                  </Card>
+                </Link>
+              ))}
+            </div>
+
+            {visibleCount < filteredArticles.length && (
+              <div className="text-center mt-12">
+                <button
+                  onClick={() => setVisibleCount(prev => prev + 6)}
+                  className="px-8 py-3.5 rounded-full bg-teal-600 hover:bg-teal-700 text-white font-semibold text-sm shadow-md hover:shadow-lg transition-all active:scale-95 inline-flex items-center gap-2"
+                >
+                  Load More Guides ({filteredArticles.length - visibleCount} remaining)
+                </button>
+              </div>
+            )}
+          </>
         )}
       </div>
     </div>
