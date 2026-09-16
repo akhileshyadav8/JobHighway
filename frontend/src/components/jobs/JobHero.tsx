@@ -20,13 +20,26 @@ export function JobHero({ job }: { job: Job }) {
           {job.title}
         </h1>
         
-        <div className="flex flex-wrap gap-3 mb-8">
+        <div className="flex flex-wrap items-center gap-3 mb-8">
           <Badge className="bg-green-500 hover:bg-green-600 text-white border-none text-sm px-3 py-1">
             {job.employment_type}
           </Badge>
           <Badge className="bg-orange-500 hover:bg-orange-600 text-white border-none text-sm px-3 py-1">
             {job.work_mode}
           </Badge>
+          <Badge className="bg-teal-500/30 text-teal-200 border border-teal-400/40 text-sm px-3 py-1 font-semibold">
+            🎓 Batch: {job.eligible_batches && job.eligible_batches.length > 0 ? job.eligible_batches.join(', ') : 'Any Batch'}
+          </Badge>
+          {job.apply_url && (
+            <a
+              href={job.apply_url}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="ml-auto inline-flex items-center justify-center px-5 py-2 text-sm font-bold rounded-xl bg-teal-500 hover:bg-teal-400 text-slate-950 shadow-lg hover:shadow-teal-500/30 transition-all cursor-pointer"
+            >
+              Apply on Company Site ↗
+            </a>
+          )}
         </div>
         
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 pt-6 border-t border-white/10">

@@ -63,12 +63,10 @@ export function JobCard({ job }: JobCardProps) {
           </Badge>
         </div>
 
-        {job.eligible_batches && job.eligible_batches.length > 0 && (
-          <div className="flex items-center gap-1.5 mb-3 text-xs font-medium text-slate-600 dark:text-slate-400 bg-slate-50/80 dark:bg-slate-800/40 px-2.5 py-1 rounded-lg border border-slate-200/60 dark:border-slate-800/60 w-fit">
-            <GraduationCap className="w-3.5 h-3.5 text-teal-600 dark:text-teal-400" />
-            <span>Batch: {job.eligible_batches.join(', ')}</span>
-          </div>
-        )}
+        <div className="flex items-center gap-1.5 mb-3 text-xs font-medium text-slate-600 dark:text-slate-400 bg-slate-50/80 dark:bg-slate-800/40 px-2.5 py-1 rounded-lg border border-slate-200/60 dark:border-slate-800/60 w-fit">
+          <GraduationCap className="w-3.5 h-3.5 text-teal-600 dark:text-teal-400" />
+          <span>Batch: {job.eligible_batches && job.eligible_batches.length > 0 ? job.eligible_batches.join(', ') : 'Any Batch'}</span>
+        </div>
 
         {job.deadline ? (
           <div className="flex items-center gap-1.5 mb-4 text-xs font-semibold text-amber-800 dark:text-amber-300 bg-amber-50 dark:bg-amber-950/40 px-2.5 py-1 rounded-lg border border-amber-200 dark:border-amber-800/60 w-fit">

@@ -340,13 +340,28 @@ def detect_work_mode(title, desc_text, location_str=""):
         return "Hybrid"
     return "In-Office"
 
-def detect_batches(desc_text):
-    if not desc_text:
-        return None
-    matches = re.findall(r'\b(202[0-6])\s*(?:batch|passout|graduat\w*)\b', desc_text, re.IGNORECASE)
+def detect_batches(desc_text, title=""):
+    full = f"{title or ''} {desc_text or ''}".lower()
+    # 1. Check explicit graduation years in description/title
+    matches = re.findall(r'\b(202[0-7])\s*(?:batch|passout|graduat\w*|class)\b', full, re.IGNORECASE)
     if matches:
         return sorted(list(set(matches)))
-    return None
+
+    # Check "class of 202X" or "graduating in 202X"
+    matches_class = re.findall(r'(?:class\s+of|graduating\s+in|batch\s+of)\s*:?\s*(202[0-7])', full, re.IGNORECASE)
+    if matches_class:
+        return sorted(list(set(matches_class)))
+
+    # 2. If it's an internship / fresher / apprentice / new grad / entry level
+    if any(k in full for k in ['intern', 'internship', 'co-op', 'trainee', 'apprentice', 'new grad', 'fresher', 'entry-level', 'entry level', 'graduate program']):
+        return ["2024", "2025", "2026", "2027"]
+
+    # 3. If junior / 1-2 years
+    if any(k in full for k in ['junior', 'associate', 'early career', '0-1 year', '1-2 year']):
+        return ["2022", "2023", "2024"]
+
+    # 4. General / experienced / physical roles
+    return ["Any Batch"]
 
 def extract_intelligent_skills(title, desc_html="", desc_text="", tags=None):
     full_text = ' ' + (title or '') + ' ' + (desc_text or '') + ' ' + html.unescape(desc_html or '')

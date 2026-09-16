@@ -42,14 +42,17 @@ export interface Job {
   jobpulse_rating: string | null;
   rating_reason: string | null;
   view_count: number;
+  official_domain?: string | null;
 }
 
 export interface CompanyBrief {
-  id: number;
+  id?: number | string;
   name: string;
   slug: string;
-  logo_url: string | null;
-  industry: string | null;
+  logo_url?: string | null;
+  industry?: string | null;
+  headquarters?: string | null;
+  website?: string | null;
 }
 
 export interface Company {
@@ -82,7 +85,7 @@ export interface OverviewStats {
   last_updated: string;
 }
 
-import { getLiveJobsFromDb, getLiveStatsFromDb } from './db';
+import { getLiveJobsFromDb, getLiveStatsFromDb, getLiveJobBySlugFromDb } from './db';
 
 export async function getJobs(params?: Record<string, string>): Promise<PaginatedResponse<Job>> {
   // 1. Try Live Supabase Database directly on server
@@ -125,16 +128,28 @@ export async function getJobs(params?: Record<string, string>): Promise<Paginate
 }
 
 export async function getJobBySlug(slug: string): Promise<Job> {
+  // 1. Try Live Supabase Database directly on server
+  if (typeof window === 'undefined') {
+    try {
+      const liveJob = await getLiveJobBySlugFromDb(slug);
+      if (liveJob) return liveJob;
+    } catch (e) {
+      console.warn('Server direct DB getJobBySlug failed:', e);
+    }
+  }
+
+  // 2. Try API_BASE if configured
   try {
     const res = await fetch(`${API_BASE}/jobs/${slug}`, { next: { revalidate: 60 } });
-    if (!res.ok) throw new Error('Failed to fetch job');
-    return res.json();
+    if (res.ok) return res.json();
   } catch (error) {
-    console.warn('API getJobBySlug failed, using mock data');
-    const job = getMockJobBySlug(slug);
-    if (!job) throw new Error('Job not found in mock data either');
-    return job;
+    // fallback
   }
+
+  // 3. Fallback to mock data
+  const job = getMockJobBySlug(slug);
+  if (!job) throw new Error('Job not found in mock data either');
+  return job;
 }
 
 export async function getRecentJobs(minutes: number = 60): Promise<Job[]> {

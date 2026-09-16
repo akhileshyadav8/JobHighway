@@ -15,7 +15,8 @@ import sys
 
 # Import functions from fix_all_real_data
 sys.path.insert(0, os.path.dirname(__file__))
-from fix_all_real_data import extract_accurate_skills, detect_work_mode, detect_batches
+from fix_all_real_data import extract_accurate_skills, detect_work_mode
+from update_all_authentic_details import detect_batches_intelligent
 
 FILE_PATH = os.path.join(os.path.dirname(__file__), '../../frontend/src/lib/real_jobs.json')
 
@@ -50,8 +51,8 @@ def clean_json():
         # 2. Accurate authentic work mode
         work_mode = detect_work_mode(title, desc_text or "", loc_str)
 
-        # 3. Accurate authentic batches (None if not mentioned!)
-        batches = detect_batches(desc_text or "")
+        # 3. Accurate authentic batches
+        batches = detect_batches_intelligent(desc_text or "", title or "")
 
         # 4. Accurate authentic salary
         title_low = title.lower()
