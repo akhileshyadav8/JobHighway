@@ -851,10 +851,16 @@ def fetch_adzuna_jobs(app_id, app_key):
                         job_slug = f"adzuna-{country}-{job_id}-{re.sub(r'[^a-zA-Z0-9]+', '-', title.lower())}"[:100]
 
                         created_str = item.get("created")
-                        posted_at = datetime.now(timezone.utc).isoformat()
+                        now_utc = datetime.now(timezone.utc)
+                        posted_at = now_utc.isoformat()
                         if created_str:
                             try:
-                                posted_at = datetime.fromisoformat(created_str.replace("Z", "+00:00")).isoformat()
+                                dt = datetime.fromisoformat(created_str.replace("Z", "+00:00"))
+                                if dt.tzinfo is None:
+                                    dt = dt.replace(tzinfo=timezone.utc)
+                                if dt > now_utc:
+                                    dt = now_utc
+                                posted_at = dt.isoformat()
                             except Exception:
                                 pass
 
@@ -1044,7 +1050,13 @@ def main():
                     if not dt_str:
                         return None
                     try:
-                        return datetime.fromisoformat(dt_str.replace("Z", "+00:00"))
+                        dt = datetime.fromisoformat(dt_str.replace("Z", "+00:00"))
+                        if dt.tzinfo is None:
+                            dt = dt.replace(tzinfo=timezone.utc)
+                        now_utc = datetime.now(timezone.utc)
+                        if dt > now_utc:
+                            dt = now_utc
+                        return dt
                     except Exception:
                         return None
 

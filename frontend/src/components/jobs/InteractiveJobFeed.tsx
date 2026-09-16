@@ -871,7 +871,18 @@ export function InteractiveJobFeed({ initialJobs, stats }: InteractiveJobFeedPro
       return true;
     });
 
-    // 2. Sort jobs
+    // 2. Sort jobs with protected timestamp resolution
+    const getJobTime = (j: Job) => {
+      const now = Date.now();
+      const postTime = j.posted_at ? new Date(j.posted_at).getTime() : 0;
+      const seenTime = j.first_seen_at ? new Date(j.first_seen_at).getTime() : 0;
+      // If postTime is in the future (due to timezone offsets or clock skew), fallback to seenTime or now
+      if (postTime > now || postTime === 0) {
+        return seenTime > 0 && seenTime <= now ? seenTime : now;
+      }
+      return postTime;
+    };
+
     return filtered.sort((a, b) => {
       if (sortBy === "salary_high") {
         const salaryA = getNormalizedAnnualSalaryUsd(a);
@@ -879,9 +890,7 @@ export function InteractiveJobFeed({ initialJobs, stats }: InteractiveJobFeedPro
         if (salaryB !== salaryA) {
           return salaryB - salaryA;
         }
-        const timeA = new Date(a.posted_at || a.first_seen_at).getTime();
-        const timeB = new Date(b.posted_at || b.first_seen_at).getTime();
-        return timeB - timeA;
+        return getJobTime(b) - getJobTime(a);
       }
       if (sortBy === "salary_low") {
         const salaryA = getNormalizedAnnualSalaryUsd(a);
@@ -893,19 +902,13 @@ export function InteractiveJobFeed({ initialJobs, stats }: InteractiveJobFeedPro
         } else if (salaryB > 0) {
           return 1;
         }
-        const timeA = new Date(a.posted_at || a.first_seen_at).getTime();
-        const timeB = new Date(b.posted_at || b.first_seen_at).getTime();
-        return timeB - timeA;
+        return getJobTime(b) - getJobTime(a);
       }
       if (sortBy === "oldest") {
-        const timeA = new Date(a.posted_at || a.first_seen_at).getTime();
-        const timeB = new Date(b.posted_at || b.first_seen_at).getTime();
-        return timeA - timeB;
+        return getJobTime(a) - getJobTime(b);
       }
       // Default: newest posted on top
-      const timeA = new Date(a.posted_at || a.first_seen_at).getTime();
-      const timeB = new Date(b.posted_at || b.first_seen_at).getTime();
-      return timeB - timeA;
+      return getJobTime(b) - getJobTime(a);
     });
   }, [jobsList, searchQuery, selectedCountry, selectedState, selectedCity, selectedCompany, sortBy, activeFilters]);
 

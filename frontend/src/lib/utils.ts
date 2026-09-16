@@ -43,7 +43,12 @@ export function formatSalary(
 export function formatRelativeTime(dateString: string | null): string {
   if (!dateString) return "";
   try {
-    return formatDistanceToNow(new Date(dateString), { addSuffix: true });
+    const d = new Date(dateString);
+    // If timestamp is in the future (due to timezone differences or clock skew), clamp to "Just now"
+    if (d.getTime() >= Date.now()) {
+      return "Just now";
+    }
+    return formatDistanceToNow(d, { addSuffix: true });
   } catch {
     return "";
   }

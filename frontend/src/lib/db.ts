@@ -21,6 +21,21 @@ function getPool(): Pool | null {
   return pool;
 }
 
+function getSafePostedAt(postedAt: any, firstSeenAt: any): string | null {
+  if (!postedAt) return null;
+  const pDate = new Date(postedAt);
+  const now = Date.now();
+  // If posted_at is in the future (due to timezone differences or scraper clock skew), fallback to first_seen_at or now
+  if (pDate.getTime() > now) {
+    if (firstSeenAt) {
+      const fDate = new Date(firstSeenAt);
+      if (fDate.getTime() <= now) return fDate.toISOString();
+    }
+    return new Date(now).toISOString();
+  }
+  return pDate.toISOString();
+}
+
 export async function getLiveJobsFromDb(limit?: number): Promise<Job[] | null> {
   const p = getPool();
   if (!p) return null;
@@ -69,7 +84,7 @@ export async function getLiveJobsFromDb(limit?: number): Promise<Job[] | null> {
       JOIN companies c ON j.company_id = c.id
       WHERE j.status = 'active'
       AND (j.posted_at >= NOW() - INTERVAL '30 DAYS' OR j.first_seen_at >= NOW() - INTERVAL '30 DAYS')
-      ORDER BY j.posted_at DESC NULLS LAST
+      ORDER BY LEAST(COALESCE(j.posted_at, j.first_seen_at), NOW()) DESC NULLS LAST
       ${hasLimit ? 'LIMIT $1' : ''};
     `;
     const res = hasLimit ? await p.query(query, [limit]) : await p.query(query);
@@ -107,7 +122,7 @@ export async function getLiveJobsFromDb(limit?: number): Promise<Job[] | null> {
       skills_preferred: Array.isArray(row.skills_preferred) ? row.skills_preferred : null,
       job_url: row.job_url || '#',
       apply_url: row.apply_url || row.job_url || '#',
-      posted_at: row.posted_at ? new Date(row.posted_at).toISOString() : null,
+      posted_at: getSafePostedAt(row.posted_at, row.first_seen_at),
       deadline: row.deadline ? new Date(row.deadline).toISOString() : null,
       first_seen_at: row.first_seen_at ? new Date(row.first_seen_at).toISOString() : new Date().toISOString(),
       last_seen_at: row.last_seen_at ? new Date(row.last_seen_at).toISOString() : new Date().toISOString(),
@@ -243,7 +258,7 @@ export async function getLiveJobBySlugFromDb(slug: string): Promise<Job | null> 
       skills_preferred: Array.isArray(row.skills_preferred) ? row.skills_preferred : null,
       job_url: row.job_url || '#',
       apply_url: row.apply_url || row.job_url || '#',
-      posted_at: row.posted_at ? new Date(row.posted_at).toISOString() : null,
+      posted_at: getSafePostedAt(row.posted_at, row.first_seen_at),
       deadline: row.deadline ? new Date(row.deadline).toISOString() : null,
       first_seen_at: row.first_seen_at ? new Date(row.first_seen_at).toISOString() : new Date().toISOString(),
       last_seen_at: row.last_seen_at ? new Date(row.last_seen_at).toISOString() : new Date().toISOString(),
@@ -407,7 +422,7 @@ export async function getLiveCompanyJobsFromDb(slug: string): Promise<Job[] | nu
       WHERE (c.slug = $1 OR lower(c.name) = lower($1))
       AND j.status = 'active'
       AND (j.posted_at >= NOW() - INTERVAL '30 DAYS' OR j.first_seen_at >= NOW() - INTERVAL '30 DAYS')
-      ORDER BY j.posted_at DESC NULLS LAST;
+      ORDER BY LEAST(COALESCE(j.posted_at, j.first_seen_at), NOW()) DESC NULLS LAST;
     `;
     const res = await p.query(query, [slug]);
     if (!res.rows || res.rows.length === 0) return null;
@@ -444,7 +459,7 @@ export async function getLiveCompanyJobsFromDb(slug: string): Promise<Job[] | nu
       skills_preferred: Array.isArray(row.skills_preferred) ? row.skills_preferred : null,
       job_url: row.job_url || '#',
       apply_url: row.apply_url || row.job_url || '#',
-      posted_at: row.posted_at ? new Date(row.posted_at).toISOString() : null,
+      posted_at: getSafePostedAt(row.posted_at, row.first_seen_at),
       deadline: row.deadline ? new Date(row.deadline).toISOString() : null,
       first_seen_at: row.first_seen_at ? new Date(row.first_seen_at).toISOString() : new Date().toISOString(),
       last_seen_at: row.last_seen_at ? new Date(row.last_seen_at).toISOString() : new Date().toISOString(),
