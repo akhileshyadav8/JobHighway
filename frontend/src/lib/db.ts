@@ -21,11 +21,12 @@ function getPool(): Pool | null {
   return pool;
 }
 
-export async function getLiveJobsFromDb(limit: number = 2500): Promise<Job[] | null> {
+export async function getLiveJobsFromDb(limit?: number): Promise<Job[] | null> {
   const p = getPool();
   if (!p) return null;
 
   try {
+    const hasLimit = typeof limit === 'number' && limit > 0;
     const query = `
       SELECT 
         j.id,
@@ -55,7 +56,7 @@ export async function getLiveJobsFromDb(limit: number = 2500): Promise<Job[] | n
         j.first_seen_at,
         j.last_seen_at,
         j.status,
-        LEFT(j.description_text, 300) as description_text,
+        '' as description_text,
         j.jobpulse_rating,
         j.rating_reason,
         j.view_count,
@@ -68,9 +69,9 @@ export async function getLiveJobsFromDb(limit: number = 2500): Promise<Job[] | n
       JOIN companies c ON j.company_id = c.id
       WHERE j.status = 'active'
       ORDER BY j.posted_at DESC NULLS LAST
-      LIMIT $1;
+      ${hasLimit ? 'LIMIT $1' : ''};
     `;
-    const res = await p.query(query, [limit]);
+    const res = hasLimit ? await p.query(query, [limit]) : await p.query(query);
     if (!res.rows || res.rows.length === 0) return null;
 
     return res.rows.map(row => ({
