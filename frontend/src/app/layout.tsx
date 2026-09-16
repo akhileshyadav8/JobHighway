@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
 import { Suspense } from "react";
@@ -7,6 +7,16 @@ import { Footer } from "@/components/layout/Footer";
 import { NavigationProgressBar } from "@/components/layout/NavigationProgressBar";
 
 const inter = Inter({ subsets: ["latin"] });
+
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 5,
+  themeColor: [
+    { media: "(prefers-color-scheme: light)", color: "#ffffff" },
+    { media: "(prefers-color-scheme: dark)", color: "#020617" },
+  ],
+};
 
 export const metadata: Metadata = {
   title: "JobPulse | Real-Time Job Discovery",

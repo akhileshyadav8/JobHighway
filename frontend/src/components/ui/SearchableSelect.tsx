@@ -39,10 +39,23 @@ export function SearchableSelect({
   const [isOpen, setIsOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [highlightedIndex, setHighlightedIndex] = useState(0);
+  const [alignRight, setAlignRight] = useState(false);
 
   const containerRef = useRef<HTMLDivElement>(null);
   const searchInputRef = useRef<HTMLInputElement>(null);
   const listRef = useRef<HTMLDivElement>(null);
+
+  // Check viewport bounds to prevent dropdown from spilling off right screen edge on mobile
+  useEffect(() => {
+    if (isOpen && containerRef.current) {
+      const rect = containerRef.current.getBoundingClientRect();
+      if (rect.left + 220 > window.innerWidth - 12) {
+        setAlignRight(true);
+      } else {
+        setAlignRight(false);
+      }
+    }
+  }, [isOpen]);
 
   // Find currently selected option
   const selectedOption = useMemo(() => {
@@ -160,7 +173,7 @@ export function SearchableSelect({
         aria-expanded={isOpen}
         disabled={disabled || loading}
         onClick={() => setIsOpen((prev) => !prev)}
-        className={`w-full flex items-center justify-between pl-8 pr-2.5 py-1.5 text-xs md:text-sm font-medium border rounded-lg shadow-2xs transition-all text-left outline-none cursor-pointer ${
+        className={`w-full flex items-center justify-between pl-7 sm:pl-8 pr-2 py-1.5 sm:py-2 text-[11px] sm:text-xs md:text-sm font-medium border rounded-lg sm:rounded-xl shadow-2xs transition-all text-left outline-none cursor-pointer ${
           disabled || loading
             ? "bg-slate-100/70 dark:bg-slate-900/40 border-slate-200 dark:border-slate-800 text-slate-400 cursor-not-allowed"
             : isOpen
@@ -170,13 +183,13 @@ export function SearchableSelect({
       >
         {/* Leading Icon */}
         {icon && (
-          <span className="absolute left-2.5 flex items-center pointer-events-none text-teal-600 dark:text-teal-400">
+          <span className="absolute left-2 sm:left-2.5 flex items-center pointer-events-none text-teal-600 dark:text-teal-400">
             {icon}
           </span>
         )}
 
         {/* Selected Label */}
-        <span className="truncate flex-1 pr-2">
+        <span className="truncate flex-1 pr-1.5 sm:pr-2">
           {loading
             ? loadingText
             : selectedOption
@@ -186,7 +199,7 @@ export function SearchableSelect({
 
         {/* Trailing Down Chevron */}
         <ChevronDown
-          className={`w-3.5 h-3.5 text-slate-400 shrink-0 transition-transform duration-150 ${
+          className={`w-3 h-3 sm:w-3.5 sm:h-3.5 text-slate-400 shrink-0 transition-transform duration-150 ${
             isOpen ? "rotate-180 text-teal-500" : ""
           }`}
         />
@@ -194,7 +207,7 @@ export function SearchableSelect({
 
       {/* Dropdown Popover */}
       {isOpen && (
-        <div className="absolute left-0 top-full mt-1.5 w-full min-w-[220px] max-w-sm bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl shadow-xl z-50 overflow-hidden animate-in fade-in-0 zoom-in-95 duration-100">
+        <div className={`absolute ${alignRight ? "right-0" : "left-0"} top-full mt-1.5 w-full min-w-[200px] sm:min-w-[220px] max-w-[calc(100vw-24px)] sm:max-w-sm bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl shadow-xl z-50 overflow-hidden animate-in fade-in-0 zoom-in-95 duration-100`}>
           {/* Search Input Bar */}
           <div className="p-2 border-b border-slate-100 dark:border-slate-800/80 bg-slate-50/70 dark:bg-slate-950/50">
             <div className="relative flex items-center">

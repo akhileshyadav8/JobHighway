@@ -26,27 +26,27 @@ export function ShareButtons({ jobTitle, jobUrl }: ShareButtonsProps) {
   };
 
   return (
-    <div className="flex flex-wrap gap-3">
+    <div className="flex flex-wrap gap-2.5 sm:gap-3">
       <Button 
         onClick={handleWhatsApp}
-        className="bg-[#25D366] hover:bg-[#128C7E] text-white flex-1 sm:flex-none min-w-[140px]"
+        className="bg-[#25D366] hover:bg-[#128C7E] text-white flex-1 sm:flex-none min-w-[110px] sm:min-w-[130px]"
       >
-        <MessageCircle className="w-4 h-4 mr-2" />
+        <MessageCircle className="w-4 h-4 mr-1.5" />
         WhatsApp
       </Button>
       <Button 
         onClick={handleTelegram}
-        className="bg-[#0088cc] hover:bg-[#0077b5] text-white flex-1 sm:flex-none min-w-[140px]"
+        className="bg-[#0088cc] hover:bg-[#0077b5] text-white flex-1 sm:flex-none min-w-[110px] sm:min-w-[130px]"
       >
-        <Send className="w-4 h-4 mr-2" />
+        <Send className="w-4 h-4 mr-1.5" />
         Telegram
       </Button>
       <Button 
         onClick={handleCopy}
         variant="outline"
-        className="flex-1 sm:flex-none min-w-[140px]"
+        className="flex-1 sm:flex-none min-w-[110px] sm:min-w-[130px]"
       >
-        <Copy className="w-4 h-4 mr-2" />
+        <Copy className="w-4 h-4 mr-1.5" />
         Copy Link
       </Button>
     </div>

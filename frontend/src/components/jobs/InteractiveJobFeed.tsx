@@ -1009,10 +1009,10 @@ export function InteractiveJobFeed({ initialJobs, stats }: InteractiveJobFeedPro
             <span>Official ATS Job Stream • Directly On Company Portals</span>
           </div>
           
-          <h1 className="text-4xl md:text-5xl lg:text-6xl font-extrabold text-slate-900 dark:text-white mb-5 tracking-tight leading-tight">
+          <h1 className="text-2xl sm:text-4xl md:text-5xl lg:text-6xl font-black text-slate-900 dark:text-white mb-4 sm:mb-5 tracking-tight leading-tight break-words">
             Discover Official Jobs The Second They Go Live
           </h1>
-          <p className="text-base md:text-lg text-slate-600 dark:text-slate-400 mb-8 max-w-2xl mx-auto leading-relaxed">
+          <p className="text-sm sm:text-base md:text-lg text-slate-600 dark:text-slate-400 mb-6 sm:mb-8 max-w-2xl mx-auto leading-relaxed">
             Direct official career portal postings with zero delays. Apply straight on official company domains with verified ATS integration.
           </p>
 
@@ -1060,7 +1060,7 @@ export function InteractiveJobFeed({ initialJobs, stats }: InteractiveJobFeedPro
 
       {/* Sleek Compact Sticky Filter Bar */}
       <div className="w-full border-b border-slate-200/90 dark:border-slate-800/90 bg-white/95 dark:bg-slate-950/95 backdrop-blur-md sticky top-16 z-40 shadow-xs">
-        <div className="container mx-auto px-4 py-2.5 max-w-[1440px]">
+        <div className="container mx-auto px-2.5 sm:px-4 py-2.5 max-w-[1440px]">
           {/* 2-Tier Compact Grid: Row 1 = Location & Company, Row 2 = Job Type, Batch, Work Mode, Sort */}
           <div className="flex flex-col gap-2">
             {/* Row 1: Location & Company Filters */}
@@ -1266,18 +1266,18 @@ export function InteractiveJobFeed({ initialJobs, stats }: InteractiveJobFeedPro
 
           {/* Real-Time Live Job Discovery Alert */}
           {incomingJobs.length > 0 && (
-            <div className="mb-6 p-4 rounded-2xl bg-emerald-50/90 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-500/40 flex items-center justify-between shadow-sm">
+            <div className="mb-6 p-4 rounded-2xl bg-emerald-50/90 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-500/40 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 shadow-sm">
               <div className="flex items-center gap-3">
-                <span className="relative flex h-3 w-3">
+                <span className="relative flex h-3 w-3 shrink-0">
                   <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
                   <span className="relative inline-flex rounded-full h-3 w-3 bg-emerald-500"></span>
                 </span>
                 <div>
                   <h4 className="text-sm font-bold text-emerald-900 dark:text-emerald-300 flex items-center gap-1.5">
-                    <Sparkles className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
+                    <Sparkles className="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0" />
                     <span>🔥 {incomingJobs.length} New Live Job{incomingJobs.length > 1 ? 's' : ''} Just Discovered!</span>
                   </h4>
-                  <p className="text-xs text-emerald-700/90 dark:text-emerald-400/80">
+                  <p className="text-xs text-emerald-700/90 dark:text-emerald-400/80 mt-0.5">
                     Fresh verified postings detected in real-time. Click to update your feed instantly.
                   </p>
                 </div>
@@ -1285,7 +1285,7 @@ export function InteractiveJobFeed({ initialJobs, stats }: InteractiveJobFeedPro
               <Button
                 size="sm"
                 onClick={applyIncomingJobs}
-                className="bg-emerald-600 hover:bg-emerald-500 text-white font-semibold text-xs px-4 py-2 h-auto rounded-xl shadow-md shadow-emerald-600/20 transition-all cursor-pointer"
+                className="w-full sm:w-auto shrink-0 bg-emerald-600 hover:bg-emerald-500 text-white font-semibold text-xs px-4 py-2.5 h-auto rounded-xl shadow-md shadow-emerald-600/20 transition-all cursor-pointer"
               >
                 Update Feed Now
               </Button>

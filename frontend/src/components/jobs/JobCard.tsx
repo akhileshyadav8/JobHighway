@@ -48,7 +48,7 @@ export function JobCard({ job }: JobCardProps) {
             </div>
             <div>
               <Link href={`/jobs/${job.slug}`} onClick={handleJobClick} className="group/title">
-                <h3 className="font-bold text-base md:text-lg line-clamp-1 text-slate-900 dark:text-slate-100 group-hover/title:text-teal-600 dark:group-hover/title:text-teal-400 transition-colors">
+                <h3 className="font-bold text-base md:text-lg line-clamp-2 text-slate-900 dark:text-slate-100 group-hover/title:text-teal-600 dark:group-hover/title:text-teal-400 transition-colors leading-snug">
                   {job.title}
                 </h3>
               </Link>
@@ -136,11 +136,11 @@ export function JobCard({ job }: JobCardProps) {
           <Clock className="w-3.5 h-3.5 mr-1 text-slate-400" />
           <span suppressHydrationWarning>{formatRelativeTime(job.posted_at || job.first_seen_at)}</span>
         </div>
-        <div className="flex gap-2">
+        <div className="flex gap-2 shrink-0">
           <Link
             href={`/jobs/${job.slug}`}
             onClick={handleJobClick}
-            className="inline-flex items-center justify-center px-3 py-1.5 text-xs font-semibold rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors"
+            className="inline-flex items-center justify-center px-3 py-2 text-xs font-semibold rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-700 active:scale-95 transition-all"
           >
             Details
           </Link>
@@ -149,7 +149,7 @@ export function JobCard({ job }: JobCardProps) {
               href={job.apply_url}
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center justify-center px-3.5 py-1.5 text-xs font-bold rounded-lg bg-teal-600 hover:bg-teal-500 text-white shadow-xs hover:shadow-md transition-all cursor-pointer"
+              className="inline-flex items-center justify-center px-3.5 py-2 text-xs font-bold rounded-lg bg-teal-600 hover:bg-teal-500 text-white shadow-xs hover:shadow-md active:scale-95 transition-all cursor-pointer"
             >
               Apply
             </a>
