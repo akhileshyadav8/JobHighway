@@ -65,7 +65,7 @@ export function Navbar() {
             </span>
           </Link>
           <span className="hidden md:inline-block text-xs font-medium text-slate-500 dark:text-slate-400 border-l border-slate-200 dark:border-slate-800 pl-3">
-            Real-Time Verified Job Engine
+            Official Career Stream • Early Job Engine
           </span>
         </div>
 

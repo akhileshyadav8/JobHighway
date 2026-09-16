@@ -22,7 +22,7 @@ export function Footer() {
               </span>
             </Link>
             <p className="text-sm max-w-sm mb-4 leading-relaxed text-slate-600 dark:text-slate-400">
-              World&apos;s Real-Time Job Discovery Engine. Direct official career portal openings verified across 400+ top global companies with zero delay.
+              World&apos;s Early Job Discovery Engine. Direct official career portal openings verified across 400+ top global companies with continuous ATS syncing and zero recruiter spam.
             </p>
           </div>
           
