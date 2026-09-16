@@ -29,7 +29,7 @@ export function InteractiveCompanies({ initialCompanies }: InteractiveCompaniesP
             Discover Top Hiring Companies
           </h1>
           <p className="text-slate-600 dark:text-slate-400 mb-8">
-            Explore {initialCompanies.length} official career portals monitored in real-time.
+            Explore {initialCompanies.length} official career portals with verified openings posted in the last 1 month.
           </p>
           
           <div className="relative max-w-lg mx-auto">
@@ -84,7 +84,7 @@ export function InteractiveCompanies({ initialCompanies }: InteractiveCompaniesP
                   
                   <div className="flex items-center justify-between border-t border-slate-100 dark:border-slate-800/80 pt-4">
                     <Link 
-                      href={`/companies/${company.slug}`}
+                      href={`/jobs?company=${encodeURIComponent(company.slug)}`}
                       className="inline-flex items-center text-teal-600 dark:text-teal-400 font-semibold text-xs hover:underline"
                     >
                       View {company.active_job_count} Openings →

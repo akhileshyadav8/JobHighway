@@ -12,7 +12,7 @@ export function Footer() {
               </span>
             </Link>
             <p className="text-sm max-w-sm mb-4 leading-relaxed text-slate-600 dark:text-slate-400">
-              India&apos;s Real-Time Job Discovery Engine. Direct official career portal openings verified across 150+ companies with zero delay.
+              World&apos;s Real-Time Job Discovery Engine. Direct official career portal openings verified across 400+ top global companies with zero delay.
             </p>
           </div>
           
@@ -38,7 +38,7 @@ export function Footer() {
         
         <div className="border-t border-slate-200/80 dark:border-slate-800/80 pt-6 flex flex-col md:flex-row items-center justify-between text-xs text-slate-500 dark:text-slate-400">
           <p>© {new Date().getFullYear()} JobPulse. All rights reserved.</p>
-          <p className="mt-2 md:mt-0">100% Direct Official Links • Zero 404s</p>
+          <p className="mt-2 md:mt-0">100% Direct Official Links</p>
         </div>
       </div>
     </footer>

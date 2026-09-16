@@ -10,15 +10,7 @@ export function ThemeToggle() {
 
   useEffect(() => {
     setMounted(true);
-    // Default to dark or check stored preference
-    const stored = localStorage.getItem("jobpulse_theme");
-    if (stored === "light") {
-      setIsDark(false);
-      document.documentElement.classList.remove("dark");
-    } else {
-      setIsDark(true);
-      document.documentElement.classList.add("dark");
-    }
+    setIsDark(document.documentElement.classList.contains("dark"));
   }, []);
 
   const toggleTheme = () => {

@@ -1,5 +1,5 @@
 import { Pool } from 'pg';
-import { Job, OverviewStats } from './api';
+import { Job, OverviewStats, Company } from './api';
 import { sanitizeJobSkills } from './utils';
 
 let pool: Pool | null = null;
@@ -259,6 +259,207 @@ export async function getLiveJobBySlugFromDb(slug: string): Promise<Job | null> 
     };
   } catch (error) {
     console.error('getLiveJobBySlugFromDb error:', error);
+    return null;
+  }
+}
+
+export async function getLiveCompaniesFromDb(): Promise<Company[] | null> {
+  const p = getPool();
+  if (!p) return null;
+
+  try {
+    const query = `
+      SELECT 
+        c.id, 
+        c.name, 
+        c.slug, 
+        c.website, 
+        c.careers_url, 
+        c.logo_url, 
+        c.industry, 
+        c.headquarters, 
+        c.employee_count_range, 
+        c.description,
+        count(j.id) as active_job_count
+      FROM companies c
+      JOIN jobs j ON j.company_id = c.id
+      WHERE j.status = 'active'
+      AND (j.posted_at >= NOW() - INTERVAL '30 DAYS' OR j.first_seen_at >= NOW() - INTERVAL '30 DAYS')
+      GROUP BY c.id
+      HAVING count(j.id) > 0
+      ORDER BY active_job_count DESC;
+    `;
+    const res = await p.query(query);
+    if (!res.rows || res.rows.length === 0) return null;
+
+    return res.rows.map(row => ({
+      id: row.id,
+      name: row.name,
+      slug: row.slug,
+      website: row.website || '',
+      careers_url: row.careers_url || null,
+      logo_url: row.logo_url || null,
+      industry: row.industry || 'Technology',
+      headquarters: row.headquarters || null,
+      employee_count_range: row.employee_count_range || null,
+      description: row.description || `${row.name} is actively hiring verified talent worldwide on official career portals.`,
+      active_job_count: Number(row.active_job_count || 0)
+    }));
+  } catch (error) {
+    console.error('getLiveCompaniesFromDb error:', error);
+    return null;
+  }
+}
+
+export async function getLiveCompanyBySlugFromDb(slug: string): Promise<Company | null> {
+  const p = getPool();
+  if (!p) return null;
+
+  try {
+    const query = `
+      SELECT 
+        c.id, 
+        c.name, 
+        c.slug, 
+        c.website, 
+        c.careers_url, 
+        c.logo_url, 
+        c.industry, 
+        c.headquarters, 
+        c.employee_count_range, 
+        c.description,
+        count(j.id) as active_job_count
+      FROM companies c
+      LEFT JOIN jobs j ON j.company_id = c.id AND j.status = 'active' AND (j.posted_at >= NOW() - INTERVAL '30 DAYS' OR j.first_seen_at >= NOW() - INTERVAL '30 DAYS')
+      WHERE c.slug = $1 OR lower(c.name) = lower($1)
+      GROUP BY c.id
+      LIMIT 1;
+    `;
+    const res = await p.query(query, [slug]);
+    if (!res.rows || res.rows.length === 0) return null;
+    const row = res.rows[0];
+
+    return {
+      id: row.id,
+      name: row.name,
+      slug: row.slug,
+      website: row.website || '',
+      careers_url: row.careers_url || null,
+      logo_url: row.logo_url || null,
+      industry: row.industry || 'Technology',
+      headquarters: row.headquarters || null,
+      employee_count_range: row.employee_count_range || null,
+      description: row.description || `${row.name} is actively hiring verified talent worldwide on official career portals.`,
+      active_job_count: Number(row.active_job_count || 0)
+    };
+  } catch (error) {
+    console.error('getLiveCompanyBySlugFromDb error:', error);
+    return null;
+  }
+}
+
+export async function getLiveCompanyJobsFromDb(slug: string): Promise<Job[] | null> {
+  const p = getPool();
+  if (!p) return null;
+
+  try {
+    const query = `
+      SELECT 
+        j.id,
+        j.title,
+        j.slug,
+        j.department,
+        j.location,
+        j.employment_type,
+        j.work_mode,
+        j.salary_min,
+        j.salary_max,
+        j.salary_currency,
+        j.salary_period,
+        j.experience_min,
+        j.experience_max,
+        j.education,
+        j.eligible_batches,
+        j.min_cgpa,
+        j.min_percentage,
+        j.backlog_allowed,
+        j.skills_required,
+        j.skills_preferred,
+        j.job_url,
+        j.apply_url,
+        j.posted_at,
+        j.deadline,
+        j.first_seen_at,
+        j.last_seen_at,
+        j.status,
+        '' as description_text,
+        j.jobpulse_rating,
+        j.rating_reason,
+        j.view_count,
+        c.id as comp_id,
+        c.name as comp_name,
+        c.slug as comp_slug,
+        c.logo_url as comp_logo,
+        c.industry as comp_industry
+      FROM jobs j
+      JOIN companies c ON j.company_id = c.id
+      WHERE (c.slug = $1 OR lower(c.name) = lower($1))
+      AND j.status = 'active'
+      AND (j.posted_at >= NOW() - INTERVAL '30 DAYS' OR j.first_seen_at >= NOW() - INTERVAL '30 DAYS')
+      ORDER BY j.posted_at DESC NULLS LAST;
+    `;
+    const res = await p.query(query, [slug]);
+    if (!res.rows || res.rows.length === 0) return null;
+
+    return res.rows.map(row => ({
+      id: row.id,
+      title: row.title,
+      slug: row.slug,
+      company: {
+        id: row.comp_id,
+        name: row.comp_name,
+        slug: row.comp_slug,
+        logo_url: row.comp_logo || null,
+        industry: row.comp_industry || null,
+      },
+      location: Array.isArray(row.location) ? row.location : typeof row.location === 'string' ? [row.location] : [],
+      department: row.department || null,
+      employment_type: row.employment_type || 'Full-time',
+      work_mode: row.work_mode || 'In-Office',
+      salary_min: row.salary_min ? Number(row.salary_min) : null,
+      salary_max: row.salary_max ? Number(row.salary_max) : null,
+      salary_currency: row.salary_currency || 'USD',
+      salary_period: row.salary_period || 'annual',
+      salary_basis: null,
+      is_salary_estimated: false,
+      experience_min: row.experience_min ? Number(row.experience_min) : null,
+      experience_max: row.experience_max ? Number(row.experience_max) : null,
+      education: row.education || null,
+      eligible_batches: Array.isArray(row.eligible_batches) ? row.eligible_batches : null,
+      min_cgpa: row.min_cgpa ? Number(row.min_cgpa) : null,
+      min_percentage: row.min_percentage ? Number(row.min_percentage) : null,
+      backlog_allowed: row.backlog_allowed ?? null,
+      skills_required: sanitizeJobSkills(row.skills_required, row.title, row.description_text),
+      skills_preferred: Array.isArray(row.skills_preferred) ? row.skills_preferred : null,
+      job_url: row.job_url || '#',
+      apply_url: row.apply_url || row.job_url || '#',
+      posted_at: row.posted_at ? new Date(row.posted_at).toISOString() : null,
+      deadline: row.deadline ? new Date(row.deadline).toISOString() : null,
+      first_seen_at: row.first_seen_at ? new Date(row.first_seen_at).toISOString() : new Date().toISOString(),
+      last_seen_at: row.last_seen_at ? new Date(row.last_seen_at).toISOString() : new Date().toISOString(),
+      status: row.status || 'active',
+      description_html: '',
+      description_text: row.description_text || '',
+      selection_process: null,
+      interview_experience: null,
+      work_culture_summary: null,
+      study_materials: null,
+      jobpulse_rating: row.jobpulse_rating || null,
+      rating_reason: row.rating_reason || null,
+      view_count: row.view_count || 1,
+    }));
+  } catch (error) {
+    console.error('getLiveCompanyJobsFromDb error:', error);
     return null;
   }
 }

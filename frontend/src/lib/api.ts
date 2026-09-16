@@ -85,7 +85,14 @@ export interface OverviewStats {
   last_updated: string;
 }
 
-import { getLiveJobsFromDb, getLiveStatsFromDb, getLiveJobBySlugFromDb } from './db';
+import { 
+  getLiveJobsFromDb, 
+  getLiveStatsFromDb, 
+  getLiveJobBySlugFromDb,
+  getLiveCompaniesFromDb,
+  getLiveCompanyBySlugFromDb,
+  getLiveCompanyJobsFromDb
+} from './db';
 
 export async function getJobs(params?: Record<string, string>): Promise<PaginatedResponse<Job>> {
   // 1. Try Live Supabase Database directly on server
@@ -164,52 +171,95 @@ export async function getRecentJobs(minutes: number = 60): Promise<Job[]> {
 }
 
 export async function getCompanies(params?: Record<string, string>): Promise<PaginatedResponse<Company>> {
+  if (typeof window === 'undefined') {
+    try {
+      const liveCompanies = await getLiveCompaniesFromDb();
+      if (liveCompanies && liveCompanies.length > 0) {
+        return {
+          items: liveCompanies,
+          total: liveCompanies.length,
+          page: 1,
+          page_size: liveCompanies.length,
+          total_pages: 1
+        };
+      }
+    } catch (e) {
+      console.warn('Server direct DB getCompanies failed:', e);
+    }
+  }
+
   try {
     const query = params ? new URLSearchParams(params).toString() : '';
     const res = await fetch(`${API_BASE}/companies${query ? `?${query}` : ''}`, { next: { revalidate: 60 } });
-    if (!res.ok) throw new Error('Failed to fetch companies');
-    return res.json();
+    if (res.ok) return res.json();
   } catch (error) {
-    console.warn('API getCompanies failed, using mock data');
-    return {
-      items: mockCompanies,
-      total: mockCompanies.length,
-      page: 1,
-      page_size: 10,
-      total_pages: 1
-    };
+    // fallback
   }
+
+  return {
+    items: mockCompanies,
+    total: mockCompanies.length,
+    page: 1,
+    page_size: 10,
+    total_pages: 1
+  };
 }
 
 export async function getCompanyBySlug(slug: string): Promise<Company> {
+  if (typeof window === 'undefined') {
+    try {
+      const liveComp = await getLiveCompanyBySlugFromDb(slug);
+      if (liveComp) return liveComp;
+    } catch (e) {
+      console.warn('Server direct DB getCompanyBySlug failed:', e);
+    }
+  }
+
   try {
     const res = await fetch(`${API_BASE}/companies/${slug}`, { next: { revalidate: 60 } });
-    if (!res.ok) throw new Error('Failed to fetch company');
-    return res.json();
+    if (res.ok) return res.json();
   } catch (error) {
-    console.warn('API getCompanyBySlug failed, using mock data');
-    const company = mockCompanies.find(c => c.slug === slug);
-    if (!company) throw new Error('Company not found in mock data');
-    return company;
+    // fallback
   }
+
+  const company = mockCompanies.find(c => c.slug === slug);
+  if (!company) throw new Error('Company not found');
+  return company;
 }
 
 export async function getCompanyJobs(slug: string): Promise<PaginatedResponse<Job>> {
+  if (typeof window === 'undefined') {
+    try {
+      const liveJobs = await getLiveCompanyJobsFromDb(slug);
+      if (liveJobs && liveJobs.length > 0) {
+        return {
+          items: liveJobs,
+          total: liveJobs.length,
+          page: 1,
+          page_size: liveJobs.length,
+          total_pages: 1
+        };
+      }
+    } catch (e) {
+      console.warn('Server direct DB getCompanyJobs failed:', e);
+    }
+  }
+
   try {
     const res = await fetch(`${API_BASE}/companies/${slug}/jobs`, { next: { revalidate: 60 } });
-    if (!res.ok) throw new Error('Failed to fetch company jobs');
-    return res.json();
+    if (res.ok) return res.json();
   } catch (error) {
-    console.warn('API getCompanyJobs failed, using mock data');
-    const jobs = mockJobs.filter(j => j.company.slug === slug);
-    return {
-      items: jobs,
-      total: jobs.length,
-      page: 1,
-      page_size: 10,
-      total_pages: 1
-    };
+    // fallback
   }
+
+  const jobs = mockJobs.filter(j => j.company.slug === slug);
+  return {
+    items: jobs,
+    total: jobs.length,
+    page: 1,
+    page_size: 10,
+    total_pages: 1
+  };
 }
 
 export async function getOverviewStats(): Promise<OverviewStats> {

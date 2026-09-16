@@ -910,10 +910,10 @@ export function InteractiveJobFeed({ initialJobs, stats }: InteractiveJobFeedPro
           </div>
           
           <h1 className="text-4xl md:text-5xl lg:text-6xl font-extrabold text-slate-900 dark:text-white mb-5 tracking-tight leading-tight">
-            Discover Jobs Minutes After They&apos;re Posted
+            Discover Official Jobs The Second They Go Live
           </h1>
           <p className="text-base md:text-lg text-slate-600 dark:text-slate-400 mb-8 max-w-2xl mx-auto leading-relaxed">
-            Real official career portal postings with zero delays. Apply straight on the official company domain without third-party registration.
+            Direct official career portal postings with zero delays. Apply straight on official company domains with verified ATS integration.
           </p>
 
           {/* Interactive Search Bar */}
@@ -939,15 +939,15 @@ export function InteractiveJobFeed({ initialJobs, stats }: InteractiveJobFeedPro
             )}
           </div>
 
-          {/* Live Stats & Freshness Indicator */}
+          {/* Live Stats & Freshness Indicator (Dynamic to incoming feeds) */}
           <div className="mt-8 flex flex-wrap justify-center items-center gap-2.5 text-xs md:text-sm text-slate-600 dark:text-slate-400">
             <span className="flex items-center gap-1.5 bg-white dark:bg-slate-900/80 px-3 py-1.5 rounded-full border border-slate-200 dark:border-slate-800 shadow-2xs font-medium">
               <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-              <strong className="text-slate-900 dark:text-white">{stats.total_jobs.toLocaleString()}</strong> active jobs monitored
+              <strong className="text-slate-900 dark:text-white">{Math.max(stats.total_jobs, jobsList.length).toLocaleString()}</strong> active jobs monitored
             </span>
             <span className="text-slate-300 dark:text-slate-700 hidden sm:inline">•</span>
             <span className="bg-white dark:bg-slate-900/80 px-3 py-1.5 rounded-full border border-slate-200 dark:border-slate-800 shadow-2xs font-medium">
-              <strong className="text-slate-900 dark:text-white">{stats.total_companies.toLocaleString()}</strong> official portals
+              <strong className="text-slate-900 dark:text-white">{Math.max(stats.total_companies, availableCompanies.length).toLocaleString()}</strong> official portals
             </span>
             <span className="text-slate-300 dark:text-slate-700 hidden sm:inline">•</span>
             <span className="bg-white dark:bg-slate-900/80 px-3 py-1.5 rounded-full border border-slate-200 dark:border-slate-800 shadow-2xs flex items-center gap-1.5 font-medium">
