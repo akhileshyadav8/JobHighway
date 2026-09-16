@@ -1,10 +1,12 @@
-name: Automatic Real-Time Job Discovery & Sync
+﻿name: Automatic Real-Time Job Discovery & Sync
 
 on:
   schedule:
-    # Runs every 30 minutes automatically for rapid real-time job ingestion
-    - cron: '*/30 * * * *'
-  workflow_dispatch: # Allows manual trigger from GitHub Actions UI anytime
+    # Runs every 15 minutes on off-peak minute offsets to avoid GitHub Actions global queue delays
+    - cron: '11,26,41,56 * * * *'
+  workflow_dispatch: # Allows manual 1-click trigger from GitHub Actions UI anytime
+  repository_dispatch: # Allows instant zero-delay trigger via webhook / external pinger
+    types: [sync_jobs, zero_delay_sync]
 
 jobs:
   sync-jobs:
@@ -26,7 +28,7 @@ jobs:
           python -m pip install --upgrade pip
           pip install sqlalchemy psycopg2-binary python-dotenv requests
 
-      - name: Run Real-Time Job Ingestion from ATS APIs
+      - name: Run Real-Time Job Ingestion from Worldwide ATS & Adzuna APIs
         env:
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
           ADZUNA_APP_ID: ${{ secrets.ADZUNA_APP_ID }}
@@ -40,8 +42,8 @@ jobs:
           git config --global user.email "bot@jobpulse.internal"
           git add frontend/src/lib/real_jobs.json
           if git diff --staged --quiet; then
-            echo "No new job updates to commit."
+            echo "No new JSON file changes to commit."
           else
-            git commit -m "Auto-sync latest job postings from official ATS portals"
+            git commit -m "chore(sync): auto-sync latest 30-day verified job postings"
             git push
           fi

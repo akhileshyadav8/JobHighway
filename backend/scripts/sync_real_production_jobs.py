@@ -798,117 +798,135 @@ def fetch_remotive_jobs(limit=75):
 
 def fetch_adzuna_jobs(app_id, app_key):
     """
-    Fetches real-time multi-location jobs from Adzuna across multiple countries and cities.
-    Activated when ADZUNA_APP_ID and ADZUNA_APP_KEY are provided.
+    Fetches real-time multi-location jobs from Adzuna across 19 countries and cities.
+    Only fetches jobs posted within the last 30 days (max_days_old=30).
     """
     if not app_id or not app_key:
         print("[ℹ️] Adzuna credentials not configured. Skipping Adzuna location scraper.", flush=True)
         return []
 
-    print("[*] Connecting to Adzuna Location Engine for Multi-Country & Multi-City jobs...", flush=True)
-    countries = ["in", "us", "gb", "ca", "de", "fr", "au"]
+    print("[*] Connecting to Adzuna Worldwide Engine for Last 30-Day Verified Postings...", flush=True)
+    countries = ["in", "us", "gb", "ca", "de", "fr", "au", "sg", "nl", "pl", "nz", "za", "it", "es", "ch", "at", "be", "br", "mx"]
+    currency_map = {
+        "in": "INR", "gb": "GBP", "de": "EUR", "fr": "EUR", "nl": "EUR", "it": "EUR", "es": "EUR", "at": "EUR", "be": "EUR",
+        "ca": "CAD", "au": "AUD", "nz": "NZD", "sg": "SGD", "ch": "CHF", "pl": "PLN", "br": "BRL", "za": "ZAR", "mx": "MXN",
+        "us": "USD"
+    }
     jobs = []
-
     seen_gigs = set()
+
     for country in countries:
-        url = f"https://api.adzuna.com/v1/api/jobs/{country}/search/1?app_id={app_id}&app_key={app_key}&results_per_page=50&content-type=application/json"
-        req = urllib.request.Request(url, headers=HEADERS)
-        try:
-            with urllib.request.urlopen(req, timeout=12, context=ctx) as r:
-                data = json.loads(r.read().decode())
-                results = data.get("results", [])
-                for item in results:
-                    title = item.get("title", "").strip()
-                    comp_obj = item.get("company", {})
-                    company_name = comp_obj.get("display_name", "Enterprise Hiring").strip() if isinstance(comp_obj, dict) else str(comp_obj)
-                    comp_slug = re.sub(r'[^a-zA-Z0-9]+', '-', company_name.lower()).strip("-")[:40] or "hiring"
+        c_curr = currency_map.get(country, "USD")
+        country_jobs_count = 0
 
-                    # Deduplicate repeated identical gig postings across adjacent suburbs
-                    gig_key = (comp_slug, re.sub(r'[^a-zA-Z0-9]+', '', title.lower())[:30])
-                    if gig_key in seen_gigs:
-                        continue
-                    seen_gigs.add(gig_key)
+        # Query top pages for each country with max_days_old=30
+        for page in [1, 2]:
+            url = f"https://api.adzuna.com/v1/api/jobs/{country}/search/{page}?app_id={app_id}&app_key={app_key}&results_per_page=50&max_days_old=30&content-type=application/json"
+            req = urllib.request.Request(url, headers=HEADERS)
+            try:
+                with urllib.request.urlopen(req, timeout=12, context=ctx) as r:
+                    data = json.loads(r.read().decode())
+                    results = data.get("results", [])
+                    if not results:
+                        break
 
-                    loc_obj = item.get("location", {})
-                    area_list = loc_obj.get("area", []) if isinstance(loc_obj, dict) else []
-                    loc_name = ", ".join(area_list) if area_list else (loc_obj.get("display_name", country.upper()) if isinstance(loc_obj, dict) else country.upper())
+                    for item in results:
+                        title = item.get("title", "").strip()
+                        comp_obj = item.get("company", {})
+                        company_name = comp_obj.get("display_name", "Enterprise Hiring").strip() if isinstance(comp_obj, dict) else str(comp_obj)
+                        comp_slug = re.sub(r'[^a-zA-Z0-9]+', '-', company_name.lower()).strip("-")[:40] or "hiring"
 
-                    apply_url = item.get("redirect_url")
-                    job_id = str(item.get("id"))
-                    job_slug = f"adzuna-{country}-{job_id}-{re.sub(r'[^a-zA-Z0-9]+', '-', title.lower())}"[:100]
+                        # Deduplicate repeated identical gig postings across adjacent suburbs
+                        gig_key = (comp_slug, re.sub(r'[^a-zA-Z0-9]+', '', title.lower())[:30])
+                        if gig_key in seen_gigs:
+                            continue
+                        seen_gigs.add(gig_key)
 
-                    created_str = item.get("created")
-                    posted_at = datetime.now(timezone.utc).isoformat()
-                    if created_str:
-                        try:
-                            posted_at = datetime.fromisoformat(created_str.replace("Z", "+00:00")).isoformat()
-                        except Exception:
-                            pass
+                        loc_obj = item.get("location", {})
+                        area_list = loc_obj.get("area", []) if isinstance(loc_obj, dict) else []
+                        loc_name = ", ".join(area_list) if area_list else (loc_obj.get("display_name", country.upper()) if isinstance(loc_obj, dict) else country.upper())
 
-                    s_min = item.get("salary_min")
-                    s_max = item.get("salary_max")
-                    s_curr = "INR" if country == "in" else ("GBP" if country == "gb" else ("EUR" if country in ["de", "fr"] else "USD"))
-                    if not s_min:
-                        s_min = None
-                        s_max = None
-                        s_basis = "Disclosed on Application"
-                    else:
-                        s_basis = "Official employer range"
+                        apply_url = item.get("redirect_url")
+                        job_id = str(item.get("id"))
+                        job_slug = f"adzuna-{country}-{job_id}-{re.sub(r'[^a-zA-Z0-9]+', '-', title.lower())}"[:100]
 
-                    cat_obj = item.get("category", {})
-                    dept_name = cat_obj.get("label", "Engineering") if isinstance(cat_obj, dict) else "Engineering"
+                        created_str = item.get("created")
+                        posted_at = datetime.now(timezone.utc).isoformat()
+                        if created_str:
+                            try:
+                                posted_at = datetime.fromisoformat(created_str.replace("Z", "+00:00")).isoformat()
+                            except Exception:
+                                pass
 
-                    desc_text = re.sub(r'<[^>]+>', ' ', item.get("description", "") or "")[:1500].strip()
-                    work_mode = detect_work_mode(title, desc_text, loc_name)
-                    batches = detect_batches(desc_text)
+                        s_min = item.get("salary_min")
+                        s_max = item.get("salary_max")
+                        if not s_min:
+                            s_min = None
+                            s_max = None
+                            s_basis = "Disclosed on Application"
+                        else:
+                            s_basis = "Official employer range"
 
-                    c_time = item.get("contract_time")
-                    c_type = item.get("contract_type")
-                    emp_type = "Part-time" if c_time == "part_time" else ("Contract" if c_type == "contract" else "Full-time")
+                        cat_obj = item.get("category", {})
+                        dept_name = cat_obj.get("label", "Engineering") if isinstance(cat_obj, dict) else "Engineering"
 
-                    jobs.append({
-                        "id": f"adzuna-{country}-{job_id}",
-                        "title": title,
-                        "slug": job_slug,
-                        "company": {
-                            "name": company_name,
-                            "slug": comp_slug,
-                            "industry": dept_name,
-                            "headquarters": loc_name
-                        },
-                        "location": [loc_name],
-                        "department": dept_name,
-                        "employment_type": emp_type,
-                        "work_mode": work_mode,
-                        "salary_min": s_min,
-                        "salary_max": s_max,
-                        "salary_currency": s_curr,
-                        "salary_period": "annual",
-                        "salary_basis": s_basis,
-                        "is_salary_estimated": False if s_min else True,
-                        "experience_min": None,
-                        "experience_max": None,
-                        "education": None,
-                        "eligible_batches": batches,
-                        "min_cgpa": None,
-                        "skills_required": extract_intelligent_skills(title, item.get("description", ""), desc_text),
-                        "job_url": apply_url,
-                        "apply_url": apply_url,
-                        "posted_at": posted_at,
-                        "deadline": None,
-                        "deadline_label": "Apply ASAP (Rolling Hiring)",
-                        "first_seen_at": datetime.now(timezone.utc).isoformat(),
-                        "status": "active",
-                        "description_html": item.get("description", ""),
-                        "description_text": desc_text,
-                        "official_domain": f"{comp_slug}.com",
-                        "is_direct_ats": False
-                    })
-                print(f"[+] Adzuna [{country.upper()}]: Fetched {len(results)} city/state jobs", flush=True)
-        except Exception as e:
-            print(f"[-] Adzuna [{country.upper()}] fetch notice: {e}", flush=True)
+                        raw_desc = item.get("description", "") or ""
+                        clean_desc = html.unescape(raw_desc)
+                        desc_text = re.sub(r'<[^>]+>', ' ', clean_desc)[:1500].strip()
+                        work_mode = detect_work_mode(title, desc_text, loc_name)
+                        batches = detect_batches(desc_text)
 
-    print(f"[+] Adzuna Total : Fetched {len(jobs)} verified multi-location jobs", flush=True)
+                        c_time = item.get("contract_time")
+                        c_type = item.get("contract_type")
+                        emp_type = "Part-time" if c_time == "part_time" else ("Contract" if c_type == "contract" else "Full-time")
+
+                        jobs.append({
+                            "id": f"adzuna-{country}-{job_id}",
+                            "title": title,
+                            "slug": job_slug,
+                            "company": {
+                                "name": company_name,
+                                "slug": comp_slug,
+                                "industry": dept_name,
+                                "headquarters": loc_name
+                            },
+                            "location": [loc_name],
+                            "department": dept_name,
+                            "employment_type": emp_type,
+                            "work_mode": work_mode,
+                            "salary_min": s_min,
+                            "salary_max": s_max,
+                            "salary_currency": c_curr,
+                            "salary_period": "annual",
+                            "salary_basis": s_basis,
+                            "is_salary_estimated": False if s_min else True,
+                            "experience_min": None,
+                            "experience_max": None,
+                            "education": None,
+                            "eligible_batches": batches,
+                            "min_cgpa": None,
+                            "skills_required": extract_intelligent_skills(title, raw_desc, desc_text),
+                            "job_url": apply_url,
+                            "apply_url": apply_url,
+                            "posted_at": posted_at,
+                            "deadline": None,
+                            "deadline_label": "Apply ASAP (Rolling Hiring)",
+                            "first_seen_at": datetime.now(timezone.utc).isoformat(),
+                            "status": "active",
+                            "description_html": f"<p>{desc_text}</p>",
+                            "description_text": desc_text,
+                            "official_domain": f"{comp_slug}.com",
+                            "is_direct_ats": False
+                        })
+                        country_jobs_count += 1
+            except Exception as e:
+                print(f"[-] Adzuna [{country.upper()} P{page}] fetch notice: {e}", flush=True)
+                break
+
+        if country_jobs_count > 0:
+            print(f"[+] Adzuna [{country.upper()}]: Fetched {country_jobs_count} verified 30-day jobs", flush=True)
+
+    print(f"[+] Adzuna Worldwide Total: Fetched {len(jobs)} verified multi-country jobs from the last 1 month", flush=True)
     return jobs
 
 def main():
