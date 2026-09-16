@@ -29,9 +29,9 @@ export function Footer() {
           <div>
             <h3 className="text-slate-900 dark:text-slate-100 font-semibold mb-4 text-sm">Legal & Trust</h3>
             <ul className="space-y-2.5 text-sm">
-              <li><Link href="#" className="hover:text-teal-600 dark:hover:text-white transition-colors">Direct ATS Policy</Link></li>
-              <li><Link href="#" className="hover:text-teal-600 dark:hover:text-white transition-colors">Privacy Policy</Link></li>
-              <li><Link href="#" className="hover:text-teal-600 dark:hover:text-white transition-colors">Terms of Service</Link></li>
+              <li><Link href="/ats-policy" className="hover:text-teal-600 dark:hover:text-white transition-colors">Direct ATS Policy</Link></li>
+              <li><Link href="/privacy" className="hover:text-teal-600 dark:hover:text-white transition-colors">Privacy Policy</Link></li>
+              <li><Link href="/terms" className="hover:text-teal-600 dark:hover:text-white transition-colors">Terms of Service</Link></li>
             </ul>
           </div>
         </div>
