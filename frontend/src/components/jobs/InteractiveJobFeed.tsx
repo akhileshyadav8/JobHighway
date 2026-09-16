@@ -147,7 +147,8 @@ export function InteractiveJobFeed({ initialJobs, stats }: InteractiveJobFeedPro
   const [selectedState, setSelectedState] = useState("All");
   const [selectedCity, setSelectedCity] = useState("All");
   const [selectedCompany, setSelectedCompany] = useState("All");
-  const [sortBy, setSortBy] = useState<"newest" | "salary" | "fresher">("newest");
+  type SortBy = "newest" | "oldest" | "salary_high" | "salary_low";
+  const [sortBy, setSortBy] = useState<SortBy>("newest");
   const [activeFilters, setActiveFilters] = useState<Record<string, string>>({
     "Job Type": "All",
     "Work Mode": "All",
@@ -235,8 +236,9 @@ export function InteractiveJobFeed({ initialJobs, stats }: InteractiveJobFeedPro
 
   const sortOptions = useMemo(() => [
     { label: "🔥 Newest First", value: "newest" },
-    { label: "💰 Highest Salary", value: "salary" },
-    { label: "🎯 Fresher Friendly (0–1 Yrs)", value: "fresher" }
+    { label: "⏳ Oldest First", value: "oldest" },
+    { label: "💰 Highest Salary", value: "salary_high" },
+    { label: "📉 Accessible Salary (Low to High)", value: "salary_low" }
   ], []);
 
   // Dynamic States & Cities from server API (covering all 250 countries, 5,000+ states, 150,000+ cities)
@@ -399,6 +401,94 @@ export function InteractiveJobFeed({ initialJobs, stats }: InteractiveJobFeedPro
     setVisibleCount(9);
   };
 
+  // Restore filters and scroll position on browser back button navigation or initial page load
+  useEffect(() => {
+    try {
+      const urlParams = new URLSearchParams(window.location.search);
+      const saved = sessionStorage.getItem("jobpulse_feed_state");
+      const parsed = saved ? JSON.parse(saved) : null;
+
+      const q = urlParams.get("q") ?? parsed?.searchQuery;
+      if (q) setSearchQuery(q);
+
+      const country = urlParams.get("country") ?? parsed?.selectedCountry;
+      if (country && country !== "All") setSelectedCountry(country);
+
+      const state = urlParams.get("state") ?? parsed?.selectedState;
+      if (state && state !== "All") setSelectedState(state);
+
+      const city = urlParams.get("city") ?? parsed?.selectedCity;
+      if (city && city !== "All") setSelectedCity(city);
+
+      const company = urlParams.get("company") ?? parsed?.selectedCompany;
+      if (company && company !== "All") setSelectedCompany(company);
+
+      const sort = (urlParams.get("sort") ?? parsed?.sortBy) as SortBy;
+      if (sort && ["newest", "oldest", "salary_high", "salary_low"].includes(sort)) {
+        setSortBy(sort);
+      }
+
+      const type = urlParams.get("type") ?? parsed?.activeFilters?.["Job Type"];
+      const mode = urlParams.get("mode") ?? parsed?.activeFilters?.["Work Mode"];
+      const exp = urlParams.get("exp") ?? parsed?.activeFilters?.["Experience"];
+      if (type || mode || exp) {
+        setActiveFilters({
+          "Job Type": type || "All",
+          "Work Mode": mode || "All",
+          "Experience": exp || "All"
+        });
+      }
+
+      if (parsed?.visibleCount && parsed.visibleCount > 9) {
+        setVisibleCount(parsed.visibleCount);
+      }
+
+      // Smoothly restore previous scroll position when returning from details
+      const savedScroll = sessionStorage.getItem("jobpulse_scroll_pos");
+      if (savedScroll) {
+        setTimeout(() => {
+          window.scrollTo({ top: Number(savedScroll), behavior: "instant" });
+        }, 100);
+      }
+    } catch (e) {
+      // ignore
+    }
+  }, []);
+
+  // Sync state to URL search params and sessionStorage on any change
+  useEffect(() => {
+    try {
+      const stateToSave = {
+        searchQuery,
+        selectedCountry,
+        selectedState,
+        selectedCity,
+        selectedCompany,
+        sortBy,
+        activeFilters,
+        visibleCount
+      };
+      sessionStorage.setItem("jobpulse_feed_state", JSON.stringify(stateToSave));
+
+      const params = new URLSearchParams();
+      if (searchQuery.trim()) params.set("q", searchQuery.trim());
+      if (selectedCountry !== "All") params.set("country", selectedCountry);
+      if (selectedState !== "All") params.set("state", selectedState);
+      if (selectedCity !== "All") params.set("city", selectedCity);
+      if (selectedCompany !== "All") params.set("company", selectedCompany);
+      if (sortBy !== "newest") params.set("sort", sortBy);
+      if (activeFilters["Job Type"] !== "All") params.set("type", activeFilters["Job Type"]);
+      if (activeFilters["Work Mode"] !== "All") params.set("mode", activeFilters["Work Mode"]);
+      if (activeFilters["Experience"] !== "All") params.set("exp", activeFilters["Experience"]);
+
+      const queryStr = params.toString();
+      const newUrl = queryStr ? `${window.location.pathname}?${queryStr}` : window.location.pathname;
+      window.history.replaceState(null, "", newUrl);
+    } catch (e) {
+      // ignore
+    }
+  }, [searchQuery, selectedCountry, selectedState, selectedCity, selectedCompany, sortBy, activeFilters, visibleCount]);
+
   const resetFilters = () => {
     setSearchQuery("");
     setSelectedCountry("All");
@@ -412,6 +502,15 @@ export function InteractiveJobFeed({ initialJobs, stats }: InteractiveJobFeedPro
       "Experience": "All"
     });
     setVisibleCount(9);
+    try {
+      sessionStorage.removeItem("jobpulse_feed_state");
+      sessionStorage.removeItem("jobpulse_scroll_pos");
+      if (typeof window !== "undefined") {
+        window.history.replaceState(null, "", window.location.pathname);
+      }
+    } catch (e) {
+      // ignore
+    }
   };
 
   const isFiltered = useMemo(() => {
@@ -736,8 +835,9 @@ export function InteractiveJobFeed({ initialJobs, stats }: InteractiveJobFeedPro
 
         if (expFilter === "0-1") {
           if (isSeniorTitle) return false;
-          if (job.experience_min !== null && job.experience_min !== undefined && job.experience_min > 1) return false;
-          const isFresher = expMin <= 1 || isFresherTitle;
+          if (job.experience_min !== null && job.experience_min !== undefined && job.experience_min > 0) return false;
+          if (job.experience_max !== null && job.experience_max !== undefined && job.experience_max > 1 && !isFresherTitle) return false;
+          const isFresher = job.experience_min === 0 || isFresherTitle;
           if (!isFresher) return false;
         } else if (expFilter === "1-3") {
           if (isSeniorTitle) return false;
@@ -753,19 +853,12 @@ export function InteractiveJobFeed({ initialJobs, stats }: InteractiveJobFeedPro
         }
       }
 
-      // If user sorted by Fresher Friendly, also exclude any non-fresher roles so senior roles never show up
-      if (sortBy === "fresher") {
-        const isSeniorTitle = SENIOR_TITLE_REGEX.test(job.title) && !FRESHER_TITLE_REGEX.test(job.title);
-        if (isSeniorTitle) return false;
-        if (job.experience_min !== null && job.experience_min !== undefined && job.experience_min > 2) return false;
-      }
-
       return true;
     });
 
     // 2. Sort jobs
     return filtered.sort((a, b) => {
-      if (sortBy === "salary") {
+      if (sortBy === "salary_high") {
         const salaryA = getNormalizedAnnualSalaryUsd(a);
         const salaryB = getNormalizedAnnualSalaryUsd(b);
         if (salaryB !== salaryA) {
@@ -775,15 +868,24 @@ export function InteractiveJobFeed({ initialJobs, stats }: InteractiveJobFeedPro
         const timeB = new Date(b.posted_at || b.first_seen_at).getTime();
         return timeB - timeA;
       }
-      if (sortBy === "fresher") {
-        const expA = a.experience_min ?? 0;
-        const expB = b.experience_min ?? 0;
-        if (expA !== expB) {
-          return expA - expB;
+      if (sortBy === "salary_low") {
+        const salaryA = getNormalizedAnnualSalaryUsd(a);
+        const salaryB = getNormalizedAnnualSalaryUsd(b);
+        if (salaryA > 0 && salaryB > 0) {
+          if (salaryA !== salaryB) return salaryA - salaryB;
+        } else if (salaryA > 0) {
+          return -1;
+        } else if (salaryB > 0) {
+          return 1;
         }
         const timeA = new Date(a.posted_at || a.first_seen_at).getTime();
         const timeB = new Date(b.posted_at || b.first_seen_at).getTime();
         return timeB - timeA;
+      }
+      if (sortBy === "oldest") {
+        const timeA = new Date(a.posted_at || a.first_seen_at).getTime();
+        const timeB = new Date(b.posted_at || b.first_seen_at).getTime();
+        return timeA - timeB;
       }
       // Default: newest posted on top
       const timeA = new Date(a.posted_at || a.first_seen_at).getTime();

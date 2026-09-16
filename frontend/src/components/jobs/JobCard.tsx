@@ -12,6 +12,32 @@ interface JobCardProps {
 
 export function JobCard({ job }: JobCardProps) {
   const displaySkills = sanitizeJobSkills(job.skills_required, job.title, job.description_text);
+  const handleJobClick = () => {
+    if (typeof window !== "undefined") {
+      sessionStorage.setItem("jobpulse_scroll_pos", String(window.scrollY));
+    }
+  };
+
+  const isFresherRole = job.experience_min === 0 || 
+    job.employment_type?.toLowerCase().includes("intern") || 
+    job.title.toLowerCase().includes("intern") ||
+    job.title.toLowerCase().includes("trainee") ||
+    job.title.toLowerCase().includes("graduate") ||
+    job.title.toLowerCase().includes("fresher");
+
+  const isSeniorRole = (job.experience_min !== null && job.experience_min >= 5) || 
+    /\b(senior|sr\.?|lead|principal|director|head|manager)\b/i.test(job.title);
+
+  const expBadgeText = job.experience_min === 0
+    ? (job.employment_type?.toLowerCase().includes("intern") || job.title.toLowerCase().includes("intern") ? "🎓 Fresher / Intern" : "🎯 0–1 Yrs (Fresher)")
+    : job.experience_min === 1
+    ? `💼 1–${job.experience_max || 3} Yrs`
+    : job.experience_min !== null
+    ? `💼 ${job.experience_min}+ Yrs`
+    : isFresherRole
+    ? "🎯 0–1 Yrs (Fresher)"
+    : "🎯 Fresher Friendly";
+
   return (
     <Card className="bg-white dark:bg-slate-900/90 border border-slate-200/90 dark:border-slate-800/90 hover:border-teal-400/80 dark:hover:border-teal-600/70 shadow-xs hover:shadow-xl hover:shadow-slate-200/60 dark:hover:shadow-teal-950/20 transition-all duration-200 rounded-2xl flex flex-col h-full overflow-hidden group">
       <CardContent className="p-5 flex-1">
@@ -21,7 +47,7 @@ export function JobCard({ job }: JobCardProps) {
               {job.company.name.charAt(0)}
             </div>
             <div>
-              <Link href={`/jobs/${job.slug}`} className="group/title">
+              <Link href={`/jobs/${job.slug}`} onClick={handleJobClick} className="group/title">
                 <h3 className="font-bold text-base md:text-lg line-clamp-1 text-slate-900 dark:text-slate-100 group-hover/title:text-teal-600 dark:group-hover/title:text-teal-400 transition-colors">
                   {job.title}
                 </h3>
@@ -60,6 +86,15 @@ export function JobCard({ job }: JobCardProps) {
           </Badge>
           <Badge className={`${getWorkModeColor(job.work_mode)} text-xs`}>
             {job.work_mode}
+          </Badge>
+          <Badge className={`${
+            isFresherRole
+              ? "bg-teal-50 text-teal-800 border-teal-200/80 dark:bg-teal-950/50 dark:text-teal-300 dark:border-teal-800/80 font-semibold"
+              : isSeniorRole
+              ? "bg-purple-50 text-purple-800 border-purple-200/80 dark:bg-purple-950/50 dark:text-purple-300 dark:border-purple-800/80 font-semibold"
+              : "bg-blue-50 text-blue-800 border-blue-200/80 dark:bg-blue-950/50 dark:text-blue-300 dark:border-blue-800/80 font-medium"
+          } text-xs shadow-2xs flex items-center gap-1`}>
+            <span>{expBadgeText}</span>
           </Badge>
         </div>
 
@@ -104,6 +139,7 @@ export function JobCard({ job }: JobCardProps) {
         <div className="flex gap-2">
           <Link
             href={`/jobs/${job.slug}`}
+            onClick={handleJobClick}
             className="inline-flex items-center justify-center px-3 py-1.5 text-xs font-semibold rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors"
           >
             Details

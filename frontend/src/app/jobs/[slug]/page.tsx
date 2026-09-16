@@ -101,7 +101,11 @@ export default async function JobDetailPage({ params }: { params: Promise<{ slug
                 <div>
                   <div className="text-xs font-semibold text-slate-500 dark:text-slate-400">Experience</div>
                   <div className="text-sm font-bold text-slate-900 dark:text-slate-100">
-                    {job.experience_min !== null 
+                    {job.experience_min === 0
+                      ? (job.employment_type?.toLowerCase().includes('intern') || job.title.toLowerCase().includes('intern')
+                          ? '0 Years (Internship / Fresher Friendly)'
+                          : '0 - 1 Years (Fresher Friendly)')
+                      : job.experience_min !== null 
                       ? `${job.experience_min} - ${job.experience_max || job.experience_min + 3} Years` 
                       : 'Not specified (See job description)'}
                   </div>
