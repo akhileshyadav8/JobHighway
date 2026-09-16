@@ -11,8 +11,42 @@ import { SearchableSelect } from "@/components/ui/SearchableSelect";
 
 const FILTER_CONFIG = {
   "Job Type": ["All", "Full Time", "Internship", "Contract"],
-  "Work Mode": ["All", "Remote", "Hybrid", "Onsite"]
+  "Work Mode": ["All", "Remote", "Hybrid", "Onsite"],
+  "Experience": ["All", "0-1", "1-3", "3-5", "5+"]
 };
+
+const SENIOR_TITLE_REGEX = /\b(senior|sr\.?|lead|staff|principal|director|head of|vp|manager|architect|partner)\b/i;
+const FRESHER_TITLE_REGEX = /\b(intern|internship|trainee|apprentice|co-op|graduate|fresher|entry level|junior|associate|analyst i|engineer i)\b/i;
+
+function getNormalizedAnnualSalaryUsd(job: Job): number {
+  let val = job.salary_max || job.salary_min || 0;
+  if (!val || val <= 0) return 0;
+  
+  const period = (job.salary_period || "annual").toLowerCase();
+  if (period.includes("hour")) {
+    val = val * 2080;
+  } else if (period.includes("month")) {
+    val = val * 12;
+  } else if (period.includes("week")) {
+    val = val * 52;
+  } else if (period.includes("day")) {
+    val = val * 260;
+  }
+
+  const curr = (job.salary_currency || "USD").toUpperCase();
+  if (curr === "INR" || curr === "₹") {
+    val = val / 85;
+  } else if (curr === "EUR" || curr === "€") {
+    val = val * 1.08;
+  } else if (curr === "GBP" || curr === "£") {
+    val = val * 1.28;
+  } else if (curr === "CAD" || curr === "AUD" || curr === "SGD") {
+    val = val / 1.35;
+  } else if (curr === "JPY" || curr === "¥") {
+    val = val / 150;
+  }
+  return val;
+}
 
 const INDIA_LOC_KEYWORDS = [
   "india", "bengaluru", "bangalore", "blr", "pune", "hyderabad", "hyd",
@@ -116,7 +150,8 @@ export function InteractiveJobFeed({ initialJobs, stats }: InteractiveJobFeedPro
   const [sortBy, setSortBy] = useState<"newest" | "salary" | "fresher">("newest");
   const [activeFilters, setActiveFilters] = useState<Record<string, string>>({
     "Job Type": "All",
-    "Work Mode": "All"
+    "Work Mode": "All",
+    "Experience": "All"
   });
   const [visibleCount, setVisibleCount] = useState(9);
 
@@ -188,6 +223,14 @@ export function InteractiveJobFeed({ initialJobs, stats }: InteractiveJobFeedPro
     { label: "💻 Remote", value: "Remote" },
     { label: "💻 Hybrid", value: "Hybrid" },
     { label: "🏢 Onsite", value: "Onsite" }
+  ], []);
+
+  const experienceOptions = useMemo(() => [
+    { label: "🎯 All Experience", value: "All" },
+    { label: "🎯 Freshers (0–1 Yrs)", value: "0-1" },
+    { label: "💼 Early Career (1–3 Yrs)", value: "1-3" },
+    { label: "🚀 Mid Level (3–5 Yrs)", value: "3-5" },
+    { label: "👑 Senior / Lead (5+ Yrs)", value: "5+" }
   ], []);
 
   const sortOptions = useMemo(() => [
@@ -365,7 +408,8 @@ export function InteractiveJobFeed({ initialJobs, stats }: InteractiveJobFeedPro
     setSortBy("newest");
     setActiveFilters({
       "Job Type": "All",
-      "Work Mode": "All"
+      "Work Mode": "All",
+      "Experience": "All"
     });
     setVisibleCount(9);
   };
@@ -683,20 +727,63 @@ export function InteractiveJobFeed({ initialJobs, stats }: InteractiveJobFeedPro
         }
       }
 
+      // Experience Level filter
+      if (activeFilters["Experience"] !== "All") {
+        const expFilter = activeFilters["Experience"];
+        const expMin = job.experience_min ?? 0;
+        const isSeniorTitle = SENIOR_TITLE_REGEX.test(job.title) && !FRESHER_TITLE_REGEX.test(job.title);
+        const isFresherTitle = FRESHER_TITLE_REGEX.test(job.title) || FRESHER_TITLE_REGEX.test(job.employment_type || "");
+
+        if (expFilter === "0-1") {
+          if (isSeniorTitle) return false;
+          if (job.experience_min !== null && job.experience_min !== undefined && job.experience_min > 1) return false;
+          const isFresher = expMin <= 1 || isFresherTitle;
+          if (!isFresher) return false;
+        } else if (expFilter === "1-3") {
+          if (isSeniorTitle) return false;
+          const effectiveMin = job.experience_min ?? 2;
+          if (effectiveMin < 1 || effectiveMin > 3) return false;
+        } else if (expFilter === "3-5") {
+          const effectiveMin = job.experience_min ?? 3;
+          if (effectiveMin < 3 || effectiveMin > 5) return false;
+        } else if (expFilter === "5+") {
+          const effectiveMin = job.experience_min ?? 0;
+          const isSenior = effectiveMin >= 5 || isSeniorTitle;
+          if (!isSenior) return false;
+        }
+      }
+
+      // If user sorted by Fresher Friendly, also exclude any non-fresher roles so senior roles never show up
+      if (sortBy === "fresher") {
+        const isSeniorTitle = SENIOR_TITLE_REGEX.test(job.title) && !FRESHER_TITLE_REGEX.test(job.title);
+        if (isSeniorTitle) return false;
+        if (job.experience_min !== null && job.experience_min !== undefined && job.experience_min > 2) return false;
+      }
+
       return true;
     });
 
-    // 2. Sort jobs (Latest on top by default)
+    // 2. Sort jobs
     return filtered.sort((a, b) => {
       if (sortBy === "salary") {
-        const salaryA = a.salary_max || a.salary_min || 0;
-        const salaryB = b.salary_max || b.salary_min || 0;
-        return salaryB - salaryA;
+        const salaryA = getNormalizedAnnualSalaryUsd(a);
+        const salaryB = getNormalizedAnnualSalaryUsd(b);
+        if (salaryB !== salaryA) {
+          return salaryB - salaryA;
+        }
+        const timeA = new Date(a.posted_at || a.first_seen_at).getTime();
+        const timeB = new Date(b.posted_at || b.first_seen_at).getTime();
+        return timeB - timeA;
       }
       if (sortBy === "fresher") {
         const expA = a.experience_min ?? 0;
         const expB = b.experience_min ?? 0;
-        return expA - expB;
+        if (expA !== expB) {
+          return expA - expB;
+        }
+        const timeA = new Date(a.posted_at || a.first_seen_at).getTime();
+        const timeB = new Date(b.posted_at || b.first_seen_at).getTime();
+        return timeB - timeA;
       }
       // Default: newest posted on top
       const timeA = new Date(a.posted_at || a.first_seen_at).getTime();
@@ -833,8 +920,8 @@ export function InteractiveJobFeed({ initialJobs, stats }: InteractiveJobFeedPro
               />
             </div>
 
-            {/* Row 2: Job Type, Work Mode, Sort Order */}
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
+            {/* Row 2: Job Type, Work Mode, Experience Level, Sort Order */}
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
               {/* 5. Job Type Dropdown */}
               <SearchableSelect
                 ariaLabel="Job Type"
@@ -857,7 +944,18 @@ export function InteractiveJobFeed({ initialJobs, stats }: InteractiveJobFeedPro
                 searchPlaceholder="Search work mode..."
               />
 
-              {/* 7. Sort Order Dropdown */}
+              {/* 7. Experience Level Dropdown */}
+              <SearchableSelect
+                ariaLabel="Experience Level"
+                icon={<GraduationCap className="w-3.5 h-3.5" />}
+                options={experienceOptions}
+                value={activeFilters["Experience"]}
+                onChange={(val) => toggleFilter("Experience", val)}
+                placeholder="🎯 All Experience"
+                searchPlaceholder="Search experience..."
+              />
+
+              {/* 8. Sort Order Dropdown */}
               <SearchableSelect
                 ariaLabel="Sort Order"
                 icon={<ArrowUpDown className="w-3.5 h-3.5" />}
@@ -903,6 +1001,11 @@ export function InteractiveJobFeed({ initialJobs, stats }: InteractiveJobFeedPro
                 {activeFilters["Work Mode"] !== "All" && (
                   <span className="bg-teal-50 dark:bg-teal-900/40 text-teal-800 dark:text-teal-300 px-2 py-0.5 rounded-full border border-teal-200 dark:border-teal-800">
                     💻 {activeFilters["Work Mode"]}
+                  </span>
+                )}
+                {activeFilters["Experience"] !== "All" && (
+                  <span className="bg-teal-50 dark:bg-teal-900/40 text-teal-800 dark:text-teal-300 px-2 py-0.5 rounded-full border border-teal-200 dark:border-teal-800">
+                    🎯 {activeFilters["Experience"] === "0-1" ? "Freshers (0–1 Yrs)" : `${activeFilters["Experience"]} Yrs Exp`}
                   </span>
                 )}
               </div>
