@@ -22,7 +22,7 @@ export function Footer() {
               </span>
             </Link>
             <p className="text-sm max-w-sm mb-4 leading-relaxed text-slate-600 dark:text-slate-400">
-              World&apos;s Early Job Discovery Engine. Direct official career portal openings verified across 400+ top global companies with continuous ATS syncing and zero recruiter spam.
+              World&apos;s Fastest Official Job Engine. We index official career portals within 1–2 hours of posting — beating standard aggregators by days with zero recruiter spam.
             </p>
           </div>
           
@@ -33,6 +33,7 @@ export function Footer() {
               <li><Link href="/companies" className="hover:text-teal-600 dark:hover:text-white transition-colors">Verified Companies</Link></li>
               <li><Link href="/about" className="hover:text-teal-600 dark:hover:text-white transition-colors">About Us</Link></li>
               <li><Link href="/blog" className="hover:text-teal-600 dark:hover:text-white transition-colors">Career Blog</Link></li>
+              <li><Link href="/contact" className="hover:text-teal-600 dark:hover:text-white transition-colors">Contact Us</Link></li>
             </ul>
           </div>
           

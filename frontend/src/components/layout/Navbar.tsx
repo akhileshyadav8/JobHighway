@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { usePathname } from 'next/navigation';
-import { Menu, X, Briefcase, Building2, BookOpen, Info } from 'lucide-react';
+import { Menu, X, Briefcase, Building2, BookOpen, Info, Mail } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { ThemeToggle } from '@/components/ui/ThemeToggle';
 
@@ -42,6 +42,12 @@ export function Navbar() {
       icon: Info,
       isActive: pathname.startsWith('/about'),
     },
+    {
+      label: 'Contact',
+      href: '/contact',
+      icon: Mail,
+      isActive: pathname.startsWith('/contact'),
+    },
   ];
 
   return (
@@ -65,7 +71,7 @@ export function Navbar() {
             </span>
           </Link>
           <span className="hidden md:inline-block text-xs font-medium text-slate-500 dark:text-slate-400 border-l border-slate-200 dark:border-slate-800 pl-3">
-            Official Career Stream • Early Job Engine
+            Official ATS Stream • Synced Every 1–2 Hours
           </span>
         </div>
 

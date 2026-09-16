@@ -1006,14 +1006,14 @@ export function InteractiveJobFeed({ initialJobs, stats }: InteractiveJobFeedPro
         <div className="container mx-auto text-center max-w-4xl relative z-10">
           <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-teal-50 dark:bg-teal-500/15 border border-teal-500/20 text-teal-700 dark:text-teal-300 text-xs font-semibold mb-6 shadow-2xs">
             <Sparkles className="w-3.5 h-3.5 text-teal-600 dark:text-teal-400 animate-spin" style={{ animationDuration: '4s' }} />
-            <span>Early Applicant Advantage • Continuous Official ATS Sync</span>
+            <span>⚡ Hourly Sync • Discovered Within 1–2 Hours of Company Posting</span>
           </div>
           
           <h1 className="text-2xl sm:text-4xl md:text-5xl lg:text-6xl font-black text-slate-900 dark:text-white mb-4 sm:mb-5 tracking-tight leading-tight break-words">
-            Discover Official Jobs Early. Apply Before The Crowd.
+            Discover Official Jobs Within 1–2 Hours. Apply Before The Crowd.
           </h1>
           <p className="text-sm sm:text-base md:text-lg text-slate-600 dark:text-slate-400 mb-6 sm:mb-8 max-w-2xl mx-auto leading-relaxed">
-            Direct company career portal stream monitored 24/7 across 400+ top employers. Apply straight on official ATS systems with zero recruiter spam.
+            While traditional job boards take 3 to 14 days to crawl listings, JobPulse syncs directly with official company ATS portals every hour. Apply in the golden window before roles hit applicant caps.
           </p>
 
           {/* Interactive Search Bar */}
@@ -1052,7 +1052,7 @@ export function InteractiveJobFeed({ initialJobs, stats }: InteractiveJobFeedPro
             <span className="text-slate-300 dark:text-slate-700 hidden sm:inline">•</span>
             <span className="bg-white dark:bg-slate-900/80 px-3 py-1.5 rounded-full border border-slate-200 dark:border-slate-800 shadow-2xs flex items-center gap-1.5 font-medium">
               <Clock className="w-3.5 h-3.5 text-teal-600 dark:text-teal-400" />
-              <span>Last 1 month only • Newest on top</span>
+              <span>Synced within 1–2 hrs • Last 30 days only</span>
             </span>
           </div>
         </div>
