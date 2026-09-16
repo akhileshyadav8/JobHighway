@@ -111,6 +111,19 @@ def infer_historical_salary(title, company_name, locations, emp_type):
     is_tier1 = any(comp in c for comp in TIER_1_COMPANIES)
     is_tier2 = any(comp in c for comp in TIER_2_COMPANIES)
 
+    # Physical / service / non-tech roles: NEVER fabricate a tech salary!
+    physical_or_non_tech = [
+        'driver', 'delivery', 'van', 'truck', 'courier', 'cargo',
+        'cook', 'chef', 'kitchen', 'food',
+        'warehouse', 'forklift', 'material handler',
+        'cashier', 'retail', 'store associate',
+        'cleaner', 'custodian', 'housekeeper',
+        'nurse', 'caregiver', 'patient care',
+        'security guard', 'patrol'
+    ]
+    if any(k in t for k in physical_or_non_tech):
+        return None, None, currency, 'annual', 'Disclosed on Application'
+
     # 1. Internship
     if 'intern' in t or 'co-op' in t or 'trainee' in t or 'intern' in (emp_type or '').lower():
         if is_india:
@@ -232,6 +245,31 @@ SKILLS_CATALOG = {
     'Playwright': [r'\bplaywright\b'],
     'Test Automation': [r'\btest\s+automation\b', r'\bautomated\s+testing\b', r'\bqa\s+automation\b'],
 
+    # Delivery, Transportation & Driving
+    'Package Delivery': [r'\bdeliver\s+package[s]?\b', r'\bpackage\s+delivery\b', r'\bparcel\s+delivery\b', r'\bcourier\b', r'\bamazon\s+flex\b'],
+    'Vehicle Operation': [r'\buse\s+your\s+vehicle\b', r'\bvalid\s+driver\b', r'\bdriving\s+license\b', r'\bclean\s+driving\s+record\b', r'\bvan\b', r'\btruck\b'],
+    'Route Navigation': [r'\broute[s]?\b', r'\bnavigation\b', r'\bgps\b'],
+    'Commercial Driving': [r'\bcdl\b', r'\bcommercial\s+driver\b', r'\btruck\s+driver\b', r'\bhgv\b'],
+    'Freight & Cargo Handling': [r'\bcargo\b', r'\bfreight\b', r'\bloading\b', r'\bunloading\b'],
+
+    # Warehouse & Operations
+    'Inventory Management': [r'\binventory\b', r'\bstocking\b', r'\bstock\s+replenishment\b'],
+    'Forklift Operation': [r'\bforklift\b', r'\bpallet\s+jack\b', r'\breach\s+truck\b'],
+    'Order Fulfillment': [r'\border\s+fulfillment\b', r'\bpick\s*(?:and|&)\s*pack\b', r'\bshipping\s*(?:and|&)\s*receiving\b'],
+    'Safety Compliance': [r'\bosha\b', r'\bsafety\s+compliance\b', r'\bworkplace\s+safety\b'],
+
+    # Food & Hospitality
+    'Food Preparation': [r'\bfood\s+prep\w*\b', r'\bcooking\b', r'\bcook\b', r'\bmeals\b'],
+    'Culinary Skills': [r'\bculinary\b', r'\bkitchen\s+operations\b', r'\bchef\b'],
+    'Food Safety & Hygiene': [r'\bfood\s+safety\b', r'\bhygiene\b', r'\bhaccp\b', r'\bsanitation\b'],
+
+    # Retail, Sales & Healthcare
+    'Customer Service': [r'\bcustomer\s+service\b', r'\bcustomer\s+experience\b', r'\bclient\s+facing\b'],
+    'Cash Handling': [r'\bcash\s+handling\b', r'\bcashier\b', r'\bpoint\s+of\s+sale\b', r'\bpos\b'],
+    'Merchandising': [r'\bmerchandis\w+\b', r'\bvisual\s+merchandising\b', r'\bplanogram\b'],
+    'Patient Care': [r'\bpatient\s+care\b', r'\bclinical\s+care\b', r'\bvital\s+signs\b'],
+    'Teaching & Instruction': [r'\bteaching\b', r'\binstruction\b', r'\bcurriculum\b', r'\bclassroom\b', r'\beducator\b'],
+
     # Product & Agile & Management
     'Product Management': [r'\bproduct\s+management\b', r'\broadmap\w*\b', r'\bproduct\s+strategy\b'],
     'Agile / Scrum': [r'\bagile\b', r'\bscrum\b'],
@@ -242,6 +280,20 @@ SKILLS_CATALOG = {
 }
 
 ROLE_FALLBACKS = [
+    (r'\b(cargo\s+van|delivery\s+driver|package\s+delivery|amazon\s+flex|van\s+driver)\b',
+     ['Package Delivery', 'Vehicle Operation', 'Route Navigation', 'Time Management']),
+    (r'\b(truck\s+driver|cdl|hgv|freight\s+driver)\b',
+     ['Commercial Driving', 'Freight & Cargo Handling', 'Vehicle Operation', 'Route Navigation']),
+    (r'\b(cook|chef|kitchen|culinary)\b',
+     ['Food Preparation', 'Food Safety & Hygiene', 'Culinary Skills', 'Kitchen Operations']),
+    (r'\b(teacher|educator|instructor|tutor)\b',
+     ['Teaching & Instruction', 'Curriculum Planning', 'Student Mentoring', 'Classroom Management']),
+    (r'\b(merchandiser|retail|store\s+associate|cashier)\b',
+     ['Customer Service', 'Merchandising', 'Cash Handling', 'Inventory Management']),
+    (r'\b(warehouse|forklift|material\s+handler|stocker)\b',
+     ['Inventory Management', 'Order Fulfillment', 'Forklift Operation', 'Safety Compliance']),
+    (r'\b(nurse|patient\s+care|healthcare|dental)\b',
+     ['Patient Care', 'Clinical Support', 'Medical Terminology', 'Customer Service']),
     (r'\b(data\s+analyst|bi\s+analyst|business\s+intelligence|analytics\s+analyst|marketing\s+analyst|financial\s+analyst|operations\s+analyst)\b', 
      ['SQL', 'Python', 'Tableau', 'Power BI', 'Excel', 'Data Analysis']),
     (r'\b(data\s+scientist|machine\s+learning|ml\s+engineer|ai\s+engineer)\b', 
@@ -249,7 +301,7 @@ ROLE_FALLBACKS = [
     (r'\b(data\s+engineer|etl\s+developer|big\s+data)\b', 
      ['SQL', 'Python', 'Apache Spark', 'Airflow', 'ETL', 'AWS']),
     (r'\b(frontend|react|angular|vue|ui\s+engineer|web\s+developer)\b', 
-     ['React', 'TypeScript', 'JavaScript', 'HTML / CSS', 'Next.js', 'Tailwind CSS']),
+     ['React', 'TypeScript', 'JavaScript', 'HTML / CSS', 'Next.js']),
     (r'\b(backend|node|django|fastapi|golang|spring)\b', 
      ['Python', 'Node.js', 'REST APIs', 'SQL', 'Docker', 'Microservices']),
     (r'\b(full\s*stack|software\s+engineer|software\s+developer|sde)\b', 
@@ -259,7 +311,7 @@ ROLE_FALLBACKS = [
     (r'\b(qa|quality\s+assurance|test\s+engineer|sdet)\b', 
      ['Test Automation', 'Selenium', 'Python', 'REST APIs', 'JIRA']),
     (r'\b(support|technical\s+support|help\s*desk|it\s+support)\b', 
-     ['Technical Support', 'Linux', 'Troubleshooting', 'SQL', 'REST APIs']),
+     ['Technical Support', 'Linux', 'Troubleshooting', 'Customer Service']),
     (r'\b(product\s+manager|technical\s+product|product\s+owner)\b', 
      ['Product Management', 'Agile / Scrum', 'Data Analysis', 'JIRA', 'Product Strategy']),
     (r'\b(security|infosec|cybersecurity)\b', 
@@ -267,6 +319,34 @@ ROLE_FALLBACKS = [
     (r'\b(sales|account\s+executive|bdr|sdr|business\s+development)\b', 
      ['B2B Sales', 'CRM', 'Salesforce', 'Client Relations', 'Lead Generation']),
 ]
+
+def detect_work_mode(title, desc_text, location_str=""):
+    full = f"{title} {desc_text} {location_str}".lower()
+    physical_roles = [
+        'driver', 'delivery', 'van', 'truck', 'courier', 'cargo',
+        'warehouse', 'forklift', 'material handler', 'stocker',
+        'cook', 'chef', 'kitchen', 'dishwasher', 'food service',
+        'nurse', 'hospital', 'patient care', 'dental', 'caregiver',
+        'cashier', 'retail', 'store associate', 'merchandiser', 'barista',
+        'cleaner', 'janitor', 'housekeeper',
+        'technician', 'electrician', 'plumber', 'mechanic', 'maintenance',
+        'security guard', 'patrol'
+    ]
+    if any(re.search(r'\b' + re.escape(role) + r'\b', full) for role in physical_roles):
+        return "In-Office"
+    if re.search(r'\b(remote|work\s+from\s+home|wfh|telecommute|virtual|anywhere)\b', full):
+        return "Remote"
+    if re.search(r'\b(hybrid|flexible\s+remote|\d+\s+days\s+in\s+office)\b', full):
+        return "Hybrid"
+    return "In-Office"
+
+def detect_batches(desc_text):
+    if not desc_text:
+        return None
+    matches = re.findall(r'\b(202[0-6])\s*(?:batch|passout|graduat\w*)\b', desc_text, re.IGNORECASE)
+    if matches:
+        return sorted(list(set(matches)))
+    return None
 
 def extract_intelligent_skills(title, desc_html="", desc_text="", tags=None):
     full_text = ' ' + (title or '') + ' ' + (desc_text or '') + ' ' + html.unescape(desc_html or '')
@@ -286,7 +366,7 @@ def extract_intelligent_skills(title, desc_html="", desc_text="", tags=None):
 
     # 2. Keywords mentioned in the description body
     for skill, patterns in SKILLS_CATALOG.items():
-        if len(found) >= 6:
+        if len(found) >= 5:
             break
         for pat in patterns:
             if re.search(pat, clean, re.IGNORECASE):
@@ -294,8 +374,8 @@ def extract_intelligent_skills(title, desc_html="", desc_text="", tags=None):
                     found.append(skill)
                 break
 
-    # 3. If fewer than 3 skills, supplement from role fallback
-    if len(found) < 3:
+    # 3. If fewer than 2 skills, supplement from role fallback
+    if len(found) < 2:
         for title_pattern, fallback_skills in ROLE_FALLBACKS:
             if re.search(title_pattern, title or '', re.IGNORECASE):
                 for s in fallback_skills:
@@ -305,11 +385,19 @@ def extract_intelligent_skills(title, desc_html="", desc_text="", tags=None):
                         break
                 break
 
-    # 4. Fallback for remaining cases
+    # 4. Fallback: Role-sensitive, NEVER Software Development for physical/non-tech roles!
     if not found:
-        found = ['Software Development', 'Problem Solving', 'Communication']
+        t_low = (title or '').lower()
+        if any(k in t_low for k in ['driver', 'delivery', 'van', 'truck', 'courier', 'cargo', 'flex']):
+            found = ['Package Delivery', 'Vehicle Operation', 'Route Navigation', 'Time Management']
+        elif any(k in t_low for k in ['cook', 'chef', 'kitchen', 'food']):
+            found = ['Food Preparation', 'Food Safety & Hygiene', 'Kitchen Operations']
+        elif any(k in t_low for k in ['engineer', 'developer', 'sde', 'programmer']):
+            found = ['Software Engineering', 'Problem Solving', 'System Design']
+        else:
+            found = ['Customer Service', 'Communication', 'Operational Excellence']
 
-    return found[:5]
+    return found[:4]
 
 def fetch_greenhouse_jobs(comp):
     slug = comp["slug"]
@@ -340,6 +428,10 @@ def fetch_greenhouse_jobs(comp):
                 posted_at = item.get("updated_at") or datetime.now(timezone.utc).isoformat()
                 s_min, s_max, s_curr, s_per, s_basis = infer_historical_salary(title, name, [loc_name], "Full-time")
 
+                desc_text = re.sub(r'<[^>]+>', ' ', item.get("content", "") or "")[:1500].strip()
+                batches = detect_batches(desc_text)
+                work_mode = detect_work_mode(title, desc_text, loc_name)
+
                 jobs.append({
                     "id": job_id,
                     "title": title,
@@ -363,9 +455,9 @@ def fetch_greenhouse_jobs(comp):
                     "experience_min": 0 if "intern" in title.lower() else (1 if "junior" in title.lower() or "associate" in title.lower() else 3),
                     "experience_max": 2 if "intern" in title.lower() else (4 if "junior" in title.lower() else 7),
                     "education": "B.Tech/M.Tech/MCA or equivalent experience",
-                    "eligible_batches": ["2022", "2023", "2024", "2025", "2026"],
+                    "eligible_batches": batches,
                     "min_cgpa": None,
-                    "skills_required": extract_intelligent_skills(title, item.get("content", ""), ""),
+                    "skills_required": extract_intelligent_skills(title, item.get("content", ""), desc_text),
                     "job_url": apply_url,
                     "apply_url": apply_url,
                     "posted_at": posted_at,
@@ -374,7 +466,7 @@ def fetch_greenhouse_jobs(comp):
                     "first_seen_at": datetime.now(timezone.utc).isoformat(),
                     "status": "active",
                     "description_html": item.get("content", ""),
-                    "description_text": re.sub(r'<[^>]+>', ' ', item.get("content", "") or "")[:1500].strip(),
+                    "description_text": desc_text,
                     "official_domain": f"{slug}.com",
                     "is_direct_ats": True
                 })
@@ -406,6 +498,10 @@ def fetch_lever_jobs(comp):
                 apply_url = item.get("hostedUrl") or item.get("applyUrl")
                 job_slug = f"{slug}-{job_id[:8]}-{re.sub(r'[^a-zA-Z0-9]+', '-', title.lower())}"[:100]
 
+                desc_text = re.sub(r'<[^>]+>', ' ', item.get("descriptionPlain", "") or "")[:1500].strip()
+                batches = detect_batches(desc_text)
+                work_mode = detect_work_mode(title, desc_text, loc_name)
+
                 created_at_ts = item.get("createdAt")
                 posted_at = datetime.fromtimestamp(created_at_ts / 1000, tz=timezone.utc).isoformat() if created_at_ts else datetime.now(timezone.utc).isoformat()
                 s_min, s_max, s_curr, s_per, s_basis = infer_historical_salary(title, name, [loc_name], commitment)
@@ -429,13 +525,13 @@ def fetch_lever_jobs(comp):
                     "salary_currency": s_curr,
                     "salary_period": s_per,
                     "salary_basis": s_basis,
-                    "is_salary_estimated": True,
+                    "is_salary_estimated": True if s_min else False,
                     "experience_min": 0 if "intern" in title.lower() else 2,
                     "experience_max": 2 if "intern" in title.lower() else 6,
                     "education": "Bachelor's degree or practical experience",
-                    "eligible_batches": ["2022", "2023", "2024", "2025", "2026"],
+                    "eligible_batches": batches,
                     "min_cgpa": None,
-                    "skills_required": extract_intelligent_skills(title, item.get("descriptionHtml", ""), item.get("descriptionPlain", "")),
+                    "skills_required": extract_intelligent_skills(title, item.get("descriptionHtml", ""), desc_text),
                     "job_url": apply_url,
                     "apply_url": apply_url,
                     "posted_at": posted_at,
@@ -444,7 +540,7 @@ def fetch_lever_jobs(comp):
                     "first_seen_at": datetime.now(timezone.utc).isoformat(),
                     "status": "active",
                     "description_html": item.get("descriptionHtml", ""),
-                    "description_text": re.sub(r'<[^>]+>', ' ', item.get("descriptionPlain", "") or "")[:1500].strip(),
+                    "description_text": desc_text,
                     "official_domain": f"{slug}.com",
                     "is_direct_ats": True
                 })
@@ -470,11 +566,12 @@ def fetch_arbeitnow_multi_page(max_pages=5):
                     comp_slug = re.sub(r'[^a-zA-Z0-9]+', '-', company_name.lower()).strip("-")[:40] or "tech"
                     
                     loc_name = item.get("location") or "Remote, Worldwide"
-                    is_remote = item.get("remote", False)
-                    work_mode = "Remote" if is_remote else "In-Office"
-                    
                     apply_url = item.get("url")
                     job_slug = item.get("slug") or f"{comp_slug}-{re.sub(r'[^a-zA-Z0-9]+', '-', title.lower())}"[:100]
+
+                    desc_text = re.sub(r'<[^>]+>', ' ', item.get("description", "") or "")[:1500].strip()
+                    work_mode = detect_work_mode(title, desc_text, loc_name)
+                    batches = detect_batches(desc_text)
 
                     posted_ts = item.get("created_at")
                     posted_at = datetime.fromtimestamp(posted_ts, tz=timezone.utc).isoformat() if posted_ts else datetime.now(timezone.utc).isoformat()
@@ -499,13 +596,13 @@ def fetch_arbeitnow_multi_page(max_pages=5):
                         "salary_currency": s_curr,
                         "salary_period": s_per,
                         "salary_basis": s_basis,
-                        "is_salary_estimated": True,
+                        "is_salary_estimated": True if s_min else False,
                         "experience_min": 1,
                         "experience_max": 4,
                         "education": "Relevant degree or professional background",
-                        "eligible_batches": ["2022", "2023", "2024", "2025", "2026"],
+                        "eligible_batches": batches,
                         "min_cgpa": None,
-                        "skills_required": extract_intelligent_skills(title, item.get("description", ""), "", item.get("tags")),
+                        "skills_required": extract_intelligent_skills(title, item.get("description", ""), desc_text, item.get("tags")),
                         "job_url": apply_url,
                         "apply_url": apply_url,
                         "posted_at": posted_at,
@@ -514,7 +611,7 @@ def fetch_arbeitnow_multi_page(max_pages=5):
                         "first_seen_at": datetime.now(timezone.utc).isoformat(),
                         "status": "active",
                         "description_html": item.get("description", ""),
-                        "description_text": re.sub(r'<[^>]+>', ' ', item.get("description", "") or "")[:1500].strip(),
+                        "description_text": desc_text,
                         "official_domain": f"{comp_slug}.com",
                         "is_direct_ats": True
                     })
@@ -553,7 +650,14 @@ def fetch_jobicy_jobs(count=50):
                     except Exception:
                         pass
 
-                s_min, s_max, s_curr, s_per, s_basis = infer_historical_salary(title, company_name, locations, "Full-time")
+                desc_text = re.sub(r'<[^>]+>', ' ', item.get("jobDescription", "") or "")[:1500].strip()
+                batches = detect_batches(desc_text)
+                work_mode = detect_work_mode(title, desc_text, "Remote")
+
+                s_min = item.get("annualSalaryMin")
+                s_max = item.get("annualSalaryMax")
+                s_curr = item.get("salaryCurrency") or "USD"
+                s_basis = "Disclosed by employer" if s_min else "Disclosed on Application"
 
                 jobs.append({
                     "id": f"jobicy-{job_id}",
@@ -568,19 +672,19 @@ def fetch_jobicy_jobs(count=50):
                     "location": locations,
                     "department": item.get("jobCategory", "Engineering"),
                     "employment_type": item.get("jobType", "Full-time"),
-                    "work_mode": "Remote",
-                    "salary_min": item.get("annualSalaryMin") or s_min,
-                    "salary_max": item.get("annualSalaryMax") or s_max,
-                    "salary_currency": item.get("salaryCurrency") or s_curr,
+                    "work_mode": work_mode,
+                    "salary_min": s_min,
+                    "salary_max": s_max,
+                    "salary_currency": s_curr,
                     "salary_period": "annual",
                     "salary_basis": s_basis,
-                    "is_salary_estimated": True,
+                    "is_salary_estimated": False if s_min else True,
                     "experience_min": 1,
                     "experience_max": 5,
                     "education": "Bachelor's Degree or Equivalent",
-                    "eligible_batches": ["2022", "2023", "2024", "2025", "2026"],
+                    "eligible_batches": batches,
                     "min_cgpa": None,
-                    "skills_required": extract_intelligent_skills(title, item.get("jobDescription", ""), ""),
+                    "skills_required": extract_intelligent_skills(title, item.get("jobDescription", ""), desc_text),
                     "job_url": apply_url,
                     "apply_url": apply_url,
                     "posted_at": posted_at,
@@ -589,7 +693,7 @@ def fetch_jobicy_jobs(count=50):
                     "first_seen_at": datetime.now(timezone.utc).isoformat(),
                     "status": "active",
                     "description_html": item.get("jobDescription", ""),
-                    "description_text": re.sub(r'<[^>]+>', ' ', item.get("jobDescription", "") or "")[:1500].strip(),
+                    "description_text": desc_text,
                     "official_domain": f"{comp_slug}.com",
                     "is_direct_ats": True
                 })
@@ -625,6 +729,10 @@ def fetch_remotive_jobs(limit=75):
                     except Exception:
                         pass
 
+                desc_text = re.sub(r'<[^>]+>', ' ', item.get("description", "") or "")[:1500].strip()
+                batches = detect_batches(desc_text)
+                work_mode = detect_work_mode(title, desc_text, loc)
+
                 s_min, s_max, s_curr, s_per, s_basis = infer_historical_salary(title, company_name, locations, "Full-time")
 
                 jobs.append({
@@ -640,19 +748,19 @@ def fetch_remotive_jobs(limit=75):
                     "location": locations,
                     "department": item.get("category", "Engineering"),
                     "employment_type": item.get("job_type", "Full-time"),
-                    "work_mode": "Remote",
+                    "work_mode": work_mode,
                     "salary_min": s_min,
                     "salary_max": s_max,
                     "salary_currency": s_curr,
                     "salary_period": "annual",
                     "salary_basis": s_basis,
-                    "is_salary_estimated": True,
+                    "is_salary_estimated": True if s_min else False,
                     "experience_min": 1,
                     "experience_max": 5,
                     "education": "Relevant Degree or equivalent experience",
-                    "eligible_batches": ["2022", "2023", "2024", "2025", "2026"],
+                    "eligible_batches": batches,
                     "min_cgpa": None,
-                    "skills_required": extract_intelligent_skills(title, item.get("description", ""), "", item.get("tags")),
+                    "skills_required": extract_intelligent_skills(title, item.get("description", ""), desc_text, item.get("tags")),
                     "job_url": apply_url,
                     "apply_url": apply_url,
                     "posted_at": posted_at,
@@ -683,6 +791,7 @@ def fetch_adzuna_jobs(app_id, app_key):
     countries = ["in", "us", "gb", "ca", "de", "fr", "au"]
     jobs = []
 
+    seen_gigs = set()
     for country in countries:
         url = f"https://api.adzuna.com/v1/api/jobs/{country}/search/1?app_id={app_id}&app_key={app_key}&results_per_page=50&content-type=application/json"
         req = urllib.request.Request(url, headers=HEADERS)
@@ -695,6 +804,12 @@ def fetch_adzuna_jobs(app_id, app_key):
                     comp_obj = item.get("company", {})
                     company_name = comp_obj.get("display_name", "Enterprise Hiring").strip() if isinstance(comp_obj, dict) else str(comp_obj)
                     comp_slug = re.sub(r'[^a-zA-Z0-9]+', '-', company_name.lower()).strip("-")[:40] or "hiring"
+
+                    # Deduplicate repeated identical gig postings across adjacent suburbs
+                    gig_key = (comp_slug, re.sub(r'[^a-zA-Z0-9]+', '', title.lower())[:30])
+                    if gig_key in seen_gigs:
+                        continue
+                    seen_gigs.add(gig_key)
 
                     loc_obj = item.get("location", {})
                     area_list = loc_obj.get("area", []) if isinstance(loc_obj, dict) else []
@@ -716,12 +831,22 @@ def fetch_adzuna_jobs(app_id, app_key):
                     s_max = item.get("salary_max")
                     s_curr = "INR" if country == "in" else ("GBP" if country == "gb" else ("EUR" if country in ["de", "fr"] else "USD"))
                     if not s_min:
-                        s_min, s_max, s_curr, _, s_basis = infer_historical_salary(title, company_name, [loc_name], "Full-time")
+                        s_min = None
+                        s_max = None
+                        s_basis = "Disclosed on Application"
                     else:
                         s_basis = "Official employer range"
 
                     cat_obj = item.get("category", {})
                     dept_name = cat_obj.get("label", "Engineering") if isinstance(cat_obj, dict) else "Engineering"
+
+                    desc_text = re.sub(r'<[^>]+>', ' ', item.get("description", "") or "")[:1500].strip()
+                    work_mode = detect_work_mode(title, desc_text, loc_name)
+                    batches = detect_batches(desc_text)
+
+                    c_time = item.get("contract_time")
+                    c_type = item.get("contract_type")
+                    emp_type = "Part-time" if c_time == "part_time" else ("Contract" if c_type == "contract" else "Full-time")
 
                     jobs.append({
                         "id": f"adzuna-{country}-{job_id}",
@@ -735,20 +860,20 @@ def fetch_adzuna_jobs(app_id, app_key):
                         },
                         "location": [loc_name],
                         "department": dept_name,
-                        "employment_type": "Full-time",
-                        "work_mode": "Hybrid",
+                        "employment_type": emp_type,
+                        "work_mode": work_mode,
                         "salary_min": s_min,
                         "salary_max": s_max,
                         "salary_currency": s_curr,
                         "salary_period": "annual",
                         "salary_basis": s_basis,
-                        "is_salary_estimated": True,
-                        "experience_min": 1,
-                        "experience_max": 5,
-                        "education": "Relevant Degree or Equivalent",
-                        "eligible_batches": ["2022", "2023", "2024", "2025", "2026"],
+                        "is_salary_estimated": False if s_min else True,
+                        "experience_min": None,
+                        "experience_max": None,
+                        "education": None,
+                        "eligible_batches": batches,
                         "min_cgpa": None,
-                        "skills_required": extract_intelligent_skills(title, item.get("description", ""), ""),
+                        "skills_required": extract_intelligent_skills(title, item.get("description", ""), desc_text),
                         "job_url": apply_url,
                         "apply_url": apply_url,
                         "posted_at": posted_at,
@@ -757,7 +882,7 @@ def fetch_adzuna_jobs(app_id, app_key):
                         "first_seen_at": datetime.now(timezone.utc).isoformat(),
                         "status": "active",
                         "description_html": item.get("description", ""),
-                        "description_text": re.sub(r'<[^>]+>', ' ', item.get("description", "") or "")[:1500].strip(),
+                        "description_text": desc_text,
                         "official_domain": f"{comp_slug}.com",
                         "is_direct_ats": False
                     })

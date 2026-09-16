@@ -13,7 +13,7 @@ export function formatSalary(
   period: string = "annual",
   showExpectedTag: boolean = false
 ): string {
-  if (!min && !max) return "₹8 - 16 LPA (Expected CTC)";
+  if (!min && !max) return "Competitive (Disclosed on Application)";
 
   const symbol = currency === "INR" ? "\u20B9" : currency === "EUR" ? "€" : currency === "GBP" ? "£" : "$";
 
@@ -30,15 +30,14 @@ export function formatSalary(
   };
 
   const suffix = period === "annual" ? (currency === "INR" ? " LPA" : "/yr") : period === "monthly" ? "/mo" : "";
-  const tag = showExpectedTag ? " (Expected CTC)" : "";
 
   if (min && max) {
-    if (min === max) return `${formatNumber(min)}${suffix}${tag}`;
-    return `${formatNumber(min)} - ${formatNumber(max)}${suffix}${tag}`;
+    if (min === max) return `${formatNumber(min)}${suffix}`;
+    return `${formatNumber(min)} - ${formatNumber(max)}${suffix}`;
   }
 
-  if (min) return `${formatNumber(min)}+${suffix}${tag}`;
-  return `Up to ${formatNumber(max!)}${suffix}${tag}`;
+  if (min) return `${formatNumber(min)}+${suffix}`;
+  return `Up to ${formatNumber(max!)}${suffix}`;
 }
 
 export function formatRelativeTime(dateString: string | null): string {
@@ -168,6 +167,28 @@ export function sanitizeJobSkills(
   check(/\b(ci[/-]cd|terraform)\b/, 'DevOps');
   check(/\b(rest\s*api|microservices)\b/, 'Microservices');
 
+  // Delivery, Transportation & Logistics
+  check(/\b(deliver\s+package|package\s+delivery|parcel|courier|amazon\s+flex)\b/, 'Package Delivery');
+  check(/\b(use\s+your\s+vehicle|valid\s+driver|driving\s+license|van|truck)\b/, 'Vehicle Operation');
+  check(/\b(route|navigation|gps)\b/, 'Route Navigation');
+  check(/\b(cdl|commercial\s+driver|hgv)\b/, 'Commercial Driving');
+  check(/\b(cargo|freight|loading|unloading)\b/, 'Freight & Cargo Handling');
+
+  // Warehouse, Hospitality & Trades
+  check(/\b(inventory|stocking|replenishment)\b/, 'Inventory Management');
+  check(/\b(forklift|pallet\s+jack)\b/, 'Forklift Operation');
+  check(/\b(food\s+prep|cooking|cook|meals)\b/, 'Food Preparation');
+  check(/\b(culinary|chef|kitchen)\b/, 'Culinary Skills');
+  check(/\b(food\s+safety|hygiene|sanitation)\b/, 'Food Safety & Hygiene');
+
+  // Retail, Sales & Healthcare
+  check(/\b(customer\s+service|customer\s+experience)\b/, 'Customer Service');
+  check(/\b(cash\s+handling|cashier|pos|point\s+of\s+sale)\b/, 'Cash Handling');
+  check(/\b(merchandis|planogram)\b/, 'Merchandising');
+  check(/\b(patient\s+care|vital\s+signs)\b/, 'Patient Care');
+  check(/\b(nursing|rn|cpr|bls)\b/, 'Clinical Care');
+  check(/\b(teaching|classroom|curriculum|educator)\b/, 'Teaching & Instruction');
+
   // QA, Product & Roles
   check(/\b(selenium|cypress|playwright|qa)\b/, 'Test Automation');
   check(/\b(product\s+management|agile|scrum)\b/, 'Product Strategy');
@@ -178,7 +199,31 @@ export function sanitizeJobSkills(
   // Role fallbacks
   if (detected.length < 3) {
     const t = title.toLowerCase();
-    if (/analyst|business\s+intelligence|data\s+analytics/.test(t)) {
+    if (/driver|delivery|van|truck|courier|cargo|flex/.test(t)) {
+      ['Package Delivery', 'Vehicle Operation', 'Route Navigation', 'Time Management'].forEach(s => {
+        if (!detected.includes(s) && detected.length < 4) detected.push(s);
+      });
+    } else if (/cook|chef|kitchen|culinary|food/.test(t)) {
+      ['Food Preparation', 'Food Safety & Hygiene', 'Kitchen Operations'].forEach(s => {
+        if (!detected.includes(s) && detected.length < 4) detected.push(s);
+      });
+    } else if (/warehouse|forklift|stocker|material\s+handler/.test(t)) {
+      ['Inventory Management', 'Order Fulfillment', 'Safety Compliance'].forEach(s => {
+        if (!detected.includes(s) && detected.length < 4) detected.push(s);
+      });
+    } else if (/merchandis|retail|cashier|store\s+associate/.test(t)) {
+      ['Customer Service', 'Merchandising', 'Cash Handling'].forEach(s => {
+        if (!detected.includes(s) && detected.length < 4) detected.push(s);
+      });
+    } else if (/nurse|patient\s+care|healthcare|dental/.test(t)) {
+      ['Patient Care', 'Clinical Support', 'Customer Service'].forEach(s => {
+        if (!detected.includes(s) && detected.length < 4) detected.push(s);
+      });
+    } else if (/teacher|educator|instructor|tutor/.test(t)) {
+      ['Teaching & Instruction', 'Curriculum Planning', 'Student Mentoring'].forEach(s => {
+        if (!detected.includes(s) && detected.length < 4) detected.push(s);
+      });
+    } else if (/analyst|business\s+intelligence|data\s+analytics/.test(t)) {
       ['SQL', 'Python', 'Tableau', 'Excel', 'Data Analysis'].forEach(s => {
         if (!detected.includes(s) && detected.length < 4) detected.push(s);
       });
@@ -202,8 +247,12 @@ export function sanitizeJobSkills(
       ['Technical Support', 'Troubleshooting', 'Linux', 'SQL'].forEach(s => {
         if (!detected.includes(s) && detected.length < 4) detected.push(s);
       });
+    } else if (/software|engineer|developer|sde|programmer/.test(t)) {
+      ['Software Engineering', 'Problem Solving', 'System Design'].forEach(s => {
+        if (!detected.includes(s) && detected.length < 3) detected.push(s);
+      });
     } else {
-      ['Software Development', 'Problem Solving', 'Communication'].forEach(s => {
+      ['Customer Service', 'Communication', 'Operational Excellence'].forEach(s => {
         if (!detected.includes(s) && detected.length < 3) detected.push(s);
       });
     }
