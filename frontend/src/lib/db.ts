@@ -68,6 +68,7 @@ export async function getLiveJobsFromDb(limit?: number): Promise<Job[] | null> {
       FROM jobs j
       JOIN companies c ON j.company_id = c.id
       WHERE j.status = 'active'
+      AND (j.posted_at >= NOW() - INTERVAL '30 DAYS' OR j.first_seen_at >= NOW() - INTERVAL '30 DAYS')
       ORDER BY j.posted_at DESC NULLS LAST
       ${hasLimit ? 'LIMIT $1' : ''};
     `;
@@ -134,8 +135,8 @@ export async function getLiveStatsFromDb(): Promise<OverviewStats | null> {
   try {
     const res = await p.query(`
       SELECT 
-        (SELECT count(*) FROM jobs WHERE status = 'active') as total_jobs,
-        (SELECT count(*) FROM companies WHERE is_active = true) as total_companies,
+        (SELECT count(*) FROM jobs WHERE status = 'active' AND (posted_at >= NOW() - INTERVAL '30 DAYS' OR first_seen_at >= NOW() - INTERVAL '30 DAYS')) as total_jobs,
+        (SELECT count(DISTINCT company_id) FROM jobs WHERE status = 'active' AND (posted_at >= NOW() - INTERVAL '30 DAYS' OR first_seen_at >= NOW() - INTERVAL '30 DAYS')) as total_companies,
         (SELECT count(*) FROM jobs WHERE status = 'active' AND posted_at >= NOW() - INTERVAL '24 HOURS') as new_today,
         (SELECT count(*) FROM jobs WHERE status = 'active' AND posted_at >= NOW() - INTERVAL '1 HOUR') as new_this_hour;
     `);

@@ -193,12 +193,27 @@ export function InteractiveJobFeed({ initialJobs, stats }: InteractiveJobFeedPro
     setIncomingJobs([]);
   };
 
-  // Available companies in dataset
+  // Total jobs within 30 days window
+  const totalRecentJobs = useMemo(() => {
+    const now = new Date().getTime();
+    const THIRTY_DAYS_MS = 30 * 24 * 60 * 60 * 1000;
+    return jobsList.filter(job => {
+      const postTime = new Date(job.posted_at || job.first_seen_at).getTime();
+      return (now - postTime) <= THIRTY_DAYS_MS;
+    }).length;
+  }, [jobsList]);
+
+  // Available companies in dataset (only from 30-day recent jobs)
   const availableCompanies = useMemo(() => {
     const map = new Map<string, string>();
+    const now = new Date().getTime();
+    const THIRTY_DAYS_MS = 30 * 24 * 60 * 60 * 1000;
     jobsList.forEach(j => {
-      if (j.company?.name && j.company?.slug) {
-        map.set(j.company.slug, j.company.name);
+      const postTime = new Date(j.posted_at || j.first_seen_at).getTime();
+      if ((now - postTime) <= THIRTY_DAYS_MS) {
+        if (j.company?.name && j.company?.slug) {
+          map.set(j.company.slug, j.company.name);
+        }
       }
     });
     return Array.from(map.entries()).map(([slug, name]) => ({ slug, name }));
@@ -943,11 +958,11 @@ export function InteractiveJobFeed({ initialJobs, stats }: InteractiveJobFeedPro
           <div className="mt-8 flex flex-wrap justify-center items-center gap-2.5 text-xs md:text-sm text-slate-600 dark:text-slate-400">
             <span className="flex items-center gap-1.5 bg-white dark:bg-slate-900/80 px-3 py-1.5 rounded-full border border-slate-200 dark:border-slate-800 shadow-2xs font-medium">
               <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-              <strong className="text-slate-900 dark:text-white">{Math.max(stats.total_jobs, jobsList.length).toLocaleString()}</strong> active jobs monitored
+              <strong className="text-slate-900 dark:text-white">{(totalRecentJobs || filteredAndSortedJobs.length).toLocaleString()}</strong> active jobs monitored
             </span>
             <span className="text-slate-300 dark:text-slate-700 hidden sm:inline">•</span>
             <span className="bg-white dark:bg-slate-900/80 px-3 py-1.5 rounded-full border border-slate-200 dark:border-slate-800 shadow-2xs font-medium">
-              <strong className="text-slate-900 dark:text-white">{Math.max(stats.total_companies, availableCompanies.length).toLocaleString()}</strong> official portals
+              <strong className="text-slate-900 dark:text-white">{(availableCompanies.length || stats.total_companies).toLocaleString()}</strong> official portals
             </span>
             <span className="text-slate-300 dark:text-slate-700 hidden sm:inline">•</span>
             <span className="bg-white dark:bg-slate-900/80 px-3 py-1.5 rounded-full border border-slate-200 dark:border-slate-800 shadow-2xs flex items-center gap-1.5 font-medium">
