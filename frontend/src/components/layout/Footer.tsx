@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 
 export function Footer() {
   return (
@@ -6,8 +7,17 @@ export function Footer() {
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-[1440px]">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8 mb-8">
           <div className="md:col-span-2">
-            <Link href="/" className="inline-block mb-3">
-              <span className="text-2xl font-black tracking-tight bg-gradient-to-r from-teal-600 via-teal-500 to-cyan-600 dark:from-teal-400 dark:via-cyan-400 dark:to-teal-300 bg-clip-text text-transparent">
+            <Link href="/" className="inline-flex items-center gap-2.5 mb-3 group">
+              <div className="relative w-9 h-9 rounded-xl overflow-hidden shadow-2xs border border-slate-200/90 dark:border-slate-800/90 bg-white flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform duration-200">
+                <Image
+                  src="/logo.png"
+                  alt="JobPulse Logo"
+                  width={36}
+                  height={36}
+                  className="w-full h-full object-cover"
+                />
+              </div>
+              <span className="text-2xl font-black tracking-tight bg-gradient-to-r from-teal-600 via-teal-500 to-cyan-600 dark:from-teal-400 dark:via-cyan-400 dark:to-teal-300 bg-clip-text text-transparent group-hover:opacity-90 transition-opacity">
                 JobPulse
               </span>
             </Link>

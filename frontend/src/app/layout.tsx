@@ -11,6 +11,15 @@ const inter = Inter({ subsets: ["latin"] });
 export const metadata: Metadata = {
   title: "JobPulse | Real-Time Job Discovery",
   description: "Discover jobs minutes after they're posted. We monitor 1000+ company career pages every 10 minutes. Never miss a fresh opportunity again.",
+  icons: {
+    icon: [
+      { url: '/icon.png' },
+      { url: '/logo.png' }
+    ],
+    apple: [
+      { url: '/icon.png' }
+    ],
+  },
 };
 
 export default function RootLayout({

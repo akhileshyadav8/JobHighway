@@ -1,7 +1,8 @@
-﻿'use client';
+'use client';
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { usePathname } from 'next/navigation';
 import { Menu, X, Briefcase, Building2, BookOpen, Info } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -21,7 +22,7 @@ export function Navbar() {
       label: 'Jobs',
       href: '/',
       icon: Briefcase,
-      isActive: pathname === '/' || pathname.startsWith('/jobs'),
+      isActive: pathname === '/' || pathname === '/jobs',
     },
     {
       label: 'Companies',
@@ -47,9 +48,19 @@ export function Navbar() {
     <header className="sticky top-0 z-50 w-full border-b border-slate-200/80 dark:border-slate-800/80 bg-white/90 dark:bg-slate-950/90 backdrop-blur-md supports-[backdrop-filter]:bg-white/75 dark:supports-[backdrop-filter]:bg-slate-950/75 transition-colors">
       <div className="container mx-auto flex h-16 items-center justify-between px-4 sm:px-6 lg:px-8 max-w-[1440px]">
         {/* Logo and Tagline */}
-        <div className="flex items-center gap-4">
-          <Link href="/" className="flex items-center space-x-2 group">
-            <span className="text-2xl font-black tracking-tight bg-gradient-to-r from-teal-600 via-teal-500 to-cyan-600 dark:from-teal-400 dark:via-cyan-400 dark:to-teal-300 bg-clip-text text-transparent group-hover:opacity-90 transition-opacity">
+        <div className="flex items-center gap-3 sm:gap-4">
+          <Link href="/" className="flex items-center gap-2.5 group">
+            <div className="relative w-9 h-9 sm:w-10 sm:h-10 rounded-xl overflow-hidden shadow-2xs border border-slate-200/90 dark:border-slate-800/90 bg-white flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform duration-200">
+              <Image
+                src="/logo.png"
+                alt="JobPulse Logo"
+                width={40}
+                height={40}
+                className="w-full h-full object-cover"
+                priority
+              />
+            </div>
+            <span className="text-xl sm:text-2xl font-black tracking-tight bg-gradient-to-r from-teal-600 via-teal-500 to-cyan-600 dark:from-teal-400 dark:via-cyan-400 dark:to-teal-300 bg-clip-text text-transparent group-hover:opacity-90 transition-opacity">
               JobPulse
             </span>
           </Link>
