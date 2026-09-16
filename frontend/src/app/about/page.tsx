@@ -13,7 +13,7 @@ export default function AboutPage() {
             About JobPulse
           </div>
           <h1 className="text-4xl md:text-5xl font-extrabold text-slate-900 dark:text-white tracking-tight mb-6">
-            India&apos;s Real-Time Official Job Discovery Engine
+            World&apos;s Real-Time Official Job Discovery Engine
           </h1>
           <p className="text-lg text-slate-600 dark:text-slate-400 leading-relaxed">
             We built JobPulse because traditional job boards post openings days or weeks after companies publish them — by which time hundreds of applications have already flooded in and the position is closed.

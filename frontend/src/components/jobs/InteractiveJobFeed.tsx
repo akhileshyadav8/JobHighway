@@ -3,7 +3,7 @@
 import { useState, useMemo, useEffect } from "react";
 import { Job, OverviewStats } from "@/lib/api";
 import { JobCard } from "@/components/jobs/JobCard";
-import { Search, X, RotateCcw, Sparkles, MapPin, Globe, Building2, ArrowUpDown, Clock, Navigation, Briefcase, GraduationCap, Laptop } from "lucide-react";
+import { Search, X, RotateCcw, Sparkles, MapPin, Globe, Building2, ArrowUpDown, Clock, Navigation, Briefcase, GraduationCap, Laptop, Coins } from "lucide-react";
 import { formatRelativeTime } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { ALL_WORLD_COUNTRIES, COUNTRY_STATES, STATE_CITIES } from "@/lib/world_locations";
@@ -12,7 +12,8 @@ import { SearchableSelect } from "@/components/ui/SearchableSelect";
 const FILTER_CONFIG = {
   "Job Type": ["All", "Full Time", "Internship", "Contract"],
   "Work Mode": ["All", "Remote", "Hybrid", "Onsite"],
-  "Experience": ["All", "0-1", "1-3", "3-5", "5+"]
+  "Experience": ["All", "0-1", "1-3", "3-5", "5+"],
+  "Salary": ["All", "High Salary", "Mid Salary", "Entry Level"]
 };
 
 const SENIOR_TITLE_REGEX = /\b(senior|sr\.?|lead|staff|principal|director|head of|vp|manager|architect|partner)\b/i;
@@ -46,6 +47,57 @@ function getNormalizedAnnualSalaryUsd(job: Job): number {
     val = val / 150;
   }
   return val;
+}
+
+function isHighSalaryRole(job: Job): boolean {
+  const curr = (job.salary_currency || "USD").toUpperCase();
+  const maxVal = job.salary_max || job.salary_min || 0;
+  const isIndia = curr === "INR" || curr === "₹" || (job.location && job.location.some(l => l.toLowerCase().includes("india")));
+
+  if (isIndia) {
+    if (maxVal >= 1200000) return true;
+    const period = (job.salary_period || "annual").toLowerCase();
+    if (period.includes("month") && maxVal >= 100000) return true;
+  }
+
+  const usdVal = getNormalizedAnnualSalaryUsd(job);
+  if (usdVal >= 80000) return true;
+
+  if (maxVal === 0) {
+    const titleLower = (job.title || "").toLowerCase();
+    if (/\b(senior|lead|staff|principal|director|head of|vp|architect)\b/i.test(titleLower)) {
+      return true;
+    }
+  }
+
+  return false;
+}
+
+function matchesSalaryRange(job: Job, range: string): boolean {
+  if (!range || range === "All") return true;
+  const isIndia = (job.salary_currency || "USD").toUpperCase() === "INR" || (job.location && job.location.some(l => l.toLowerCase().includes("india")));
+  const maxVal = job.salary_max || job.salary_min || 0;
+  const usdVal = getNormalizedAnnualSalaryUsd(job);
+
+  if (range === "High Salary") {
+    return isHighSalaryRole(job);
+  }
+
+  if (range === "Mid Salary") {
+    if (isIndia) {
+      return maxVal >= 600000 && maxVal < 1200000;
+    }
+    return usdVal >= 40000 && usdVal < 80000;
+  }
+
+  if (range === "Entry Level") {
+    if (isIndia) {
+      return (maxVal > 0 && maxVal < 600000) || (job.experience_min === 0);
+    }
+    return (usdVal > 0 && usdVal < 40000) || (job.experience_min === 0);
+  }
+
+  return true;
 }
 
 const INDIA_LOC_KEYWORDS = [
@@ -147,12 +199,13 @@ export function InteractiveJobFeed({ initialJobs, stats }: InteractiveJobFeedPro
   const [selectedState, setSelectedState] = useState("All");
   const [selectedCity, setSelectedCity] = useState("All");
   const [selectedCompany, setSelectedCompany] = useState("All");
-  type SortBy = "newest" | "oldest" | "salary_high" | "salary_low";
+  type SortBy = "newest" | "high_salary_newest" | "oldest" | "salary_high" | "salary_low";
   const [sortBy, setSortBy] = useState<SortBy>("newest");
   const [activeFilters, setActiveFilters] = useState<Record<string, string>>({
     "Job Type": "All",
     "Work Mode": "All",
-    "Experience": "All"
+    "Experience": "All",
+    "Salary": "All"
   });
   const [visibleCount, setVisibleCount] = useState(9);
 
@@ -249,11 +302,19 @@ export function InteractiveJobFeed({ initialJobs, stats }: InteractiveJobFeedPro
     { label: "👑 Senior / Lead (5+ Yrs)", value: "5+" }
   ], []);
 
+  const salaryOptions = useMemo(() => [
+    { label: "💰 All Salaries", value: "All" },
+    { label: "💎 High Salary (₹12L+ / $80K+)", value: "High Salary" },
+    { label: "🚀 Mid Salary (₹6L–₹12L / $40K–$80K)", value: "Mid Salary" },
+    { label: "🌱 Entry Salary (< ₹6L / < $40K)", value: "Entry Level" }
+  ], []);
+
   const sortOptions = useMemo(() => [
     { label: "🔥 Newest First", value: "newest" },
-    { label: "⏳ Oldest First", value: "oldest" },
+    { label: "⚡ High Salary + Newest", value: "high_salary_newest" },
     { label: "💰 Highest Salary", value: "salary_high" },
-    { label: "📉 Accessible Salary (Low to High)", value: "salary_low" }
+    { label: "📉 Accessible Salary (Low to High)", value: "salary_low" },
+    { label: "⏳ Oldest First", value: "oldest" }
   ], []);
 
   // Dynamic States & Cities from server API (covering all 250 countries, 5,000+ states, 150,000+ cities)
@@ -439,18 +500,20 @@ export function InteractiveJobFeed({ initialJobs, stats }: InteractiveJobFeedPro
       if (company && company !== "All") setSelectedCompany(company);
 
       const sort = (urlParams.get("sort") ?? parsed?.sortBy) as SortBy;
-      if (sort && ["newest", "oldest", "salary_high", "salary_low"].includes(sort)) {
+      if (sort && ["newest", "high_salary_newest", "oldest", "salary_high", "salary_low"].includes(sort)) {
         setSortBy(sort);
       }
 
       const type = urlParams.get("type") ?? parsed?.activeFilters?.["Job Type"];
       const mode = urlParams.get("mode") ?? parsed?.activeFilters?.["Work Mode"];
       const exp = urlParams.get("exp") ?? parsed?.activeFilters?.["Experience"];
-      if (type || mode || exp) {
+      const salary = urlParams.get("salary") ?? parsed?.activeFilters?.["Salary"];
+      if (type || mode || exp || salary) {
         setActiveFilters({
           "Job Type": type || "All",
           "Work Mode": mode || "All",
-          "Experience": exp || "All"
+          "Experience": exp || "All",
+          "Salary": salary || "All"
         });
       }
 
@@ -495,6 +558,7 @@ export function InteractiveJobFeed({ initialJobs, stats }: InteractiveJobFeedPro
       if (activeFilters["Job Type"] !== "All") params.set("type", activeFilters["Job Type"]);
       if (activeFilters["Work Mode"] !== "All") params.set("mode", activeFilters["Work Mode"]);
       if (activeFilters["Experience"] !== "All") params.set("exp", activeFilters["Experience"]);
+      if (activeFilters["Salary"] !== "All") params.set("salary", activeFilters["Salary"]);
 
       const queryStr = params.toString();
       const newUrl = queryStr ? `${window.location.pathname}?${queryStr}` : window.location.pathname;
@@ -514,7 +578,8 @@ export function InteractiveJobFeed({ initialJobs, stats }: InteractiveJobFeedPro
     setActiveFilters({
       "Job Type": "All",
       "Work Mode": "All",
-      "Experience": "All"
+      "Experience": "All",
+      "Salary": "All"
     });
     setVisibleCount(9);
     try {
@@ -868,6 +933,20 @@ export function InteractiveJobFeed({ initialJobs, stats }: InteractiveJobFeedPro
         }
       }
 
+      // Salary Range filter
+      if (activeFilters["Salary"] && activeFilters["Salary"] !== "All") {
+        if (!matchesSalaryRange(job, activeFilters["Salary"])) {
+          return false;
+        }
+      }
+
+      // 1-Click Preset: High Salary + Newest
+      if (sortBy === "high_salary_newest") {
+        if (!isHighSalaryRole(job)) {
+          return false;
+        }
+      }
+
       return true;
     });
 
@@ -884,6 +963,9 @@ export function InteractiveJobFeed({ initialJobs, stats }: InteractiveJobFeedPro
     };
 
     return filtered.sort((a, b) => {
+      if (sortBy === "high_salary_newest") {
+        return getJobTime(b) - getJobTime(a);
+      }
       if (sortBy === "salary_high") {
         const salaryA = getNormalizedAnnualSalaryUsd(a);
         const salaryB = getNormalizedAnnualSalaryUsd(b);
@@ -1040,8 +1122,8 @@ export function InteractiveJobFeed({ initialJobs, stats }: InteractiveJobFeedPro
               />
             </div>
 
-            {/* Row 2: Job Type, Work Mode, Experience Level, Sort Order */}
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+            {/* Row 2: Job Type, Work Mode, Experience Level, Salary Range, Sort Order */}
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2">
               {/* 5. Job Type Dropdown */}
               <SearchableSelect
                 ariaLabel="Job Type"
@@ -1075,7 +1157,18 @@ export function InteractiveJobFeed({ initialJobs, stats }: InteractiveJobFeedPro
                 searchPlaceholder="Search experience..."
               />
 
-              {/* 8. Sort Order Dropdown */}
+              {/* 8. Salary Range Dropdown */}
+              <SearchableSelect
+                ariaLabel="Salary Range"
+                icon={<Coins className="w-3.5 h-3.5" />}
+                options={salaryOptions}
+                value={activeFilters["Salary"]}
+                onChange={(val) => toggleFilter("Salary", val)}
+                placeholder="💰 All Salaries"
+                searchPlaceholder="Search salary..."
+              />
+
+              {/* 9. Sort Order Dropdown */}
               <SearchableSelect
                 ariaLabel="Sort Order"
                 icon={<ArrowUpDown className="w-3.5 h-3.5" />}
@@ -1126,6 +1219,16 @@ export function InteractiveJobFeed({ initialJobs, stats }: InteractiveJobFeedPro
                 {activeFilters["Experience"] !== "All" && (
                   <span className="bg-teal-50 dark:bg-teal-900/40 text-teal-800 dark:text-teal-300 px-2 py-0.5 rounded-full border border-teal-200 dark:border-teal-800">
                     🎯 {activeFilters["Experience"] === "0-1" ? "Freshers (0–1 Yrs)" : `${activeFilters["Experience"]} Yrs Exp`}
+                  </span>
+                )}
+                {activeFilters["Salary"] !== "All" && (
+                  <span className="bg-teal-50 dark:bg-teal-900/40 text-teal-800 dark:text-teal-300 px-2 py-0.5 rounded-full border border-teal-200 dark:border-teal-800">
+                    💰 {activeFilters["Salary"] === "High Salary" ? "High Salary (₹12L+ / $80K+)" : activeFilters["Salary"] === "Mid Salary" ? "Mid Salary (₹6L-₹12L / $40K-$80K)" : "Entry Salary (< ₹6L / < $40K)"}
+                  </span>
+                )}
+                {sortBy === "high_salary_newest" && (
+                  <span className="bg-emerald-50 dark:bg-emerald-950/40 text-emerald-800 dark:text-emerald-300 px-2 py-0.5 rounded-full border border-emerald-200 dark:border-emerald-800 font-semibold">
+                    ⚡ High Salary + Newest
                   </span>
                 )}
               </div>
