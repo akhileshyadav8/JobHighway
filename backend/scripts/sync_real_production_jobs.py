@@ -441,10 +441,10 @@ def fetch_greenhouse_jobs(comp):
                 job_slug = f"{slug}-{job_id}-{re.sub(r'[^a-zA-Z0-9]+', '-', title.lower())}"[:100]
 
                 posted_at = item.get("updated_at") or datetime.now(timezone.utc).isoformat()
-                s_min, s_max, s_curr, s_per, s_basis = infer_historical_salary(title, name, [loc_name], "Full-time")
-
-                desc_text = re.sub(r'<[^>]+>', ' ', item.get("content", "") or "")[:1500].strip()
-                batches = detect_batches(desc_text)
+                raw_content = html.unescape(html.unescape(item.get("content", "") or ""))
+                desc_text = re.sub(r'<[^>]+>', ' ', raw_content)
+                desc_text = re.sub(r'\s+', ' ', desc_text)[:2000].strip()
+                batches = detect_batches(desc_text, title)
                 work_mode = detect_work_mode(title, desc_text, loc_name)
 
                 jobs.append({
@@ -472,7 +472,7 @@ def fetch_greenhouse_jobs(comp):
                     "education": "B.Tech/M.Tech/MCA or equivalent experience",
                     "eligible_batches": batches,
                     "min_cgpa": None,
-                    "skills_required": extract_intelligent_skills(title, item.get("content", ""), desc_text),
+                    "skills_required": extract_intelligent_skills(title, raw_content, desc_text),
                     "job_url": apply_url,
                     "apply_url": apply_url,
                     "posted_at": posted_at,
@@ -480,7 +480,7 @@ def fetch_greenhouse_jobs(comp):
                     "deadline_label": "Apply ASAP (Rolling Hiring)",
                     "first_seen_at": datetime.now(timezone.utc).isoformat(),
                     "status": "active",
-                    "description_html": item.get("content", ""),
+                    "description_html": raw_content,
                     "description_text": desc_text,
                     "official_domain": f"{slug}.com",
                     "is_direct_ats": True
@@ -513,8 +513,11 @@ def fetch_lever_jobs(comp):
                 apply_url = item.get("hostedUrl") or item.get("applyUrl")
                 job_slug = f"{slug}-{job_id[:8]}-{re.sub(r'[^a-zA-Z0-9]+', '-', title.lower())}"[:100]
 
-                desc_text = re.sub(r'<[^>]+>', ' ', item.get("descriptionPlain", "") or "")[:1500].strip()
-                batches = detect_batches(desc_text)
+                raw_html = html.unescape(html.unescape(item.get("descriptionHtml", "") or ""))
+                raw_plain = html.unescape(html.unescape(item.get("descriptionPlain", "") or ""))
+                desc_text = re.sub(r'<[^>]+>', ' ', raw_plain)
+                desc_text = re.sub(r'\s+', ' ', desc_text)[:2000].strip()
+                batches = detect_batches(desc_text, title)
                 work_mode = detect_work_mode(title, desc_text, loc_name)
 
                 created_at_ts = item.get("createdAt")
@@ -546,7 +549,7 @@ def fetch_lever_jobs(comp):
                     "education": "Bachelor's degree or practical experience",
                     "eligible_batches": batches,
                     "min_cgpa": None,
-                    "skills_required": extract_intelligent_skills(title, item.get("descriptionHtml", ""), desc_text),
+                    "skills_required": extract_intelligent_skills(title, raw_html, desc_text),
                     "job_url": apply_url,
                     "apply_url": apply_url,
                     "posted_at": posted_at,
@@ -554,7 +557,7 @@ def fetch_lever_jobs(comp):
                     "deadline_label": "Apply ASAP (Rolling Hiring)",
                     "first_seen_at": datetime.now(timezone.utc).isoformat(),
                     "status": "active",
-                    "description_html": item.get("descriptionHtml", ""),
+                    "description_html": raw_html,
                     "description_text": desc_text,
                     "official_domain": f"{slug}.com",
                     "is_direct_ats": True

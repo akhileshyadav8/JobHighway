@@ -79,6 +79,21 @@ def clean_json():
         if s_min is None:
             s_basis = "Disclosed on Application"
 
+        # 5. Decode HTML entities in description_html and description_text
+        clean_html = desc_html or ""
+        for _ in range(2):
+            if '&lt;' in clean_html or '&gt;' in clean_html or '&quot;' in clean_html or '&amp;' in clean_html:
+                clean_html = html.unescape(clean_html)
+
+        clean_text = desc_text or ""
+        for _ in range(2):
+            if '&lt;' in clean_text or '&gt;' in clean_text or '&quot;' in clean_text or '&amp;' in clean_text:
+                clean_text = html.unescape(clean_text)
+        clean_text = re.sub(r'<[^>]+>', ' ', clean_text)
+        clean_text = re.sub(r'\s+', ' ', clean_text).strip()
+
+        j['description_html'] = clean_html
+        j['description_text'] = clean_text
         j['skills_required'] = skills
         j['work_mode'] = work_mode
         j['eligible_batches'] = batches

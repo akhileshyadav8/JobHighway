@@ -260,3 +260,44 @@ export function sanitizeJobSkills(
 
   return detected.slice(0, 5);
 }
+
+export function cleanHtmlDescription(rawHtml?: string | null, rawText?: string | null): string {
+  let content = (rawHtml || rawText || "").trim();
+  if (!content) return "";
+
+  // Decode HTML entities if escaped (&lt;h2&gt; -> <h2>, etc.)
+  for (let i = 0; i < 3; i++) {
+    if (
+      content.includes('&lt;') ||
+      content.includes('&gt;') ||
+      content.includes('&quot;') ||
+      content.includes('&#39;') ||
+      content.includes('&amp;') ||
+      content.includes('&nbsp;')
+    ) {
+      content = content
+        .replace(/&lt;/g, '<')
+        .replace(/&gt;/g, '>')
+        .replace(/&quot;/g, '"')
+        .replace(/&#39;/g, "'")
+        .replace(/&#x27;/g, "'")
+        .replace(/&#x2F;/g, '/')
+        .replace(/&nbsp;/g, ' ')
+        .replace(/&amp;/g, '&');
+    } else {
+      break;
+    }
+  }
+
+  // If content does not contain HTML markup, format plain text into clean paragraphs
+  if (!/<[a-z][\s\S]*>/i.test(content)) {
+    return content
+      .split(/\n\s*\n/)
+      .map(p => p.trim())
+      .filter(Boolean)
+      .map(p => `<p class="mb-4">${p.replace(/\n/g, '<br/>')}</p>`)
+      .join('');
+  }
+
+  return content;
+}

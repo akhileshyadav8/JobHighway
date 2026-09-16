@@ -7,7 +7,7 @@ import { ShareButtons } from "@/components/jobs/ShareButtons";
 import { RelatedJobs } from "@/components/jobs/RelatedJobs";
 import { QuickInfo } from "@/components/jobs/QuickInfo";
 import { Card, CardContent } from "@/components/ui/card";
-import { sanitizeJobSkills, formatSalary } from "@/lib/utils";
+import { sanitizeJobSkills, formatSalary, cleanHtmlDescription } from "@/lib/utils";
 import { 
   Building2, 
   MapPin, 
@@ -36,6 +36,7 @@ export default async function JobDetailPage({ params }: { params: Promise<{ slug
   const batchesText = job.eligible_batches && job.eligible_batches.length > 0 
     ? job.eligible_batches.join(', ') 
     : 'Any Batch (All Graduating Years Eligible)';
+  const cleanedDescription = cleanHtmlDescription(job.description_html, job.description_text);
 
   return (
     <div className="bg-slate-50 dark:bg-slate-950 min-h-screen py-8">
@@ -148,15 +149,11 @@ export default async function JobDetailPage({ params }: { params: Promise<{ slug
             </span>
           </div>
           <CardContent className="p-6 md:p-8">
-            {job.description_html ? (
+            {cleanedDescription ? (
               <div 
                 className="prose dark:prose-invert max-w-none text-slate-800 dark:text-slate-200 leading-relaxed space-y-4"
-                dangerouslySetInnerHTML={{ __html: job.description_html }}
+                dangerouslySetInnerHTML={{ __html: cleanedDescription }}
               />
-            ) : job.description_text ? (
-              <div className="text-slate-800 dark:text-slate-200 leading-relaxed whitespace-pre-line space-y-4 text-base">
-                {job.description_text}
-              </div>
             ) : (
               <p className="text-slate-500 italic">
                 Please visit the official company hiring page using the button below for full role description and submission instructions.
