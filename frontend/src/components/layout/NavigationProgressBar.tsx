@@ -1,6 +1,6 @@
 ﻿'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { usePathname, useSearchParams } from 'next/navigation';
 
 export function NavigationProgressBar() {
@@ -8,16 +8,23 @@ export function NavigationProgressBar() {
   const searchParams = useSearchParams();
   const [isNavigating, setIsNavigating] = useState(false);
   const [progress, setProgress] = useState(0);
+  const timersRef = useRef<NodeJS.Timeout[]>([]);
+
+  const clearAllTimers = () => {
+    timersRef.current.forEach(clearTimeout);
+    timersRef.current = [];
+  };
 
   // Complete navigation when route changes
   useEffect(() => {
     if (isNavigating) {
+      clearAllTimers();
       setProgress(100);
       const timer = setTimeout(() => {
         setIsNavigating(false);
         setProgress(0);
       }, 300);
-      return () => clearTimeout(timer);
+      timersRef.current.push(timer);
     }
   }, [pathname, searchParams]);
 
@@ -51,29 +58,26 @@ export function NavigationProgressBar() {
         return;
       }
 
-      // Start progress bar
+      clearAllTimers();
       setIsNavigating(true);
       setProgress(25);
 
-      const t1 = setTimeout(() => setProgress(50), 100);
-      const t2 = setTimeout(() => setProgress(80), 250);
+      const t1 = setTimeout(() => setProgress(60), 150);
+      const t2 = setTimeout(() => setProgress(85), 350);
 
-      // Failsafe timeout in case route transition cancels or fails
+      // Failsafe timeout in case navigation cancels
       const failsafe = setTimeout(() => {
         setIsNavigating(false);
         setProgress(0);
-      }, 8000);
+      }, 5000);
 
-      return () => {
-        clearTimeout(t1);
-        clearTimeout(t2);
-        clearTimeout(failsafe);
-      };
+      timersRef.current.push(t1, t2, failsafe);
     };
 
     document.addEventListener('click', handleLinkClick);
     return () => {
       document.removeEventListener('click', handleLinkClick);
+      clearAllTimers();
     };
   }, []);
 

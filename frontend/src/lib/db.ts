@@ -13,14 +13,15 @@ function getPool(): Pool | null {
     pool = new Pool({
       connectionString: formattedUrl,
       ssl: { rejectUnauthorized: false },
-      connectionTimeoutMillis: 5000,
+      connectionTimeoutMillis: 10000,
+      idleTimeoutMillis: 20000,
       max: 10,
     });
   }
   return pool;
 }
 
-export async function getLiveJobsFromDb(limit: number = 200000): Promise<Job[] | null> {
+export async function getLiveJobsFromDb(limit: number = 2500): Promise<Job[] | null> {
   const p = getPool();
   if (!p) return null;
 
@@ -54,7 +55,7 @@ export async function getLiveJobsFromDb(limit: number = 200000): Promise<Job[] |
         j.first_seen_at,
         j.last_seen_at,
         j.status,
-        j.description_text,
+        LEFT(j.description_text, 300) as description_text,
         j.jobpulse_rating,
         j.rating_reason,
         j.view_count,
@@ -110,7 +111,7 @@ export async function getLiveJobsFromDb(limit: number = 200000): Promise<Job[] |
       last_seen_at: row.last_seen_at ? new Date(row.last_seen_at).toISOString() : new Date().toISOString(),
       status: row.status || 'active',
       description_html: '',
-      description_text: row.description_text ? row.description_text.slice(0, 180) : '',
+      description_text: row.description_text || '',
       selection_process: null,
       interview_experience: null,
       work_culture_summary: null,
@@ -130,16 +131,19 @@ export async function getLiveStatsFromDb(): Promise<OverviewStats | null> {
   if (!p) return null;
 
   try {
-    const totalJobsRes = await p.query("SELECT count(*) FROM jobs WHERE status = 'active';");
-    const totalCompsRes = await p.query("SELECT count(*) FROM companies WHERE is_active = true;");
-    const newTodayRes = await p.query("SELECT count(*) FROM jobs WHERE posted_at >= NOW() - INTERVAL '24 HOURS';");
-    const newThisHourRes = await p.query("SELECT count(*) FROM jobs WHERE posted_at >= NOW() - INTERVAL '1 HOUR';");
-
+    const res = await p.query(`
+      SELECT 
+        (SELECT count(*) FROM jobs WHERE status = 'active') as total_jobs,
+        (SELECT count(*) FROM companies WHERE is_active = true) as total_companies,
+        (SELECT count(*) FROM jobs WHERE status = 'active' AND posted_at >= NOW() - INTERVAL '24 HOURS') as new_today,
+        (SELECT count(*) FROM jobs WHERE status = 'active' AND posted_at >= NOW() - INTERVAL '1 HOUR') as new_this_hour;
+    `);
+    const row = res.rows[0];
     return {
-      total_jobs: Number(totalJobsRes.rows[0]?.count || 0),
-      total_companies: Number(totalCompsRes.rows[0]?.count || 0),
-      new_today: Number(newTodayRes.rows[0]?.count || 0),
-      new_this_hour: Number(newThisHourRes.rows[0]?.count || 0),
+      total_jobs: Number(row?.total_jobs || 0),
+      total_companies: Number(row?.total_companies || 0),
+      new_today: Number(row?.new_today || 0),
+      new_this_hour: Number(row?.new_this_hour || 0),
       last_updated: new Date().toISOString(),
     };
   } catch (error) {

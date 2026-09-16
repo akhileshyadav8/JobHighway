@@ -1,5 +1,4 @@
-﻿import { redirect } from "next/navigation";
+﻿import Home from "../page";
 
-export default function JobsPage() {
-  redirect("/");
-}
+export const revalidate = 60;
+export default Home;
