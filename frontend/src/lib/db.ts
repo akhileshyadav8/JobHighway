@@ -116,12 +116,12 @@ export async function getLiveJobsPaginated(params: JobFilterParams = {}): Promis
 
   try {
     const page = Math.max(1, Number(params.page) || 1);
-    const pageSize = Math.min(100, Math.max(1, Number(params.pageSize) || 30));
+    const pageSize = Math.min(100, Math.max(1, Number(params.pageSize) || 50));
     const offset = (page - 1) * pageSize;
 
     const conditions: string[] = [
       "j.status = 'active'",
-      "(j.posted_at >= NOW() - INTERVAL '30 DAYS' OR j.first_seen_at >= NOW() - INTERVAL '30 DAYS')"
+      "((j.posted_at IS NOT NULL AND j.posted_at >= NOW() - INTERVAL '30 DAYS') OR (j.posted_at IS NULL AND j.first_seen_at >= NOW() - INTERVAL '30 DAYS'))"
     ];
     const values: any[] = [];
     let paramIdx = 1;
@@ -353,7 +353,7 @@ export async function getLiveJobsFromDb(limit?: number): Promise<Job[] | null> {
       FROM jobs j
       JOIN companies c ON j.company_id = c.id
       WHERE j.status = 'active'
-      AND (j.posted_at >= NOW() - INTERVAL '30 DAYS' OR j.first_seen_at >= NOW() - INTERVAL '30 DAYS')
+      AND ((j.posted_at IS NOT NULL AND j.posted_at >= NOW() - INTERVAL '30 DAYS') OR (j.posted_at IS NULL AND j.first_seen_at >= NOW() - INTERVAL '30 DAYS'))
       ORDER BY LEAST(COALESCE(j.posted_at, j.first_seen_at), NOW()) DESC NULLS LAST
       ${hasLimit ? 'LIMIT $1' : ''};
     `;
@@ -420,8 +420,8 @@ export async function getLiveStatsFromDb(): Promise<OverviewStats | null> {
   try {
     const res = await p.query(`
       SELECT 
-        (SELECT count(*) FROM jobs WHERE status = 'active' AND (posted_at >= NOW() - INTERVAL '30 DAYS' OR first_seen_at >= NOW() - INTERVAL '30 DAYS')) as total_jobs,
-        (SELECT count(DISTINCT company_id) FROM jobs WHERE status = 'active' AND (posted_at >= NOW() - INTERVAL '30 DAYS' OR first_seen_at >= NOW() - INTERVAL '30 DAYS')) as total_companies,
+        (SELECT count(*) FROM jobs WHERE status = 'active' AND ((posted_at IS NOT NULL AND posted_at >= NOW() - INTERVAL '30 DAYS') OR (posted_at IS NULL AND first_seen_at >= NOW() - INTERVAL '30 DAYS'))) as total_jobs,
+        (SELECT count(DISTINCT company_id) FROM jobs WHERE status = 'active' AND ((posted_at IS NOT NULL AND posted_at >= NOW() - INTERVAL '30 DAYS') OR (posted_at IS NULL AND first_seen_at >= NOW() - INTERVAL '30 DAYS'))) as total_companies,
         (SELECT count(*) FROM jobs WHERE status = 'active' AND posted_at >= NOW() - INTERVAL '24 HOURS') as new_today,
         (SELECT count(*) FROM jobs WHERE status = 'active' AND posted_at >= NOW() - INTERVAL '1 HOUR') as new_this_hour;
     `);
@@ -691,7 +691,7 @@ export async function getLiveCompanyJobsFromDb(slug: string): Promise<Job[] | nu
       JOIN companies c ON j.company_id = c.id
       WHERE (c.slug = $1 OR lower(c.name) = lower($1))
       AND j.status = 'active'
-      AND (j.posted_at >= NOW() - INTERVAL '30 DAYS' OR j.first_seen_at >= NOW() - INTERVAL '30 DAYS')
+      AND ((j.posted_at IS NOT NULL AND j.posted_at >= NOW() - INTERVAL '30 DAYS') OR (j.posted_at IS NULL AND j.first_seen_at >= NOW() - INTERVAL '30 DAYS'))
       ORDER BY LEAST(COALESCE(j.posted_at, j.first_seen_at), NOW()) DESC NULLS LAST;
     `;
     const res = await p.query(query, [slug]);

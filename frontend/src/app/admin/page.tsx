@@ -103,6 +103,9 @@ export default function AdminDashboardPage() {
   // Log Pagination State
   const [visibleLogsCount, setVisibleLogsCount] = useState(5);
 
+  // Dynamic Live Jobs Count
+  const [dynamicActiveJobs, setDynamicActiveJobs] = useState<number | null>(null);
+
   // Selected Candidate for Viewing Applied Jobs Modal
   const [selectedCandidate, setSelectedCandidate] = useState<User | null>(null);
   const [candidateApplications, setCandidateApplications] = useState<AppliedJob[]>([]);
@@ -114,6 +117,16 @@ export default function AdminDashboardPage() {
     
     const allUsers = getAllUsersForAdmin();
     setCandidates(allUsers);
+
+    // Fetch real-time live active jobs count from database API
+    fetch("/api/jobs?limit=1")
+      .then(res => res.json())
+      .then(data => {
+        if (typeof data.total === "number") {
+          setDynamicActiveJobs(data.total);
+        }
+      })
+      .catch(err => console.warn("Failed to fetch live job count in admin:", err));
 
     // If currently viewing a candidate's applications, refresh their live list
     if (selectedCandidate) {
@@ -213,7 +226,6 @@ export default function AdminDashboardPage() {
   }
 
   // Real Dynamic Numbers
-  const dynamicActiveJobs = mockJobs ? mockJobs.length : 0;
   const totalRegisteredUsers = candidates.length;
   
   // Calculate total applications across all candidates
@@ -297,7 +309,7 @@ export default function AdminDashboardPage() {
               <Briefcase className="w-4 h-4 text-teal-600" />
             </div>
             <div className="text-2xl sm:text-3xl font-black text-teal-600 dark:text-teal-400">
-              {dynamicActiveJobs.toLocaleString()}
+              {dynamicActiveJobs !== null ? dynamicActiveJobs.toLocaleString() : (mockJobs?.length ? mockJobs.length.toLocaleString() : "...")}
             </div>
             <div className="text-[11px] text-slate-400 mt-1">Real-time dynamic count</div>
           </div>

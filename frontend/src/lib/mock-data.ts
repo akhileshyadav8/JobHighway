@@ -113,10 +113,15 @@ const THIRTY_DAYS_MS = 30 * 24 * 60 * 60 * 1000;
 
 export const mockJobs = (realJobsJson as any[])
   .filter(j => {
-    const postTime = new Date(j.posted_at).getTime();
-    return (now - postTime) <= THIRTY_DAYS_MS;
+    const postTime = j.posted_at ? new Date(j.posted_at).getTime() : (j.first_seen_at ? new Date(j.first_seen_at).getTime() : 0);
+    if (!postTime || isNaN(postTime)) return false;
+    return (now - postTime) <= THIRTY_DAYS_MS && postTime <= (now + 86400000);
   })
-  .sort((a, b) => new Date(b.posted_at).getTime() - new Date(a.posted_at).getTime())
+  .sort((a, b) => {
+    const timeA = a.posted_at ? new Date(a.posted_at).getTime() : 0;
+    const timeB = b.posted_at ? new Date(b.posted_at).getTime() : 0;
+    return timeB - timeA;
+  })
   .map(j => ({
     ...j,
     description_html: "",

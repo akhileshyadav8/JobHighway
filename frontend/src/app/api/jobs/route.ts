@@ -7,7 +7,7 @@ export const dynamic = 'force-dynamic';
 export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url);
   const page = parseInt(searchParams.get('page') || '1', 10);
-  const limit = parseInt(searchParams.get('limit') || searchParams.get('pageSize') || '30', 10);
+  const limit = parseInt(searchParams.get('limit') || searchParams.get('pageSize') || '50', 10);
   const since = searchParams.get('since');
 
   const filterParams: JobFilterParams = {

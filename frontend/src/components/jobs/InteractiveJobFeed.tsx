@@ -212,8 +212,8 @@ export function InteractiveJobFeed({ initialJobs, stats, initialTotal, initialTo
 
   // Server-side pagination state
   const [currentPage, setCurrentPage] = useState(1);
-  const [totalJobs, setTotalJobs] = useState(initialTotal || stats.total_jobs || 16164);
-  const [totalPages, setTotalPages] = useState(initialTotalPages || Math.ceil((initialTotal || stats.total_jobs || 16164) / 30) || 1);
+  const [totalJobs, setTotalJobs] = useState(initialTotal || stats.total_jobs || 0);
+  const [totalPages, setTotalPages] = useState(initialTotalPages || Math.ceil((initialTotal || stats.total_jobs || 0) / 50) || 1);
   const [isFetchingPage, setIsFetchingPage] = useState(false);
   const [jumpPageInput, setJumpPageInput] = useState("");
   const isInitialMount = useRef(true);
@@ -221,7 +221,10 @@ export function InteractiveJobFeed({ initialJobs, stats, initialTotal, initialTo
   // Sync state if initialJobs changes (e.g. server revalidation)
   useEffect(() => {
     setJobsList(initialJobs);
-    if (initialTotal) setTotalJobs(initialTotal);
+    if (initialTotal) {
+      setTotalJobs(initialTotal);
+      setTotalPages(Math.ceil(initialTotal / 50) || 1);
+    }
     if (initialTotalPages) setTotalPages(initialTotalPages);
   }, [initialJobs, initialTotal, initialTotalPages]);
 
@@ -231,7 +234,7 @@ export function InteractiveJobFeed({ initialJobs, stats, initialTotal, initialTo
     try {
       const params = new URLSearchParams();
       params.set("page", String(targetPage));
-      params.set("limit", "30");
+      params.set("limit", "50");
       if (searchQuery.trim()) params.set("search", searchQuery.trim());
       if (selectedCountry !== "All") params.set("country", selectedCountry);
       if (selectedState !== "All") params.set("state", selectedState);
@@ -1413,7 +1416,7 @@ export function InteractiveJobFeed({ initialJobs, stats, initialTotal, initialTo
           {totalPages > 1 && (
             <div className="mt-12 flex flex-col md:flex-row items-center justify-between gap-4 p-4 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm">
               <div className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 font-medium">
-                Showing <strong className="text-slate-900 dark:text-white">{((currentPage - 1) * 30) + 1}</strong>–<strong className="text-slate-900 dark:text-white">{Math.min(currentPage * 30, totalJobs)}</strong> of <strong className="text-slate-900 dark:text-white">{totalJobs.toLocaleString()}</strong> jobs (Page {currentPage} of {totalPages})
+                Showing <strong className="text-slate-900 dark:text-white">{((currentPage - 1) * 50) + 1}</strong>–<strong className="text-slate-900 dark:text-white">{Math.min(currentPage * 50, totalJobs)}</strong> of <strong className="text-slate-900 dark:text-white">{totalJobs.toLocaleString()}</strong> jobs (Page {currentPage} of {totalPages})
               </div>
 
               <div className="flex items-center gap-1.5 flex-wrap justify-center">

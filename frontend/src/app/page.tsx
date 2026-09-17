@@ -5,7 +5,7 @@ export const revalidate = 60; // Revalidate in background every 60s while servin
 
 export default async function Home() {
   const [jobsData, stats] = await Promise.all([
-    getJobs({ page: '1', limit: '30' }),
+    getJobs({ page: '1', limit: '50' }),
     getOverviewStats()
   ]);
 

@@ -100,7 +100,7 @@ export async function getJobs(params?: Record<string, string>): Promise<Paginate
   if (typeof window === 'undefined') {
     try {
       const page = params?.page ? parseInt(params.page, 10) : 1;
-      const pageSize = params?.pageSize || params?.limit ? parseInt(params.pageSize || params.limit || '30', 10) : 30;
+      const pageSize = params?.pageSize || params?.limit ? parseInt(params.pageSize || params.limit || '50', 10) : 50;
       const paginatedRes = await getLiveJobsPaginated({
         page,
         pageSize,

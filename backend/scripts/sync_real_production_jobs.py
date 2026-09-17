@@ -440,7 +440,15 @@ def fetch_greenhouse_jobs(comp):
                 apply_url = item.get("absolute_url")
                 job_slug = f"{slug}-{job_id}-{re.sub(r'[^a-zA-Z0-9]+', '-', title.lower())}"[:100]
 
-                posted_at = item.get("updated_at") or datetime.now(timezone.utc).isoformat()
+                updated_at_str = item.get("updated_at")
+                if updated_at_str:
+                    try:
+                        u_dt = datetime.fromisoformat(updated_at_str.replace("Z", "+00:00"))
+                        if (datetime.now(timezone.utc) - u_dt).days > 30:
+                            continue  # Exclude stale postings older than 30 days
+                    except Exception:
+                        pass
+                posted_at = updated_at_str or datetime.now(timezone.utc).isoformat()
                 raw_content = html.unescape(html.unescape(item.get("content", "") or ""))
                 desc_text = re.sub(r'<[^>]+>', ' ', raw_content)
                 desc_text = re.sub(r'\s+', ' ', desc_text)[:2000].strip()
@@ -521,6 +529,10 @@ def fetch_lever_jobs(comp):
                 work_mode = detect_work_mode(title, desc_text, loc_name)
 
                 created_at_ts = item.get("createdAt")
+                if created_at_ts:
+                    age_ms = (datetime.now(timezone.utc).timestamp() * 1000) - created_at_ts
+                    if age_ms > (30 * 24 * 60 * 60 * 1000):
+                        continue  # Exclude stale postings older than 30 days
                 posted_at = datetime.fromtimestamp(created_at_ts / 1000, tz=timezone.utc).isoformat() if created_at_ts else datetime.now(timezone.utc).isoformat()
                 s_min, s_max, s_curr, s_per, s_basis = infer_historical_salary(title, name, [loc_name], commitment)
 
@@ -965,12 +977,29 @@ def main():
     adzuna_key = os.getenv("ADZUNA_APP_KEY")
     all_real_jobs.extend(fetch_adzuna_jobs(adzuna_id, adzuna_key))
 
+    # Strict filter: Only keep jobs posted within the last 30 days
+    now_utc = datetime.now(timezone.utc)
+    fresh_jobs = []
+    for j in all_real_jobs:
+        p_at = j.get("posted_at")
+        if p_at:
+            try:
+                p_dt = datetime.fromisoformat(p_at.replace("Z", "+00:00"))
+                if p_dt.tzinfo is None:
+                    p_dt = p_dt.replace(tzinfo=timezone.utc)
+                if (now_utc - p_dt).days > 30:
+                    continue  # Exclude jobs older than 30 days
+            except Exception:
+                pass
+        fresh_jobs.append(j)
+    all_real_jobs = fresh_jobs
+
     # Sort by posted_at descending
     all_real_jobs.sort(key=lambda j: j.get("posted_at", ""), reverse=True)
 
     with open(frontend_json, "w", encoding="utf-8") as f:
         json.dump(all_real_jobs, f, indent=2, ensure_ascii=False)
-    print(f"\n[+] Successfully saved {len(all_real_jobs)} verified jobs to {frontend_json.name}", flush=True)
+    print(f"\n[+] Successfully saved {len(all_real_jobs)} verified 30-day jobs to {frontend_json.name}", flush=True)
 
     # 7. Connect to Supabase & Store Real Live Data
     db_pass = quote_plus("MyJobPulse@2026#")
@@ -1001,7 +1030,7 @@ def main():
     try:
         # Delete jobs older than 30 days to keep dataset fresh
         with engine.connect() as conn:
-            conn.execute(text("DELETE FROM jobs WHERE posted_at < NOW() - INTERVAL '30 DAYS';"))
+            conn.execute(text("DELETE FROM jobs WHERE (posted_at IS NOT NULL AND posted_at < NOW() - INTERVAL '30 DAYS') OR (posted_at IS NULL AND first_seen_at < NOW() - INTERVAL '30 DAYS');"))
             conn.commit()
 
         with Session(engine) as session:
