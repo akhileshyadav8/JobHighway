@@ -214,6 +214,37 @@ export function InteractiveJobFeed({ initialJobs, stats }: InteractiveJobFeedPro
     setJobsList(initialJobs);
   }, [initialJobs]);
 
+  // Asynchronously expand client catalog after initial render without bloating SSR payload
+  useEffect(() => {
+    let isCancelled = false;
+    const expandCatalog = async () => {
+      try {
+        const res = await fetch('/api/jobs?limit=5000');
+        if (res.ok && !isCancelled) {
+          const data = await res.json();
+          if (data.items && Array.isArray(data.items) && data.items.length > 0) {
+            setJobsList(prev => {
+              const existingMap = new Map(prev.map(j => [j.slug, j]));
+              data.items.forEach((j: Job) => {
+                if (!existingMap.has(j.slug)) {
+                  existingMap.set(j.slug, j);
+                }
+              });
+              return Array.from(existingMap.values());
+            });
+          }
+        }
+      } catch (err) {
+        // silent non-blocking fallback
+      }
+    };
+    const timer = setTimeout(expandCatalog, 1200);
+    return () => {
+      isCancelled = true;
+      clearTimeout(timer);
+    };
+  }, []);
+
   // Real-time live polling: checks every 30 seconds for newly added jobs in live database
   useEffect(() => {
     const poller = setInterval(async () => {
@@ -1043,11 +1074,11 @@ export function InteractiveJobFeed({ initialJobs, stats }: InteractiveJobFeedPro
           <div className="mt-8 flex flex-wrap justify-center items-center gap-2.5 text-xs md:text-sm text-slate-600 dark:text-slate-400">
             <span className="flex items-center gap-1.5 bg-white dark:bg-slate-900/80 px-3 py-1.5 rounded-full border border-slate-200 dark:border-slate-800 shadow-2xs font-medium">
               <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-              <strong className="text-slate-900 dark:text-white">{(totalRecentJobs || filteredAndSortedJobs.length).toLocaleString()}</strong> active jobs monitored
+              <strong className="text-slate-900 dark:text-white">{(stats?.total_jobs || totalRecentJobs || filteredAndSortedJobs.length).toLocaleString()}</strong> active jobs monitored
             </span>
             <span className="text-slate-300 dark:text-slate-700 hidden sm:inline">•</span>
             <span className="bg-white dark:bg-slate-900/80 px-3 py-1.5 rounded-full border border-slate-200 dark:border-slate-800 shadow-2xs font-medium">
-              <strong className="text-slate-900 dark:text-white">{(availableCompanies.length || stats.total_companies).toLocaleString()}</strong> official portals
+              <strong className="text-slate-900 dark:text-white">{(stats?.total_companies || availableCompanies.length).toLocaleString()}</strong> official portals
             </span>
             <span className="text-slate-300 dark:text-slate-700 hidden sm:inline">•</span>
             <span className="bg-white dark:bg-slate-900/80 px-3 py-1.5 rounded-full border border-slate-200 dark:border-slate-800 shadow-2xs flex items-center gap-1.5 font-medium">

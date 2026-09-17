@@ -98,7 +98,8 @@ export async function getJobs(params?: Record<string, string>): Promise<Paginate
   // 1. Try Live Supabase Database directly on server
   if (typeof window === 'undefined') {
     try {
-      const liveJobs = await getLiveJobsFromDb();
+      const limit = params?.limit ? parseInt(params.limit) : 500;
+      const liveJobs = await getLiveJobsFromDb(limit);
       if (liveJobs && liveJobs.length > 0) {
         return {
           items: liveJobs,

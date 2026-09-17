@@ -1,0 +1,1 @@
+{"buildCommand": "next build", "build": {"env": {"VERCEL_BYPASS_FALLBACK_OVERSIZED_ERROR": "1"}}}
