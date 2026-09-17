@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { 
   Shield, 
   Users, 
@@ -13,7 +14,6 @@ import {
   Tablet, 
   TrendingUp, 
   CheckCircle2, 
-  XCircle, 
   Trash2, 
   Search, 
   Eye, 
@@ -21,18 +21,30 @@ import {
   ExternalLink,
   Lock,
   RefreshCw,
-  Clock
+  Clock,
+  ChevronDown,
+  ChevronUp,
+  FileText,
+  MapPin,
+  DollarSign,
+  X,
+  UserCheck
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { 
   getCurrentUser, 
-  loginUser, 
+  logoutUser, 
   getAllUsersForAdmin, 
   adminDeleteUser,
-  User 
+  getAppliedJobs,
+  updateAppliedStatus,
+  User,
+  AppliedJob,
+  ApplicationStatus
 } from "@/lib/auth";
 import { getAnalyticsSummary, AnalyticsSummary } from "@/lib/telemetry";
+import { mockJobs } from "@/lib/mock-data";
 
 interface ContactInquiry {
   id: string;
@@ -44,7 +56,41 @@ interface ContactInquiry {
   createdAt: string;
 }
 
+const STATUS_CONFIG: Record<ApplicationStatus, { label: string; color: string; bg: string; border: string }> = {
+  "Applied": {
+    label: "Applied",
+    color: "text-blue-700 dark:text-blue-300",
+    bg: "bg-blue-50 dark:bg-blue-950/50",
+    border: "border-blue-200 dark:border-blue-800"
+  },
+  "Under Review": {
+    label: "Under Review",
+    color: "text-amber-700 dark:text-amber-300",
+    bg: "bg-amber-50 dark:bg-amber-950/50",
+    border: "border-amber-200 dark:border-amber-800"
+  },
+  "Interview": {
+    label: "Interviewing",
+    color: "text-purple-700 dark:text-purple-300",
+    bg: "bg-purple-50 dark:bg-purple-950/50",
+    border: "border-purple-200 dark:border-purple-800"
+  },
+  "Offer": {
+    label: "Offer Received 🎉",
+    color: "text-emerald-700 dark:text-emerald-300",
+    bg: "bg-emerald-50 dark:bg-emerald-950/50",
+    border: "border-emerald-200 dark:border-emerald-800"
+  },
+  "Rejected": {
+    label: "Archived / Rejected",
+    color: "text-slate-600 dark:text-slate-400",
+    bg: "bg-slate-100 dark:bg-slate-800/60",
+    border: "border-slate-200 dark:border-slate-700"
+  }
+};
+
 export default function AdminDashboardPage() {
+  const router = useRouter();
   const [user, setUser] = useState<User | null>(null);
   const [activeTab, setActiveTab] = useState<"telemetry" | "users" | "inquiries">("telemetry");
   const [summary, setSummary] = useState<AnalyticsSummary | null>(null);
@@ -54,39 +100,30 @@ export default function AdminDashboardPage() {
   const [selectedInquiry, setSelectedInquiry] = useState<ContactInquiry | null>(null);
   const [inquirySearch, setInquirySearch] = useState("");
 
+  // Log Pagination State
+  const [visibleLogsCount, setVisibleLogsCount] = useState(5);
+
+  // Selected Candidate for Viewing Applied Jobs Modal
+  const [selectedCandidate, setSelectedCandidate] = useState<User | null>(null);
+  const [candidateApplications, setCandidateApplications] = useState<AppliedJob[]>([]);
+
   const refreshData = () => {
     const cur = getCurrentUser();
     setUser(cur);
     setSummary(getAnalyticsSummary());
-    setCandidates(getAllUsersForAdmin());
+    
+    const allUsers = getAllUsersForAdmin();
+    setCandidates(allUsers);
+
+    // If currently viewing a candidate's applications, refresh their live list
+    if (selectedCandidate) {
+      setCandidateApplications(getAppliedJobs(selectedCandidate.id));
+    }
 
     try {
       const rawInq = localStorage.getItem("jobpulse_contact_inquiries");
       if (rawInq) {
         setInquiries(JSON.parse(rawInq));
-      } else {
-        const sample: ContactInquiry[] = [
-          {
-            id: "inq_sample_1",
-            name: "Rahul Verma",
-            email: "rahul.v@techcorp.com",
-            topic: "Job Indexing Request",
-            subject: "Request to add Stripe Careers RSS Feed",
-            message: "Hi JobPulse Team, could you index the official Stripe Greenhouse board? They recently posted 45 new backend roles.",
-            createdAt: new Date(Date.now() - 3600000 * 4).toISOString()
-          },
-          {
-            id: "inq_sample_2",
-            name: "Ananya Iyer",
-            email: "ananya.i@gmail.com",
-            topic: "Career Query",
-            subject: "Feedback on System Design Playbook",
-            message: "Loved the LLD strategy pattern article! Would love a follow-up on Kafka event driven architectures.",
-            createdAt: new Date(Date.now() - 3600000 * 22).toISOString()
-          }
-        ];
-        localStorage.setItem("jobpulse_contact_inquiries", JSON.stringify(sample));
-        setInquiries(sample);
       }
     } catch {
       setInquiries([]);
@@ -95,20 +132,37 @@ export default function AdminDashboardPage() {
 
   useEffect(() => {
     refreshData();
-  }, []);
 
-  const handleAdminQuickLogin = () => {
-    const res = loginUser("yadavakhil766@gmail.com");
-    if (res.user) {
-      setUser(res.user);
-      refreshData();
-    }
+    const handleAppChange = () => refreshData();
+    const handleAuthChange = () => refreshData();
+
+    window.addEventListener("jobpulse_applications_change", handleAppChange);
+    window.addEventListener("jobpulse_auth_change", handleAuthChange);
+
+    return () => {
+      window.removeEventListener("jobpulse_applications_change", handleAppChange);
+      window.removeEventListener("jobpulse_auth_change", handleAuthChange);
+    };
+  }, [selectedCandidate]);
+
+  const handleOpenCandidateApplications = (cand: User) => {
+    setSelectedCandidate(cand);
+    setCandidateApplications(getAppliedJobs(cand.id));
+  };
+
+  const handleUpdateCandidateJobStatus = (appliedId: string, newStatus: ApplicationStatus) => {
+    if (!selectedCandidate) return;
+    const updated = updateAppliedStatus(selectedCandidate.id, appliedId, newStatus);
+    setCandidateApplications(updated);
   };
 
   const handleDeleteCandidate = (userId: string) => {
     if (confirm("Are you sure you want to remove this candidate account?")) {
       adminDeleteUser(userId);
       setCandidates(getAllUsersForAdmin());
+      if (selectedCandidate?.id === userId) {
+        setSelectedCandidate(null);
+      }
     }
   };
 
@@ -119,32 +173,36 @@ export default function AdminDashboardPage() {
     if (selectedInquiry?.id === id) setSelectedInquiry(null);
   };
 
-  const isAdmin = user && (user.role === "admin" || user.email === "yadavakhil766@gmail.com");
+  const handleLogout = () => {
+    logoutUser();
+    router.push("/admin/login");
+  };
+
+  // Strict check: Only role === 'admin'
+  const isAdmin = user && user.role === "admin";
 
   if (!isAdmin) {
     return (
-      <div className="min-h-screen bg-slate-50 dark:bg-slate-950 py-20 px-4 flex items-center justify-center">
-        <Card className="max-w-md w-full text-center p-8 border-slate-200 dark:border-slate-800 dark:bg-slate-900 rounded-3xl shadow-xl">
-          <div className="w-14 h-14 rounded-2xl bg-amber-50 dark:bg-amber-950/60 text-amber-600 dark:text-amber-400 flex items-center justify-center mx-auto mb-4 border border-amber-200 dark:border-amber-800">
+      <div className="min-h-screen bg-slate-950 py-20 px-4 flex items-center justify-center">
+        <Card className="max-w-md w-full text-center p-8 border-slate-800 bg-slate-900 rounded-3xl shadow-2xl">
+          <div className="w-14 h-14 rounded-2xl bg-amber-950/60 text-amber-400 flex items-center justify-center mx-auto mb-4 border border-amber-800">
             <Lock className="w-7 h-7" />
           </div>
-          <h2 className="text-2xl font-black text-slate-900 dark:text-white mb-2">
-            Restricted Admin Area
+          <h2 className="text-2xl font-black text-white mb-2">
+            Restricted Admin Console
           </h2>
-          <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mb-6">
-            This console is reserved for JobPulse platform operators, founders, and site administrators.
+          <p className="text-xs sm:text-sm text-slate-400 mb-6 leading-relaxed">
+            Authentication is required. Only authorized administrators with verified credentials can access this panel.
           </p>
 
           <div className="space-y-3">
-            <Button
-              onClick={handleAdminQuickLogin}
-              className="w-full bg-teal-600 hover:bg-teal-500 text-white font-bold rounded-xl shadow-md cursor-pointer flex items-center justify-center gap-2"
-            >
-              <Shield className="w-4 h-4" />
-              <span>Authenticate as Founder Admin</span>
-            </Button>
-            <Link href="/">
-              <Button variant="outline" className="w-full rounded-xl cursor-pointer text-xs">
+            <Link href="/admin/login" className="block w-full">
+              <Button className="w-full bg-teal-600 hover:bg-teal-500 text-white font-bold rounded-xl shadow-lg cursor-pointer">
+                Go to Admin Login (/admin/login)
+              </Button>
+            </Link>
+            <Link href="/" className="block w-full">
+              <Button variant="outline" className="w-full border-slate-800 text-slate-400 hover:text-white rounded-xl cursor-pointer text-xs">
                 Back to Public Job Board
               </Button>
             </Link>
@@ -153,6 +211,15 @@ export default function AdminDashboardPage() {
       </div>
     );
   }
+
+  // Real Dynamic Numbers
+  const dynamicActiveJobs = mockJobs ? mockJobs.length : 0;
+  const totalRegisteredUsers = candidates.length;
+  
+  // Calculate total applications across all candidates
+  const totalApplicationsCount = candidates.reduce((acc, cand) => {
+    return acc + getAppliedJobs(cand.id).length;
+  }, 0);
 
   const filteredCandidates = candidates.filter(c => {
     if (!userSearch.trim()) return true;
@@ -166,10 +233,8 @@ export default function AdminDashboardPage() {
     return i.name.toLowerCase().includes(q) || i.email.toLowerCase().includes(q) || i.subject.toLowerCase().includes(q) || i.topic.toLowerCase().includes(q);
   });
 
-  const totalDeviceClicks = (summary?.deviceBreakdown.desktop || 1) + (summary?.deviceBreakdown.mobile || 1) + (summary?.deviceBreakdown.tablet || 1);
-  const desktopPct = Math.round(((summary?.deviceBreakdown.desktop || 0) / totalDeviceClicks) * 100);
-  const mobilePct = Math.round(((summary?.deviceBreakdown.mobile || 0) / totalDeviceClicks) * 100);
-  const tabletPct = Math.max(0, 100 - desktopPct - mobilePct);
+  const allEvents = summary?.recentEvents || [];
+  const displayedEvents = allEvents.slice(0, visibleLogsCount);
 
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-slate-950 py-10 sm:py-12">
@@ -187,11 +252,11 @@ export default function AdminDashboardPage() {
                   JobPulse Master Admin
                 </h1>
                 <span className="text-[10px] font-bold text-teal-400 bg-teal-950 border border-teal-800 px-2.5 py-0.5 rounded-full uppercase">
-                  Live Operations
+                  Verified Operator
                 </span>
               </div>
               <p className="text-xs text-slate-400 mt-1">
-                Signed in as {user.name} ({user.email}) • Real-time traffic, candidate directory, & feedback inbox
+                Operator: <strong className="text-slate-200">{user.name}</strong> ({user.email}) • Genuine Origin Telemetry & Live Pipeline
               </p>
             </div>
           </div>
@@ -204,14 +269,75 @@ export default function AdminDashboardPage() {
               className="text-xs bg-slate-800 border-slate-700 hover:bg-slate-700 text-slate-200 rounded-xl cursor-pointer"
             >
               <RefreshCw className="w-3.5 h-3.5 mr-1.5" />
-              Refresh Feed
+              Refresh Data
             </Button>
             <Link href="/dashboard">
-              <Button size="sm" className="text-xs bg-teal-600 hover:bg-teal-500 text-white font-bold rounded-xl cursor-pointer">
-                Candidate View
+              <Button size="sm" className="text-xs bg-slate-800 hover:bg-slate-700 text-slate-200 rounded-xl cursor-pointer">
+                Candidate Dashboard
               </Button>
             </Link>
+            <Button
+              onClick={handleLogout}
+              size="sm"
+              variant="ghost"
+              className="text-xs text-rose-400 hover:bg-rose-950/40 rounded-xl cursor-pointer"
+            >
+              Sign Out
+            </Button>
           </div>
+        </div>
+
+        {/* Genuine Origin Metrics Overview (Dynamic & Auto-Updating) */}
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-8">
+          
+          {/* Card 1: Real Dynamic Active Job Postings */}
+          <div className="p-5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-2xs">
+            <div className="flex items-center justify-between text-xs text-slate-500 font-semibold mb-2">
+              <span>Active Job Postings</span>
+              <Briefcase className="w-4 h-4 text-teal-600" />
+            </div>
+            <div className="text-2xl sm:text-3xl font-black text-teal-600 dark:text-teal-400">
+              {dynamicActiveJobs.toLocaleString()}
+            </div>
+            <div className="text-[11px] text-slate-400 mt-1">Real-time dynamic count</div>
+          </div>
+
+          {/* Card 2: Registered Candidates Count */}
+          <div className="p-5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-2xs">
+            <div className="flex items-center justify-between text-xs text-slate-500 font-semibold mb-2">
+              <span>Registered Users</span>
+              <Users className="w-4 h-4 text-cyan-600" />
+            </div>
+            <div className="text-2xl sm:text-3xl font-black text-slate-900 dark:text-white">
+              {totalRegisteredUsers.toLocaleString()}
+            </div>
+            <div className="text-[11px] text-cyan-600 dark:text-cyan-400 mt-1 font-semibold">Total candidate accounts</div>
+          </div>
+
+          {/* Card 3: Total Tracked Job Applications */}
+          <div className="p-5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-2xs">
+            <div className="flex items-center justify-between text-xs text-slate-500 font-semibold mb-2">
+              <span>Applications Tracked</span>
+              <CheckCircle2 className="w-4 h-4 text-purple-600" />
+            </div>
+            <div className="text-2xl sm:text-3xl font-black text-purple-600 dark:text-purple-400">
+              {totalApplicationsCount.toLocaleString()}
+            </div>
+            <div className="text-[11px] text-purple-500 mt-1">Across all candidates</div>
+          </div>
+
+          {/* Card 4: Real Pageviews & Unique Visitors */}
+          <div className="p-5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-2xs">
+            <div className="flex items-center justify-between text-xs text-slate-500 font-semibold mb-2">
+              <span>Live Pageviews</span>
+              <Eye className="w-4 h-4 text-emerald-600" />
+            </div>
+            <div className="text-2xl sm:text-3xl font-black text-emerald-600 dark:text-emerald-400">
+              {(summary?.totalPageviews || 1).toLocaleString()}
+            </div>
+            <div className="text-[11px] text-slate-400 mt-1">{(summary?.uniqueVisitors || 1).toLocaleString()} unique visitors</div>
+          </div>
+
         </div>
 
         {/* Quick Nav Tabs */}
@@ -237,7 +363,7 @@ export default function AdminDashboardPage() {
             }`}
           >
             <Users className="w-4 h-4" />
-            <span>Candidate Users ({candidates.length})</span>
+            <span>Candidate Users & Job Statuses ({candidates.length})</span>
           </button>
 
           <button
@@ -253,161 +379,37 @@ export default function AdminDashboardPage() {
           </button>
         </div>
 
-        {/* TAB 1: TELEMETRY & LIVE TRAFFIC */}
+        {/* TAB 1: TELEMETRY & ACTIVITY LOGS WITH VIEW MORE */}
         {activeTab === "telemetry" && (
           <div className="space-y-8">
-            {/* Stat Counters */}
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-              <div className="p-5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-2xs">
-                <div className="flex items-center justify-between text-xs text-slate-500 font-semibold mb-2">
-                  <span>Total Pageviews</span>
-                  <Eye className="w-4 h-4 text-teal-600" />
-                </div>
-                <div className="text-2xl sm:text-3xl font-black text-slate-900 dark:text-white">
-                  {(summary?.totalPageviews || 0).toLocaleString()}
-                </div>
-                <div className="text-[11px] text-emerald-600 font-semibold mt-1 flex items-center gap-1">
-                  <TrendingUp className="w-3 h-3" />
-                  +18.4% this week
-                </div>
-              </div>
-
-              <div className="p-5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-2xs">
-                <div className="flex items-center justify-between text-xs text-slate-500 font-semibold mb-2">
-                  <span>Unique Visitors</span>
-                  <Users className="w-4 h-4 text-cyan-600" />
-                </div>
-                <div className="text-2xl sm:text-3xl font-black text-slate-900 dark:text-white">
-                  {(summary?.uniqueVisitors || 0).toLocaleString()}
-                </div>
-                <div className="text-[11px] text-teal-600 mt-1 font-medium">Verified Applicant Devices</div>
-              </div>
-
-              <div className="p-5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-2xs">
-                <div className="flex items-center justify-between text-xs text-slate-500 font-semibold mb-2">
-                  <span>Apply Clicks</span>
-                  <MousePointerClick className="w-4 h-4 text-indigo-600" />
-                </div>
-                <div className="text-2xl sm:text-3xl font-black text-indigo-600 dark:text-indigo-400">
-                  {(summary?.totalApplyClicks || 0).toLocaleString()}
-                </div>
-                <div className="text-[11px] text-slate-400 mt-1">Direct ATS Conversions</div>
-              </div>
-
-              <div className="p-5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-2xs">
-                <div className="flex items-center justify-between text-xs text-slate-500 font-semibold mb-2">
-                  <span>Active Jobs Indexed</span>
-                  <Briefcase className="w-4 h-4 text-emerald-600" />
-                </div>
-                <div className="text-2xl sm:text-3xl font-black text-emerald-600 dark:text-emerald-400">
-                  5,670+
-                </div>
-                <div className="text-[11px] text-emerald-500 font-medium mt-1">0 Delays • Real-Time</div>
-              </div>
-            </div>
-
-            {/* Device Distribution & Top Pages Grid */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              
-              {/* Device Split */}
-              <Card className="border-slate-200 dark:border-slate-800 dark:bg-slate-900 rounded-3xl">
-                <CardContent className="p-6">
-                  <h3 className="font-bold text-base text-slate-900 dark:text-white mb-4 flex items-center gap-2">
-                    <Monitor className="w-4 h-4 text-teal-600" />
-                    Device Breakdown (Mobile vs Desktop)
-                  </h3>
-
-                  <div className="space-y-4">
-                    <div>
-                      <div className="flex justify-between text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5">
-                        <span className="flex items-center gap-1.5">
-                          <Monitor className="w-3.5 h-3.5 text-slate-400" /> Desktop Web
-                        </span>
-                        <span>{desktopPct}%</span>
-                      </div>
-                      <div className="w-full h-2.5 bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden">
-                        <div className="h-full bg-teal-600 rounded-full" style={{ width: `${desktopPct}%` }} />
-                      </div>
-                    </div>
-
-                    <div>
-                      <div className="flex justify-between text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5">
-                        <span className="flex items-center gap-1.5">
-                          <Smartphone className="w-3.5 h-3.5 text-slate-400" /> Mobile Devices
-                        </span>
-                        <span>{mobilePct}%</span>
-                      </div>
-                      <div className="w-full h-2.5 bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden">
-                        <div className="h-full bg-cyan-500 rounded-full" style={{ width: `${mobilePct}%` }} />
-                      </div>
-                    </div>
-
-                    <div>
-                      <div className="flex justify-between text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5">
-                        <span className="flex items-center gap-1.5">
-                          <Tablet className="w-3.5 h-3.5 text-slate-400" /> Tablet & Others
-                        </span>
-                        <span>{tabletPct}%</span>
-                      </div>
-                      <div className="w-full h-2.5 bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden">
-                        <div className="h-full bg-slate-400 rounded-full" style={{ width: `${tabletPct}%` }} />
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="mt-6 pt-4 border-t border-slate-100 dark:border-slate-800 text-xs text-slate-500 dark:text-slate-400">
-                    💡 JobPulse is fully responsive and optimized for both desktop and mobile viewports.
-                  </div>
-                </CardContent>
-              </Card>
-
-              {/* Top Pages */}
-              <Card className="border-slate-200 dark:border-slate-800 dark:bg-slate-900 rounded-3xl">
-                <CardContent className="p-6">
-                  <h3 className="font-bold text-base text-slate-900 dark:text-white mb-4 flex items-center gap-2">
-                    <TrendingUp className="w-4 h-4 text-teal-600" />
-                    Most Visited Routes
-                  </h3>
-
-                  <div className="space-y-2.5">
-                    {(summary?.topPages || []).map((page, idx) => (
-                      <div key={idx} className="flex items-center justify-between p-2.5 rounded-xl bg-slate-50 dark:bg-slate-950 text-xs font-medium">
-                        <span className="font-mono text-slate-700 dark:text-slate-300 truncate max-w-[200px] sm:max-w-xs">
-                          {page.path}
-                        </span>
-                        <span className="font-bold text-teal-700 dark:text-teal-400 bg-teal-50 dark:bg-teal-950 px-2 py-0.5 rounded-md">
-                          {page.count.toLocaleString()} views
-                        </span>
-                      </div>
-                    ))}
-                  </div>
-                </CardContent>
-              </Card>
-
-            </div>
-
-            {/* Recent Live Events Stream */}
+            
+            {/* Real-Time Activity Log Card with View More / Show Less */}
             <Card className="border-slate-200 dark:border-slate-800 dark:bg-slate-900 rounded-3xl">
               <CardContent className="p-6">
-                <h3 className="font-bold text-base text-slate-900 dark:text-white mb-4 flex items-center gap-2">
-                  <Activity className="w-4 h-4 text-teal-600 animate-pulse" />
-                  Real-Time Applicant Activity Log
-                </h3>
+                <div className="flex items-center justify-between mb-4">
+                  <h3 className="font-bold text-base text-slate-900 dark:text-white flex items-center gap-2">
+                    <Activity className="w-4 h-4 text-teal-600 animate-pulse" />
+                    Real-Time Applicant Activity Log
+                  </h3>
+                  <span className="text-xs text-slate-400">
+                    Showing {displayedEvents.length} of {allEvents.length} events
+                  </span>
+                </div>
 
-                {(summary?.recentEvents || []).length === 0 ? (
-                  <p className="text-xs text-slate-400">No recorded telemetry in this local session yet.</p>
+                {allEvents.length === 0 ? (
+                  <p className="text-xs text-slate-400 py-4">No recorded telemetry in this session yet.</p>
                 ) : (
                   <div className="divide-y divide-slate-100 dark:divide-slate-800">
-                    {(summary?.recentEvents || []).map((ev) => (
+                    {displayedEvents.map((ev) => (
                       <div key={ev.id} className="py-2.5 flex items-center justify-between text-xs">
                         <div className="flex items-center gap-2.5">
-                          <span className="w-2 h-2 rounded-full bg-teal-500" />
+                          <span className="w-2 h-2 rounded-full bg-teal-500 shrink-0" />
                           <span className="font-mono font-bold uppercase text-slate-900 dark:text-white">
                             {ev.type}
                           </span>
-                          <span className="text-slate-500 truncate max-w-[250px]">{ev.path}</span>
+                          <span className="text-slate-500 truncate max-w-[200px] sm:max-w-md">{ev.path}</span>
                         </div>
-                        <div className="flex items-center gap-3 text-slate-400">
+                        <div className="flex items-center gap-3 text-slate-400 shrink-0">
                           <span>{ev.device} ({ev.screen})</span>
                           <span>{new Date(ev.timestamp).toLocaleTimeString()}</span>
                         </div>
@@ -415,12 +417,63 @@ export default function AdminDashboardPage() {
                     ))}
                   </div>
                 )}
+
+                {/* View More Logs Button */}
+                {allEvents.length > 5 && (
+                  <div className="mt-4 pt-3 border-t border-slate-100 dark:border-slate-800 flex items-center justify-center">
+                    {visibleLogsCount < allEvents.length ? (
+                      <Button
+                        onClick={() => setVisibleLogsCount(prev => prev + 10)}
+                        variant="outline"
+                        size="sm"
+                        className="text-xs font-semibold rounded-xl text-teal-600 dark:text-teal-400 hover:bg-teal-50 dark:hover:bg-teal-950/50 cursor-pointer flex items-center gap-1.5"
+                      >
+                        <ChevronDown className="w-3.5 h-3.5" />
+                        <span>View More Logs ({allEvents.length - visibleLogsCount} remaining)</span>
+                      </Button>
+                    ) : (
+                      <Button
+                        onClick={() => setVisibleLogsCount(5)}
+                        variant="ghost"
+                        size="sm"
+                        className="text-xs font-semibold rounded-xl text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 cursor-pointer flex items-center gap-1.5"
+                      >
+                        <ChevronUp className="w-3.5 h-3.5" />
+                        <span>Show Less</span>
+                      </Button>
+                    )}
+                  </div>
+                )}
               </CardContent>
             </Card>
+
+            {/* Top Visited Routes */}
+            <Card className="border-slate-200 dark:border-slate-800 dark:bg-slate-900 rounded-3xl">
+              <CardContent className="p-6">
+                <h3 className="font-bold text-base text-slate-900 dark:text-white mb-4 flex items-center gap-2">
+                  <TrendingUp className="w-4 h-4 text-teal-600" />
+                  Most Visited Routes & Conversions
+                </h3>
+
+                <div className="space-y-2.5">
+                  {(summary?.topPages || []).map((page, idx) => (
+                    <div key={idx} className="flex items-center justify-between p-2.5 rounded-xl bg-slate-50 dark:bg-slate-950 text-xs font-medium">
+                      <span className="font-mono text-slate-700 dark:text-slate-300 truncate max-w-[200px] sm:max-w-xs">
+                        {page.path}
+                      </span>
+                      <span className="font-bold text-teal-700 dark:text-teal-400 bg-teal-50 dark:bg-teal-950 px-2 py-0.5 rounded-md">
+                        {page.count.toLocaleString()} views
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+
           </div>
         )}
 
-        {/* TAB 2: CANDIDATE DIRECTORY */}
+        {/* TAB 2: CANDIDATE USERS & REAL-TIME JOB STATUSES */}
         {activeTab === "users" && (
           <div className="space-y-6">
             <div className="flex items-center justify-between gap-4 flex-wrap">
@@ -430,13 +483,13 @@ export default function AdminDashboardPage() {
                   type="text"
                   value={userSearch}
                   onChange={(e) => setUserSearch(e.target.value)}
-                  placeholder="Search candidates by name, email, or role..."
+                  placeholder="Search candidates by name, email, or target role..."
                   className="w-full pl-9 pr-4 py-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl text-xs text-slate-900 dark:text-white outline-none focus:border-teal-500"
                 />
               </div>
 
               <div className="text-xs text-slate-500">
-                Total Registered: <strong>{candidates.length}</strong>
+                Total Registered: <strong>{candidates.length}</strong> candidates
               </div>
             </div>
 
@@ -446,56 +499,166 @@ export default function AdminDashboardPage() {
                   <thead className="bg-slate-50 dark:bg-slate-950 border-b border-slate-200 dark:border-slate-800 text-slate-500 font-semibold">
                     <tr>
                       <th className="p-4">Candidate</th>
-                      <th className="p-4">Role / Target</th>
+                      <th className="p-4">Target Role</th>
                       <th className="p-4">Target CTC</th>
-                      <th className="p-4">Location</th>
+                      <th className="p-4">Applications</th>
                       <th className="p-4">Registered</th>
-                      <th className="p-4 text-right">Actions</th>
+                      <th className="p-4 text-right">Job Tracker</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
-                    {filteredCandidates.map((c) => (
-                      <tr key={c.id} className="hover:bg-slate-50/50 dark:hover:bg-slate-800/30 transition-colors">
-                        <td className="p-4">
-                          <div className="font-bold text-slate-900 dark:text-white flex items-center gap-2">
-                            <span>{c.name}</span>
-                            {c.role === "admin" && (
-                              <span className="text-[10px] font-bold text-teal-700 dark:text-teal-300 bg-teal-50 dark:bg-teal-950 px-2 py-0.2 rounded">
-                                Admin
-                              </span>
-                            )}
-                          </div>
-                          <div className="text-slate-400 font-mono text-[11px]">{c.email}</div>
-                        </td>
-                        <td className="p-4 text-slate-600 dark:text-slate-300 font-medium">
-                          {c.targetRole || "Software Engineer"}
-                        </td>
-                        <td className="p-4 text-emerald-600 font-semibold">
-                          {c.targetCtc || "Flexible"}
-                        </td>
-                        <td className="p-4 text-slate-500">
-                          {c.preferredLocation || "Worldwide"}
-                        </td>
-                        <td className="p-4 text-slate-400">
-                          {new Date(c.createdAt).toLocaleDateString()}
-                        </td>
-                        <td className="p-4 text-right">
-                          {c.id !== "admin_founder" && (
-                            <button
-                              onClick={() => handleDeleteCandidate(c.id)}
-                              className="text-slate-400 hover:text-rose-600 transition-colors p-1"
-                              title="Delete user"
+                    {filteredCandidates.map((c) => {
+                      const userApps = getAppliedJobs(c.id);
+                      return (
+                        <tr key={c.id} className="hover:bg-slate-50/50 dark:hover:bg-slate-800/30 transition-colors">
+                          <td className="p-4">
+                            <div className="font-bold text-slate-900 dark:text-white flex items-center gap-2">
+                              <span>{c.name}</span>
+                              {c.role === "admin" && (
+                                <span className="text-[10px] font-bold text-teal-700 dark:text-teal-300 bg-teal-50 dark:bg-teal-950 px-2 py-0.2 rounded">
+                                  Founder Admin
+                                </span>
+                              )}
+                            </div>
+                            <div className="text-slate-400 font-mono text-[11px]">{c.email}</div>
+                          </td>
+                          <td className="p-4 text-slate-600 dark:text-slate-300 font-medium">
+                            {c.targetRole || "Software Engineer"}
+                          </td>
+                          <td className="p-4 text-emerald-600 font-semibold">
+                            {c.targetCtc || "Flexible"}
+                          </td>
+                          <td className="p-4">
+                            <span className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full font-bold text-[11px] ${
+                              userApps.length > 0 
+                                ? "bg-teal-50 dark:bg-teal-950/80 text-teal-700 dark:text-teal-300 border border-teal-200 dark:border-teal-800" 
+                                : "bg-slate-100 dark:bg-slate-800 text-slate-500"
+                            }`}>
+                              {userApps.length} {userApps.length === 1 ? "Job" : "Jobs"} Applied
+                            </span>
+                          </td>
+                          <td className="p-4 text-slate-400">
+                            {new Date(c.createdAt).toLocaleDateString()}
+                          </td>
+                          <td className="p-4 text-right space-x-2">
+                            <Button
+                              onClick={() => handleOpenCandidateApplications(c)}
+                              size="sm"
+                              className="text-xs font-semibold bg-teal-600 hover:bg-teal-500 text-white rounded-xl cursor-pointer"
                             >
-                              <Trash2 className="w-4 h-4" />
-                            </button>
-                          )}
-                        </td>
-                      </tr>
-                    ))}
+                              View Jobs ({userApps.length})
+                            </Button>
+                            {c.id !== "admin_founder" && (
+                              <button
+                                onClick={() => handleDeleteCandidate(c.id)}
+                                className="text-slate-400 hover:text-rose-600 transition-colors p-1"
+                                title="Delete user"
+                              >
+                                <Trash2 className="w-4 h-4 inline" />
+                              </button>
+                            )}
+                          </td>
+                        </tr>
+                      );
+                    })}
                   </tbody>
                 </table>
               </div>
             </Card>
+
+            {/* CANDIDATE APPLIED JOBS INSPECTION MODAL / DRAWER */}
+            {selectedCandidate && (
+              <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4">
+                <Card className="max-w-2xl w-full max-h-[85vh] flex flex-col bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 rounded-3xl shadow-2xl overflow-hidden animate-in zoom-in-95 duration-150">
+                  <div className="p-6 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between">
+                    <div>
+                      <div className="flex items-center gap-2">
+                        <h3 className="text-lg font-bold text-slate-900 dark:text-white">
+                          {selectedCandidate.name}&apos;s Applied Jobs
+                        </h3>
+                        <span className="text-xs text-teal-600 font-semibold bg-teal-50 dark:bg-teal-950 px-2 py-0.5 rounded">
+                          {candidateApplications.length} total
+                        </span>
+                      </div>
+                      <p className="text-xs text-slate-400 mt-0.5">
+                        {selectedCandidate.email} • Target: {selectedCandidate.targetRole || "Software Engineer"}
+                      </p>
+                    </div>
+
+                    <button
+                      onClick={() => setSelectedCandidate(null)}
+                      className="p-1 rounded-lg text-slate-400 hover:text-slate-600 dark:hover:text-white cursor-pointer"
+                    >
+                      <X className="w-5 h-5" />
+                    </button>
+                  </div>
+
+                  <div className="p-6 overflow-y-auto space-y-3.5 flex-1">
+                    {candidateApplications.length === 0 ? (
+                      <div className="text-center py-12 text-xs text-slate-400">
+                        This candidate has not marked any applications yet.
+                      </div>
+                    ) : (
+                      candidateApplications.map((app) => {
+                        const cfg = STATUS_CONFIG[app.status] || STATUS_CONFIG["Applied"];
+                        return (
+                          <div key={app.id} className="p-4 rounded-2xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 space-y-2.5">
+                            <div className="flex items-start justify-between gap-3">
+                              <div>
+                                <span className="text-xs font-bold text-teal-600 dark:text-teal-400 bg-teal-100/70 dark:bg-teal-950 px-2 py-0.5 rounded">
+                                  {app.company}
+                                </span>
+                                <h4 className="font-bold text-sm text-slate-900 dark:text-white mt-1">
+                                  {app.title}
+                                </h4>
+                                <div className="text-[11px] text-slate-500 flex items-center gap-3 mt-1">
+                                  <span>{app.location}</span>
+                                  {app.salary && <span className="text-emerald-600 font-medium">{app.salary}</span>}
+                                  <span>Applied: {new Date(app.appliedAt).toLocaleDateString()}</span>
+                                </div>
+                              </div>
+
+                              {/* Live Status Selector */}
+                              <div className="shrink-0 text-right">
+                                <span className="text-[10px] text-slate-400 block mb-1">Live Status:</span>
+                                <select
+                                  value={app.status}
+                                  onChange={(e) => handleUpdateCandidateJobStatus(app.id, e.target.value as ApplicationStatus)}
+                                  className={`text-xs font-bold px-3 py-1 rounded-xl border focus:outline-none cursor-pointer ${cfg.bg} ${cfg.color} ${cfg.border}`}
+                                >
+                                  <option value="Applied">🔵 Applied</option>
+                                  <option value="Under Review">🟡 Under Review</option>
+                                  <option value="Interview">🟣 Interview</option>
+                                  <option value="Offer">🟢 Offer Received</option>
+                                  <option value="Rejected">⚪ Rejected / Archived</option>
+                                </select>
+                              </div>
+                            </div>
+
+                            {app.notes && (
+                              <div className="text-xs text-slate-600 dark:text-slate-300 bg-white dark:bg-slate-900 p-2 rounded-xl border border-slate-200/60 dark:border-slate-800/60 flex items-center gap-1.5">
+                                <FileText className="w-3.5 h-3.5 text-slate-400 shrink-0" />
+                                <span>Note: {app.notes}</span>
+                              </div>
+                            )}
+                          </div>
+                        );
+                      })
+                    )}
+                  </div>
+
+                  <div className="p-4 border-t border-slate-100 dark:border-slate-800 flex justify-end">
+                    <Button
+                      onClick={() => setSelectedCandidate(null)}
+                      className="text-xs font-semibold rounded-xl bg-slate-800 text-white cursor-pointer"
+                    >
+                      Close Viewer
+                    </Button>
+                  </div>
+                </Card>
+              </div>
+            )}
+
           </div>
         )}
 

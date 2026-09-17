@@ -42,21 +42,26 @@ const SESSION_STORAGE_KEY = "jobpulse_current_session";
 const APPLIED_STORAGE_PREFIX = "jobpulse_applied_";
 const BOOKMARKS_STORAGE_PREFIX = "jobpulse_bookmarks_";
 
+// Strict Admin Credentials
+export const ADMIN_EMAIL = "yadavakhil766@gmail.com";
+export const ADMIN_PASSWORD = "akhil#55";
+
 function isBrowser(): boolean {
   return typeof window !== "undefined";
 }
 
-function getStoredUsers(): (User & { passwordHash?: string })[] {
+export function getStoredUsers(): (User & { passwordHash?: string })[] {
   if (!isBrowser()) return [];
   try {
     const raw = localStorage.getItem(USERS_STORAGE_KEY);
     if (raw) return JSON.parse(raw);
     
+    // Seed initial demo candidate & Akhilesh account
     const initialUsers: (User & { passwordHash?: string })[] = [
       {
         id: "admin_founder",
         name: "Akhilesh Yadav",
-        email: "yadavakhil766@gmail.com",
+        email: ADMIN_EMAIL,
         role: "admin",
         createdAt: new Date().toISOString(),
         targetCtc: "₹35,00,000 - ₹50,00,000",
@@ -65,18 +70,76 @@ function getStoredUsers(): (User & { passwordHash?: string })[] {
         skills: ["Python", "PostgreSQL", "Next.js", "Distributed Systems"]
       },
       {
-        id: "demo_user_1",
-        name: "Demo Candidate",
-        email: "demo@jobpulse.io",
+        id: "candidate_rahul",
+        name: "Rahul Sharma",
+        email: "rahul.s@example.com",
         role: "user",
-        createdAt: new Date().toISOString(),
-        targetCtc: "₹18,00,000 - ₹25,00,000",
-        preferredLocation: "Remote / Hybrid",
+        createdAt: new Date(Date.now() - 3600000 * 48).toISOString(),
+        targetCtc: "₹18,00,000 - ₹24,00,000",
+        preferredLocation: "Bengaluru / Hybrid",
         targetRole: "Full Stack Engineer",
         skills: ["React", "TypeScript", "Node.js", "Docker"]
+      },
+      {
+        id: "candidate_priya",
+        name: "Priya Patel",
+        email: "priya.p@example.com",
+        role: "user",
+        createdAt: new Date(Date.now() - 3600000 * 72).toISOString(),
+        targetCtc: "₹14,00,000 - ₹20,00,000",
+        preferredLocation: "Remote",
+        targetRole: "Frontend Developer",
+        skills: ["React", "Next.js", "Tailwind CSS", "JavaScript"]
       }
     ];
+
+    // Seed sample applied jobs for demo candidates so admin sees realistic live records immediately
+    const sampleJobsRahul: AppliedJob[] = [
+      {
+        id: "app_rahul_1",
+        jobId: "1",
+        title: "Senior Backend Engineer",
+        company: "Postman",
+        location: "Bengaluru, India",
+        salary: "₹28,00,000 - ₹38,00,000",
+        applyUrl: "https://job-boards.greenhouse.io/postman",
+        status: "Interview",
+        appliedAt: new Date(Date.now() - 3600000 * 24).toISOString(),
+        notes: "Technical Round 1 scheduled for Friday 3 PM"
+      },
+      {
+        id: "app_rahul_2",
+        jobId: "2",
+        title: "Software Engineer - Payments",
+        company: "Groww",
+        location: "Bengaluru, India",
+        salary: "₹20,00,000 - ₹30,00,000",
+        applyUrl: "https://groww.in",
+        status: "Under Review",
+        appliedAt: new Date(Date.now() - 3600000 * 36).toISOString(),
+        notes: "Resume shortlisted by recruiter"
+      }
+    ];
+
+    const sampleJobsPriya: AppliedJob[] = [
+      {
+        id: "app_priya_1",
+        jobId: "3",
+        title: "Frontend Platform Engineer",
+        company: "Thoughtworks",
+        location: "Pune, India",
+        salary: "₹16,00,000 - ₹22,00,000",
+        applyUrl: "https://thoughtworks.com",
+        status: "Offer",
+        appliedAt: new Date(Date.now() - 3600000 * 60).toISOString(),
+        notes: "Offer letter received! Base: 18 LPA + 2L joining bonus"
+      }
+    ];
+
     localStorage.setItem(USERS_STORAGE_KEY, JSON.stringify(initialUsers));
+    localStorage.setItem(APPLIED_STORAGE_PREFIX + "candidate_rahul", JSON.stringify(sampleJobsRahul));
+    localStorage.setItem(APPLIED_STORAGE_PREFIX + "candidate_priya", JSON.stringify(sampleJobsPriya));
+
     return initialUsers;
   } catch {
     return [];
@@ -94,20 +157,76 @@ export function getCurrentUser(): User | null {
   }
 }
 
+// ---------------- Admin Authentication ----------------
+// ONLY yadavakhil766@gmail.com with password akhil#55 can log in as Admin
+export function loginAdmin(email: string, password?: string): { user?: User; error?: string } {
+  if (!isBrowser()) return { error: "Window not defined" };
+  const cleanEmail = email.toLowerCase().trim();
+
+  if (cleanEmail !== ADMIN_EMAIL || password !== ADMIN_PASSWORD) {
+    return { error: "Access Denied: Invalid Admin Email or Password." };
+  }
+
+  const users = getStoredUsers();
+  let adminUser = users.find(u => u.email.toLowerCase() === ADMIN_EMAIL);
+  if (!adminUser) {
+    adminUser = {
+      id: "admin_founder",
+      name: "Akhilesh Yadav",
+      email: ADMIN_EMAIL,
+      role: "admin",
+      createdAt: new Date().toISOString(),
+      targetCtc: "₹35,00,000 - ₹50,00,000",
+      preferredLocation: "Bengaluru / Remote",
+      targetRole: "Lead Data Engineer & Founder",
+      skills: ["Python", "PostgreSQL", "Next.js", "Distributed Systems"]
+    };
+    users.unshift(adminUser);
+    localStorage.setItem(USERS_STORAGE_KEY, JSON.stringify(users));
+  } else {
+    adminUser.role = "admin";
+    localStorage.setItem(USERS_STORAGE_KEY, JSON.stringify(users));
+  }
+
+  const safeAdmin: User = {
+    id: adminUser.id,
+    name: adminUser.name,
+    email: adminUser.email,
+    role: "admin",
+    createdAt: adminUser.createdAt,
+    targetCtc: adminUser.targetCtc,
+    preferredLocation: adminUser.preferredLocation,
+    targetRole: adminUser.targetRole,
+    skills: adminUser.skills
+  };
+
+  localStorage.setItem(SESSION_STORAGE_KEY, JSON.stringify(safeAdmin));
+  window.dispatchEvent(new Event("jobpulse_auth_change"));
+  return { user: safeAdmin };
+}
+
+// ---------------- Candidate Authentication ----------------
+// Normal login NEVER grants admin privileges!
 export function loginUser(email: string, password?: string): { user?: User; error?: string } {
   if (!isBrowser()) return { error: "Window not defined" };
   const cleanEmail = email.toLowerCase().trim();
+
+  // If Akhilesh tries to log in through standard candidate login
+  if (cleanEmail === ADMIN_EMAIL) {
+    if (password === ADMIN_PASSWORD) {
+      return loginAdmin(cleanEmail, password);
+    }
+  }
+
   const users = getStoredUsers();
-  
   let user = users.find(u => u.email.toLowerCase() === cleanEmail);
   
   if (!user) {
-    const isAdmin = cleanEmail === "yadavakhil766@gmail.com" || cleanEmail.includes("admin");
     user = {
       id: "usr_" + Date.now(),
       name: cleanEmail.split("@")[0].replace(".", " ").replace(/\b\w/g, l => l.toUpperCase()),
       email: cleanEmail,
-      role: isAdmin ? "admin" : "user",
+      role: "user", // ALWAYS user, never admin
       createdAt: new Date().toISOString()
     };
     users.push(user);
@@ -118,13 +237,14 @@ export function loginUser(email: string, password?: string): { user?: User; erro
     id: user.id,
     name: user.name,
     email: user.email,
-    role: user.role,
+    role: user.role === "admin" && cleanEmail === ADMIN_EMAIL ? "admin" : "user",
     createdAt: user.createdAt,
     targetCtc: user.targetCtc,
     preferredLocation: user.preferredLocation,
     targetRole: user.targetRole,
     skills: user.skills
   };
+
   localStorage.setItem(SESSION_STORAGE_KEY, JSON.stringify(safeUser));
   window.dispatchEvent(new Event("jobpulse_auth_change"));
   return { user: safeUser };
@@ -140,12 +260,11 @@ export function registerUser(name: string, email: string, password?: string): { 
     return loginUser(cleanEmail, password);
   }
 
-  const isAdmin = cleanEmail === "yadavakhil766@gmail.com" || cleanEmail.includes("admin");
   const newUser: User = {
     id: "usr_" + Date.now(),
     name: name.trim() || cleanEmail.split("@")[0],
     email: cleanEmail,
-    role: isAdmin ? "admin" : "user",
+    role: "user", // ALWAYS user
     createdAt: new Date().toISOString()
   };
 
@@ -180,6 +299,8 @@ export function updateUserProfile(userId: string, updates: Partial<User>): User 
 
   return updated;
 }
+
+// ---------------- Applied Jobs Management ----------------
 
 export function getAppliedJobs(userId: string): AppliedJob[] {
   if (!isBrowser() || !userId) return [];
@@ -263,6 +384,8 @@ export function isJobApplied(userId: string, jobId: string): boolean {
   return list.some(j => j.jobId === jobId);
 }
 
+// ---------------- Bookmarks / Wishlist ----------------
+
 export function getBookmarks(userId: string): BookmarkItem[] {
   if (!isBrowser() || !userId) return [];
   try {
@@ -311,6 +434,8 @@ export function isJobBookmarked(userId: string, jobId: string): boolean {
   return list.some(b => b.jobId === jobId);
 }
 
+// ---------------- Admin Methods ----------------
+
 export function getAllUsersForAdmin(): User[] {
   return getStoredUsers();
 }
@@ -319,4 +444,9 @@ export function adminDeleteUser(userId: string): void {
   if (!isBrowser()) return;
   const users = getStoredUsers().filter(u => u.id !== userId);
   localStorage.setItem(USERS_STORAGE_KEY, JSON.stringify(users));
+}
+
+// Return all jobs applied across any specific user for Admin inspection
+export function getUserApplicationsForAdmin(userId: string): AppliedJob[] {
+  return getAppliedJobs(userId);
 }

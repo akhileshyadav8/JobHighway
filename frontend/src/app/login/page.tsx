@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { LogIn, ArrowRight, Sparkles, Shield, User as UserIcon, CheckCircle2, AlertCircle } from "lucide-react";
+import { LogIn, Sparkles, User as UserIcon, AlertCircle, Shield } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { loginUser, getCurrentUser } from "@/lib/auth";
@@ -18,7 +18,11 @@ export default function LoginPage() {
   useEffect(() => {
     const user = getCurrentUser();
     if (user) {
-      router.push("/dashboard");
+      if (user.role === "admin") {
+        router.push("/admin");
+      } else {
+        router.push("/dashboard");
+      }
     }
   }, [router]);
 
@@ -28,7 +32,7 @@ export default function LoginPage() {
     setIsLoading(true);
 
     if (!email.trim()) {
-      setError("Please enter your email address.");
+      setError("Please enter your registered email address.");
       setIsLoading(false);
       return;
     }
@@ -41,18 +45,8 @@ export default function LoginPage() {
         router.push("/dashboard");
       }
     } else {
-      setError(res.error || "Failed to sign in");
+      setError(res.error || "Failed to sign in. Please verify your credentials.");
       setIsLoading(false);
-    }
-  };
-
-  const handleQuickDemo = (demoEmail: string) => {
-    setEmail(demoEmail);
-    const res = loginUser(demoEmail);
-    if (res.user?.role === "admin") {
-      router.push("/admin");
-    } else {
-      router.push("/dashboard");
     }
   };
 
@@ -63,13 +57,13 @@ export default function LoginPage() {
         <div className="text-center mb-8">
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-teal-500/10 border border-teal-500/20 text-teal-600 dark:text-teal-400 text-xs font-bold uppercase tracking-wider mb-3">
             <Sparkles className="w-3.5 h-3.5" />
-            Candidate & Admin Portal
+            Candidate Portal
           </div>
           <h1 className="text-3xl font-black text-slate-900 dark:text-white tracking-tight">
-            Sign In to JobPulse
+            Candidate Sign In
           </h1>
           <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-2">
-            Track your applied jobs, bookmark high-paying roles, and manage career preferences.
+            Track your applied jobs, view status updates, and manage target CTC preferences.
           </p>
         </div>
 
@@ -103,7 +97,7 @@ export default function LoginPage() {
                   <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300">
                     Password
                   </label>
-                  <span className="text-[11px] text-slate-400">Optional for demo access</span>
+                  <span className="text-[11px] text-slate-400">Account security</span>
                 </div>
                 <input
                   type="password"
@@ -120,47 +114,25 @@ export default function LoginPage() {
                 className="w-full py-3 rounded-xl bg-teal-600 hover:bg-teal-500 text-white font-bold text-sm shadow-md transition-all flex items-center justify-center gap-2 cursor-pointer"
               >
                 <LogIn className="w-4 h-4" />
-                <span>{isLoading ? "Signing in..." : "Continue to Dashboard"}</span>
+                <span>{isLoading ? "Signing in..." : "Continue to Candidate Dashboard"}</span>
               </Button>
             </form>
 
-            {/* Quick Demo Switchers */}
-            <div className="pt-5 border-t border-slate-100 dark:border-slate-800/80">
-              <div className="text-[11px] font-bold text-slate-400 uppercase tracking-wider text-center mb-3">
-                1-Click Quick Demo Access
+            <div className="pt-4 border-t border-slate-100 dark:border-slate-800/80 flex flex-col items-center gap-2 text-xs text-slate-500 dark:text-slate-400">
+              <div>
+                New to JobPulse?{" "}
+                <Link href="/register" className="font-bold text-teal-600 dark:text-teal-400 hover:underline">
+                  Create Free Account
+                </Link>
               </div>
-              <div className="grid grid-cols-2 gap-2.5">
-                <button
-                  type="button"
-                  onClick={() => handleQuickDemo("demo@jobpulse.io")}
-                  className="p-2.5 rounded-xl border border-slate-200 dark:border-slate-800 hover:border-teal-500 hover:bg-teal-50/40 dark:hover:bg-teal-950/20 text-left transition-all group cursor-pointer"
-                >
-                  <div className="flex items-center gap-1.5 text-xs font-bold text-slate-900 dark:text-white group-hover:text-teal-600 dark:group-hover:text-teal-400">
-                    <UserIcon className="w-3.5 h-3.5" />
-                    <span>Candidate</span>
-                  </div>
-                  <div className="text-[10px] text-slate-400 mt-0.5">Applied Jobs Tracker</div>
-                </button>
 
-                <button
-                  type="button"
-                  onClick={() => handleQuickDemo("yadavakhil766@gmail.com")}
-                  className="p-2.5 rounded-xl border border-teal-200/80 dark:border-teal-900/60 bg-teal-50/20 dark:bg-teal-950/20 hover:border-teal-500 text-left transition-all group cursor-pointer"
-                >
-                  <div className="flex items-center gap-1.5 text-xs font-bold text-teal-700 dark:text-teal-300">
-                    <Shield className="w-3.5 h-3.5" />
-                    <span>Founder Admin</span>
-                  </div>
-                  <div className="text-[10px] text-slate-400 mt-0.5">Telemetry & Users</div>
-                </button>
+              <div className="pt-2 text-[11px] text-slate-400 flex items-center gap-1">
+                <Shield className="w-3 h-3 text-slate-400" />
+                <span>Platform Administrator? </span>
+                <Link href="/admin/login" className="text-teal-600 dark:text-teal-400 font-semibold hover:underline">
+                  Sign in here
+                </Link>
               </div>
-            </div>
-
-            <div className="text-center text-xs text-slate-500 dark:text-slate-400 pt-2">
-              New to JobPulse?{" "}
-              <Link href="/register" className="font-bold text-teal-600 dark:text-teal-400 hover:underline">
-                Create Free Account
-              </Link>
             </div>
           </CardContent>
         </Card>

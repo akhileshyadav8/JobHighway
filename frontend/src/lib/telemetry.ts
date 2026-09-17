@@ -1,5 +1,7 @@
 "use client";
 
+import { mockJobs } from "@/lib/mock-data";
+
 export type EventType = "pageview" | "apply_click" | "search" | "job_view" | "bookmark";
 
 export interface AnalyticsEvent {
@@ -17,6 +19,7 @@ export interface AnalyticsSummary {
   uniqueVisitors: number;
   totalApplyClicks: number;
   totalSearches: number;
+  totalActiveJobs: number;
   deviceBreakdown: { mobile: number; desktop: number; tablet: number };
   topPages: { path: string; count: number }[];
   recentEvents: AnalyticsEvent[];
@@ -84,12 +87,15 @@ export function trackEvent(type: EventType, meta?: Record<string, any>): void {
 }
 
 export function getAnalyticsSummary(): AnalyticsSummary {
+  const dynamicActiveJobs = mockJobs ? mockJobs.length : 0;
+
   if (!isBrowser()) {
     return {
       totalPageviews: 0,
       uniqueVisitors: 0,
       totalApplyClicks: 0,
       totalSearches: 0,
+      totalActiveJobs: dynamicActiveJobs,
       deviceBreakdown: { mobile: 0, desktop: 0, tablet: 0 },
       topPages: [],
       recentEvents: []
@@ -99,11 +105,6 @@ export function getAnalyticsSummary(): AnalyticsSummary {
   try {
     const raw = localStorage.getItem(ANALYTICS_KEY);
     const events: AnalyticsEvent[] = raw ? JSON.parse(raw) : [];
-
-    // Synthetic base numbers for realistic production feel if local telemetry is fresh
-    const basePageviews = 3840;
-    const baseVisitors = 1920;
-    const baseApplyClicks = 640;
 
     let pageviews = 0;
     let applyClicks = 0;
@@ -135,37 +136,33 @@ export function getAnalyticsSummary(): AnalyticsSummary {
       .sort((a, b) => b.count - a.count)
       .slice(0, 6);
 
-    if (topPages.length === 0) {
-      topPages.push(
-        { path: "/", count: 2150 },
-        { path: "/companies", count: 820 },
-        { path: "/blog", count: 540 },
-        { path: "/about", count: 210 },
-        { path: "/contact", count: 120 }
-      );
-    }
+    // If fresh browser session with no history yet, ensure current page is registered
+    const currentUniqueVisitors = Math.max(visitorsSet.size, 1);
+    const currentPageviews = Math.max(pageviews, 1);
 
     return {
-      totalPageviews: basePageviews + pageviews,
-      uniqueVisitors: baseVisitors + Math.max(1, visitorsSet.size),
-      totalApplyClicks: baseApplyClicks + applyClicks,
+      totalPageviews: currentPageviews,
+      uniqueVisitors: currentUniqueVisitors,
+      totalApplyClicks: applyClicks,
       totalSearches: searches,
+      totalActiveJobs: dynamicActiveJobs,
       deviceBreakdown: {
-        desktop: 58 + deviceCounts.desktop,
-        mobile: 38 + deviceCounts.mobile,
-        tablet: 4 + deviceCounts.tablet
+        desktop: deviceCounts.desktop,
+        mobile: deviceCounts.mobile,
+        tablet: deviceCounts.tablet
       },
       topPages,
-      recentEvents: events.slice(0, 20)
+      recentEvents: events
     };
   } catch {
     return {
-      totalPageviews: 3840,
-      uniqueVisitors: 1920,
-      totalApplyClicks: 640,
-      totalSearches: 180,
-      deviceBreakdown: { mobile: 38, desktop: 58, tablet: 4 },
-      topPages: [{ path: "/", count: 2150 }],
+      totalPageviews: 1,
+      uniqueVisitors: 1,
+      totalApplyClicks: 0,
+      totalSearches: 0,
+      totalActiveJobs: dynamicActiveJobs,
+      deviceBreakdown: { mobile: 0, desktop: 1, tablet: 0 },
+      topPages: [{ path: "/", count: 1 }],
       recentEvents: []
     };
   }
