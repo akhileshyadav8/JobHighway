@@ -1,4 +1,4 @@
-﻿import { Metadata } from "next";
+import { Metadata } from "next";
 import Link from "next/link";
 import { Scale, ArrowLeft, CheckCircle2, ShieldAlert, Globe } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -27,7 +27,7 @@ export default function TermsPage() {
           <span className="text-xs font-bold uppercase tracking-wider text-teal-600 dark:text-teal-400">
             Agreements & Rules
           </span>
-          <h1 className="text-3xl sm:text-4xl font-black text-slate-900 dark:text-white tracking-tight">
+          <h1 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-black text-slate-900 dark:text-white tracking-tight leading-snug">
             Terms of Service
           </h1>
         </div>

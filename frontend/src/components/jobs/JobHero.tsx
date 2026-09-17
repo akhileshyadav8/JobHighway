@@ -16,7 +16,7 @@ export function JobHero({ job }: { job: Job }) {
           <span className="font-medium">{job.company.name}</span>
         </div>
         
-        <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-extrabold mb-4 sm:mb-6 leading-tight break-words">
+        <h1 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-black mb-3 tracking-tight leading-snug break-words">
           {job.title}
         </h1>
         

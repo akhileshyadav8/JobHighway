@@ -75,11 +75,11 @@ export default async function ArticlePage({ params }: Props) {
             </span>
           </div>
 
-          <h1 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-slate-900 dark:text-white tracking-tight leading-tight mb-6">
+          <h1 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-black text-slate-900 dark:text-white mb-3 tracking-tight leading-snug">
             {article.title}
           </h1>
 
-          <p className="text-base sm:text-lg text-slate-600 dark:text-slate-300 leading-relaxed mb-6 font-medium">
+          <p className="text-xs sm:text-sm md:text-base text-slate-600 dark:text-slate-300 leading-relaxed mb-6 font-medium">
             {article.summary}
           </p>
 

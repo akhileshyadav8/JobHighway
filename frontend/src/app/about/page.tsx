@@ -12,10 +12,10 @@ export default function AboutPage() {
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-teal-500/10 border border-teal-500/20 text-teal-600 dark:text-teal-400 text-xs font-bold uppercase tracking-wider mb-4">
             About JobPulse
           </div>
-          <h1 className="text-4xl md:text-5xl font-extrabold text-slate-900 dark:text-white tracking-tight mb-6">
+          <h1 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-black text-slate-900 dark:text-white mb-3 tracking-tight leading-snug max-w-3xl mx-auto">
             World&apos;s Real-Time Official Job Discovery Engine
           </h1>
-          <p className="text-lg text-slate-600 dark:text-slate-400 leading-relaxed">
+          <p className="text-xs sm:text-sm md:text-base text-slate-600 dark:text-slate-400 mb-5 max-w-2xl mx-auto leading-relaxed">
             We built JobPulse because traditional job boards post openings days or weeks after companies publish them — by which time hundreds of applications have already flooded in and the position is closed.
           </p>
         </div>

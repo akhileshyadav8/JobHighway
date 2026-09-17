@@ -1,4 +1,4 @@
-﻿import { Metadata } from "next";
+import { Metadata } from "next";
 import Link from "next/link";
 import { Lock, ArrowLeft, Eye, Shield, Server, FileText } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -27,7 +27,7 @@ export default function PrivacyPage() {
           <span className="text-xs font-bold uppercase tracking-wider text-teal-600 dark:text-teal-400">
             Legal & Compliance
           </span>
-          <h1 className="text-3xl sm:text-4xl font-black text-slate-900 dark:text-white tracking-tight">
+          <h1 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-black text-slate-900 dark:text-white tracking-tight leading-snug">
             Privacy Policy
           </h1>
         </div>

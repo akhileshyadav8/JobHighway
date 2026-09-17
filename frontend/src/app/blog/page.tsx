@@ -46,10 +46,10 @@ export default function BlogPage() {
             <Sparkles className="w-3.5 h-3.5 animate-spin" style={{ animationDuration: "5s" }} />
             Official Career & Engineering Guides
           </div>
-          <h1 className="text-3xl sm:text-4xl md:text-5xl font-extrabold text-slate-900 dark:text-white tracking-tight mb-4 leading-tight">
+          <h1 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-black text-slate-900 dark:text-white mb-3 tracking-tight leading-snug max-w-3xl mx-auto">
             JobPulse Playbook & Career Blog
           </h1>
-          <p className="text-slate-600 dark:text-slate-400 text-base leading-relaxed">
+          <p className="text-xs sm:text-sm md:text-base text-slate-600 dark:text-slate-400 mb-5 max-w-2xl mx-auto leading-relaxed">
             Data-backed playbooks on beating ATS parsers, cracking high-paying tech interviews, and landing verified roles worldwide.
           </p>
         </div>

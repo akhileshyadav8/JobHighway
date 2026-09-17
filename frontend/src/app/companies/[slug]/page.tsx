@@ -28,8 +28,8 @@ export default async function CompanyDetailPage({ params }: { params: Promise<{ 
             </div>
             
             <div className="flex-1">
-              <h1 className="text-3xl md:text-4xl font-bold mb-2">{company.name}</h1>
-              <p className="text-slate-600 dark:text-slate-400 text-lg mb-6 max-w-2xl">
+              <h1 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-black text-slate-900 dark:text-white mb-3 tracking-tight leading-snug">{company.name}</h1>
+              <p className="text-xs sm:text-sm md:text-base text-slate-600 dark:text-slate-400 mb-5 max-w-2xl leading-relaxed">
                 {company.description}
               </p>
               

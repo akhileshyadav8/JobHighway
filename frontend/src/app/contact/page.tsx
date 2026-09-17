@@ -97,10 +97,10 @@ export default function ContactPage() {
             <Sparkles className="w-3.5 h-3.5 animate-spin" style={{ animationDuration: "5s" }} />
             Direct Communication & Support
           </div>
-          <h1 className="text-3xl sm:text-4xl md:text-5xl font-black text-slate-900 dark:text-white tracking-tight mb-4 leading-tight">
+          <h1 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-black text-slate-900 dark:text-white mb-3 tracking-tight leading-snug max-w-3xl mx-auto">
             Get In Touch With Us
           </h1>
-          <p className="text-slate-600 dark:text-slate-400 text-sm sm:text-base leading-relaxed">
+          <p className="text-xs sm:text-sm md:text-base text-slate-600 dark:text-slate-400 mb-5 max-w-2xl mx-auto leading-relaxed">
             Have a company career portal you want us to index? Found a broken link or want to partner? We typically respond within 24 hours.
           </p>
         </div>

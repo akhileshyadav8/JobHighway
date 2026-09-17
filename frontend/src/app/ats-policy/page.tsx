@@ -1,4 +1,4 @@
-﻿import { Metadata } from "next";
+import { Metadata } from "next";
 import Link from "next/link";
 import { ShieldCheck, CheckCircle2, ArrowLeft, Building2, Zap, AlertCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -27,13 +27,13 @@ export default function AtsPolicyPage() {
           <span className="text-xs font-bold uppercase tracking-wider text-teal-600 dark:text-teal-400">
             Trust & Transparency
           </span>
-          <h1 className="text-3xl sm:text-4xl font-black text-slate-900 dark:text-white tracking-tight">
+          <h1 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-black text-slate-900 dark:text-white tracking-tight leading-snug">
             Direct ATS & Zero-Scam Policy
           </h1>
         </div>
       </div>
 
-      <p className="text-slate-600 dark:text-slate-300 text-lg leading-relaxed mb-8">
+      <p className="text-xs sm:text-sm md:text-base text-slate-600 dark:text-slate-300 leading-relaxed mb-8">
         At JobPulse, our mission is to eliminate ghost postings, commission-hungry recruitment middlemen, and fraudulent listings. Every single opportunity featured on JobPulse is directly routed to the hiring company's verified Applicant Tracking System (ATS).
       </p>
 
