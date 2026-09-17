@@ -123,12 +123,12 @@
   }
   html {
     @apply font-sans;
-    overflow-x: hidden;
+    overflow-x: clip;
     max-width: 100vw;
   }
   body {
     @apply bg-background text-foreground;
-    overflow-x: hidden;
+    overflow-x: clip;
     max-width: 100vw;
   }
 }

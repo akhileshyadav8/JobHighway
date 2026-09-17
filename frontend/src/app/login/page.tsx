@@ -95,15 +95,21 @@ export default function LoginPage() {
               <div>
                 <div className="flex items-center justify-between mb-1.5">
                   <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300">
-                    Password
+                    Password *
                   </label>
-                  <span className="text-[11px] text-slate-400">Account security</span>
+                  <Link
+                    href="/forgot-password"
+                    className="text-xs text-teal-600 dark:text-teal-400 hover:underline font-semibold"
+                  >
+                    Forgot Password?
+                  </Link>
                 </div>
                 <input
                   type="password"
+                  required
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  placeholder="••••••••"
+                  placeholder="Enter your password"
                   className="w-full px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-white text-sm focus:border-teal-500 focus:outline-none transition-colors"
                 />
               </div>

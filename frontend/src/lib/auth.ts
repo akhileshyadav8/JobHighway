@@ -46,6 +46,48 @@ const BOOKMARKS_STORAGE_PREFIX = "jobpulse_bookmarks_";
 export const ADMIN_EMAIL = "yadavakhil766@gmail.com";
 export const ADMIN_PASSWORD = "akhil#55";
 
+export interface PasswordValidationResult {
+  isValid: boolean;
+  errors: string[];
+}
+
+export function validatePassword(password: string): PasswordValidationResult {
+  const errors: string[] = [];
+  if (!password || password.length < 8) {
+    errors.push("Password must be at least 8 characters.");
+  }
+  if (password && password.length > 16) {
+    errors.push("Password cannot exceed 16 characters.");
+  }
+  if (!/[a-z]/.test(password)) {
+    errors.push("Must include at least 1 lowercase letter (a-z).");
+  }
+  if (!/[A-Z]/.test(password)) {
+    errors.push("Must include at least 1 uppercase letter (A-Z).");
+  }
+  if (!/\d/.test(password)) {
+    errors.push("Must include at least 1 number (0-9).");
+  }
+  if (!/[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(password)) {
+    errors.push("Must include at least 1 special character (e.g. !@#$%^&*).");
+  }
+
+  return {
+    isValid: errors.length === 0,
+    errors
+  };
+}
+
+export function hashPassword(password: string): string {
+  let hash = 0;
+  for (let i = 0; i < password.length; i++) {
+    const char = password.charCodeAt(i);
+    hash = ((hash << 5) - hash) + char;
+    hash |= 0;
+  }
+  return "jp_hash_" + Math.abs(hash).toString(36) + "_" + btoa(password).split("").reverse().join("");
+}
+
 function isBrowser(): boolean {
   return typeof window !== "undefined";
 }
@@ -67,7 +109,8 @@ export function getStoredUsers(): (User & { passwordHash?: string })[] {
         targetCtc: "₹35,00,000 - ₹50,00,000",
         preferredLocation: "Bengaluru / Remote",
         targetRole: "Lead Data Engineer & Founder",
-        skills: ["Python", "PostgreSQL", "Next.js", "Distributed Systems"]
+        skills: ["Python", "PostgreSQL", "Next.js", "Distributed Systems"],
+        passwordHash: hashPassword("akhil#55")
       },
       {
         id: "candidate_rahul",
@@ -78,7 +121,8 @@ export function getStoredUsers(): (User & { passwordHash?: string })[] {
         targetCtc: "₹18,00,000 - ₹24,00,000",
         preferredLocation: "Bengaluru / Hybrid",
         targetRole: "Full Stack Engineer",
-        skills: ["React", "TypeScript", "Node.js", "Docker"]
+        skills: ["React", "TypeScript", "Node.js", "Docker"],
+        passwordHash: hashPassword("Rahul#123")
       },
       {
         id: "candidate_priya",
@@ -89,7 +133,8 @@ export function getStoredUsers(): (User & { passwordHash?: string })[] {
         targetCtc: "₹14,00,000 - ₹20,00,000",
         preferredLocation: "Remote",
         targetRole: "Frontend Developer",
-        skills: ["React", "Next.js", "Tailwind CSS", "JavaScript"]
+        skills: ["React", "Next.js", "Tailwind CSS", "JavaScript"],
+        passwordHash: hashPassword("Priya#123")
       }
     ];
 
@@ -210,26 +255,42 @@ export function loginAdmin(email: string, password?: string): { user?: User; err
 export function loginUser(email: string, password?: string): { user?: User; error?: string } {
   if (!isBrowser()) return { error: "Window not defined" };
   const cleanEmail = email.toLowerCase().trim();
+  if (!cleanEmail) {
+    return { error: "Please enter your email address." };
+  }
+  if (!password) {
+    return { error: "Please enter your password." };
+  }
 
-  // If Akhilesh tries to log in through standard candidate login
+  // If Admin tries to log in
   if (cleanEmail === ADMIN_EMAIL) {
     if (password === ADMIN_PASSWORD) {
       return loginAdmin(cleanEmail, password);
+    } else {
+      return { error: "Incorrect password for this administrator account." };
     }
   }
 
   const users = getStoredUsers();
-  let user = users.find(u => u.email.toLowerCase() === cleanEmail);
+  const user = users.find(u => u.email.toLowerCase() === cleanEmail);
   
   if (!user) {
-    user = {
-      id: "usr_" + Date.now(),
-      name: cleanEmail.split("@")[0].replace(".", " ").replace(/\b\w/g, l => l.toUpperCase()),
-      email: cleanEmail,
-      role: "user", // ALWAYS user, never admin
-      createdAt: new Date().toISOString()
-    };
-    users.push(user);
+    return { error: "Account not found with this email. Please sign up first." };
+  }
+
+  // Strictly verify password hash
+  if (user.passwordHash) {
+    const enteredHash = hashPassword(password);
+    if (user.passwordHash !== enteredHash) {
+      return { error: "Incorrect password. Please verify or use 'Forgot Password'." };
+    }
+  } else {
+    // If account had no hash yet, enforce strict password validation before saving
+    const passValidation = validatePassword(password);
+    if (!passValidation.isValid) {
+      return { error: passValidation.errors[0] };
+    }
+    user.passwordHash = hashPassword(password);
     localStorage.setItem(USERS_STORAGE_KEY, JSON.stringify(users));
   }
 
@@ -253,26 +314,73 @@ export function loginUser(email: string, password?: string): { user?: User; erro
 export function registerUser(name: string, email: string, password?: string): { user?: User; error?: string } {
   if (!isBrowser()) return { error: "Window not defined" };
   const cleanEmail = email.toLowerCase().trim();
-  const users = getStoredUsers();
-
-  const existing = users.find(u => u.email.toLowerCase() === cleanEmail);
-  if (existing) {
-    return loginUser(cleanEmail, password);
+  if (!cleanEmail || !cleanEmail.includes("@")) {
+    return { error: "Please enter a valid email address." };
   }
 
-  const newUser: User = {
+  if (!password) {
+    return { error: "Password is required." };
+  }
+
+  // Strict Password Criteria Check
+  const passValidation = validatePassword(password);
+  if (!passValidation.isValid) {
+    return { error: passValidation.errors[0] };
+  }
+
+  const users = getStoredUsers();
+  const existing = users.find(u => u.email.toLowerCase() === cleanEmail);
+  if (existing) {
+    return { error: "An account with this email already exists. Please sign in or reset your password." };
+  }
+
+  const newUser: User & { passwordHash: string } = {
     id: "usr_" + Date.now(),
     name: name.trim() || cleanEmail.split("@")[0],
     email: cleanEmail,
     role: "user", // ALWAYS user
-    createdAt: new Date().toISOString()
+    createdAt: new Date().toISOString(),
+    passwordHash: hashPassword(password)
   };
 
   users.push(newUser);
   localStorage.setItem(USERS_STORAGE_KEY, JSON.stringify(users));
-  localStorage.setItem(SESSION_STORAGE_KEY, JSON.stringify(newUser));
+
+  const safeUser: User = {
+    id: newUser.id,
+    name: newUser.name,
+    email: newUser.email,
+    role: "user",
+    createdAt: newUser.createdAt
+  };
+
+  localStorage.setItem(SESSION_STORAGE_KEY, JSON.stringify(safeUser));
   window.dispatchEvent(new Event("jobpulse_auth_change"));
-  return { user: newUser };
+  return { user: safeUser };
+}
+
+export function resetUserPassword(email: string, newPassword: string): { success: boolean; error?: string } {
+  if (!isBrowser()) return { success: false, error: "Window not defined" };
+  const cleanEmail = email.toLowerCase().trim();
+  if (!cleanEmail) {
+    return { success: false, error: "Please enter your email address." };
+  }
+
+  const passValidation = validatePassword(newPassword);
+  if (!passValidation.isValid) {
+    return { success: false, error: passValidation.errors[0] };
+  }
+
+  const users = getStoredUsers();
+  const userIndex = users.findIndex(u => u.email.toLowerCase() === cleanEmail);
+  if (userIndex === -1) {
+    return { success: false, error: "No registered account found with this email." };
+  }
+
+  users[userIndex].passwordHash = hashPassword(newPassword);
+  localStorage.setItem(USERS_STORAGE_KEY, JSON.stringify(users));
+
+  return { success: true };
 }
 
 export function logoutUser(): void {

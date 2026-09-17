@@ -1,19 +1,35 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getLiveJobsFromDb } from '@/lib/db';
+import { getLiveJobsPaginated, getLiveJobsFromDb, JobFilterParams } from '@/lib/db';
 import { mockJobs } from '@/lib/mock-data';
 
 export const dynamic = 'force-dynamic';
 
 export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url);
-  const limit = parseInt(searchParams.get('limit') || '200000', 10);
+  const page = parseInt(searchParams.get('page') || '1', 10);
+  const limit = parseInt(searchParams.get('limit') || searchParams.get('pageSize') || '30', 10);
   const since = searchParams.get('since');
 
-  try {
-    const liveJobs = await getLiveJobsFromDb(limit);
+  const filterParams: JobFilterParams = {
+    page,
+    pageSize: limit,
+    search: searchParams.get('search') || undefined,
+    country: searchParams.get('country') || undefined,
+    state: searchParams.get('state') || undefined,
+    city: searchParams.get('city') || undefined,
+    company: searchParams.get('company') || undefined,
+    jobType: searchParams.get('jobType') || searchParams.get('type') || undefined,
+    workMode: searchParams.get('workMode') || undefined,
+    experience: searchParams.get('experience') || undefined,
+    salary: searchParams.get('salary') || undefined,
+    sort: searchParams.get('sort') || undefined,
+  };
 
-    if (liveJobs && liveJobs.length > 0) {
-      if (since) {
+  try {
+    // If polling for newly incoming jobs since a timestamp
+    if (since) {
+      const liveJobs = await getLiveJobsFromDb(50);
+      if (liveJobs && liveJobs.length > 0) {
         const sinceTime = new Date(since).getTime();
         const newJobs = liveJobs.filter(j => {
           const postTime = j.posted_at ? new Date(j.posted_at).getTime() : 0;
@@ -25,34 +41,56 @@ export async function GET(request: NextRequest) {
           is_live_db: true,
         });
       }
+    }
 
+    // Full Paginated Query
+    const paginatedRes = await getLiveJobsPaginated(filterParams);
+    if (paginatedRes) {
       return NextResponse.json({
-        items: liveJobs,
-        total: liveJobs.length,
+        items: paginatedRes.items,
+        total: paginatedRes.total,
+        page: paginatedRes.page,
+        pageSize: paginatedRes.pageSize,
+        totalPages: paginatedRes.totalPages,
         is_live_db: true,
       });
     }
   } catch (error) {
-    console.warn('Live DB query failed in /api/jobs, falling back to cached jobs:', error);
+    console.warn('Live DB paginated query failed in /api/jobs, falling back to cached jobs:', error);
   }
 
   // Fallback to mockJobs (derived from real_jobs.json)
-  if (since) {
-    const sinceTime = new Date(since).getTime();
-    const newJobs = mockJobs.filter(j => {
-      const postTime = j.posted_at ? new Date(j.posted_at).getTime() : 0;
-      return postTime > sinceTime;
-    });
-    return NextResponse.json({
-      items: newJobs,
-      total: newJobs.length,
-      is_live_db: false,
-    });
+  let filtered = [...mockJobs];
+  if (filterParams.search) {
+    const q = filterParams.search.toLowerCase();
+    filtered = filtered.filter(j => 
+      j.title.toLowerCase().includes(q) || 
+      j.company.name.toLowerCase().includes(q) ||
+      (j.description_text && j.description_text.toLowerCase().includes(q))
+    );
+  }
+  if (filterParams.country && filterParams.country !== 'All') {
+    if (filterParams.country === 'Remote') {
+      filtered = filtered.filter(j => j.work_mode.toLowerCase().includes('remote'));
+    } else {
+      const c = filterParams.country.toLowerCase();
+      filtered = filtered.filter(j => j.location.some((l: string) => l.toLowerCase().includes(c)));
+    }
+  }
+  if (filterParams.company && filterParams.company !== 'All') {
+    filtered = filtered.filter(j => j.company.slug === filterParams.company || j.company.name.toLowerCase() === filterParams.company?.toLowerCase());
   }
 
+  const offset = (page - 1) * limit;
+  const pagedItems = filtered.slice(offset, offset + limit);
+
   return NextResponse.json({
-    items: mockJobs.slice(0, limit),
-    total: mockJobs.length,
+    items: pagedItems,
+    total: filtered.length,
+    page,
+    pageSize: limit,
+    totalPages: Math.ceil(filtered.length / limit) || 1,
     is_live_db: false,
   });
 }
+

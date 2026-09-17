@@ -99,15 +99,42 @@ export default function RegisterPage() {
 
               <div>
                 <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5">
-                  Password
+                  Password * (8–16 Characters)
                 </label>
                 <input
                   type="password"
+                  required
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  placeholder="Choose a password (or leave blank)"
+                  placeholder="Create secure password"
                   className="w-full px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-white text-sm focus:border-teal-500 focus:outline-none transition-colors"
                 />
+
+                {/* Password Criteria Checklist */}
+                {password.length > 0 && (
+                  <div className="mt-2.5 p-3 bg-slate-50 dark:bg-slate-950/70 rounded-xl border border-slate-200/80 dark:border-slate-800/80 text-[11px] space-y-1">
+                    <div className={`flex items-center gap-1.5 ${password.length >= 8 && password.length <= 16 ? "text-emerald-600 dark:text-emerald-400" : "text-slate-400"}`}>
+                      <span className={`w-1.5 h-1.5 rounded-full ${password.length >= 8 && password.length <= 16 ? "bg-emerald-500" : "bg-slate-300 dark:bg-slate-700"}`} />
+                      <span>8 to 16 characters</span>
+                    </div>
+                    <div className={`flex items-center gap-1.5 ${/[A-Z]/.test(password) ? "text-emerald-600 dark:text-emerald-400" : "text-slate-400"}`}>
+                      <span className={`w-1.5 h-1.5 rounded-full ${/[A-Z]/.test(password) ? "bg-emerald-500" : "bg-slate-300 dark:bg-slate-700"}`} />
+                      <span>At least 1 uppercase letter (A–Z)</span>
+                    </div>
+                    <div className={`flex items-center gap-1.5 ${/[a-z]/.test(password) ? "text-emerald-600 dark:text-emerald-400" : "text-slate-400"}`}>
+                      <span className={`w-1.5 h-1.5 rounded-full ${/[a-z]/.test(password) ? "bg-emerald-500" : "bg-slate-300 dark:bg-slate-700"}`} />
+                      <span>At least 1 lowercase letter (a–z)</span>
+                    </div>
+                    <div className={`flex items-center gap-1.5 ${/\d/.test(password) ? "text-emerald-600 dark:text-emerald-400" : "text-slate-400"}`}>
+                      <span className={`w-1.5 h-1.5 rounded-full ${/\d/.test(password) ? "bg-emerald-500" : "bg-slate-300 dark:bg-slate-700"}`} />
+                      <span>At least 1 number (0–9)</span>
+                    </div>
+                    <div className={`flex items-center gap-1.5 ${/[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(password) ? "text-emerald-600 dark:text-emerald-400" : "text-slate-400"}`}>
+                      <span className={`w-1.5 h-1.5 rounded-full ${/[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(password) ? "bg-emerald-500" : "bg-slate-300 dark:bg-slate-700"}`} />
+                      <span>At least 1 special character (!@#$%^&*)</span>
+                    </div>
+                  </div>
+                )}
               </div>
 
               <div className="space-y-1.5 text-xs text-slate-500 dark:text-slate-400 pt-1">

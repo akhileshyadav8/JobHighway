@@ -87,6 +87,7 @@ export interface OverviewStats {
 
 import { 
   getLiveJobsFromDb, 
+  getLiveJobsPaginated,
   getLiveStatsFromDb, 
   getLiveJobBySlugFromDb,
   getLiveCompaniesFromDb,
@@ -98,15 +99,29 @@ export async function getJobs(params?: Record<string, string>): Promise<Paginate
   // 1. Try Live Supabase Database directly on server
   if (typeof window === 'undefined') {
     try {
-      const limit = params?.limit ? parseInt(params.limit) : 500;
-      const liveJobs = await getLiveJobsFromDb(limit);
-      if (liveJobs && liveJobs.length > 0) {
+      const page = params?.page ? parseInt(params.page, 10) : 1;
+      const pageSize = params?.pageSize || params?.limit ? parseInt(params.pageSize || params.limit || '30', 10) : 30;
+      const paginatedRes = await getLiveJobsPaginated({
+        page,
+        pageSize,
+        search: params?.search,
+        country: params?.country,
+        state: params?.state,
+        city: params?.city,
+        company: params?.company,
+        jobType: params?.jobType || params?.type,
+        workMode: params?.workMode,
+        experience: params?.experience,
+        salary: params?.salary,
+        sort: params?.sort,
+      });
+      if (paginatedRes && paginatedRes.items.length > 0) {
         return {
-          items: liveJobs,
-          total: liveJobs.length,
-          page: 1,
-          page_size: liveJobs.length,
-          total_pages: 1
+          items: paginatedRes.items,
+          total: paginatedRes.total,
+          page: paginatedRes.page,
+          page_size: paginatedRes.pageSize,
+          total_pages: paginatedRes.totalPages
         };
       }
     } catch (e) {

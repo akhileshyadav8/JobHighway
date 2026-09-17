@@ -386,20 +386,33 @@ export default function AdminDashboardPage() {
             {/* Real-Time Activity Log Card with View More / Show Less */}
             <Card className="border-slate-200 dark:border-slate-800 dark:bg-slate-900 rounded-3xl">
               <CardContent className="p-6">
-                <div className="flex items-center justify-between mb-4">
+                <div className="flex items-center justify-between mb-4 flex-wrap gap-2">
                   <h3 className="font-bold text-base text-slate-900 dark:text-white flex items-center gap-2">
                     <Activity className="w-4 h-4 text-teal-600 animate-pulse" />
                     Real-Time Applicant Activity Log
                   </h3>
-                  <span className="text-xs text-slate-400">
-                    Showing {displayedEvents.length} of {allEvents.length} events
-                  </span>
+                  <div className="flex items-center gap-3">
+                    <span className="text-xs text-slate-400">
+                      Showing {displayedEvents.length} of {allEvents.length} events
+                    </span>
+                    {allEvents.length > 0 && (
+                      <button
+                        onClick={() => {
+                          localStorage.removeItem("jobpulse_analytics_events");
+                          window.dispatchEvent(new Event("jobpulse_analytics_update"));
+                        }}
+                        className="text-[11px] font-semibold text-rose-500 hover:text-rose-600 underline cursor-pointer"
+                      >
+                        Clear Logs
+                      </button>
+                    )}
+                  </div>
                 </div>
 
                 {allEvents.length === 0 ? (
                   <p className="text-xs text-slate-400 py-4">No recorded telemetry in this session yet.</p>
                 ) : (
-                  <div className="divide-y divide-slate-100 dark:divide-slate-800">
+                  <div className="max-h-72 overflow-y-auto divide-y divide-slate-100 dark:divide-slate-800 pr-1">
                     {displayedEvents.map((ev) => (
                       <div key={ev.id} className="py-2.5 flex items-center justify-between text-xs">
                         <div className="flex items-center gap-2.5">
@@ -618,20 +631,13 @@ export default function AdminDashboardPage() {
                                 </div>
                               </div>
 
-                              {/* Live Status Selector */}
+                              {/* Live Status Badge (Read-Only: Controlled by Candidate) */}
                               <div className="shrink-0 text-right">
-                                <span className="text-[10px] text-slate-400 block mb-1">Live Status:</span>
-                                <select
-                                  value={app.status}
-                                  onChange={(e) => handleUpdateCandidateJobStatus(app.id, e.target.value as ApplicationStatus)}
-                                  className={`text-xs font-bold px-3 py-1 rounded-xl border focus:outline-none cursor-pointer ${cfg.bg} ${cfg.color} ${cfg.border}`}
-                                >
-                                  <option value="Applied">🔵 Applied</option>
-                                  <option value="Under Review">🟡 Under Review</option>
-                                  <option value="Interview">🟣 Interview</option>
-                                  <option value="Offer">🟢 Offer Received</option>
-                                  <option value="Rejected">⚪ Rejected / Archived</option>
-                                </select>
+                                <span className="text-[10px] text-slate-400 block mb-1">Candidate Status:</span>
+                                <span className={`inline-flex items-center gap-1.5 text-xs font-bold px-3 py-1.5 rounded-xl border ${cfg.bg} ${cfg.color} ${cfg.border}`}>
+                                  <span className="w-1.5 h-1.5 rounded-full bg-current animate-pulse" />
+                                  <span>{app.status}</span>
+                                </span>
                               </div>
                             </div>
 

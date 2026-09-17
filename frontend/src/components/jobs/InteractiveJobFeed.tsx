@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo, useEffect } from "react";
+import { useState, useMemo, useEffect, useCallback, useRef } from "react";
 import { Job, OverviewStats } from "@/lib/api";
 import { JobCard } from "@/components/jobs/JobCard";
 import { Search, X, RotateCcw, Sparkles, MapPin, Globe, Building2, ArrowUpDown, Clock, Navigation, Briefcase, GraduationCap, Laptop, Coins } from "lucide-react";
@@ -189,9 +189,11 @@ const MX_LOC_KEYWORDS = [
 interface InteractiveJobFeedProps {
   initialJobs: Job[];
   stats: OverviewStats;
+  initialTotal?: number;
+  initialTotalPages?: number;
 }
 
-export function InteractiveJobFeed({ initialJobs, stats }: InteractiveJobFeedProps) {
+export function InteractiveJobFeed({ initialJobs, stats, initialTotal, initialTotalPages }: InteractiveJobFeedProps) {
   const [jobsList, setJobsList] = useState<Job[]>(initialJobs);
   const [incomingJobs, setIncomingJobs] = useState<Job[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
@@ -199,7 +201,7 @@ export function InteractiveJobFeed({ initialJobs, stats }: InteractiveJobFeedPro
   const [selectedState, setSelectedState] = useState("All");
   const [selectedCity, setSelectedCity] = useState("All");
   const [selectedCompany, setSelectedCompany] = useState("All");
-  type SortBy = "newest" | "high_salary_newest" | "oldest" | "salary_high" | "salary_low";
+  type SortBy = "newest" | "fresher_highest_salary" | "high_salary_newest" | "oldest" | "salary_high" | "salary_low";
   const [sortBy, setSortBy] = useState<SortBy>("newest");
   const [activeFilters, setActiveFilters] = useState<Record<string, string>>({
     "Job Type": "All",
@@ -207,43 +209,101 @@ export function InteractiveJobFeed({ initialJobs, stats }: InteractiveJobFeedPro
     "Experience": "All",
     "Salary": "All"
   });
-  const [visibleCount, setVisibleCount] = useState(9);
+
+  // Server-side pagination state
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalJobs, setTotalJobs] = useState(initialTotal || stats.total_jobs || 16164);
+  const [totalPages, setTotalPages] = useState(initialTotalPages || Math.ceil((initialTotal || stats.total_jobs || 16164) / 30) || 1);
+  const [isFetchingPage, setIsFetchingPage] = useState(false);
+  const [jumpPageInput, setJumpPageInput] = useState("");
+  const isInitialMount = useRef(true);
 
   // Sync state if initialJobs changes (e.g. server revalidation)
   useEffect(() => {
     setJobsList(initialJobs);
-  }, [initialJobs]);
+    if (initialTotal) setTotalJobs(initialTotal);
+    if (initialTotalPages) setTotalPages(initialTotalPages);
+  }, [initialJobs, initialTotal, initialTotalPages]);
 
-  // Asynchronously expand client catalog after initial render without bloating SSR payload
-  useEffect(() => {
-    let isCancelled = false;
-    const expandCatalog = async () => {
-      try {
-        const res = await fetch('/api/jobs?limit=5000');
-        if (res.ok && !isCancelled) {
-          const data = await res.json();
-          if (data.items && Array.isArray(data.items) && data.items.length > 0) {
-            setJobsList(prev => {
-              const existingMap = new Map(prev.map(j => [j.slug, j]));
-              data.items.forEach((j: Job) => {
-                if (!existingMap.has(j.slug)) {
-                  existingMap.set(j.slug, j);
-                }
-              });
-              return Array.from(existingMap.values());
-            });
-          }
+  // Server pagination fetcher
+  const fetchPageData = useCallback(async (targetPage: number) => {
+    setIsFetchingPage(true);
+    try {
+      const params = new URLSearchParams();
+      params.set("page", String(targetPage));
+      params.set("limit", "30");
+      if (searchQuery.trim()) params.set("search", searchQuery.trim());
+      if (selectedCountry !== "All") params.set("country", selectedCountry);
+      if (selectedState !== "All") params.set("state", selectedState);
+      if (selectedCity !== "All") params.set("city", selectedCity);
+      if (selectedCompany !== "All") params.set("company", selectedCompany);
+      if (activeFilters["Job Type"] !== "All") params.set("jobType", activeFilters["Job Type"]);
+      if (activeFilters["Work Mode"] !== "All") params.set("workMode", activeFilters["Work Mode"]);
+      if (activeFilters["Experience"] !== "All") params.set("experience", activeFilters["Experience"]);
+      if (activeFilters["Salary"] !== "All") params.set("salary", activeFilters["Salary"]);
+      if (sortBy !== "newest") params.set("sort", sortBy);
+
+      const res = await fetch(`/api/jobs?${params.toString()}`);
+      if (res.ok) {
+        const data = await res.json();
+        if (data.items) {
+          setJobsList(data.items);
+          setTotalJobs(data.total);
+          setTotalPages(data.totalPages);
+          setCurrentPage(data.page);
         }
-      } catch (err) {
-        // silent non-blocking fallback
       }
-    };
-    const timer = setTimeout(expandCatalog, 1200);
-    return () => {
-      isCancelled = true;
-      clearTimeout(timer);
-    };
-  }, []);
+    } catch (e) {
+      console.warn("Failed to fetch jobs page:", e);
+    } finally {
+      setIsFetchingPage(false);
+    }
+  }, [searchQuery, selectedCountry, selectedState, selectedCity, selectedCompany, activeFilters, sortBy]);
+
+  // When filters or search or sort change, reset to Page 1 and query server (debounced for search)
+  useEffect(() => {
+    if (isInitialMount.current) {
+      isInitialMount.current = false;
+      return;
+    }
+    const timer = setTimeout(() => {
+      fetchPageData(1);
+    }, 300);
+    return () => clearTimeout(timer);
+  }, [searchQuery, selectedCountry, selectedState, selectedCity, selectedCompany, activeFilters, sortBy, fetchPageData]);
+
+  const handlePageChange = (targetPage: number) => {
+    if (targetPage < 1 || targetPage > totalPages || targetPage === currentPage) return;
+    fetchPageData(targetPage);
+    const resultsEl = document.getElementById("job-results-section");
+    if (resultsEl) {
+      resultsEl.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+  };
+
+  const handleJumpPage = () => {
+    const p = parseInt(jumpPageInput, 10);
+    if (!isNaN(p) && p >= 1 && p <= totalPages) {
+      handlePageChange(p);
+      setJumpPageInput("");
+    }
+  };
+
+  const getPageNumbers = () => {
+    const pages: (number | string)[] = [];
+    if (totalPages <= 7) {
+      for (let i = 1; i <= totalPages; i++) pages.push(i);
+    } else {
+      pages.push(1);
+      if (currentPage > 3) pages.push("...");
+      const start = Math.max(2, currentPage - 1);
+      const end = Math.min(totalPages - 1, currentPage + 1);
+      for (let i = start; i <= end; i++) pages.push(i);
+      if (currentPage < totalPages - 2) pages.push("...");
+      pages.push(totalPages);
+    }
+    return pages;
+  };
 
   // Real-time live polling: checks every 30 seconds for newly added jobs in live database
   useEffect(() => {
@@ -342,6 +402,7 @@ export function InteractiveJobFeed({ initialJobs, stats }: InteractiveJobFeedPro
 
   const sortOptions = useMemo(() => [
     { label: "🔥 Newest First", value: "newest" },
+    { label: "🎓 Fresher + Highest Salary", value: "fresher_highest_salary" },
     { label: "⚡ High Salary + Newest", value: "high_salary_newest" },
     { label: "💰 Highest Salary", value: "salary_high" },
     { label: "📉 Accessible Salary (Low to High)", value: "salary_low" },
@@ -491,13 +552,11 @@ export function InteractiveJobFeed({ initialJobs, stats }: InteractiveJobFeedPro
     setSelectedCountry(country);
     setSelectedState("All");
     setSelectedCity("All");
-    setVisibleCount(9);
   };
 
   const handleStateChange = (state: string) => {
     setSelectedState(state);
     setSelectedCity("All");
-    setVisibleCount(9);
   };
 
   const toggleFilter = (category: string, value: string) => {
@@ -505,7 +564,6 @@ export function InteractiveJobFeed({ initialJobs, stats }: InteractiveJobFeedPro
       ...prev,
       [category]: value
     }));
-    setVisibleCount(9);
   };
 
   // Restore filters and scroll position on browser back button navigation or initial page load
@@ -548,8 +606,8 @@ export function InteractiveJobFeed({ initialJobs, stats }: InteractiveJobFeedPro
         });
       }
 
-      if (parsed?.visibleCount && parsed.visibleCount > 9) {
-        setVisibleCount(parsed.visibleCount);
+      if (parsed?.currentPage && parsed.currentPage > 1) {
+        setCurrentPage(parsed.currentPage);
       }
 
       // Smoothly restore previous scroll position when returning from details
@@ -575,7 +633,7 @@ export function InteractiveJobFeed({ initialJobs, stats }: InteractiveJobFeedPro
         selectedCompany,
         sortBy,
         activeFilters,
-        visibleCount
+        currentPage
       };
       sessionStorage.setItem("jobpulse_feed_state", JSON.stringify(stateToSave));
 
@@ -597,7 +655,7 @@ export function InteractiveJobFeed({ initialJobs, stats }: InteractiveJobFeedPro
     } catch (e) {
       // ignore
     }
-  }, [searchQuery, selectedCountry, selectedState, selectedCity, selectedCompany, sortBy, activeFilters, visibleCount]);
+  }, [searchQuery, selectedCountry, selectedState, selectedCity, selectedCompany, sortBy, activeFilters, currentPage]);
 
   const resetFilters = () => {
     setSearchQuery("");
@@ -612,7 +670,6 @@ export function InteractiveJobFeed({ initialJobs, stats }: InteractiveJobFeedPro
       "Experience": "All",
       "Salary": "All"
     });
-    setVisibleCount(9);
     try {
       sessionStorage.removeItem("jobpulse_feed_state");
       sessionStorage.removeItem("jobpulse_scroll_pos");
@@ -1025,12 +1082,12 @@ export function InteractiveJobFeed({ initialJobs, stats }: InteractiveJobFeedPro
     });
   }, [jobsList, searchQuery, selectedCountry, selectedState, selectedCity, selectedCompany, sortBy, activeFilters]);
 
-  const displayedJobs = filteredAndSortedJobs.slice(0, visibleCount);
+  const displayedJobs = jobsList;
 
   return (
     <div className="flex flex-col min-h-screen">
       {/* Hero Section */}
-      <section className="relative overflow-hidden bg-gradient-to-b from-white via-slate-50/60 to-slate-100/70 dark:from-slate-950 dark:via-slate-900/80 dark:to-slate-950 pt-14 pb-10 px-4 border-b border-slate-200/80 dark:border-slate-800/80">
+      <section className="relative overflow-hidden bg-gradient-to-b from-white via-slate-50/60 to-slate-100/70 dark:from-slate-950 dark:via-slate-900/80 dark:to-slate-950 pt-8 pb-6 px-4 border-b border-slate-200/80 dark:border-slate-800/80">
         {/* Subtle background glow effect */}
         <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-7xl h-64 bg-gradient-to-r from-teal-400/10 via-emerald-400/10 to-cyan-400/10 blur-3xl -z-10 pointer-events-none" />
 
@@ -1040,10 +1097,10 @@ export function InteractiveJobFeed({ initialJobs, stats }: InteractiveJobFeedPro
             <span>⚡ Hourly Sync • Discovered Within 1–2 Hours of Company Posting</span>
           </div>
           
-          <h1 className="text-2xl sm:text-4xl md:text-5xl lg:text-6xl font-black text-slate-900 dark:text-white mb-4 sm:mb-5 tracking-tight leading-tight break-words">
+          <h1 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-black text-slate-900 dark:text-white mb-3 tracking-tight leading-snug max-w-3xl mx-auto">
             Discover Official Jobs Within 1–2 Hours. Apply Before The Crowd.
           </h1>
-          <p className="text-sm sm:text-base md:text-lg text-slate-600 dark:text-slate-400 mb-6 sm:mb-8 max-w-2xl mx-auto leading-relaxed">
+          <p className="text-xs sm:text-sm md:text-base text-slate-600 dark:text-slate-400 mb-5 max-w-2xl mx-auto leading-relaxed">
             While traditional job boards take 3 to 14 days to crawl listings, JobPulse syncs directly with official company ATS portals every hour. Apply in the golden window before roles hit applicant caps.
           </p>
 
@@ -1132,8 +1189,7 @@ export function InteractiveJobFeed({ initialJobs, stats }: InteractiveJobFeedPro
                 loadingText="⏳ Loading Cities..."
                 onChange={(val) => {
                   setSelectedCity(val);
-                  setVisibleCount(9);
-                }}
+                              }}
                 placeholder={selectedCountry === "All" ? "← Pick Country First" : "🏙️ All Cities"}
                 searchPlaceholder="Search cities..."
               />
@@ -1146,8 +1202,7 @@ export function InteractiveJobFeed({ initialJobs, stats }: InteractiveJobFeedPro
                 value={selectedCompany}
                 onChange={(val) => {
                   setSelectedCompany(val);
-                  setVisibleCount(9);
-                }}
+                              }}
                 placeholder="🏢 All Companies"
                 searchPlaceholder="Search companies..."
               />
@@ -1276,7 +1331,7 @@ export function InteractiveJobFeed({ initialJobs, stats }: InteractiveJobFeedPro
       </div>
 
       {/* Job Feed List */}
-      <section className="py-8 bg-slate-50 dark:bg-slate-950 flex-1">
+      <section id="job-results-section" className="py-8 bg-slate-50 dark:bg-slate-950 flex-1 scroll-mt-28">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-[1440px]">
           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 mb-6">
             <div>
@@ -1291,7 +1346,7 @@ export function InteractiveJobFeed({ initialJobs, stats }: InteractiveJobFeedPro
               </p>
             </div>
             <div className="text-xs font-semibold text-slate-600 dark:text-slate-300 bg-white dark:bg-slate-900 px-3 py-1.5 rounded-full border border-slate-200 dark:border-slate-800 shadow-2xs">
-              Showing {displayedJobs.length} of {filteredAndSortedJobs.length} postings
+              Page {currentPage} of {totalPages} • {totalJobs.toLocaleString()} matching jobs
             </div>
           </div>
 
@@ -1346,17 +1401,87 @@ export function InteractiveJobFeed({ initialJobs, stats }: InteractiveJobFeedPro
             </div>
           )}
 
-          {/* Load More Button */}
-          {visibleCount < filteredAndSortedJobs.length && (
-            <div className="mt-12 text-center">
-              <Button
-                size="lg"
-                variant="outline"
-                onClick={() => setVisibleCount(prev => prev + 9)}
-                className="min-w-[240px] rounded-xl bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-100 border border-slate-200 dark:border-slate-800 hover:border-teal-500 hover:text-teal-600 dark:hover:text-teal-400 transition-all font-semibold shadow-2xs cursor-pointer"
-              >
-                Load More Opportunities ({filteredAndSortedJobs.length - visibleCount} remaining)
-              </Button>
+          {/* Loading Indicator Overlay */}
+          {isFetchingPage && (
+            <div className="flex items-center justify-center gap-2 py-4 text-xs font-semibold text-teal-600 dark:text-teal-400">
+              <Sparkles className="w-4 h-4 animate-spin" />
+              <span>Fetching live opportunities...</span>
+            </div>
+          )}
+
+          {/* Server-Side Pagination Bar */}
+          {totalPages > 1 && (
+            <div className="mt-12 flex flex-col md:flex-row items-center justify-between gap-4 p-4 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm">
+              <div className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 font-medium">
+                Showing <strong className="text-slate-900 dark:text-white">{((currentPage - 1) * 30) + 1}</strong>–<strong className="text-slate-900 dark:text-white">{Math.min(currentPage * 30, totalJobs)}</strong> of <strong className="text-slate-900 dark:text-white">{totalJobs.toLocaleString()}</strong> jobs (Page {currentPage} of {totalPages})
+              </div>
+
+              <div className="flex items-center gap-1.5 flex-wrap justify-center">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  disabled={currentPage <= 1 || isFetchingPage}
+                  onClick={() => handlePageChange(currentPage - 1)}
+                  className="rounded-xl text-xs font-semibold px-3 h-8 cursor-pointer"
+                >
+                  ← Previous
+                </Button>
+
+                {getPageNumbers().map((p, idx) => (
+                  typeof p === "number" ? (
+                    <Button
+                      key={idx}
+                      variant={p === currentPage ? "default" : "outline"}
+                      size="sm"
+                      disabled={isFetchingPage}
+                      onClick={() => handlePageChange(p)}
+                      className={`w-8 h-8 p-0 rounded-xl text-xs font-bold cursor-pointer ${
+                        p === currentPage
+                          ? "bg-teal-600 hover:bg-teal-500 text-white shadow-xs border-teal-600"
+                          : "text-slate-700 dark:text-slate-300 hover:border-teal-500 hover:text-teal-600"
+                      }`}
+                    >
+                      {p}
+                    </Button>
+                  ) : (
+                    <span key={idx} className="px-1 text-slate-400 text-xs font-bold">...</span>
+                  )
+                ))}
+
+                <Button
+                  variant="outline"
+                  size="sm"
+                  disabled={currentPage >= totalPages || isFetchingPage}
+                  onClick={() => handlePageChange(currentPage + 1)}
+                  className="rounded-xl text-xs font-semibold px-3 h-8 cursor-pointer"
+                >
+                  Next →
+                </Button>
+              </div>
+
+              <div className="flex items-center gap-2 text-xs">
+                <span className="text-slate-500 dark:text-slate-400">Go to:</span>
+                <input
+                  type="number"
+                  min={1}
+                  max={totalPages}
+                  value={jumpPageInput}
+                  onChange={(e) => setJumpPageInput(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") handleJumpPage();
+                  }}
+                  placeholder={String(currentPage)}
+                  className="w-14 px-2 py-1 border border-slate-200 dark:border-slate-800 rounded-lg bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-white text-center outline-none focus:border-teal-500"
+                />
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={handleJumpPage}
+                  className="text-xs h-7 px-2.5 rounded-lg cursor-pointer"
+                >
+                  Go
+                </Button>
+              </div>
             </div>
           )}
         </div>
