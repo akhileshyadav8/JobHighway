@@ -167,3 +167,24 @@ export function getAnalyticsSummary(): AnalyticsSummary {
     };
   }
 }
+
+export function clearAnalyticsEvents(olderThanMinutes?: number): void {
+  if (!isBrowser()) return;
+  try {
+    if (!olderThanMinutes || olderThanMinutes <= 0) {
+      localStorage.removeItem(ANALYTICS_KEY);
+    } else {
+      const raw = localStorage.getItem(ANALYTICS_KEY);
+      const events: AnalyticsEvent[] = raw ? JSON.parse(raw) : [];
+      const cutoff = Date.now() - (olderThanMinutes * 60 * 1000);
+      const kept = events.filter(ev => {
+        const evTime = new Date(ev.timestamp).getTime();
+        return evTime >= cutoff;
+      });
+      localStorage.setItem(ANALYTICS_KEY, JSON.stringify(kept));
+    }
+    window.dispatchEvent(new Event("jobpulse_analytics_update"));
+  } catch (err) {
+    console.debug("Error clearing analytics events:", err);
+  }
+}

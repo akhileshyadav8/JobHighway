@@ -43,8 +43,7 @@ import {
   AppliedJob,
   ApplicationStatus
 } from "@/lib/auth";
-import { getAnalyticsSummary, AnalyticsSummary } from "@/lib/telemetry";
-import { mockJobs } from "@/lib/mock-data";
+import { getAnalyticsSummary, clearAnalyticsEvents, AnalyticsSummary } from "@/lib/telemetry";
 
 interface ContactInquiry {
   id: string;
@@ -91,7 +90,13 @@ const STATUS_CONFIG: Record<ApplicationStatus, { label: string; color: string; b
 
 export default function AdminDashboardPage() {
   const router = useRouter();
-  const [user, setUser] = useState<User | null>(null);
+  const [isAuthChecking, setIsAuthChecking] = useState(true);
+  const [user, setUser] = useState<User | null>(() => {
+    if (typeof window !== "undefined") {
+      return getCurrentUser();
+    }
+    return null;
+  });
   const [activeTab, setActiveTab] = useState<"telemetry" | "users" | "inquiries">("telemetry");
   const [summary, setSummary] = useState<AnalyticsSummary | null>(null);
   const [candidates, setCandidates] = useState<User[]>([]);
@@ -101,10 +106,19 @@ export default function AdminDashboardPage() {
   const [inquirySearch, setInquirySearch] = useState("");
 
   // Log Pagination State
-  const [visibleLogsCount, setVisibleLogsCount] = useState(5);
+  const [logsPage, setLogsPage] = useState(1);
 
-  // Dynamic Live Jobs Count
-  const [dynamicActiveJobs, setDynamicActiveJobs] = useState<number | null>(null);
+  // Dynamic Live Jobs Count (persisted in cache to prevent flash of wrong count)
+  const [dynamicActiveJobs, setDynamicActiveJobs] = useState<number | null>(() => {
+    if (typeof window !== "undefined") {
+      const cached = localStorage.getItem("jobpulse_admin_live_jobs_count");
+      if (cached) {
+        const n = parseInt(cached, 10);
+        if (!isNaN(n)) return n;
+      }
+    }
+    return null;
+  });
 
   // Selected Candidate for Viewing Applied Jobs Modal
   const [selectedCandidate, setSelectedCandidate] = useState<User | null>(null);
@@ -113,6 +127,7 @@ export default function AdminDashboardPage() {
   const refreshData = () => {
     const cur = getCurrentUser();
     setUser(cur);
+    setIsAuthChecking(false);
     setSummary(getAnalyticsSummary());
     
     const allUsers = getAllUsersForAdmin();
@@ -124,6 +139,7 @@ export default function AdminDashboardPage() {
       .then(data => {
         if (typeof data.total === "number") {
           setDynamicActiveJobs(data.total);
+          localStorage.setItem("jobpulse_admin_live_jobs_count", String(data.total));
         }
       })
       .catch(err => console.warn("Failed to fetch live job count in admin:", err));
@@ -143,18 +159,31 @@ export default function AdminDashboardPage() {
     }
   };
 
+  const handleClearLogs = (olderThanMinutes?: number) => {
+    const periodLabel = olderThanMinutes === 60 ? "older than 1 hour" :
+                        olderThanMinutes === 1440 ? "older than 24 hours" :
+                        olderThanMinutes === 10080 ? "older than 7 days" : "ALL";
+    if (!confirm(`Are you sure you want to clear telemetry logs ${periodLabel}?`)) return;
+    clearAnalyticsEvents(olderThanMinutes);
+    setSummary(getAnalyticsSummary());
+    setLogsPage(1);
+  };
+
   useEffect(() => {
     refreshData();
 
     const handleAppChange = () => refreshData();
     const handleAuthChange = () => refreshData();
+    const handleAnalyticsChange = () => setSummary(getAnalyticsSummary());
 
     window.addEventListener("jobpulse_applications_change", handleAppChange);
     window.addEventListener("jobpulse_auth_change", handleAuthChange);
+    window.addEventListener("jobpulse_analytics_update", handleAnalyticsChange);
 
     return () => {
       window.removeEventListener("jobpulse_applications_change", handleAppChange);
       window.removeEventListener("jobpulse_auth_change", handleAuthChange);
+      window.removeEventListener("jobpulse_analytics_update", handleAnalyticsChange);
     };
   }, [selectedCandidate]);
 
@@ -193,6 +222,17 @@ export default function AdminDashboardPage() {
 
   // Strict check: Only role === 'admin'
   const isAdmin = user && user.role === "admin";
+
+  if (isAuthChecking) {
+    return (
+      <div className="min-h-screen bg-slate-50 dark:bg-slate-950 flex items-center justify-center">
+        <div className="flex flex-col items-center gap-3 text-teal-600 dark:text-teal-400">
+          <Shield className="w-8 h-8 animate-pulse" />
+          <span className="text-xs font-semibold tracking-wide uppercase text-slate-500">Verifying Operator Credentials...</span>
+        </div>
+      </div>
+    );
+  }
 
   if (!isAdmin) {
     return (
@@ -245,8 +285,26 @@ export default function AdminDashboardPage() {
     return i.name.toLowerCase().includes(q) || i.email.toLowerCase().includes(q) || i.subject.toLowerCase().includes(q) || i.topic.toLowerCase().includes(q);
   });
 
+  const LOGS_PER_PAGE = 10;
   const allEvents = summary?.recentEvents || [];
-  const displayedEvents = allEvents.slice(0, visibleLogsCount);
+  const totalLogsPages = Math.ceil(allEvents.length / LOGS_PER_PAGE) || 1;
+  const displayedEvents = allEvents.slice((logsPage - 1) * LOGS_PER_PAGE, logsPage * LOGS_PER_PAGE);
+
+  const getLogsPageNumbers = () => {
+    const pages: (number | string)[] = [];
+    if (totalLogsPages <= 7) {
+      for (let i = 1; i <= totalLogsPages; i++) pages.push(i);
+    } else {
+      pages.push(1);
+      if (logsPage > 3) pages.push("...");
+      const start = Math.max(2, logsPage - 1);
+      const end = Math.min(totalLogsPages - 1, logsPage + 1);
+      for (let i = start; i <= end; i++) pages.push(i);
+      if (logsPage < totalLogsPages - 2) pages.push("...");
+      pages.push(totalLogsPages);
+    }
+    return pages;
+  };
 
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-slate-950 py-10 sm:py-12">
@@ -309,7 +367,11 @@ export default function AdminDashboardPage() {
               <Briefcase className="w-4 h-4 text-teal-600" />
             </div>
             <div className="text-2xl sm:text-3xl font-black text-teal-600 dark:text-teal-400">
-              {dynamicActiveJobs !== null ? dynamicActiveJobs.toLocaleString() : (mockJobs?.length ? mockJobs.length.toLocaleString() : "...")}
+              {dynamicActiveJobs !== null ? (
+                dynamicActiveJobs.toLocaleString()
+              ) : (
+                <span className="inline-block w-24 h-7 bg-slate-200 dark:bg-slate-800 animate-pulse rounded-lg align-middle" />
+              )}
             </div>
             <div className="text-[11px] text-slate-400 mt-1">Real-time dynamic count</div>
           </div>
@@ -398,25 +460,35 @@ export default function AdminDashboardPage() {
             {/* Real-Time Activity Log Card with View More / Show Less */}
             <Card className="border-slate-200 dark:border-slate-800 dark:bg-slate-900 rounded-3xl">
               <CardContent className="p-6">
-                <div className="flex items-center justify-between mb-4 flex-wrap gap-2">
+                <div className="flex items-center justify-between mb-4 flex-wrap gap-3">
                   <h3 className="font-bold text-base text-slate-900 dark:text-white flex items-center gap-2">
                     <Activity className="w-4 h-4 text-teal-600 animate-pulse" />
                     Real-Time Applicant Activity Log
                   </h3>
-                  <div className="flex items-center gap-3">
-                    <span className="text-xs text-slate-400">
-                      Showing {displayedEvents.length} of {allEvents.length} events
+                  <div className="flex items-center gap-3 flex-wrap">
+                    <span className="text-xs text-slate-400 font-medium">
+                      Showing {allEvents.length === 0 ? 0 : ((logsPage - 1) * LOGS_PER_PAGE) + 1}–{Math.min(logsPage * LOGS_PER_PAGE, allEvents.length)} of {allEvents.length} events
                     </span>
                     {allEvents.length > 0 && (
-                      <button
-                        onClick={() => {
-                          localStorage.removeItem("jobpulse_analytics_events");
-                          window.dispatchEvent(new Event("jobpulse_analytics_update"));
-                        }}
-                        className="text-[11px] font-semibold text-rose-500 hover:text-rose-600 underline cursor-pointer"
-                      >
-                        Clear Logs
-                      </button>
+                      <div className="flex items-center">
+                        <select
+                          onChange={(e) => {
+                            const val = e.target.value;
+                            if (!val) return;
+                            handleClearLogs(val === "all" ? 0 : parseInt(val, 10));
+                            e.target.value = "";
+                          }}
+                          defaultValue=""
+                          className="text-xs bg-slate-100 dark:bg-slate-800 text-rose-600 dark:text-rose-400 border border-slate-200 dark:border-slate-700 rounded-lg px-2.5 py-1 font-semibold outline-none cursor-pointer hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors"
+                          title="Selective or Full Telemetry Reset"
+                        >
+                          <option value="" disabled>🗑️ Clear Logs...</option>
+                          <option value="60">Clear Older than 1 Hour</option>
+                          <option value="1440">Clear Older than 24 Hours</option>
+                          <option value="10080">Clear Older than 7 Days</option>
+                          <option value="all">⚠️ Clear All Logs (Reset)</option>
+                        </select>
+                      </div>
                     )}
                   </div>
                 </div>
@@ -443,30 +515,54 @@ export default function AdminDashboardPage() {
                   </div>
                 )}
 
-                {/* View More Logs Button */}
-                {allEvents.length > 5 && (
-                  <div className="mt-4 pt-3 border-t border-slate-100 dark:border-slate-800 flex items-center justify-center">
-                    {visibleLogsCount < allEvents.length ? (
+                {/* Numbered Log Pagination Controls */}
+                {totalLogsPages > 1 && (
+                  <div className="mt-4 pt-3 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between gap-3 flex-wrap text-xs">
+                    <div className="text-slate-500 dark:text-slate-400 font-medium">
+                      Page <strong>{logsPage}</strong> of <strong>{totalLogsPages}</strong>
+                    </div>
+
+                    <div className="flex items-center gap-1">
                       <Button
-                        onClick={() => setVisibleLogsCount(prev => prev + 10)}
                         variant="outline"
                         size="sm"
-                        className="text-xs font-semibold rounded-xl text-teal-600 dark:text-teal-400 hover:bg-teal-50 dark:hover:bg-teal-950/50 cursor-pointer flex items-center gap-1.5"
+                        disabled={logsPage <= 1}
+                        onClick={() => setLogsPage(prev => Math.max(1, prev - 1))}
+                        className="h-7 text-xs px-2.5 rounded-lg cursor-pointer font-semibold"
                       >
-                        <ChevronDown className="w-3.5 h-3.5" />
-                        <span>View More Logs ({allEvents.length - visibleLogsCount} remaining)</span>
+                        ← Prev
                       </Button>
-                    ) : (
+
+                      {getLogsPageNumbers().map((p, idx) => (
+                        typeof p === "number" ? (
+                          <Button
+                            key={idx}
+                            variant={p === logsPage ? "default" : "outline"}
+                            size="sm"
+                            onClick={() => setLogsPage(p)}
+                            className={`w-7 h-7 p-0 text-xs font-bold rounded-lg cursor-pointer ${
+                              p === logsPage
+                                ? "bg-teal-600 hover:bg-teal-500 text-white border-teal-600 shadow-2xs"
+                                : "text-slate-700 dark:text-slate-300 hover:text-teal-600 hover:border-teal-500"
+                            }`}
+                          >
+                            {p}
+                          </Button>
+                        ) : (
+                          <span key={idx} className="px-1 text-slate-400 font-bold">...</span>
+                        )
+                      ))}
+
                       <Button
-                        onClick={() => setVisibleLogsCount(5)}
-                        variant="ghost"
+                        variant="outline"
                         size="sm"
-                        className="text-xs font-semibold rounded-xl text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 cursor-pointer flex items-center gap-1.5"
+                        disabled={logsPage >= totalLogsPages}
+                        onClick={() => setLogsPage(prev => Math.min(totalLogsPages, prev + 1))}
+                        className="h-7 text-xs px-2.5 rounded-lg cursor-pointer font-semibold"
                       >
-                        <ChevronUp className="w-3.5 h-3.5" />
-                        <span>Show Less</span>
+                        Next →
                       </Button>
-                    )}
+                    </div>
                   </div>
                 )}
               </CardContent>
