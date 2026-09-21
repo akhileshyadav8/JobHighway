@@ -14,18 +14,18 @@ export function RatingBadge({ rating, reason }: RatingBadgeProps) {
   const isGood = rating.toLowerCase() === 'good';
   
   const bgClass = isExcellent 
-    ? "bg-green-50 dark:bg-green-900/10 border-green-200 dark:border-green-900/30" 
+    ? "bg-green-50 border-green-200 " 
     : isGood 
-      ? "bg-yellow-50 dark:bg-yellow-900/10 border-yellow-200 dark:border-yellow-900/30"
-      : "bg-slate-50 dark:bg-slate-900 border-slate-200 dark:border-slate-800";
+      ? "bg-yellow-50 border-yellow-200 "
+      : "bg-slate-50 border-slate-200 ";
       
-  const iconColor = isExcellent ? "text-green-600 dark:text-green-500" : isGood ? "text-yellow-600 dark:text-yellow-500" : "text-slate-600 dark:text-slate-400";
-  const textColor = isExcellent ? "text-green-800 dark:text-green-400" : isGood ? "text-yellow-800 dark:text-yellow-400" : "text-slate-800 dark:text-slate-200";
+  const iconColor = isExcellent ? "text-green-600 " : isGood ? "text-yellow-600 " : "text-slate-600 ";
+  const textColor = isExcellent ? "text-green-800 " : isGood ? "text-yellow-800 " : "text-slate-800 ";
 
   return (
     <Card className={`mb-6 border ${bgClass}`}>
       <CardContent className="p-4 flex items-start sm:items-center gap-3">
-        <div className={`p-2 rounded-full bg-white dark:bg-slate-800 shadow-sm ${iconColor} flex-shrink-0 mt-1 sm:mt-0`}>
+        <div className={`p-2 rounded-full bg-white shadow-sm ${iconColor} flex-shrink-0 mt-1 sm:mt-0`}>
           <ThumbsUp className="w-5 h-5" />
         </div>
         <div>
@@ -33,7 +33,7 @@ export function RatingBadge({ rating, reason }: RatingBadgeProps) {
             <span className={textColor}>JobPulse Rating: {rating}</span>
           </div>
           {reason && (
-            <p className="text-sm text-slate-600 dark:text-slate-400 mt-1">
+            <p className="text-sm text-slate-600 mt-1">
               {reason}
             </p>
           )}

@@ -35,13 +35,13 @@ export function StudyMaterials({ materials }: { materials: StudyMaterialItem[] |
   const list = (materials && materials.length > 0) ? materials : defaultMaterials;
 
   return (
-    <Card className="mb-6 shadow-sm border-slate-200 dark:border-slate-800">
+    <Card className="mb-6 shadow-sm border-slate-200 ">
       <CardContent className="p-6">
         <div className="flex items-center justify-between mb-4">
-          <h2 className="text-lg font-bold flex items-center gap-2 uppercase tracking-wide text-slate-900 dark:text-white">
+          <h2 className="text-lg font-bold flex items-center gap-2 uppercase tracking-wide text-slate-900 ">
             📚 FREE STUDY MATERIALS ({list.length})
           </h2>
-          <span className="text-xs text-emerald-600 dark:text-emerald-400 font-semibold bg-emerald-50 dark:bg-emerald-950/40 px-2.5 py-1 rounded-full border border-emerald-200 dark:border-emerald-800 flex items-center gap-1">
+          <span className="text-xs text-emerald-600 font-semibold bg-emerald-50 px-2.5 py-1 rounded-full border border-emerald-200 flex items-center gap-1">
             <CheckCircle2 className="w-3.5 h-3.5" />
             100% Free
           </span>
@@ -53,23 +53,23 @@ export function StudyMaterials({ materials }: { materials: StudyMaterialItem[] |
             return (
               <div 
                 key={i} 
-                className="border border-slate-200 dark:border-slate-800 rounded-xl p-4 flex gap-4 items-start bg-slate-50/50 dark:bg-slate-900/50 hover:bg-slate-50 dark:hover:bg-slate-900 transition-colors"
+                className="border border-slate-200 rounded-xl p-4 flex gap-4 items-start bg-slate-50/50 hover:bg-slate-50 transition-colors"
               >
-                <div className="bg-teal-100 dark:bg-teal-900/30 text-teal-700 dark:text-teal-400 p-3 rounded-xl flex-shrink-0">
+                <div className="bg-teal-100 text-teal-700 p-3 rounded-xl flex-shrink-0">
                   <BookOpen className="w-5 h-5" />
                 </div>
                 <div className="flex-1">
-                  <h3 className="font-bold text-base text-slate-900 dark:text-white mb-1">
+                  <h3 className="font-bold text-base text-slate-900 mb-1">
                     {m.title}
                   </h3>
-                  <p className="text-slate-600 dark:text-slate-400 text-sm mb-3 leading-relaxed">
+                  <p className="text-slate-600 text-sm mb-3 leading-relaxed">
                     {m.description}
                   </p>
                   <a 
                     href={resourceUrl} 
                     target="_blank" 
                     rel="noopener noreferrer" 
-                    className="inline-flex items-center gap-1.5 text-teal-600 dark:text-teal-400 font-semibold hover:text-teal-700 dark:hover:text-teal-300 text-sm hover:underline"
+                    className="inline-flex items-center gap-1.5 text-teal-600 font-semibold hover:text-teal-700 text-sm hover:underline"
                   >
                     <span>Open Resource</span>
                     <ExternalLink className="w-3.5 h-3.5" />

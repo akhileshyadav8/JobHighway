@@ -17,9 +17,9 @@ export async function RelatedJobs({ currentJob }: { currentJob: Job }) {
         </h2>
         <div className="space-y-4">
           {related.map(job => (
-            <div key={job.id} className="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-4 last:border-0 last:pb-0">
+            <div key={job.id} className="flex items-center justify-between border-b border-slate-100 pb-4 last:border-0 last:pb-0">
               <div>
-                <Link href={`/jobs/${job.slug}`} className="font-bold hover:text-teal-600 dark:hover:text-teal-400 block mb-1">
+                <Link href={`/jobs/${job.slug}`} className="font-bold hover:text-teal-600 block mb-1">
                   {job.title}
                 </Link>
                 <div className="flex items-center gap-3 text-sm text-slate-500">
@@ -28,7 +28,7 @@ export async function RelatedJobs({ currentJob }: { currentJob: Job }) {
                   <span>{job.location[0]}</span>
                 </div>
               </div>
-              <Link href={`/jobs/${job.slug}`} className="text-teal-600 dark:text-teal-400 text-sm font-medium hover:underline whitespace-nowrap">
+              <Link href={`/jobs/${job.slug}`} className="text-teal-600 text-sm font-medium hover:underline whitespace-nowrap">
                 View →
               </Link>
             </div>

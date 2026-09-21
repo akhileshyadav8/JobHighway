@@ -8,7 +8,7 @@ export function EligibilityCriteria({ job }: { job: Job }) {
         <h2 className="text-lg font-bold flex items-center gap-2 mb-4 uppercase">
           📋 ELIGIBILITY CRITERIA
         </h2>
-        <ul className="list-disc pl-5 space-y-2 text-slate-700 dark:text-slate-300">
+        <ul className="list-disc pl-5 space-y-2 text-slate-700 ">
           {job.education && <li><strong>Education:</strong> {job.education}</li>}
           {job.eligible_batches && <li><strong>Batches:</strong> {job.eligible_batches.join(', ')}</li>}
           {(job.min_cgpa || job.min_percentage) && (

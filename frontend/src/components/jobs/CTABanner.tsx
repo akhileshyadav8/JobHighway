@@ -9,13 +9,13 @@ export function CTABanner({ job }: { job: Job }) {
   const companyDomain = (job as any).official_domain || job.company?.name || "Official Career Portal";
 
   return (
-    <div className="bg-gradient-to-r from-teal-50 via-emerald-50 to-teal-50 dark:from-teal-950/30 dark:via-emerald-950/20 dark:to-teal-950/30 border border-teal-200 dark:border-teal-800 rounded-2xl p-4 sm:p-6 mb-6 text-center shadow-sm">
+    <div className="bg-gradient-to-r from-teal-50 via-emerald-50 to-teal-50 border border-teal-200 rounded-2xl p-4 sm:p-6 mb-6 text-center shadow-sm">
       <div className="text-3xl mb-2">🎯</div>
-      <h3 className="text-lg sm:text-xl font-bold text-teal-950 dark:text-teal-100 mb-1">
+      <h3 className="text-lg sm:text-xl font-bold text-teal-950 mb-1">
         Don&apos;t miss this opportunity!
       </h3>
       {timeLeft && (
-        <p className="text-teal-700 dark:text-teal-300 text-xs sm:text-sm mb-4 sm:mb-5 font-medium">
+        <p className="text-teal-700 text-xs sm:text-sm mb-4 sm:mb-5 font-medium">
           Apply before deadline — approximately {timeLeft} left!
         </p>
       )}
@@ -31,7 +31,7 @@ export function CTABanner({ job }: { job: Job }) {
           <ExternalLink className="w-4 h-4 sm:w-5 sm:h-5 shrink-0" />
         </a>
 
-        <div className="flex items-center gap-1.5 text-xs text-slate-500 dark:text-slate-400">
+        <div className="flex items-center gap-1.5 text-xs text-slate-500 ">
           <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" />
           <span>Direct official link on {companyDomain} • Zero third-party data sharing</span>
         </div>

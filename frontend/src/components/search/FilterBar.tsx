@@ -26,7 +26,7 @@ export function FilterBar() {
   };
 
   return (
-    <div className="w-full border-b border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 sticky top-16 z-40">
+    <div className="w-full border-b border-slate-200 bg-white sticky top-16 z-40">
       <div className="container mx-auto px-4 py-3">
         <div className="flex flex-col gap-3">
           {Object.entries(FILTERS).map(([category, options]) => (
@@ -43,8 +43,8 @@ export function FilterBar() {
                       onClick={() => toggleFilter(category, option)}
                       className={`px-3 py-1 text-sm rounded-full whitespace-nowrap transition-colors border ${
                         isActive 
-                          ? "bg-teal-100 border-teal-200 text-teal-800 dark:bg-teal-900/30 dark:border-teal-800 dark:text-teal-400" 
-                          : "bg-slate-50 border-slate-200 text-slate-600 hover:bg-slate-100 dark:bg-slate-900 dark:border-slate-800 dark:text-slate-300 dark:hover:bg-slate-800"
+                          ? "bg-teal-100 border-teal-200 text-teal-800 " 
+                          : "bg-slate-50 border-slate-200 text-slate-600 hover:bg-slate-100 "
                       }`}
                     >
                       {option}

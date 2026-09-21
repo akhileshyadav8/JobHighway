@@ -277,33 +277,33 @@ export default function DashboardPage() {
 
         {/* Metrics Overview Cards */}
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-8">
-          <div className="p-5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-2xs">
+          <div className="p-5 rounded-2xl bg-white border border-slate-200 shadow-2xs">
             <div className="text-xs text-slate-500 font-semibold mb-1">Total Applied</div>
-            <div className="text-2xl sm:text-3xl font-black text-slate-900 dark:text-white">
+            <div className="text-2xl sm:text-3xl font-black text-slate-900 ">
               {counts.total}
             </div>
-            <div className="text-[11px] text-teal-600 dark:text-teal-400 mt-1">Official Submissions</div>
+            <div className="text-[11px] text-teal-600 mt-1">Official Submissions</div>
           </div>
 
-          <div className="p-5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-2xs">
+          <div className="p-5 rounded-2xl bg-white border border-slate-200 shadow-2xs">
             <div className="text-xs text-slate-500 font-semibold mb-1">In Review</div>
-            <div className="text-2xl sm:text-3xl font-black text-amber-600 dark:text-amber-400">
+            <div className="text-2xl sm:text-3xl font-black text-amber-600 ">
               {counts.underReview}
             </div>
             <div className="text-[11px] text-slate-400 mt-1">Screening Pipeline</div>
           </div>
 
-          <div className="p-5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-2xs">
+          <div className="p-5 rounded-2xl bg-white border border-slate-200 shadow-2xs">
             <div className="text-xs text-slate-500 font-semibold mb-1">Interviews</div>
-            <div className="text-2xl sm:text-3xl font-black text-purple-600 dark:text-purple-400">
+            <div className="text-2xl sm:text-3xl font-black text-purple-600 ">
               {counts.interview}
             </div>
             <div className="text-[11px] text-purple-500 mt-1">Technical / HR</div>
           </div>
 
-          <div className="p-5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-2xs">
+          <div className="p-5 rounded-2xl bg-white border border-slate-200 shadow-2xs">
             <div className="text-xs text-slate-500 font-semibold mb-1">Offers Received</div>
-            <div className="text-2xl sm:text-3xl font-black text-emerald-600 dark:text-emerald-400">
+            <div className="text-2xl sm:text-3xl font-black text-emerald-600 ">
               {counts.offer}
             </div>
             <div className="text-[11px] text-emerald-500 mt-1">Final Packages</div>
@@ -311,13 +311,13 @@ export default function DashboardPage() {
         </div>
 
         {/* Tab Navigation */}
-        <div className="flex items-center gap-2 border-b border-slate-200 dark:border-slate-800 mb-8 pb-3 overflow-x-auto">
+        <div className="flex items-center gap-2 border-b border-slate-200 mb-8 pb-3 overflow-x-auto">
           <button
             onClick={() => setActiveTab("applied")}
             className={`px-4 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all cursor-pointer flex items-center gap-2 ${
               activeTab === "applied"
                 ? "bg-teal-600 text-white shadow-xs"
-                : "text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800"
+                : "text-slate-600 hover:bg-slate-100 "
             }`}
           >
             <CheckCircle2 className="w-4 h-4" />
@@ -329,7 +329,7 @@ export default function DashboardPage() {
             className={`px-4 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all cursor-pointer flex items-center gap-2 ${
               activeTab === "bookmarks"
                 ? "bg-teal-600 text-white shadow-xs"
-                : "text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800"
+                : "text-slate-600 hover:bg-slate-100 "
             }`}
           >
             <Bookmark className="w-4 h-4" />
@@ -341,7 +341,7 @@ export default function DashboardPage() {
             className={`px-4 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all cursor-pointer flex items-center gap-2 ${
               activeTab === "profile"
                 ? "bg-teal-600 text-white shadow-xs"
-                : "text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800"
+                : "text-slate-600 hover:bg-slate-100 "
             }`}
           >
             <UserIcon className="w-4 h-4" />
@@ -365,7 +365,7 @@ export default function DashboardPage() {
                     className={`px-3 py-1 rounded-full text-xs font-semibold cursor-pointer transition-all ${
                       statusFilter === status
                         ? "bg-teal-600 text-white"
-                        : "bg-white dark:bg-slate-900 text-slate-600 dark:text-slate-400 border border-slate-200 dark:border-slate-800 hover:bg-slate-100 dark:hover:bg-slate-800"
+                        : "bg-white text-slate-600 border border-slate-200 hover:bg-slate-100 "
                     }`}
                   >
                     {status}
@@ -379,9 +379,9 @@ export default function DashboardPage() {
             </div>
 
             {filteredApplied.length === 0 ? (
-              <div className="text-center py-16 bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 p-8">
-                <Briefcase className="w-12 h-12 text-slate-300 dark:text-slate-700 mx-auto mb-3" />
-                <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-1">
+              <div className="text-center py-16 bg-white rounded-3xl border border-slate-200 p-8">
+                <Briefcase className="w-12 h-12 text-slate-300 mx-auto mb-3" />
+                <h3 className="text-lg font-bold text-slate-900 mb-1">
                   No applications in this view
                 </h3>
                 <p className="text-xs text-slate-500 max-w-sm mx-auto mb-6">
@@ -398,12 +398,12 @@ export default function DashboardPage() {
                 {filteredApplied.map((item) => {
                   const cfg = STATUS_CONFIG[item.status] || STATUS_CONFIG["Applied"];
                   return (
-                    <Card key={item.id} className="border-slate-200 dark:border-slate-800 hover:shadow-md transition-all dark:bg-slate-900 rounded-2xl overflow-hidden">
+                    <Card key={item.id} className="border-slate-200 hover:shadow-md transition-all rounded-2xl overflow-hidden">
                       <CardContent className="p-5 sm:p-6">
                         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
                           <div>
                             <div className="flex items-center gap-2 mb-1.5">
-                              <span className="text-xs font-bold text-teal-600 dark:text-teal-400 bg-teal-50 dark:bg-teal-950/60 px-2.5 py-0.5 rounded-md">
+                              <span className="text-xs font-bold text-teal-600 bg-teal-50 px-2.5 py-0.5 rounded-md">
                                 {item.company}
                               </span>
                               <span className="text-xs text-slate-400">•</span>
@@ -413,7 +413,7 @@ export default function DashboardPage() {
                               </span>
                             </div>
 
-                            <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-1">
+                            <h3 className="text-lg font-bold text-slate-900 mb-1">
                               {item.title}
                             </h3>
 
@@ -423,7 +423,7 @@ export default function DashboardPage() {
                                 {item.location}
                               </span>
                               {item.salary && (
-                                <span className="flex items-center gap-1 text-emerald-600 dark:text-emerald-400 font-semibold">
+                                <span className="flex items-center gap-1 text-emerald-600 font-semibold">
                                   <DollarSign className="w-3.5 h-3.5" />
                                   {item.salary}
                                 </span>
@@ -432,7 +432,7 @@ export default function DashboardPage() {
                           </div>
 
                           {/* Status Dropdown & Actions */}
-                          <div className="flex items-center gap-3 w-full sm:w-auto justify-between sm:justify-end border-t sm:border-t-0 pt-3 sm:pt-0 border-slate-100 dark:border-slate-800">
+                          <div className="flex items-center gap-3 w-full sm:w-auto justify-between sm:justify-end border-t sm:border-t-0 pt-3 sm:pt-0 border-slate-100 ">
                             <div>
                               <select
                                 value={item.status}
@@ -451,7 +451,7 @@ export default function DashboardPage() {
                               href={item.applyUrl}
                               target="_blank"
                               rel="noopener noreferrer"
-                              className="text-xs font-semibold text-teal-600 hover:text-teal-700 dark:text-teal-400 inline-flex items-center gap-1"
+                              className="text-xs font-semibold text-teal-600 hover:text-teal-700 inline-flex items-center gap-1"
                               title="Official Application Link"
                             >
                               <span>Portal</span>
@@ -460,7 +460,7 @@ export default function DashboardPage() {
 
                             <button
                               onClick={() => handleDeleteApplied(item.id)}
-                              className="text-slate-400 hover:text-rose-600 dark:hover:text-rose-400 transition-colors p-1"
+                              className="text-slate-400 hover:text-rose-600 transition-colors p-1"
                               title="Remove from tracker"
                             >
                               <Trash2 className="w-4 h-4" />
@@ -470,7 +470,7 @@ export default function DashboardPage() {
 
                         {/* Optional notes section */}
                         {item.notes && (
-                          <div className="mt-3 pt-3 border-t border-slate-100 dark:border-slate-800/80 text-xs text-slate-600 dark:text-slate-400 bg-slate-50/50 dark:bg-slate-950/40 p-2.5 rounded-xl flex items-start gap-2">
+                          <div className="mt-3 pt-3 border-t border-slate-100 text-xs text-slate-600 bg-slate-50/50 p-2.5 rounded-xl flex items-start gap-2">
                             <FileText className="w-3.5 h-3.5 text-slate-400 mt-0.5 shrink-0" />
                             <span>{item.notes}</span>
                           </div>
@@ -488,9 +488,9 @@ export default function DashboardPage() {
         {activeTab === "bookmarks" && (
           <div className="space-y-4">
             {bookmarks.length === 0 ? (
-              <div className="text-center py-16 bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 p-8">
-                <Bookmark className="w-12 h-12 text-slate-300 dark:text-slate-700 mx-auto mb-3" />
-                <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-1">
+              <div className="text-center py-16 bg-white rounded-3xl border border-slate-200 p-8">
+                <Bookmark className="w-12 h-12 text-slate-300 mx-auto mb-3" />
+                <h3 className="text-lg font-bold text-slate-900 mb-1">
                   Your Wishlist is Empty
                 </h3>
                 <p className="text-xs text-slate-500 max-w-sm mx-auto mb-6">
@@ -505,11 +505,11 @@ export default function DashboardPage() {
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {bookmarks.map((b) => (
-                  <Card key={b.jobId} className="border-slate-200 dark:border-slate-800 dark:bg-slate-900 rounded-2xl hover:shadow-md transition-all">
+                  <Card key={b.jobId} className="border-slate-200 rounded-2xl hover:shadow-md transition-all">
                     <CardContent className="p-5 flex flex-col justify-between h-full space-y-4">
                       <div>
                         <div className="flex items-center justify-between mb-2">
-                          <span className="text-xs font-bold text-teal-600 dark:text-teal-400 bg-teal-50 dark:bg-teal-950/60 px-2.5 py-0.5 rounded-md">
+                          <span className="text-xs font-bold text-teal-600 bg-teal-50 px-2.5 py-0.5 rounded-md">
                             {b.company}
                           </span>
                           <button
@@ -519,7 +519,7 @@ export default function DashboardPage() {
                             Remove
                           </button>
                         </div>
-                        <h4 className="font-bold text-base text-slate-900 dark:text-white mb-1">
+                        <h4 className="font-bold text-base text-slate-900 mb-1">
                           {b.title}
                         </h4>
                         <div className="text-xs text-slate-500 flex items-center gap-3">
@@ -533,7 +533,7 @@ export default function DashboardPage() {
                         </div>
                       </div>
 
-                      <div className="pt-3 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between gap-3">
+                      <div className="pt-3 border-t border-slate-100 flex items-center justify-between gap-3">
                         <span className="text-[11px] text-slate-400">
                           Saved {new Date(b.savedAt).toLocaleDateString()}
                         </span>
@@ -558,17 +558,17 @@ export default function DashboardPage() {
         {/* TAB 3: PROFILE & PREFERENCES */}
         {activeTab === "profile" && (
           <div className="max-w-2xl mx-auto">
-            <Card className="border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 rounded-3xl shadow-sm">
+            <Card className="border-slate-200 bg-white rounded-3xl shadow-sm">
               <CardContent className="p-7 sm:p-8">
                 <div className="flex items-center gap-2 mb-6">
-                  <UserIcon className="w-5 h-5 text-teal-600 dark:text-teal-400" />
-                  <h3 className="text-xl font-bold text-slate-900 dark:text-white">
+                  <UserIcon className="w-5 h-5 text-teal-600 " />
+                  <h3 className="text-xl font-bold text-slate-900 ">
                     Candidate Profile & Targeting Preferences
                   </h3>
                 </div>
 
                 {profileSaved && (
-                  <div className="mb-6 p-4 rounded-2xl bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800 text-emerald-800 dark:text-emerald-200 text-xs flex items-center gap-2">
+                  <div className="mb-6 p-4 rounded-2xl bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs flex items-center gap-2">
                     <CheckCircle2 className="w-4 h-4 text-emerald-600" />
                     <span>Profile preferences updated successfully!</span>
                   </div>
@@ -576,7 +576,7 @@ export default function DashboardPage() {
 
                 <form onSubmit={handleSaveProfile} className="space-y-4">
                   <div>
-                    <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5">
+                    <label className="block text-xs font-semibold text-slate-700 mb-1.5">
                       Target Role / Job Title
                     </label>
                     <input
@@ -584,12 +584,12 @@ export default function DashboardPage() {
                       value={targetRole}
                       onChange={(e) => setTargetRole(e.target.value)}
                       placeholder="e.g. Full Stack Engineer, SDE-2, Data Analyst"
-                      className="w-full px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-white text-sm focus:border-teal-500 focus:outline-none transition-colors"
+                      className="w-full px-4 py-2.5 rounded-xl border border-slate-200 bg-slate-50 text-slate-900 text-sm focus:border-teal-500 focus:outline-none transition-colors"
                     />
                   </div>
 
                   <div>
-                    <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5">
+                    <label className="block text-xs font-semibold text-slate-700 mb-1.5">
                       Target CTC / Compensation Range
                     </label>
                     <input
@@ -597,12 +597,12 @@ export default function DashboardPage() {
                       value={targetCtc}
                       onChange={(e) => setTargetCtc(e.target.value)}
                       placeholder="e.g. ₹20,00,000 - ₹35,00,000 or $90,000+"
-                      className="w-full px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-white text-sm focus:border-teal-500 focus:outline-none transition-colors"
+                      className="w-full px-4 py-2.5 rounded-xl border border-slate-200 bg-slate-50 text-slate-900 text-sm focus:border-teal-500 focus:outline-none transition-colors"
                     />
                   </div>
 
                   <div>
-                    <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5">
+                    <label className="block text-xs font-semibold text-slate-700 mb-1.5">
                       Preferred Locations
                     </label>
                     <input
@@ -610,12 +610,12 @@ export default function DashboardPage() {
                       value={preferredLocation}
                       onChange={(e) => setPreferredLocation(e.target.value)}
                       placeholder="e.g. Remote, Bengaluru, Hyderabad, Gurgaon"
-                      className="w-full px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-white text-sm focus:border-teal-500 focus:outline-none transition-colors"
+                      className="w-full px-4 py-2.5 rounded-xl border border-slate-200 bg-slate-50 text-slate-900 text-sm focus:border-teal-500 focus:outline-none transition-colors"
                     />
                   </div>
 
                   <div>
-                    <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5">
+                    <label className="block text-xs font-semibold text-slate-700 mb-1.5">
                       Core Skills & Technologies (Comma-separated)
                     </label>
                     <textarea
@@ -623,7 +623,7 @@ export default function DashboardPage() {
                       value={skillsStr}
                       onChange={(e) => setSkillsStr(e.target.value)}
                       placeholder="e.g. React, TypeScript, Python, PostgreSQL, Next.js, Docker"
-                      className="w-full px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-white text-sm focus:border-teal-500 focus:outline-none transition-colors resize-none"
+                      className="w-full px-4 py-2.5 rounded-xl border border-slate-200 bg-slate-50 text-slate-900 text-sm focus:border-teal-500 focus:outline-none transition-colors resize-none"
                     />
                   </div>
 

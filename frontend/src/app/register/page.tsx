@@ -44,25 +44,25 @@ export default function RegisterPage() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 dark:bg-slate-950 py-16 px-4 flex items-center justify-center">
+    <div className="min-h-screen bg-slate-50 py-16 px-4 flex items-center justify-center">
       <div className="w-full max-w-md">
         <div className="text-center mb-8">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-teal-500/10 border border-teal-500/20 text-teal-600 dark:text-teal-400 text-xs font-bold uppercase tracking-wider mb-3">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-teal-500/10 border border-teal-500/20 text-teal-600 text-xs font-bold uppercase tracking-wider mb-3">
             <Sparkles className="w-3.5 h-3.5" />
             100% Free Forever
           </div>
-          <h1 className="text-3xl font-black text-slate-900 dark:text-white tracking-tight">
+          <h1 className="text-3xl font-black text-slate-900 tracking-tight">
             Create Candidate Account
           </h1>
-          <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-2">
+          <p className="text-xs sm:text-sm text-slate-500 mt-2">
             Organize job applications, track interview stages, and unlock personalized alerts.
           </p>
         </div>
 
-        <Card className="border-slate-200 dark:border-slate-800 shadow-xl bg-white dark:bg-slate-900 rounded-3xl overflow-hidden">
+        <Card className="border-slate-200 shadow-xl bg-white rounded-3xl overflow-hidden">
           <CardContent className="p-7 sm:p-8 space-y-6">
             {error && (
-              <div className="p-3.5 rounded-xl bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-900 text-rose-700 dark:text-rose-300 text-xs flex items-center gap-2">
+              <div className="p-3.5 rounded-xl bg-rose-50 border border-rose-200 text-rose-700 text-xs flex items-center gap-2">
                 <AlertCircle className="w-4 h-4 shrink-0" />
                 <span>{error}</span>
               </div>
@@ -70,7 +70,7 @@ export default function RegisterPage() {
 
             <form onSubmit={handleSubmit} className="space-y-4">
               <div>
-                <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5">
+                <label className="block text-xs font-semibold text-slate-700 mb-1.5">
                   Full Name *
                 </label>
                 <input
@@ -79,12 +79,12 @@ export default function RegisterPage() {
                   value={name}
                   onChange={(e) => setName(e.target.value)}
                   placeholder="e.g. Priya Sharma"
-                  className="w-full px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-white text-sm focus:border-teal-500 focus:outline-none transition-colors"
+                  className="w-full px-4 py-2.5 rounded-xl border border-slate-200 bg-slate-50 text-slate-900 text-sm focus:border-teal-500 focus:outline-none transition-colors"
                 />
               </div>
 
               <div>
-                <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5">
+                <label className="block text-xs font-semibold text-slate-700 mb-1.5">
                   Email Address *
                 </label>
                 <input
@@ -93,12 +93,12 @@ export default function RegisterPage() {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder="priya@example.com"
-                  className="w-full px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-white text-sm focus:border-teal-500 focus:outline-none transition-colors"
+                  className="w-full px-4 py-2.5 rounded-xl border border-slate-200 bg-slate-50 text-slate-900 text-sm focus:border-teal-500 focus:outline-none transition-colors"
                 />
               </div>
 
               <div>
-                <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5">
+                <label className="block text-xs font-semibold text-slate-700 mb-1.5">
                   Password * (8–16 Characters)
                 </label>
                 <input
@@ -107,43 +107,43 @@ export default function RegisterPage() {
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder="Create secure password"
-                  className="w-full px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-white text-sm focus:border-teal-500 focus:outline-none transition-colors"
+                  className="w-full px-4 py-2.5 rounded-xl border border-slate-200 bg-slate-50 text-slate-900 text-sm focus:border-teal-500 focus:outline-none transition-colors"
                 />
 
                 {/* Password Criteria Checklist */}
                 {password.length > 0 && (
-                  <div className="mt-2.5 p-3 bg-slate-50 dark:bg-slate-950/70 rounded-xl border border-slate-200/80 dark:border-slate-800/80 text-[11px] space-y-1">
-                    <div className={`flex items-center gap-1.5 ${password.length >= 8 && password.length <= 16 ? "text-emerald-600 dark:text-emerald-400" : "text-slate-400"}`}>
-                      <span className={`w-1.5 h-1.5 rounded-full ${password.length >= 8 && password.length <= 16 ? "bg-emerald-500" : "bg-slate-300 dark:bg-slate-700"}`} />
+                  <div className="mt-2.5 p-3 bg-slate-50 rounded-xl border border-slate-200/80 text-[11px] space-y-1">
+                    <div className={`flex items-center gap-1.5 ${password.length >= 8 && password.length <= 16 ? "text-emerald-600 " : "text-slate-400"}`}>
+                      <span className={`w-1.5 h-1.5 rounded-full ${password.length >= 8 && password.length <= 16 ? "bg-emerald-500" : "bg-slate-300 "}`} />
                       <span>8 to 16 characters</span>
                     </div>
-                    <div className={`flex items-center gap-1.5 ${/[A-Z]/.test(password) ? "text-emerald-600 dark:text-emerald-400" : "text-slate-400"}`}>
-                      <span className={`w-1.5 h-1.5 rounded-full ${/[A-Z]/.test(password) ? "bg-emerald-500" : "bg-slate-300 dark:bg-slate-700"}`} />
+                    <div className={`flex items-center gap-1.5 ${/[A-Z]/.test(password) ? "text-emerald-600 " : "text-slate-400"}`}>
+                      <span className={`w-1.5 h-1.5 rounded-full ${/[A-Z]/.test(password) ? "bg-emerald-500" : "bg-slate-300 "}`} />
                       <span>At least 1 uppercase letter (A–Z)</span>
                     </div>
-                    <div className={`flex items-center gap-1.5 ${/[a-z]/.test(password) ? "text-emerald-600 dark:text-emerald-400" : "text-slate-400"}`}>
-                      <span className={`w-1.5 h-1.5 rounded-full ${/[a-z]/.test(password) ? "bg-emerald-500" : "bg-slate-300 dark:bg-slate-700"}`} />
+                    <div className={`flex items-center gap-1.5 ${/[a-z]/.test(password) ? "text-emerald-600 " : "text-slate-400"}`}>
+                      <span className={`w-1.5 h-1.5 rounded-full ${/[a-z]/.test(password) ? "bg-emerald-500" : "bg-slate-300 "}`} />
                       <span>At least 1 lowercase letter (a–z)</span>
                     </div>
-                    <div className={`flex items-center gap-1.5 ${/\d/.test(password) ? "text-emerald-600 dark:text-emerald-400" : "text-slate-400"}`}>
-                      <span className={`w-1.5 h-1.5 rounded-full ${/\d/.test(password) ? "bg-emerald-500" : "bg-slate-300 dark:bg-slate-700"}`} />
+                    <div className={`flex items-center gap-1.5 ${/\d/.test(password) ? "text-emerald-600 " : "text-slate-400"}`}>
+                      <span className={`w-1.5 h-1.5 rounded-full ${/\d/.test(password) ? "bg-emerald-500" : "bg-slate-300 "}`} />
                       <span>At least 1 number (0–9)</span>
                     </div>
-                    <div className={`flex items-center gap-1.5 ${/[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(password) ? "text-emerald-600 dark:text-emerald-400" : "text-slate-400"}`}>
-                      <span className={`w-1.5 h-1.5 rounded-full ${/[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(password) ? "bg-emerald-500" : "bg-slate-300 dark:bg-slate-700"}`} />
+                    <div className={`flex items-center gap-1.5 ${/[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(password) ? "text-emerald-600 " : "text-slate-400"}`}>
+                      <span className={`w-1.5 h-1.5 rounded-full ${/[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(password) ? "bg-emerald-500" : "bg-slate-300 "}`} />
                       <span>At least 1 special character (!@#$%^&*)</span>
                     </div>
                   </div>
                 )}
               </div>
 
-              <div className="space-y-1.5 text-xs text-slate-500 dark:text-slate-400 pt-1">
+              <div className="space-y-1.5 text-xs text-slate-500 pt-1">
                 <div className="flex items-center gap-2">
-                  <Check className="w-3.5 h-3.5 text-teal-600 dark:text-teal-400 shrink-0" />
+                  <Check className="w-3.5 h-3.5 text-teal-600 shrink-0" />
                   <span>Track unlimited job applications across 5,000+ companies</span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <Check className="w-3.5 h-3.5 text-teal-600 dark:text-teal-400 shrink-0" />
+                  <Check className="w-3.5 h-3.5 text-teal-600 shrink-0" />
                   <span>Zero spam, private storage, never sold to recruiters</span>
                 </div>
               </div>
@@ -158,9 +158,9 @@ export default function RegisterPage() {
               </Button>
             </form>
 
-            <div className="text-center text-xs text-slate-500 dark:text-slate-400 pt-2 border-t border-slate-100 dark:border-slate-800">
+            <div className="text-center text-xs text-slate-500 pt-2 border-t border-slate-100 ">
               Already have an account?{" "}
-              <Link href="/login" className="font-bold text-teal-600 dark:text-teal-400 hover:underline">
+              <Link href="/login" className="font-bold text-teal-600 hover:underline">
                 Sign In
               </Link>
             </div>

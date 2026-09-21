@@ -12,7 +12,7 @@ export function SearchBar() {
       <Input
         type="text"
         placeholder="Search by title, company, skills, or location..."
-        className="block w-full pl-10 pr-3 py-6 border-slate-200 dark:border-slate-800 rounded-xl leading-5 bg-white dark:bg-slate-900 shadow-sm focus:ring-2 focus:ring-teal-500 focus:border-teal-500 sm:text-base transition-shadow"
+        className="block w-full pl-10 pr-3 py-6 border-slate-200 rounded-xl leading-5 bg-white shadow-sm focus:ring-2 focus:ring-teal-500 focus:border-teal-500 sm:text-base transition-shadow"
       />
     </div>
   );
