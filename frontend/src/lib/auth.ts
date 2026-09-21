@@ -41,6 +41,15 @@ const USERS_STORAGE_KEY = "jobpulse_registered_users";
 const SESSION_STORAGE_KEY = "jobpulse_current_session";
 const APPLIED_STORAGE_PREFIX = "jobpulse_applied_";
 const BOOKMARKS_STORAGE_PREFIX = "jobpulse_bookmarks_";
+const RESET_TOKENS_STORAGE_KEY = "jobpulse_password_reset_tokens";
+
+export interface PasswordResetTokenRecord {
+  token: string;
+  email: string;
+  expiresAt: number;
+  used: boolean;
+  createdAt: number;
+}
 
 // Strict Admin Credentials
 export const ADMIN_EMAIL = "yadavakhil766@gmail.com";
@@ -353,6 +362,139 @@ export function registerUser(name: string, email: string, password?: string): { 
   localStorage.setItem(SESSION_STORAGE_KEY, JSON.stringify(safeUser));
   window.dispatchEvent(new Event("jobpulse_auth_change"));
   return { user: safeUser };
+}
+
+function generateSecureToken(): string {
+  if (typeof window !== "undefined" && window.crypto && window.crypto.getRandomValues) {
+    const array = new Uint8Array(24);
+    window.crypto.getRandomValues(array);
+    return Array.from(array, byte => byte.toString(16).padStart(2, "0")).join("");
+  }
+  return "jp_tok_" + Math.random().toString(36).substring(2) + "_" + Date.now().toString(36);
+}
+
+export function getStoredResetTokens(): PasswordResetTokenRecord[] {
+  if (!isBrowser()) return [];
+  try {
+    const raw = localStorage.getItem(RESET_TOKENS_STORAGE_KEY);
+    return raw ? JSON.parse(raw) : [];
+  } catch {
+    return [];
+  }
+}
+
+export function requestPasswordReset(email: string): { success: boolean; message: string; token?: string } {
+  if (!isBrowser()) return { success: false, message: "Window not defined" };
+  const cleanEmail = email.toLowerCase().trim();
+  if (!cleanEmail || !cleanEmail.includes("@")) {
+    return { success: false, message: "Please provide a valid email address." };
+  }
+
+  // Generic anti-enumeration response
+  const genericMessage = "If an account exists for this email, a password reset link has been sent.";
+
+  const users = getStoredUsers();
+  const user = users.find(u => u.email.toLowerCase() === cleanEmail);
+
+  if (!user) {
+    // Avoid revealing account presence
+    return { success: true, message: genericMessage };
+  }
+
+  const tokens = getStoredResetTokens();
+  // Rate-limiting check: max 1 reset request every 30s per email
+  const recentToken = tokens.find(t => t.email.toLowerCase() === cleanEmail && (Date.now() - t.createdAt) < 30000);
+  if (recentToken && !recentToken.used) {
+    return {
+      success: true,
+      message: genericMessage,
+      token: recentToken.token
+    };
+  }
+
+  // Invalidate any existing unused tokens for this account
+  for (const t of tokens) {
+    if (t.email.toLowerCase() === cleanEmail && !t.used) {
+      t.used = true;
+    }
+  }
+
+  const token = generateSecureToken();
+  const newRecord: PasswordResetTokenRecord = {
+    token,
+    email: cleanEmail,
+    expiresAt: Date.now() + 15 * 60 * 1000, // 15 minutes validity
+    used: false,
+    createdAt: Date.now()
+  };
+
+  tokens.unshift(newRecord);
+  if (tokens.length > 100) tokens.length = 100;
+  localStorage.setItem(RESET_TOKENS_STORAGE_KEY, JSON.stringify(tokens));
+
+  return {
+    success: true,
+    message: genericMessage,
+    token
+  };
+}
+
+export function verifyPasswordResetToken(token: string): { valid: boolean; email?: string; error?: string } {
+  if (!isBrowser()) return { valid: false, error: "Window not defined" };
+  if (!token || typeof token !== "string" || !token.trim()) {
+    return { valid: false, error: "No reset token provided. Please request a new password reset link." };
+  }
+
+  const cleanToken = token.trim();
+  const tokens = getStoredResetTokens();
+  const record = tokens.find(t => t.token === cleanToken);
+
+  if (!record) {
+    return { valid: false, error: "Invalid or unrecognized reset token. Please request a new password reset link." };
+  }
+
+  if (record.used) {
+    return { valid: false, error: "This password reset link has already been used. For your security, reset links are single-use." };
+  }
+
+  if (Date.now() > record.expiresAt) {
+    return { valid: false, error: "This password reset link has expired. For your security, reset links are valid for 15 minutes." };
+  }
+
+  return { valid: true, email: record.email };
+}
+
+export function resetPasswordWithToken(token: string, newPassword: string): { success: boolean; error?: string } {
+  if (!isBrowser()) return { success: false, error: "Window not defined" };
+
+  const verification = verifyPasswordResetToken(token);
+  if (!verification.valid || !verification.email) {
+    return { success: false, error: verification.error || "Invalid or expired reset token." };
+  }
+
+  const passValidation = validatePassword(newPassword);
+  if (!passValidation.isValid) {
+    return { success: false, error: passValidation.errors[0] };
+  }
+
+  const users = getStoredUsers();
+  const userIndex = users.findIndex(u => u.email.toLowerCase() === verification.email!.toLowerCase());
+  if (userIndex === -1) {
+    return { success: false, error: "The account associated with this reset link no longer exists." };
+  }
+
+  users[userIndex].passwordHash = hashPassword(newPassword);
+  localStorage.setItem(USERS_STORAGE_KEY, JSON.stringify(users));
+
+  // Invalidate token immediately
+  const tokens = getStoredResetTokens();
+  const tokenRecord = tokens.find(t => t.token === token.trim());
+  if (tokenRecord) {
+    tokenRecord.used = true;
+    localStorage.setItem(RESET_TOKENS_STORAGE_KEY, JSON.stringify(tokens));
+  }
+
+  return { success: true };
 }
 
 export function resetUserPassword(email: string, newPassword: string): { success: boolean; error?: string } {

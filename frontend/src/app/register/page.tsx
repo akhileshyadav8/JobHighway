@@ -46,19 +46,19 @@ export default function RegisterPage() {
   return (
     <div className="min-h-screen bg-slate-50 py-16 px-4 flex items-center justify-center">
       <div className="w-full max-w-md">
-        <div className="text-center mb-8">
-          <h1 className="text-3xl font-black text-slate-900 tracking-tight">
-            Create Candidate Account
+        <div className="text-center mb-6">
+          <h1 className="text-2xl sm:text-3xl font-bold text-slate-900 tracking-tight">
+            Create Account
           </h1>
-          <p className="text-xs sm:text-sm text-slate-500 mt-2">
-            Organize job applications, track interview stages, and unlock personalized alerts.
+          <p className="text-xs sm:text-sm text-slate-500 mt-1.5">
+            Organize your job applications, track interview stages, and manage your profile.
           </p>
         </div>
 
-        <Card className="border-slate-200 shadow-xl bg-white rounded-3xl overflow-hidden">
-          <CardContent className="p-7 sm:p-8 space-y-6">
+        <Card className="border-slate-200 shadow-sm bg-white rounded-xl overflow-hidden">
+          <CardContent className="p-6 sm:p-7 space-y-5">
             {error && (
-              <div className="p-3.5 rounded-xl bg-rose-50 border border-rose-200 text-rose-700 text-xs flex items-center gap-2">
+              <div className="p-3 rounded-lg bg-rose-50 border border-rose-200 text-rose-700 text-xs flex items-center gap-2">
                 <AlertCircle className="w-4 h-4 shrink-0" />
                 <span>{error}</span>
               </div>
@@ -66,7 +66,7 @@ export default function RegisterPage() {
 
             <form onSubmit={handleSubmit} className="space-y-4">
               <div>
-                <label className="block text-xs font-semibold text-slate-700 mb-1.5">
+                <label className="block text-xs font-semibold text-slate-700 mb-1">
                   Full Name *
                 </label>
                 <input
@@ -74,13 +74,13 @@ export default function RegisterPage() {
                   required
                   value={name}
                   onChange={(e) => setName(e.target.value)}
-                  placeholder="e.g. Priya Sharma"
-                  className="w-full px-4 py-2.5 rounded-xl border border-slate-200 bg-slate-50 text-slate-900 text-sm focus:border-teal-500 focus:outline-none transition-colors"
+                  placeholder="e.g. Akhilesh Yadav"
+                  className="w-full px-3.5 py-2 rounded-lg border border-slate-200 bg-white text-slate-900 text-sm focus:border-slate-400 focus:outline-none transition-colors"
                 />
               </div>
 
               <div>
-                <label className="block text-xs font-semibold text-slate-700 mb-1.5">
+                <label className="block text-xs font-semibold text-slate-700 mb-1">
                   Email Address *
                 </label>
                 <input
@@ -88,13 +88,13 @@ export default function RegisterPage() {
                   required
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  placeholder="priya@example.com"
-                  className="w-full px-4 py-2.5 rounded-xl border border-slate-200 bg-slate-50 text-slate-900 text-sm focus:border-teal-500 focus:outline-none transition-colors"
+                  placeholder="name@example.com"
+                  className="w-full px-3.5 py-2 rounded-lg border border-slate-200 bg-white text-slate-900 text-sm focus:border-slate-400 focus:outline-none transition-colors"
                 />
               </div>
 
               <div>
-                <label className="block text-xs font-semibold text-slate-700 mb-1.5">
+                <label className="block text-xs font-semibold text-slate-700 mb-1">
                   Password * (8–16 Characters)
                 </label>
                 <input
@@ -103,12 +103,12 @@ export default function RegisterPage() {
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder="Create secure password"
-                  className="w-full px-4 py-2.5 rounded-xl border border-slate-200 bg-slate-50 text-slate-900 text-sm focus:border-teal-500 focus:outline-none transition-colors"
+                  className="w-full px-3.5 py-2 rounded-lg border border-slate-200 bg-white text-slate-900 text-sm focus:border-slate-400 focus:outline-none transition-colors"
                 />
 
                 {/* Password Criteria Checklist */}
                 {password.length > 0 && (
-                  <div className="mt-2.5 p-3 bg-slate-50 rounded-xl border border-slate-200/80 text-[11px] space-y-1">
+                  <div className="mt-2.5 p-3 bg-slate-50 rounded-lg border border-slate-200/80 text-[11px] space-y-1">
                     <div className={`flex items-center gap-1.5 ${password.length >= 8 && password.length <= 16 ? "text-emerald-600 " : "text-slate-400"}`}>
                       <span className={`w-1.5 h-1.5 rounded-full ${password.length >= 8 && password.length <= 16 ? "bg-emerald-500" : "bg-slate-300 "}`} />
                       <span>8 to 16 characters</span>
@@ -147,16 +147,16 @@ export default function RegisterPage() {
               <Button
                 type="submit"
                 disabled={isLoading}
-                className="w-full py-3 rounded-xl bg-teal-600 hover:bg-teal-500 text-white font-bold text-sm shadow-md transition-all flex items-center justify-center gap-2 cursor-pointer mt-4"
+                className="w-full py-2.5 rounded-lg bg-teal-600 hover:bg-teal-700 text-white font-semibold text-sm transition-colors flex items-center justify-center gap-2 cursor-pointer mt-4"
               >
                 <UserPlus className="w-4 h-4" />
-                <span>{isLoading ? "Creating Account..." : "Create Account & Go to Dashboard"}</span>
+                <span>{isLoading ? "Creating Account..." : "Create Account"}</span>
               </Button>
             </form>
 
-            <div className="text-center text-xs text-slate-500 pt-2 border-t border-slate-100 ">
+            <div className="text-center text-xs text-slate-500 pt-2 border-t border-slate-100">
               Already have an account?{" "}
-              <Link href="/login" className="font-bold text-teal-600 hover:underline">
+              <Link href="/login" className="font-semibold text-teal-700 hover:underline">
                 Sign In
               </Link>
             </div>

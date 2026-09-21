@@ -94,16 +94,16 @@ export function Navbar() {
         </div>
 
         {/* Desktop Nav */}
-        <nav className="hidden md:flex items-center gap-1">
+        <nav className="hidden md:flex items-center h-full gap-6 lg:gap-8">
           {navItems.map((item) => {
             return (
               <Link
                 key={item.href}
                 href={item.href}
-                className={`px-3 py-1.5 text-sm font-medium rounded-md transition-colors ${
+                className={`h-full flex items-center text-sm transition-colors relative border-b-2 ${
                   item.isActive
-                    ? 'text-teal-800 bg-teal-50 font-semibold'
-                    : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
+                    ? 'border-teal-600 text-teal-800 font-semibold'
+                    : 'border-transparent text-slate-600 hover:text-slate-900 font-medium'
                 }`}
               >
                 <span>{item.label}</span>
@@ -163,15 +163,10 @@ export function Navbar() {
               )}
             </div>
           ) : (
-            <Link href="/login" className="hidden sm:inline-block">
-              <Button
-                variant="outline"
-                size="sm"
-                className="text-xs font-semibold rounded-md border-slate-300 text-slate-700 hover:bg-slate-100 cursor-pointer"
-              >
-                <UserIcon className="w-3.5 h-3.5 mr-1.5 text-slate-400" />
+            <Link href="/login" className="hidden sm:inline-flex items-center">
+              <span className="text-xs font-semibold text-slate-700 hover:text-teal-700 px-3 py-1.5 rounded-md border border-slate-300 hover:border-slate-400 bg-white transition-colors cursor-pointer shadow-2xs">
                 Sign In
-              </Button>
+              </span>
             </Link>
           )}
 
@@ -197,10 +192,10 @@ export function Navbar() {
                 key={item.href}
                 href={item.href}
                 onClick={() => setMobileMenuOpen(false)}
-                className={`flex items-center gap-3 px-3 py-2 rounded-md text-sm font-medium transition-colors ${
+                className={`flex items-center gap-3 px-3 py-2 text-sm transition-colors border-l-2 ${
                   item.isActive
-                    ? 'bg-teal-50 text-teal-800 font-semibold'
-                    : 'text-slate-700 hover:bg-slate-50'
+                    ? 'border-teal-600 text-teal-800 font-semibold pl-2.5'
+                    : 'border-transparent text-slate-700 hover:text-slate-900 font-medium'
                 }`}
               >
                 <Icon className={`w-4 h-4 ${item.isActive ? 'text-teal-700' : 'text-slate-400'}`} />

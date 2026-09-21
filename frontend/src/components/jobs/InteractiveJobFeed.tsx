@@ -1070,26 +1070,26 @@ export function InteractiveJobFeed({ initialJobs, stats, initialTotal, initialTo
   return (
     <div className="flex flex-col min-h-screen bg-slate-50">
       {/* Hero Section */}
-      <section className="bg-white border-b border-slate-200 px-4 py-4 sm:py-5">
+      <section className="bg-white border-b border-slate-200 px-4 py-6 sm:py-8">
         <div className="container mx-auto max-w-4xl">
           {/* Small supporting line */}
-          <div className="text-[11px] font-semibold text-teal-700 tracking-wide uppercase mb-1">
+          <div className="text-xs font-semibold text-teal-700 tracking-wide uppercase mb-1.5">
             Direct ATS Stream • Synced Every 1–2 Hours
           </div>
 
-          <h1 className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight leading-tight mb-3">
-            Find fresh opportunities before they get crowded
+          <h1 className="text-2xl sm:text-3xl md:text-4xl font-black text-slate-900 tracking-tight leading-tight mb-4 sm:mb-5">
+            Skip the wait — Be the first
           </h1>
 
-          {/* Large search field */}
+          {/* Canonical Search Field */}
           <div className="relative w-full">
-            <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400 pointer-events-none" />
+            <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-teal-600 w-5 h-5 pointer-events-none" />
             <input
               type="text"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="Search by role (e.g. Frontend Engineer, SDE), company, skills, or city..."
-              className="w-full pl-10 pr-10 py-2.5 sm:py-3 border border-slate-300 rounded-lg bg-white text-slate-900 placeholder-slate-400 text-sm sm:text-base focus:border-teal-600 focus:ring-2 focus:ring-teal-100 outline-none transition-all"
+              className="w-full pl-12 pr-10 py-3.5 rounded-2xl bg-white shadow-md border border-slate-200 text-slate-900 placeholder-slate-400 focus:ring-2 focus:ring-teal-500 outline-none text-sm transition-all"
             />
             {searchQuery && (
               <button
@@ -1097,7 +1097,7 @@ export function InteractiveJobFeed({ initialJobs, stats, initialTotal, initialTo
                 className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition-colors p-1"
                 title="Clear search"
               >
-                <X className="h-4 w-4" />
+                <X className="w-4 h-4" />
               </button>
             )}
           </div>
@@ -1273,8 +1273,8 @@ export function InteractiveJobFeed({ initialJobs, stats, initialTotal, initialTo
       </div>
 
       {/* Job Feed */}
-      <section id="job-results-section" className="py-4 bg-slate-50 flex-1 scroll-mt-28">
-        <div className="container mx-auto px-4 sm:px-6 max-w-4xl">
+      <section id="job-results-section" className="py-6 bg-slate-50 flex-1 scroll-mt-28">
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-[1440px]">
           <div className="flex items-center justify-between mb-4">
             <p className="text-xs sm:text-sm text-slate-600">
               Page {currentPage} of {totalPages} · <strong className="text-slate-900">{totalJobs.toLocaleString()}</strong> active jobs
@@ -1302,9 +1302,9 @@ export function InteractiveJobFeed({ initialJobs, stats, initialTotal, initialTo
             </div>
           )}
 
-          {/* Job List */}
+          {/* Job Grid */}
           {displayedJobs.length > 0 ? (
-            <div className="flex flex-col gap-2">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
               {displayedJobs.map((job) => (
                 <JobCard key={job.id} job={job} />
               ))}

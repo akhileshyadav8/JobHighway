@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { Bookmark, CheckCircle2 } from "lucide-react";
+import { MapPin, Clock, Bookmark, CheckCircle2 } from "lucide-react";
 import { Job } from "@/lib/api";
 import { formatSalary, formatRelativeTime, formatDate, sanitizeJobSkills } from "@/lib/utils";
 import { getCurrentUser, markJobApplied, isJobApplied, toggleBookmark, isJobBookmarked, User } from "@/lib/auth";
@@ -12,22 +12,6 @@ import { trackEvent } from "@/lib/telemetry";
 interface JobCardProps {
   job: Job;
 }
-
-// Freshness dot indicator from posted_at / first_seen_at
-function getFreshness(dateStr: string | null | undefined): { label: string; dotClass: string } | null {
-  if (!dateStr) return null;
-  const diffMs = Date.now() - new Date(dateStr).getTime();
-  if (isNaN(diffMs) || diffMs < 0) return null;
-  const diffMin = Math.floor(diffMs / 60000);
-  const diffHours = Math.floor(diffMs / 3600000);
-  const diffDays = Math.floor(diffMs / 86400000);
-  if (diffMin < 60)    return { label: diffMin <= 1 ? "just now" : `${diffMin} min ago`, dotClass: "bg-emerald-500" };
-  if (diffHours < 24)  return { label: `${diffHours}h ago`, dotClass: "bg-emerald-400" };
-  if (diffDays <= 3)   return { label: `${diffDays}d ago`, dotClass: "bg-amber-400" };
-  return { label: formatRelativeTime(dateStr) || "", dotClass: "bg-slate-300" };
-}
-
-const SENIOR_TITLE_REGEX = /\b(senior|sr\.?|lead|staff|principal|director|head of|vp|manager|architect|partner)\b/i;
 
 export function JobCard({ job }: JobCardProps) {
   const router = useRouter();
@@ -140,25 +124,13 @@ export function JobCard({ job }: JobCardProps) {
   };
 
   // Experience text
-  const expMin = job.experience_min;
-  const expMax = job.experience_max;
-  const isIntern =
-    job.employment_type?.toLowerCase().includes("intern") ||
-    job.title.toLowerCase().includes("intern");
-
-  const expText = expMin === 0
-    ? (isIntern ? "Intern" : "0–1 Yrs")
-    : expMin === 1
-    ? `1–${expMax || 3} Yrs`
-    : expMin !== null && expMin !== undefined
-    ? `${expMin}+ Yrs`
+  const expText = job.experience_min === 0
+    ? (job.employment_type?.toLowerCase().includes("intern") || job.title.toLowerCase().includes("intern") ? "Intern" : "0–1 Yrs")
+    : job.experience_min === 1
+    ? `1–${job.experience_max || 3} Yrs`
+    : job.experience_min !== null && job.experience_min !== undefined
+    ? `${job.experience_min}+ Yrs`
     : null;
-
-  // Fresher Friendly: only when data actually qualifies
-  const isFresherFriendly =
-    !SENIOR_TITLE_REGEX.test(job.title) &&
-    (expMin === 0 || expMin === null || expMin === undefined) &&
-    (expMax === null || expMax === undefined || expMax <= 2);
 
   // Location display
   const locationText = job.location && job.location.length > 0
@@ -193,44 +165,90 @@ export function JobCard({ job }: JobCardProps) {
   };
   const closingText = getClosingDateText();
 
-  // Freshness indicator
-  const freshness = getFreshness(job.posted_at || job.first_seen_at);
-
-  // Metadata line parts (location · mode · type — no exp, shown separately)
+  // Metadata line parts
   const metaParts: string[] = [];
   if (locationText) metaParts.push(locationText);
   if (job.work_mode) metaParts.push(job.work_mode);
   if (job.employment_type) metaParts.push(job.employment_type);
+  if (expText) metaParts.push(expText);
 
   return (
-    <article className="bg-white border border-slate-200 rounded-md px-4 py-3.5 hover:border-slate-300 hover:shadow-xs transition-all group">
+    <div className="bg-white border border-slate-200 rounded-lg p-4 hover:border-slate-300 transition-colors flex flex-col h-full">
+      {/* Title + Company */}
+      <div className="mb-2">
+        <Link href={`/jobs/${job.slug}`} onClick={handleJobClick}>
+          <h3 className="font-semibold text-[15px] leading-snug text-slate-900 hover:text-teal-700 transition-colors line-clamp-2">
+            {job.title}
+          </h3>
+        </Link>
+        <p className="text-sm font-medium text-slate-600 mt-0.5">
+          {job.company.name}
+        </p>
+      </div>
 
-      {/* Row 1: Title + bookmark/applied actions */}
-      <div className="flex items-start gap-3">
-        <div className="flex-1 min-w-0">
-          <div className="flex items-center gap-2 flex-wrap">
-            <Link href={`/jobs/${job.slug}`} onClick={handleJobClick} className="min-w-0">
-              <h3 className="font-semibold text-[15px] leading-snug text-slate-900 group-hover:text-teal-700 transition-colors line-clamp-1">
-                {job.title}
-              </h3>
-            </Link>
-            {isFresherFriendly && (
-              <span className="shrink-0 text-[10px] font-semibold text-teal-700 border border-teal-200 bg-teal-50 px-1.5 py-px rounded-sm leading-tight">
-                Fresher Friendly
-              </span>
-            )}
-          </div>
-          <p className="text-sm text-slate-500 mt-0.5 font-medium">{job.company.name}</p>
+      {/* Metadata line */}
+      {metaParts.length > 0 && (
+        <div className="flex items-start gap-1 text-xs text-slate-500 mb-2">
+          <MapPin className="w-3.5 h-3.5 mt-0.5 shrink-0 text-slate-400" />
+          <span className="line-clamp-1">{metaParts.join(" · ")}</span>
         </div>
+      )}
 
-        {/* Bookmark + Mark Applied — top-right */}
-        <div className="flex items-center gap-1 shrink-0 mt-0.5">
+      {/* Salary */}
+      {salaryText && salaryText !== "Not Disclosed" && (
+        <p className="text-sm font-semibold text-slate-900 mb-2">
+          {salaryText}
+        </p>
+      )}
+
+      {/* Batch & Closing Date (Restored) */}
+      {(batchText || closingText) && (
+        <div className="flex flex-wrap items-center gap-2 text-xs mb-2">
+          {batchText && (
+            <span className="bg-slate-100 text-slate-700 px-2 py-0.5 rounded text-[11px] font-medium">
+              Batch: {batchText}
+            </span>
+          )}
+          {closingText && (
+            <span className="text-amber-800 text-[11px] font-medium">
+              {closingText}
+            </span>
+          )}
+        </div>
+      )}
+
+      {/* Skills */}
+      {displaySkills && displaySkills.length > 0 && (
+        <div className="flex flex-wrap gap-1 mt-auto pt-2">
+          {displaySkills.slice(0, 4).map((skill, i) => (
+            <span key={i} className="text-[11px] bg-slate-100 px-1.5 py-0.5 rounded text-slate-600">
+              {skill}
+            </span>
+          ))}
+          {displaySkills.length > 4 && (
+            <span className="text-[11px] text-slate-400 self-center">
+              +{displaySkills.length - 4}
+            </span>
+          )}
+        </div>
+      )}
+
+      {/* Footer */}
+      <div className="flex items-center justify-between mt-3 pt-3 border-t border-slate-100">
+        <span className="flex items-center gap-1 text-xs text-slate-400" suppressHydrationWarning>
+          <Clock className="w-3 h-3" />
+          <span suppressHydrationWarning>{formatRelativeTime(job.posted_at || job.first_seen_at)}</span>
+        </span>
+
+        <div className="flex items-center gap-1.5">
           {!isAdmin && (
             <>
               <button
                 onClick={handleToggleBookmark}
                 className={`p-1.5 rounded transition-colors cursor-pointer ${
-                  bookmarked ? "text-slate-900" : "text-slate-400 hover:text-slate-600"
+                  bookmarked
+                    ? "text-slate-900"
+                    : "text-slate-400 hover:text-slate-600"
                 }`}
                 title={bookmarked ? "Saved" : "Save"}
               >
@@ -240,7 +258,9 @@ export function JobCard({ job }: JobCardProps) {
               <button
                 onClick={handleQuickMarkApplied}
                 className={`p-1.5 rounded transition-colors cursor-pointer ${
-                  applied ? "text-emerald-600" : "text-slate-400 hover:text-emerald-600"
+                  applied
+                    ? "text-emerald-600"
+                    : "text-slate-400 hover:text-emerald-600"
                 }`}
                 title={applied ? "Tracked as Applied" : "Mark as Applied"}
               >
@@ -248,68 +268,11 @@ export function JobCard({ job }: JobCardProps) {
               </button>
             </>
           )}
-        </div>
-      </div>
 
-      {/* Row 2: Location · Mode · Type */}
-      {metaParts.length > 0 && (
-        <p className="mt-1.5 text-xs text-slate-500 line-clamp-1">
-          {metaParts.join(" · ")}
-        </p>
-      )}
-
-      {/* Row 3: Salary (if available) */}
-      {salaryText && salaryText !== "Not Disclosed" && (
-        <p className="mt-1 text-sm font-semibold text-slate-800">{salaryText}</p>
-      )}
-
-      {/* Row 4: Experience · Batch · Deadline */}
-      {(expText || batchText || closingText) && (
-        <div className="mt-1.5 flex flex-wrap items-center gap-x-3 gap-y-1 text-[11px]">
-          {expText && (
-            <span className="text-slate-500">
-              <span className="font-medium text-slate-700">{expText}</span> exp
-            </span>
-          )}
-          {batchText && (
-            <span className="bg-slate-100 text-slate-600 px-1.5 py-px rounded font-medium">
-              Batch {batchText}
-            </span>
-          )}
-          {closingText && (
-            <span className="text-amber-700 font-medium">{closingText}</span>
-          )}
-        </div>
-      )}
-
-      {/* Row 5: Skills */}
-      {displaySkills && displaySkills.length > 0 && (
-        <div className="mt-2 flex flex-wrap gap-1">
-          {displaySkills.slice(0, 5).map((skill, i) => (
-            <span key={i} className="text-[11px] bg-slate-50 border border-slate-200 px-1.5 py-px rounded text-slate-600">
-              {skill}
-            </span>
-          ))}
-          {displaySkills.length > 5 && (
-            <span className="text-[11px] text-slate-400 self-center">+{displaySkills.length - 5}</span>
-          )}
-        </div>
-      )}
-
-      {/* Row 6: Footer — freshness dot + CTA buttons */}
-      <div className="mt-3 pt-2.5 border-t border-slate-100 flex items-center justify-between gap-2">
-        <span className="flex items-center gap-1.5 text-xs text-slate-400" suppressHydrationWarning>
-          {freshness && (
-            <span className={`inline-block w-1.5 h-1.5 rounded-full shrink-0 ${freshness.dotClass}`} />
-          )}
-          <span suppressHydrationWarning>{freshness?.label || ""}</span>
-        </span>
-
-        <div className="flex items-center gap-1.5">
           <Link
             href={`/jobs/${job.slug}`}
             onClick={handleJobClick}
-            className="px-2.5 py-1 text-xs font-medium text-slate-600 border border-slate-200 rounded hover:bg-slate-50 transition-colors"
+            className="px-2.5 py-1 text-xs font-medium text-slate-700 border border-slate-200 rounded hover:bg-slate-50 transition-colors"
           >
             Details
           </Link>
@@ -327,6 +290,6 @@ export function JobCard({ job }: JobCardProps) {
           )}
         </div>
       </div>
-    </article>
+    </div>
   );
 }

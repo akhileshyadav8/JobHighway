@@ -52,41 +52,44 @@ export default function BlogPage() {
 
         {/* Search & Category Filter Controls */}
         <div className="mb-10 space-y-4">
-          {/* Search Input */}
-          <div className="relative max-w-md mx-auto">
-            <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+          {/* Canonical Search Input */}
+          <div className="relative max-w-lg mx-auto">
+            <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-teal-600 w-5 h-5 pointer-events-none" />
             <input
               type="text"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="Search interview questions, ATS tips, SQL, DSA..."
-              className="w-full pl-10 pr-10 py-2.5 bg-white border border-slate-200 rounded-full text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-teal-500/30 shadow-2xs"
+              className="w-full pl-12 pr-10 py-3.5 rounded-2xl bg-white shadow-md border border-slate-200 text-slate-900 placeholder-slate-400 focus:ring-2 focus:ring-teal-500 outline-none text-sm transition-all"
             />
             {searchQuery && (
               <button
                 onClick={() => setSearchQuery("")}
-                className="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 "
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
               >
                 <X className="w-4 h-4" />
               </button>
             )}
           </div>
 
-          {/* Category Tabs */}
-          <div className="flex items-center justify-center gap-1.5 flex-wrap">
-            {CATEGORIES.map((cat) => (
-              <button
-                key={cat}
-                onClick={() => setSelectedCategory(cat)}
-                className={`px-3.5 py-1.5 rounded-full text-xs font-semibold transition-all shadow-2xs ${
-                  selectedCategory === cat
-                    ? "bg-teal-600 text-white shadow-sm"
-                    : "bg-white text-slate-600 hover:bg-slate-100 border border-slate-200 "
-                }`}
-              >
-                {cat}
-              </button>
-            ))}
+          {/* Understated Category Navigation Tabs */}
+          <div className="flex items-center justify-center gap-6 sm:gap-8 border-b border-slate-200 overflow-x-auto pb-0 pt-2">
+            {CATEGORIES.map((cat) => {
+              const isActive = selectedCategory === cat;
+              return (
+                <button
+                  key={cat}
+                  onClick={() => setSelectedCategory(cat)}
+                  className={`pb-3 text-xs sm:text-sm transition-colors whitespace-nowrap cursor-pointer relative -mb-px border-b-2 ${
+                    isActive
+                      ? "border-teal-600 text-teal-700 font-semibold"
+                      : "border-transparent text-slate-500 hover:text-slate-900 font-medium"
+                  }`}
+                >
+                  {cat}
+                </button>
+              );
+            })}
           </div>
 
           {/* Results counter */}

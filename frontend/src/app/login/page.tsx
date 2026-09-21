@@ -55,14 +55,11 @@ export default function LoginPage() {
       <div className="w-full max-w-md">
         {/* Header */}
         <div className="text-center mb-6">
-          <span className="text-xs font-semibold text-teal-700 uppercase tracking-wider">
-            Candidate Portal
-          </span>
-          <h1 className="text-2xl sm:text-3xl font-bold text-slate-900 tracking-tight mt-1">
-            Sign In to Candidate Dashboard
+          <h1 className="text-2xl sm:text-3xl font-bold text-slate-900 tracking-tight">
+            Sign In
           </h1>
           <p className="text-xs sm:text-sm text-slate-500 mt-1.5">
-            Track your applied opportunities and manage your profile.
+            Enter your email and password to access your account.
           </p>
         </div>
 
@@ -119,7 +116,7 @@ export default function LoginPage() {
                 className="w-full py-2.5 rounded-lg bg-teal-600 hover:bg-teal-700 text-white font-semibold text-sm transition-colors flex items-center justify-center gap-2 cursor-pointer"
               >
                 <LogIn className="w-4 h-4" />
-                <span>{isLoading ? "Signing in..." : "Continue to Dashboard"}</span>
+                <span>{isLoading ? "Signing in..." : "Sign In"}</span>
               </Button>
             </form>
 
