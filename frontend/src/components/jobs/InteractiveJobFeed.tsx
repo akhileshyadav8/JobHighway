@@ -6,6 +6,7 @@ import { JobCard } from "@/components/jobs/JobCard";
 import { Search, X, RotateCcw, MapPin, Globe, Building2, ArrowUpDown, Navigation, Briefcase, GraduationCap, Laptop } from "lucide-react";
 import { ALL_WORLD_COUNTRIES, COUNTRY_STATES, STATE_CITIES } from "@/lib/world_locations";
 import { SearchableSelect } from "@/components/ui/SearchableSelect";
+import { DynamicHeroPoster } from "@/components/jobs/DynamicHeroPoster";
 
 const FILTER_CONFIG = {
   "Job Type": ["All", "Full Time", "Internship", "Contract"],
@@ -1070,49 +1071,85 @@ export function InteractiveJobFeed({ initialJobs, stats, initialTotal, initialTo
   return (
     <div className="flex flex-col min-h-screen bg-slate-50">
       {/* Hero Section */}
-      <section className="bg-white border-b border-slate-200 px-4 py-6 sm:py-8">
-        <div className="container mx-auto max-w-4xl">
-          {/* Small supporting line */}
-          <div className="text-xs font-semibold text-teal-700 tracking-wide uppercase mb-1.5">
-            Direct ATS Stream • Synced Every 1–2 Hours
-          </div>
+      <section className="bg-white border-b border-slate-200 px-4 py-8 sm:py-10">
+        <div className="container mx-auto max-w-[1440px]">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-10 items-center">
+            {/* Left Discovery Column (7 cols) */}
+            <div className="lg:col-span-7 flex flex-col justify-center">
+              {/* Supporting stream badge */}
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-teal-50 border border-teal-200 text-teal-800 text-xs font-bold uppercase tracking-wider mb-3 w-fit">
+                <span className="relative flex h-2 w-2">
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-teal-400 opacity-75" />
+                  <span className="relative inline-flex rounded-full h-2 w-2 bg-teal-500" />
+                </span>
+                Direct ATS Stream • Synced Every 1–2 Hours
+              </div>
 
-          <h1 className="text-2xl sm:text-3xl md:text-4xl font-black text-slate-900 tracking-tight leading-tight mb-4 sm:mb-5">
-            Discover official tech jobs before they hit applicant caps
-          </h1>
+              <h1 className="text-3xl sm:text-4xl md:text-5xl font-black text-slate-900 tracking-tight leading-[1.15] mb-4">
+                Discover official tech jobs before they hit applicant caps
+              </h1>
 
-          {/* Large search field */}
-          <div className="relative w-full">
-            <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400 pointer-events-none" />
-            <input
-              type="text"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Search by role (e.g. Frontend Engineer, SDE), company, skills, or city..."
-              className="w-full pl-10 pr-10 py-2.5 sm:py-3 border border-slate-300 rounded-lg bg-white text-slate-900 placeholder-slate-400 text-sm sm:text-base focus:border-teal-600 focus:ring-2 focus:ring-teal-100 outline-none transition-all"
-            />
-            {searchQuery && (
-              <button
-                onClick={() => setSearchQuery("")}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition-colors p-1"
-                title="Clear search"
-              >
-                <X className="h-4 w-4" />
-              </button>
-            )}
-          </div>
+              {/* Large search field */}
+              <div className="relative w-full mb-3">
+                <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400 pointer-events-none" />
+                <input
+                  type="text"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  placeholder="Search by role (e.g. SDE, Frontend), company, skills, or city..."
+                  className="w-full pl-10 pr-10 py-3 border border-slate-300 rounded-xl bg-white text-slate-900 placeholder-slate-400 text-sm sm:text-base focus:border-teal-600 focus:ring-2 focus:ring-teal-100 outline-none transition-all shadow-2xs"
+                />
+                {searchQuery && (
+                  <button
+                    onClick={() => setSearchQuery("")}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition-colors p-1 cursor-pointer"
+                    title="Clear search"
+                  >
+                    <X className="h-4 w-4" />
+                  </button>
+                )}
+              </div>
 
-          {/* Small factual job/company statistics */}
-          <div className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-slate-500">
-            <span>
-              <strong className="text-slate-900 font-semibold">{totalJobs.toLocaleString()}</strong> active opportunities
-            </span>
-            <span className="text-slate-300">·</span>
-            <span>
-              <strong className="text-slate-900 font-semibold">{(stats?.total_companies || availableCompanies.length).toLocaleString()}</strong> verified portals
-            </span>
-            <span className="text-slate-300">·</span>
-            <span>Last 30 days only</span>
+              {/* Quick Search Recommendations */}
+              <div className="flex flex-wrap items-center gap-1.5 mb-4 text-xs">
+                <span className="text-slate-400 font-medium mr-1">Popular:</span>
+                {[
+                  "Software Engineer",
+                  "Frontend",
+                  "Backend",
+                  "Intern",
+                  "Remote",
+                  "Data Analyst",
+                  "2025 Batch"
+                ].map((tag) => (
+                  <button
+                    key={tag}
+                    onClick={() => setSearchQuery(tag)}
+                    className="px-2.5 py-1 rounded-lg bg-slate-100 hover:bg-teal-50 hover:text-teal-700 hover:border-teal-200 border border-slate-200/80 text-slate-600 font-medium transition-colors cursor-pointer"
+                  >
+                    {tag}
+                  </button>
+                ))}
+              </div>
+
+              {/* Small factual job/company statistics */}
+              <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-slate-500 pt-3 border-t border-slate-100">
+                <span>
+                  <strong className="text-slate-900 font-semibold">{totalJobs.toLocaleString()}</strong> active opportunities
+                </span>
+                <span className="text-slate-300">·</span>
+                <span>
+                  <strong className="text-slate-900 font-semibold">{(stats?.total_companies || availableCompanies.length).toLocaleString()}</strong> verified portals
+                </span>
+                <span className="text-slate-300">·</span>
+                <span>Last 30 days only</span>
+              </div>
+            </div>
+
+            {/* Right Dynamic Live Poster Column (5 cols) */}
+            <div className="lg:col-span-5">
+              <DynamicHeroPoster jobs={initialJobs && initialJobs.length > 0 ? initialJobs : jobsList} />
+            </div>
           </div>
         </div>
       </section>
