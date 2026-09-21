@@ -173,12 +173,12 @@ export function SearchableSelect({
         aria-expanded={isOpen}
         disabled={disabled || loading}
         onClick={() => setIsOpen((prev) => !prev)}
-        className={`w-full flex items-center justify-between pl-7 sm:pl-8 pr-2 py-1.5 sm:py-2 text-[11px] sm:text-xs md:text-sm font-medium border rounded-lg sm:rounded-xl shadow-2xs transition-all text-left outline-none cursor-pointer ${
+        className={`w-full flex items-center justify-between pl-7 sm:pl-8 pr-2 py-1.5 sm:py-2 text-[11px] sm:text-xs md:text-sm font-medium border rounded-md shadow-2xs transition-all text-left outline-none cursor-pointer ${
           disabled || loading
-            ? "bg-slate-100/70 dark:bg-slate-900/40 border-slate-200 dark:border-slate-800 text-slate-400 cursor-not-allowed"
+            ? "bg-slate-100 border-slate-200 text-slate-400 cursor-not-allowed"
             : isOpen
-            ? "bg-white dark:bg-slate-900 border-slate-400 dark:border-slate-600 ring-2 ring-slate-200 dark:ring-slate-800 text-slate-900 dark:text-slate-100"
-            : "bg-slate-50 dark:bg-slate-900 border-slate-200 dark:border-slate-800 text-slate-800 dark:text-slate-100 hover:border-slate-300 dark:hover:border-slate-700"
+            ? "bg-white border-slate-400 ring-1 ring-slate-300 text-slate-900"
+            : "bg-white border-slate-200 text-slate-800 hover:border-slate-300"
         }`}
       >
         {/* Leading Icon */}
@@ -200,16 +200,16 @@ export function SearchableSelect({
         {/* Trailing Down Chevron */}
         <ChevronDown
           className={`w-3 h-3 sm:w-3.5 sm:h-3.5 text-slate-400 shrink-0 transition-transform duration-150 ${
-            isOpen ? "rotate-180 text-slate-600 dark:text-slate-300" : ""
+            isOpen ? "rotate-180 text-slate-600" : ""
           }`}
         />
       </button>
 
       {/* Dropdown Popover */}
       {isOpen && (
-        <div className={`absolute ${alignRight ? "right-0" : "left-0"} top-full mt-1.5 w-full min-w-[200px] sm:min-w-[220px] max-w-[calc(100vw-24px)] sm:max-w-sm bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl shadow-xl z-50 overflow-hidden animate-in fade-in-0 zoom-in-95 duration-100`}>
+        <div className={`absolute ${alignRight ? "right-0" : "left-0"} top-full mt-1.5 w-full min-w-[200px] sm:min-w-[220px] max-w-[calc(100vw-24px)] sm:max-w-sm bg-white border border-slate-200 rounded-lg shadow-lg z-50 overflow-hidden`}>
           {/* Search Input Bar */}
-          <div className="p-2 border-b border-slate-100 dark:border-slate-800/80 bg-slate-50/70 dark:bg-slate-950/50">
+          <div className="p-2 border-b border-slate-100 bg-slate-50">
             <div className="relative flex items-center">
               <Search className="w-3.5 h-3.5 text-slate-400 absolute left-2.5 pointer-events-none" />
               <input
@@ -218,13 +218,13 @@ export function SearchableSelect({
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder={searchPlaceholder}
-                className="w-full pl-8 pr-7 py-1.5 text-xs bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-lg text-slate-900 dark:text-slate-100 placeholder-slate-400 focus:outline-none focus:ring-1 focus:ring-slate-400 dark:focus:ring-slate-600 focus:border-transparent transition-all"
+                className="w-full pl-8 pr-7 py-1.5 text-xs bg-white border border-slate-200 rounded text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-1 focus:ring-slate-400 focus:border-transparent transition-all"
               />
               {searchQuery && (
                 <button
                   type="button"
                   onClick={() => setSearchQuery("")}
-                  className="absolute right-2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 p-0.5"
+                  className="absolute right-2 text-slate-400 hover:text-slate-600 p-0.5"
                 >
                   <X className="w-3 h-3" />
                 </button>
@@ -235,7 +235,7 @@ export function SearchableSelect({
           {/* Options List */}
           <div
             ref={listRef}
-            className="max-h-60 overflow-y-auto p-1 scrollbar-thin scrollbar-thumb-slate-200 dark:scrollbar-thumb-slate-800"
+            className="max-h-60 overflow-y-auto p-1 scrollbar-thin scrollbar-thumb-slate-200"
           >
             {filteredOptions.length > 0 ? (
               filteredOptions.map((option, idx) => {
@@ -248,15 +248,15 @@ export function SearchableSelect({
                     type="button"
                     onClick={() => handleSelect(option.value)}
                     onMouseEnter={() => setHighlightedIndex(idx)}
-                    className={`w-full flex items-center justify-between px-2.5 py-1.5 text-xs rounded-md text-left transition-colors cursor-pointer ${
+                    className={`w-full flex items-center justify-between px-2.5 py-1.5 text-xs rounded text-left transition-colors cursor-pointer ${
                       isHighlighted
-                        ? "bg-slate-100 dark:bg-slate-800 text-slate-900 dark:text-white"
-                        : "text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800/50"
-                    } ${isSelected ? "font-semibold text-slate-900 dark:text-white" : ""}`}
+                        ? "bg-slate-100 text-slate-900"
+                        : "text-slate-700 hover:bg-slate-50"
+                    } ${isSelected ? "font-semibold text-slate-900 bg-slate-50" : ""}`}
                   >
                     <span className="truncate pr-2">{option.label}</span>
                     {isSelected && (
-                      <Check className="w-3.5 h-3.5 text-slate-900 dark:text-white shrink-0" />
+                      <Check className="w-3.5 h-3.5 text-teal-700 shrink-0" />
                     )}
                   </button>
                 );

@@ -26,7 +26,7 @@ export async function GET(request: Request) {
 
   const states = State.getStatesOfCountry(country.isoCode);
   const result = [
-    { label: `📍 All States in ${country.name}`, value: 'All', code: 'All' },
+    { label: `All States in ${country.name}`, value: 'All', code: 'All' },
     ...states.map(s => ({
       label: s.name,
       value: s.name,

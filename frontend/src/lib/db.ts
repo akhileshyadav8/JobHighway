@@ -144,6 +144,10 @@ export async function getLiveJobsPaginated(params: JobFilterParams = {}): Promis
     if (params.country && params.country !== 'All') {
       if (params.country === 'Remote') {
         conditions.push(`(j.work_mode ILIKE '%remote%' OR array_to_string(j.location, ' ') ILIKE '%remote%')`);
+      } else if (params.country.toLowerCase() === 'india') {
+        conditions.push(`(array_to_string(j.location, ' ') ILIKE '%india%' OR array_to_string(j.location, ' ') ILIKE '%bengaluru%' OR array_to_string(j.location, ' ') ILIKE '%bangalore%' OR array_to_string(j.location, ' ') ILIKE '%mumbai%' OR array_to_string(j.location, ' ') ILIKE '%delhi%' OR array_to_string(j.location, ' ') ILIKE '%hyderabad%' OR array_to_string(j.location, ' ') ILIKE '%pune%' OR array_to_string(j.location, ' ') ILIKE '%chennai%' OR array_to_string(j.location, ' ') ILIKE '%noida%' OR array_to_string(j.location, ' ') ILIKE '%gurgaon%')`);
+      } else if (params.country.toLowerCase() === 'united states' || params.country.toLowerCase() === 'usa') {
+        conditions.push(`(array_to_string(j.location, ' ') ILIKE '%united states%' OR array_to_string(j.location, ' ') ILIKE '%usa%' OR array_to_string(j.location, ' ') ILIKE '%san francisco%' OR array_to_string(j.location, ' ') ILIKE '%new york%' OR array_to_string(j.location, ' ') ILIKE '%seattle%' OR array_to_string(j.location, ' ') ILIKE '%california%' OR array_to_string(j.location, ' ') ILIKE '%austin%')`);
       } else {
         const cTerm = `%${params.country}%`;
         conditions.push(`array_to_string(j.location, ' ') ILIKE $${paramIdx}`);
@@ -162,10 +166,21 @@ export async function getLiveJobsPaginated(params: JobFilterParams = {}): Promis
 
     // 4. City
     if (params.city && params.city !== 'All') {
-      const cityTerm = `%${params.city}%`;
-      conditions.push(`array_to_string(j.location, ' ') ILIKE $${paramIdx}`);
-      values.push(cityTerm);
-      paramIdx++;
+      const cityLower = params.city.toLowerCase().trim();
+      if (cityLower === 'bengaluru' || cityLower === 'bangalore') {
+        conditions.push(`(array_to_string(j.location, ' ') ILIKE '%bengaluru%' OR array_to_string(j.location, ' ') ILIKE '%bangalore%' OR array_to_string(j.location, ' ') ILIKE '%blr%')`);
+      } else if (cityLower === 'gurgaon' || cityLower === 'gurugram') {
+        conditions.push(`(array_to_string(j.location, ' ') ILIKE '%gurgaon%' OR array_to_string(j.location, ' ') ILIKE '%gurugram%')`);
+      } else if (cityLower === 'delhi' || cityLower === 'new delhi') {
+        conditions.push(`(array_to_string(j.location, ' ') ILIKE '%delhi%' OR array_to_string(j.location, ' ') ILIKE '%ncr%' OR array_to_string(j.location, ' ') ILIKE '%noida%' OR array_to_string(j.location, ' ') ILIKE '%gurgaon%')`);
+      } else if (cityLower === 'mumbai' || cityLower === 'bombay') {
+        conditions.push(`(array_to_string(j.location, ' ') ILIKE '%mumbai%' OR array_to_string(j.location, ' ') ILIKE '%bombay%' OR array_to_string(j.location, ' ') ILIKE '%thane%')`);
+      } else {
+        const cityTerm = `%${params.city.trim()}%`;
+        conditions.push(`array_to_string(j.location, ' ') ILIKE $${paramIdx}`);
+        values.push(cityTerm);
+        paramIdx++;
+      }
     }
 
     // 5. Company

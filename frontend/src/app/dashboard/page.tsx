@@ -41,33 +41,33 @@ import {
 const STATUS_CONFIG: Record<ApplicationStatus, { label: string; color: string; bg: string; border: string }> = {
   "Applied": {
     label: "Applied",
-    color: "text-blue-700 dark:text-blue-300",
-    bg: "bg-blue-50 dark:bg-blue-950/50",
-    border: "border-blue-200 dark:border-blue-800"
+    color: "text-blue-700",
+    bg: "bg-blue-50",
+    border: "border-blue-200"
   },
   "Under Review": {
     label: "Under Review",
-    color: "text-amber-700 dark:text-amber-300",
-    bg: "bg-amber-50 dark:bg-amber-950/50",
-    border: "border-amber-200 dark:border-amber-800"
+    color: "text-amber-700",
+    bg: "bg-amber-50",
+    border: "border-amber-200"
   },
   "Interview": {
     label: "Interviewing",
-    color: "text-purple-700 dark:text-purple-300",
-    bg: "bg-purple-50 dark:bg-purple-950/50",
-    border: "border-purple-200 dark:border-purple-800"
+    color: "text-purple-700",
+    bg: "bg-purple-50",
+    border: "border-purple-200"
   },
   "Offer": {
     label: "Offer Received 🎉",
-    color: "text-emerald-700 dark:text-emerald-300",
-    bg: "bg-emerald-50 dark:bg-emerald-950/50",
-    border: "border-emerald-200 dark:border-emerald-800"
+    color: "text-emerald-700",
+    bg: "bg-emerald-50",
+    border: "border-emerald-200"
   },
   "Rejected": {
     label: "Archived / Rejected",
-    color: "text-slate-600 dark:text-slate-400",
-    bg: "bg-slate-100 dark:bg-slate-800/60",
-    border: "border-slate-200 dark:border-slate-700"
+    color: "text-slate-600",
+    bg: "bg-slate-100",
+    border: "border-slate-200"
   }
 };
 
@@ -100,9 +100,21 @@ export default function DashboardPage() {
   };
 
   useEffect(() => {
+    const curUser = getCurrentUser();
+    if (curUser && curUser.role === "admin") {
+      router.replace("/admin");
+      return;
+    }
     loadData();
 
-    const handleAuth = () => loadData();
+    const handleAuth = () => {
+      const u = getCurrentUser();
+      if (u && u.role === "admin") {
+        router.replace("/admin");
+        return;
+      }
+      loadData();
+    };
     window.addEventListener("jobpulse_auth_change", handleAuth);
     window.addEventListener("jobpulse_applications_change", handleAuth);
     window.addEventListener("jobpulse_bookmarks_change", handleAuth);
@@ -112,7 +124,7 @@ export default function DashboardPage() {
       window.removeEventListener("jobpulse_applications_change", handleAuth);
       window.removeEventListener("jobpulse_bookmarks_change", handleAuth);
     };
-  }, []);
+  }, [router]);
 
   const handleLogout = () => {
     logoutUser();
@@ -160,27 +172,48 @@ export default function DashboardPage() {
     }
   };
 
+  if (user?.role === "admin") {
+    return (
+      <div className="min-h-[calc(100vh-4rem)] bg-slate-50 py-16 px-4 flex items-center justify-center">
+        <Card className="max-w-md w-full text-center p-6 border-slate-200 bg-white rounded-xl shadow-sm">
+          <Shield className="w-8 h-8 text-teal-600 mx-auto mb-3" />
+          <h2 className="text-lg font-bold text-slate-900 mb-1">
+            Administrative Console Only
+          </h2>
+          <p className="text-xs text-slate-500 mb-4">
+            Administrator accounts have access restricted to system administration and cannot be used for candidate application tracking.
+          </p>
+          <Link href="/admin">
+            <Button className="bg-teal-600 hover:bg-teal-700 text-white text-xs font-semibold rounded-lg cursor-pointer">
+              Go to Admin Console
+            </Button>
+          </Link>
+        </Card>
+      </div>
+    );
+  }
+
   if (!user) {
     return (
-      <div className="min-h-screen bg-slate-50 dark:bg-slate-950 py-20 px-4 flex items-center justify-center">
-        <Card className="max-w-md w-full text-center p-8 border-slate-200 dark:border-slate-800 dark:bg-slate-900 rounded-3xl shadow-xl">
-          <div className="w-12 h-12 rounded-2xl bg-teal-50 dark:bg-teal-950/60 text-teal-600 dark:text-teal-400 flex items-center justify-center mx-auto mb-4">
-            <UserIcon className="w-6 h-6" />
+      <div className="min-h-[calc(100vh-4rem)] bg-slate-50 py-16 px-4 flex items-center justify-center">
+        <Card className="max-w-md w-full text-center p-6 border-slate-200 bg-white rounded-xl shadow-sm">
+          <div className="w-10 h-10 rounded-lg bg-teal-50 text-teal-600 flex items-center justify-center mx-auto mb-3">
+            <UserIcon className="w-5 h-5" />
           </div>
-          <h2 className="text-2xl font-bold text-slate-900 dark:text-white mb-2">
+          <h2 className="text-xl font-bold text-slate-900 mb-1">
             Candidate Dashboard
           </h2>
-          <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mb-6">
-            Sign in to track your job applications, view saved roles, and customize CTC preferences.
+          <p className="text-xs text-slate-500 mb-5">
+            Sign in to track your job applications, view saved roles, and customize preferences.
           </p>
-          <div className="flex flex-col gap-2.5">
+          <div className="flex flex-col gap-2">
             <Link href="/login">
-              <Button className="w-full bg-teal-600 hover:bg-teal-500 text-white font-bold rounded-xl cursor-pointer">
+              <Button className="w-full bg-teal-600 hover:bg-teal-700 text-white font-semibold rounded-lg cursor-pointer">
                 Sign In to View Dashboard
               </Button>
             </Link>
             <Link href="/register">
-              <Button variant="outline" className="w-full rounded-xl cursor-pointer">
+              <Button variant="outline" className="w-full rounded-lg cursor-pointer">
                 Create Free Account
               </Button>
             </Link>
@@ -205,52 +238,36 @@ export default function DashboardPage() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 dark:bg-slate-950 py-10 sm:py-12">
+    <div className="min-h-screen bg-slate-50 py-8 sm:py-10">
       <div className="container mx-auto px-4 max-w-6xl">
 
         {/* User Top Profile Bar */}
-        <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-6 sm:p-8 mb-8 shadow-sm flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
-          <div className="flex items-center gap-4">
-            <div className="w-14 h-14 rounded-2xl bg-gradient-to-tr from-teal-600 to-cyan-500 text-white flex items-center justify-center font-black text-xl shadow-md">
+        <div className="bg-white border border-slate-200 rounded-xl p-5 sm:p-6 mb-6 shadow-xs flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+          <div className="flex items-center gap-3.5">
+            <div className="w-11 h-11 rounded-lg bg-teal-600 text-white flex items-center justify-center font-bold text-lg">
               {user.name.charAt(0)}
             </div>
             <div>
-              <div className="flex items-center gap-2">
-                <h1 className="text-xl sm:text-2xl font-black text-slate-900 dark:text-white">
-                  {user.name}
-                </h1>
-                {user.role === "admin" && (
-                  <span className="text-[10px] font-bold text-teal-700 dark:text-teal-300 bg-teal-50 dark:bg-teal-950/80 px-2.5 py-0.5 rounded-full border border-teal-200 dark:border-teal-800 inline-flex items-center gap-1">
-                    <Shield className="w-3 h-3" />
-                    Founder / Admin
-                  </span>
-                )}
-              </div>
-              <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+              <h1 className="text-lg sm:text-xl font-bold text-slate-900">
+                {user.name}
+              </h1>
+              <p className="text-xs text-slate-500 mt-0.5">
                 {user.email} • Candidate Member since {new Date(user.createdAt).toLocaleDateString("en-US", { month: "short", year: "numeric" })}
               </p>
             </div>
           </div>
 
-          <div className="flex items-center gap-2.5 w-full md:w-auto">
-            {user.role === "admin" && (
-              <Link href="/admin">
-                <Button variant="outline" className="text-xs font-bold border-teal-300 dark:border-teal-800 text-teal-700 dark:text-teal-300 rounded-xl cursor-pointer">
-                  <Shield className="w-3.5 h-3.5 mr-1" />
-                  Admin Panel
-                </Button>
-              </Link>
-            )}
+          <div className="flex items-center gap-2 w-full md:w-auto">
             <Link href="/">
-              <Button className="text-xs font-bold bg-teal-600 hover:bg-teal-500 text-white rounded-xl shadow-xs cursor-pointer">
-                <Briefcase className="w-3.5 h-3.5 mr-1" />
+              <Button className="text-xs font-semibold bg-teal-600 hover:bg-teal-700 text-white rounded-lg cursor-pointer">
+                <Briefcase className="w-3.5 h-3.5 mr-1.5" />
                 Find New Openings
               </Button>
             </Link>
             <Button
               onClick={handleLogout}
-              variant="ghost"
-              className="text-xs text-rose-600 hover:text-rose-700 hover:bg-rose-50 dark:hover:bg-rose-950/40 rounded-xl cursor-pointer"
+              variant="outline"
+              className="text-xs text-slate-600 hover:text-slate-900 border-slate-200 rounded-lg cursor-pointer"
             >
               <LogOut className="w-3.5 h-3.5 mr-1" />
               Sign Out

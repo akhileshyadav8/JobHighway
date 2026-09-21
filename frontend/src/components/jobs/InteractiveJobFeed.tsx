@@ -3,15 +3,14 @@
 import { useState, useMemo, useEffect, useCallback, useRef } from "react";
 import { Job, OverviewStats } from "@/lib/api";
 import { JobCard } from "@/components/jobs/JobCard";
-import { Search, X, RotateCcw, MapPin, Globe, Building2, ArrowUpDown, Navigation, Briefcase, GraduationCap, Laptop, Coins } from "lucide-react";
+import { Search, X, RotateCcw, MapPin, Globe, Building2, ArrowUpDown, Navigation, Briefcase, GraduationCap, Laptop } from "lucide-react";
 import { ALL_WORLD_COUNTRIES, COUNTRY_STATES, STATE_CITIES } from "@/lib/world_locations";
 import { SearchableSelect } from "@/components/ui/SearchableSelect";
 
 const FILTER_CONFIG = {
   "Job Type": ["All", "Full Time", "Internship", "Contract"],
   "Work Mode": ["All", "Remote", "Hybrid", "Onsite"],
-  "Experience": ["All", "0-1", "1-3", "3-5", "5+"],
-  "Salary": ["All", "High Salary", "Mid Salary", "Entry Level"]
+  "Experience": ["All", "0-1", "1-3", "3-5", "5+"]
 };
 
 const SENIOR_TITLE_REGEX = /\b(senior|sr\.?|lead|staff|principal|director|head of|vp|manager|architect|partner)\b/i;
@@ -204,8 +203,7 @@ export function InteractiveJobFeed({ initialJobs, stats, initialTotal, initialTo
   const [activeFilters, setActiveFilters] = useState<Record<string, string>>({
     "Job Type": "All",
     "Work Mode": "All",
-    "Experience": "All",
-    "Salary": "All"
+    "Experience": "All"
   });
 
   // Server-side pagination state
@@ -241,7 +239,6 @@ export function InteractiveJobFeed({ initialJobs, stats, initialTotal, initialTo
       if (activeFilters["Job Type"] !== "All") params.set("jobType", activeFilters["Job Type"]);
       if (activeFilters["Work Mode"] !== "All") params.set("workMode", activeFilters["Work Mode"]);
       if (activeFilters["Experience"] !== "All") params.set("experience", activeFilters["Experience"]);
-      if (activeFilters["Salary"] !== "All") params.set("salary", activeFilters["Salary"]);
       if (sortBy !== "newest") params.set("sort", sortBy);
 
       const res = await fetch(`/api/jobs?${params.toString()}`);
@@ -394,12 +391,6 @@ export function InteractiveJobFeed({ initialJobs, stats, initialTotal, initialTo
     { label: "Senior / Lead (5+ Yrs)", value: "5+" }
   ], []);
 
-  const salaryOptions = useMemo(() => [
-    { label: "All Salaries", value: "All" },
-    { label: "High Salary (₹12L+ / \$80K+)", value: "High Salary" },
-    { label: "Mid Salary (₹6L–₹12L / \$40K–\$80K)", value: "Mid Salary" },
-    { label: "Entry Salary (< ₹6L / < \$40K)", value: "Entry Level" }
-  ], []);
 
   const sortOptions = useMemo(() => [
     { label: "Newest First", value: "newest" },
@@ -597,13 +588,11 @@ export function InteractiveJobFeed({ initialJobs, stats, initialTotal, initialTo
       const type = urlParams.get("type") ?? parsed?.activeFilters?.["Job Type"];
       const mode = urlParams.get("mode") ?? parsed?.activeFilters?.["Work Mode"];
       const exp = urlParams.get("exp") ?? parsed?.activeFilters?.["Experience"];
-      const salary = urlParams.get("salary") ?? parsed?.activeFilters?.["Salary"];
-      if (type || mode || exp || salary) {
+      if (type || mode || exp) {
         setActiveFilters({
           "Job Type": type || "All",
           "Work Mode": mode || "All",
-          "Experience": exp || "All",
-          "Salary": salary || "All"
+          "Experience": exp || "All"
         });
       }
 
@@ -648,7 +637,6 @@ export function InteractiveJobFeed({ initialJobs, stats, initialTotal, initialTo
       if (activeFilters["Job Type"] !== "All") params.set("type", activeFilters["Job Type"]);
       if (activeFilters["Work Mode"] !== "All") params.set("mode", activeFilters["Work Mode"]);
       if (activeFilters["Experience"] !== "All") params.set("exp", activeFilters["Experience"]);
-      if (activeFilters["Salary"] !== "All") params.set("salary", activeFilters["Salary"]);
 
       const queryStr = params.toString();
       const newUrl = queryStr ? `${window.location.pathname}?${queryStr}` : window.location.pathname;
@@ -668,8 +656,7 @@ export function InteractiveJobFeed({ initialJobs, stats, initialTotal, initialTo
     setActiveFilters({
       "Job Type": "All",
       "Work Mode": "All",
-      "Experience": "All",
-      "Salary": "All"
+      "Experience": "All"
     });
     try {
       sessionStorage.removeItem("jobpulse_feed_state");
@@ -1022,13 +1009,6 @@ export function InteractiveJobFeed({ initialJobs, stats, initialTotal, initialTo
         }
       }
 
-      // Salary Range filter
-      if (activeFilters["Salary"] && activeFilters["Salary"] !== "All") {
-        if (!matchesSalaryRange(job, activeFilters["Salary"])) {
-          return false;
-        }
-      }
-
       // 1-Click Preset: High Salary + Newest
       if (sortBy === "high_salary_newest") {
         if (!isHighSalaryRole(job)) {
@@ -1085,32 +1065,42 @@ export function InteractiveJobFeed({ initialJobs, stats, initialTotal, initialTo
 
   const displayedJobs = jobsList;
 
+  const hasStates = dynamicStates.length > 1 || availableStates.length > 1;
+
   return (
-    <div className="flex flex-col min-h-screen">
-      {/* Header */}
-      <section className="bg-white dark:bg-slate-950 border-b border-slate-200 dark:border-slate-800 px-4 py-5">
-        <div className="container mx-auto max-w-5xl">
-          <h1 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-black text-slate-900 dark:text-white tracking-tight leading-snug">
-            Jobs updated within 1–2 hours of company posting
+    <div className="flex flex-col min-h-screen bg-slate-50">
+      {/* Hero Section */}
+      <section className="bg-white border-b border-slate-200 px-4 py-6 sm:py-8">
+        <div className="container mx-auto max-w-4xl">
+          {/* Small supporting line */}
+          <div className="text-xs font-semibold text-teal-700 tracking-wide uppercase mb-1.5">
+            Direct ATS Stream • Synced Every 1–2 Hours
+          </div>
+
+          {/* Strong but concise heading */}
+          <h1 className="text-2xl sm:text-3xl md:text-4xl font-black text-slate-900 tracking-tight leading-tight mb-2">
+            Discover official tech jobs before they hit applicant caps
           </h1>
-          <p className="text-sm text-slate-500 dark:text-slate-400 mt-1.5 max-w-2xl">
-            Direct from official career portals. While other boards take 3–14 days, JobPulse syncs hourly.
+
+          {/* Short explanation */}
+          <p className="text-sm text-slate-600 max-w-2xl leading-relaxed mb-5">
+            Aggregated directly from company career portals. Apply during the golden window while traditional job boards are still crawling.
           </p>
 
-          {/* Search */}
-          <div className="relative mt-4 max-w-xl">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+          {/* Large search field */}
+          <div className="relative w-full">
+            <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400 pointer-events-none" />
             <input
               type="text"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Search role, company, skill, or city..."
-              className="w-full pl-10 pr-9 py-2.5 border border-slate-200 dark:border-slate-800 rounded-lg bg-white dark:bg-slate-900 text-slate-900 dark:text-white placeholder-slate-400 text-sm focus:border-slate-400 dark:focus:border-slate-600 focus:ring-2 focus:ring-slate-200 dark:focus:ring-slate-800 outline-none transition-colors"
+              placeholder="Search by role (e.g. Frontend Engineer, SDE), company, skills, or city..."
+              className="w-full pl-10 pr-10 py-2.5 sm:py-3 border border-slate-300 rounded-lg bg-white text-slate-900 placeholder-slate-400 text-sm sm:text-base focus:border-teal-600 focus:ring-2 focus:ring-teal-100 outline-none transition-all"
             />
             {searchQuery && (
               <button
                 onClick={() => setSearchQuery("")}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-white transition-colors"
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition-colors p-1"
                 title="Clear search"
               >
                 <X className="h-4 w-4" />
@@ -1118,26 +1108,26 @@ export function InteractiveJobFeed({ initialJobs, stats, initialTotal, initialTo
             )}
           </div>
 
-          {/* Inline stats */}
-          <div className="mt-3 flex items-center gap-4 text-xs text-slate-500 dark:text-slate-400">
+          {/* Small factual job/company statistics */}
+          <div className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-slate-500">
             <span>
-              <strong className="text-slate-900 dark:text-white font-semibold">{(stats?.total_jobs || totalRecentJobs || filteredAndSortedJobs.length).toLocaleString()}</strong> active jobs
+              <strong className="text-slate-900 font-semibold">{totalJobs.toLocaleString()}</strong> active opportunities
             </span>
-            <span className="text-slate-300 dark:text-slate-700">·</span>
+            <span className="text-slate-300">·</span>
             <span>
-              <strong className="text-slate-900 dark:text-white font-semibold">{(stats?.total_companies || availableCompanies.length).toLocaleString()}</strong> companies
+              <strong className="text-slate-900 font-semibold">{(stats?.total_companies || availableCompanies.length).toLocaleString()}</strong> verified portals
             </span>
-            <span className="text-slate-300 dark:text-slate-700">·</span>
+            <span className="text-slate-300">·</span>
             <span>Last 30 days only</span>
           </div>
         </div>
       </section>
 
       {/* Filter Bar */}
-      <div className="w-full border-b border-slate-200/90 dark:border-slate-800/90 bg-white/95 dark:bg-slate-950/95 backdrop-blur-md sticky top-16 z-40">
-        <div className="container mx-auto px-2.5 sm:px-4 py-2 max-w-[1440px]">
+      <div className="w-full border-b border-slate-200 bg-white/95 backdrop-blur-md sticky top-16 z-40">
+        <div className="container mx-auto px-2.5 sm:px-4 py-2.5 max-w-[1440px]">
           <div className="flex flex-col gap-2">
-            {/* Row 1: Location & Company */}
+            {/* Row 1: Location & Company (4 filters) */}
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
               <SearchableSelect
                 ariaLabel="Country"
@@ -1157,7 +1147,13 @@ export function InteractiveJobFeed({ initialJobs, stats, initialTotal, initialTo
                 loading={loadingStates}
                 loadingText="Loading States..."
                 onChange={handleStateChange}
-                placeholder={selectedCountry === "All" ? "Select country first" : "All States"}
+                placeholder={
+                  selectedCountry === "All"
+                    ? "Select country first"
+                    : !hasStates
+                    ? "National (No States)"
+                    : "All States / Regions"
+                }
                 searchPlaceholder="Search states / regions..."
               />
               <SearchableSelect
@@ -1165,13 +1161,25 @@ export function InteractiveJobFeed({ initialJobs, stats, initialTotal, initialTo
                 icon={<MapPin className="w-3.5 h-3.5" />}
                 options={dynamicCities.length > 0 ? dynamicCities : availableCities}
                 value={selectedCity}
-                disabled={selectedCountry === "All" || selectedCountry === "Remote"}
+                disabled={
+                  selectedCountry === "All" ||
+                  selectedCountry === "Remote" ||
+                  (hasStates && selectedState === "All")
+                }
                 loading={loadingCities}
                 loadingText="Loading Cities..."
                 onChange={(val) => {
                   setSelectedCity(val);
-                              }}
-                placeholder={selectedCountry === "All" ? "Select country first" : "All Cities"}
+                }}
+                placeholder={
+                  selectedCountry === "All"
+                    ? "Select country first"
+                    : hasStates && selectedState === "All"
+                    ? "Select state first"
+                    : selectedState !== "All"
+                    ? `All Cities in ${selectedState}`
+                    : "All Cities"
+                }
                 searchPlaceholder="Search cities..."
               />
               <SearchableSelect
@@ -1181,14 +1189,14 @@ export function InteractiveJobFeed({ initialJobs, stats, initialTotal, initialTo
                 value={selectedCompany}
                 onChange={(val) => {
                   setSelectedCompany(val);
-                              }}
+                }}
                 placeholder="All Companies"
                 searchPlaceholder="Search companies..."
               />
             </div>
 
-            {/* Row 2: Type, Mode, Experience, Salary, Sort */}
-            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2">
+            {/* Row 2: Job Type, Work Mode, Experience, Sort Order (4 filters - balanced) */}
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
               <SearchableSelect
                 ariaLabel="Job Type"
                 icon={<Briefcase className="w-3.5 h-3.5" />}
@@ -1217,15 +1225,6 @@ export function InteractiveJobFeed({ initialJobs, stats, initialTotal, initialTo
                 searchPlaceholder="Search experience..."
               />
               <SearchableSelect
-                ariaLabel="Salary Range"
-                icon={<Coins className="w-3.5 h-3.5" />}
-                options={salaryOptions}
-                value={activeFilters["Salary"]}
-                onChange={(val) => toggleFilter("Salary", val)}
-                placeholder="All Salaries"
-                searchPlaceholder="Search salary..."
-              />
-              <SearchableSelect
                 ariaLabel="Sort Order"
                 icon={<ArrowUpDown className="w-3.5 h-3.5" />}
                 options={sortOptions}
@@ -1239,43 +1238,40 @@ export function InteractiveJobFeed({ initialJobs, stats, initialTotal, initialTo
 
           {/* Active Filter Summary */}
           {isFiltered && (
-            <div className="mt-2 pt-2 border-t border-slate-100 dark:border-slate-800/80 flex items-center justify-between text-xs flex-wrap gap-2">
-              <div className="flex items-center gap-1.5 flex-wrap text-slate-600 dark:text-slate-400">
-                <span><strong className="text-slate-900 dark:text-white">{filteredAndSortedJobs.length}</strong> {filteredAndSortedJobs.length === 1 ? "result" : "results"}</span>
+            <div className="mt-2 pt-2 border-t border-slate-100 flex items-center justify-between text-xs flex-wrap gap-2">
+              <div className="flex items-center gap-1.5 flex-wrap text-slate-600">
+                <span><strong className="text-slate-900">{totalJobs.toLocaleString()}</strong> {totalJobs === 1 ? "result" : "results"}</span>
                 {selectedCountry !== "All" && (
-                  <span className="text-slate-500 dark:text-slate-400">· {selectedCountry}</span>
+                  <span className="text-slate-500">· {selectedCountry}</span>
                 )}
                 {selectedState !== "All" && (
-                  <span className="text-slate-500 dark:text-slate-400">· {selectedState}</span>
+                  <span className="text-slate-500">· {selectedState}</span>
                 )}
                 {selectedCity !== "All" && (
-                  <span className="text-slate-500 dark:text-slate-400">· {selectedCity}</span>
+                  <span className="text-slate-500">· {selectedCity}</span>
                 )}
                 {selectedCompany !== "All" && (
-                  <span className="text-slate-500 dark:text-slate-400">· {availableCompanies.find(c => c.slug === selectedCompany)?.name || selectedCompany}</span>
+                  <span className="text-slate-500">· {availableCompanies.find(c => c.slug === selectedCompany)?.name || selectedCompany}</span>
                 )}
                 {activeFilters["Job Type"] !== "All" && (
-                  <span className="text-slate-500 dark:text-slate-400">· {activeFilters["Job Type"]}</span>
+                  <span className="text-slate-500">· {activeFilters["Job Type"]}</span>
                 )}
                 {activeFilters["Work Mode"] !== "All" && (
-                  <span className="text-slate-500 dark:text-slate-400">· {activeFilters["Work Mode"]}</span>
+                  <span className="text-slate-500">· {activeFilters["Work Mode"]}</span>
                 )}
                 {activeFilters["Experience"] !== "All" && (
-                  <span className="text-slate-500 dark:text-slate-400">· {activeFilters["Experience"] === "0-1" ? "Freshers (0–1 Yrs)" : `${activeFilters["Experience"]} Yrs`}</span>
-                )}
-                {activeFilters["Salary"] !== "All" && (
-                  <span className="text-slate-500 dark:text-slate-400">· {activeFilters["Salary"]}</span>
+                  <span className="text-slate-500">· {activeFilters["Experience"] === "0-1" ? "Freshers (0–1 Yrs)" : `${activeFilters["Experience"]} Yrs`}</span>
                 )}
                 {sortBy === "high_salary_newest" && (
-                  <span className="text-slate-500 dark:text-slate-400">· High Salary + Newest</span>
+                  <span className="text-slate-500">· High Salary + Newest</span>
                 )}
               </div>
               <button
                 onClick={resetFilters}
-                className="flex items-center gap-1 text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200 font-medium transition-colors text-xs"
+                className="flex items-center gap-1 text-slate-500 hover:text-slate-700 font-medium transition-colors text-xs cursor-pointer"
               >
                 <RotateCcw className="w-3 h-3" />
-                Reset
+                Reset filters
               </button>
             </div>
           )}
@@ -1283,29 +1279,29 @@ export function InteractiveJobFeed({ initialJobs, stats, initialTotal, initialTo
       </div>
 
       {/* Job Feed */}
-      <section id="job-results-section" className="py-6 bg-slate-50 dark:bg-slate-950 flex-1 scroll-mt-28">
+      <section id="job-results-section" className="py-6 bg-slate-50 flex-1 scroll-mt-28">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-[1440px]">
-          <div className="flex items-center justify-between mb-5">
-            <p className="text-sm text-slate-500 dark:text-slate-400">
-              Page {currentPage} of {totalPages} · <strong className="text-slate-700 dark:text-slate-300">{totalJobs.toLocaleString()}</strong> jobs
+          <div className="flex items-center justify-between mb-4">
+            <p className="text-xs sm:text-sm text-slate-600">
+              Page {currentPage} of {totalPages} · <strong className="text-slate-900">{totalJobs.toLocaleString()}</strong> active jobs
             </p>
           </div>
 
           {/* New Jobs Alert */}
           {incomingJobs.length > 0 && (
-            <div className="mb-5 px-4 py-3 rounded-lg bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-200 dark:border-emerald-800/50 flex items-center justify-between gap-3">
-              <div className="flex items-center gap-2.5">
+            <div className="mb-4 px-3.5 py-2.5 rounded-lg bg-emerald-50 border border-emerald-200 flex items-center justify-between gap-3">
+              <div className="flex items-center gap-2">
                 <span className="relative flex h-2 w-2 shrink-0">
                   <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
                   <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
                 </span>
-                <span className="text-sm text-emerald-800 dark:text-emerald-300">
-                  <strong>{incomingJobs.length}</strong> new {incomingJobs.length === 1 ? 'job' : 'jobs'} discovered
+                <span className="text-xs text-emerald-800">
+                  <strong>{incomingJobs.length}</strong> new {incomingJobs.length === 1 ? 'opening' : 'openings'} synced from official portals
                 </span>
               </div>
               <button
                 onClick={applyIncomingJobs}
-                className="text-xs font-semibold text-emerald-700 dark:text-emerald-300 hover:text-emerald-900 dark:hover:text-emerald-100 transition-colors cursor-pointer"
+                className="text-xs font-semibold text-emerald-700 hover:text-emerald-900 transition-colors cursor-pointer"
               >
                 Refresh
               </button>
@@ -1320,16 +1316,16 @@ export function InteractiveJobFeed({ initialJobs, stats, initialTotal, initialTo
               ))}
             </div>
           ) : (
-            <div className="text-center py-16">
-              <h3 className="text-lg font-semibold text-slate-900 dark:text-white mb-1.5">
-                No jobs match your filters
+            <div className="text-center py-16 bg-white border border-slate-200 rounded-lg p-8">
+              <h3 className="text-base font-semibold text-slate-900 mb-1">
+                No jobs match your current filters
               </h3>
-              <p className="text-sm text-slate-500 mb-5">
-                Try broadening your search or removing some filters.
+              <p className="text-xs text-slate-500 mb-4">
+                Try expanding your search query or selecting a different country or state.
               </p>
               <button
                 onClick={resetFilters}
-                className="inline-flex items-center gap-1.5 text-sm font-medium text-slate-700 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white transition-colors cursor-pointer"
+                className="inline-flex items-center gap-1.5 text-xs font-semibold text-teal-700 hover:text-teal-800 transition-colors cursor-pointer"
               >
                 <RotateCcw className="w-3.5 h-3.5" />
                 Reset all filters
@@ -1337,26 +1333,26 @@ export function InteractiveJobFeed({ initialJobs, stats, initialTotal, initialTo
             </div>
           )}
 
-          {/* Loading */}
+          {/* Loading Indicator */}
           {isFetchingPage && (
-            <div className="flex items-center justify-center gap-2 py-4 text-xs text-slate-500 dark:text-slate-400">
-              <span className="w-3.5 h-3.5 border-2 border-slate-300 dark:border-slate-600 border-t-transparent rounded-full animate-spin" />
-              <span>Loading...</span>
+            <div className="flex items-center justify-center gap-2 py-4 text-xs text-slate-500">
+              <span className="w-3.5 h-3.5 border-2 border-slate-300 border-t-teal-600 rounded-full animate-spin" />
+              <span>Updating results...</span>
             </div>
           )}
 
           {/* Pagination */}
           {totalPages > 1 && (
-            <div className="mt-10 flex flex-col md:flex-row items-center justify-between gap-3 py-4 border-t border-slate-200 dark:border-slate-800">
-              <div className="text-xs text-slate-500 dark:text-slate-400">
-                {((currentPage - 1) * 50) + 1}–{Math.min(currentPage * 50, totalJobs)} of {totalJobs.toLocaleString()}
+            <div className="mt-8 flex flex-col sm:flex-row items-center justify-between gap-3 py-4 border-t border-slate-200">
+              <div className="text-xs text-slate-500">
+                Showing {((currentPage - 1) * 50) + 1}–{Math.min(currentPage * 50, totalJobs)} of {totalJobs.toLocaleString()}
               </div>
 
               <div className="flex items-center gap-1">
                 <button
                   disabled={currentPage <= 1 || isFetchingPage}
                   onClick={() => handlePageChange(currentPage - 1)}
-                  className="px-2.5 py-1.5 text-xs font-medium text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700 rounded-md hover:bg-slate-100 dark:hover:bg-slate-800 disabled:opacity-40 disabled:cursor-not-allowed transition-colors cursor-pointer"
+                  className="px-2.5 py-1.5 text-xs font-medium text-slate-700 border border-slate-300 rounded hover:bg-slate-100 disabled:opacity-40 disabled:cursor-not-allowed transition-colors cursor-pointer"
                 >
                   Previous
                 </button>
@@ -1367,10 +1363,10 @@ export function InteractiveJobFeed({ initialJobs, stats, initialTotal, initialTo
                       key={idx}
                       disabled={isFetchingPage}
                       onClick={() => handlePageChange(p)}
-                      className={`w-8 h-8 text-xs font-medium rounded-md transition-colors cursor-pointer ${
+                      className={`w-8 h-8 text-xs font-medium rounded transition-colors cursor-pointer ${
                         p === currentPage
-                          ? "bg-slate-900 dark:bg-white text-white dark:text-slate-900"
-                          : "text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800"
+                          ? "bg-slate-900 text-white font-semibold"
+                          : "text-slate-700 hover:bg-slate-100"
                       }`}
                     >
                       {p}
@@ -1383,14 +1379,14 @@ export function InteractiveJobFeed({ initialJobs, stats, initialTotal, initialTo
                 <button
                   disabled={currentPage >= totalPages || isFetchingPage}
                   onClick={() => handlePageChange(currentPage + 1)}
-                  className="px-2.5 py-1.5 text-xs font-medium text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700 rounded-md hover:bg-slate-100 dark:hover:bg-slate-800 disabled:opacity-40 disabled:cursor-not-allowed transition-colors cursor-pointer"
+                  className="px-2.5 py-1.5 text-xs font-medium text-slate-700 border border-slate-300 rounded hover:bg-slate-100 disabled:opacity-40 disabled:cursor-not-allowed transition-colors cursor-pointer"
                 >
                   Next
                 </button>
               </div>
 
               <div className="flex items-center gap-1.5 text-xs">
-                <span className="text-slate-500 dark:text-slate-400">Page</span>
+                <span className="text-slate-500">Go to page</span>
                 <input
                   type="number"
                   min={1}
@@ -1401,11 +1397,11 @@ export function InteractiveJobFeed({ initialJobs, stats, initialTotal, initialTo
                     if (e.key === "Enter") handleJumpPage();
                   }}
                   placeholder={String(currentPage)}
-                  className="w-12 px-2 py-1 border border-slate-200 dark:border-slate-800 rounded-md bg-white dark:bg-slate-900 text-slate-900 dark:text-white text-center text-xs outline-none focus:border-slate-400 dark:focus:border-slate-600"
+                  className="w-12 px-1.5 py-1 border border-slate-300 rounded bg-white text-slate-900 text-center text-xs outline-none focus:border-slate-500"
                 />
                 <button
                   onClick={handleJumpPage}
-                  className="px-2 py-1 text-xs font-medium text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700 rounded-md hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer"
+                  className="px-2 py-1 text-xs font-medium text-slate-700 border border-slate-300 rounded hover:bg-slate-100 transition-colors cursor-pointer"
                 >
                   Go
                 </button>

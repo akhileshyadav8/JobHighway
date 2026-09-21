@@ -262,13 +262,9 @@ export function loginUser(email: string, password?: string): { user?: User; erro
     return { error: "Please enter your password." };
   }
 
-  // If Admin tries to log in
+  // Prevent administrator account from logging in via candidate portal
   if (cleanEmail === ADMIN_EMAIL) {
-    if (password === ADMIN_PASSWORD) {
-      return loginAdmin(cleanEmail, password);
-    } else {
-      return { error: "Incorrect password for this administrator account." };
-    }
+    return { error: "This portal is strictly for job candidates. Administrator accounts must authenticate via the administrative console." };
   }
 
   const users = getStoredUsers();

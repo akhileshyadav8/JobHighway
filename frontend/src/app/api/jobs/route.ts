@@ -77,8 +77,47 @@ export async function GET(request: NextRequest) {
       filtered = filtered.filter(j => j.location.some((l: string) => l.toLowerCase().includes(c)));
     }
   }
+  if (filterParams.state && filterParams.state !== 'All') {
+    const s = filterParams.state.toLowerCase();
+    filtered = filtered.filter(j => j.location.some((l: string) => l.toLowerCase().includes(s)));
+  }
+  if (filterParams.city && filterParams.city !== 'All') {
+    const cityLower = filterParams.city.toLowerCase();
+    filtered = filtered.filter(j => j.location.some((l: string) => {
+      const loc = l.toLowerCase();
+      if (cityLower === 'bengaluru' || cityLower === 'bangalore') {
+        return loc.includes('bengaluru') || loc.includes('bangalore') || loc.includes('blr');
+      }
+      if (cityLower === 'delhi' || cityLower === 'new delhi') {
+        return loc.includes('delhi') || loc.includes('noida') || loc.includes('gurgaon') || loc.includes('gurugram');
+      }
+      if (cityLower === 'mumbai' || cityLower === 'bombay') {
+        return loc.includes('mumbai') || loc.includes('bombay') || loc.includes('thane');
+      }
+      return loc.includes(cityLower);
+    }));
+  }
   if (filterParams.company && filterParams.company !== 'All') {
     filtered = filtered.filter(j => j.company.slug === filterParams.company || j.company.name.toLowerCase() === filterParams.company?.toLowerCase());
+  }
+  if (filterParams.jobType && filterParams.jobType !== 'All') {
+    const jt = filterParams.jobType.toLowerCase();
+    filtered = filtered.filter(j => (j.employment_type || '').toLowerCase().includes(jt) || j.title.toLowerCase().includes(jt));
+  }
+  if (filterParams.workMode && filterParams.workMode !== 'All') {
+    const wm = filterParams.workMode.toLowerCase();
+    filtered = filtered.filter(j => (j.work_mode || '').toLowerCase().includes(wm) || j.location.some((l: string) => l.toLowerCase().includes(wm)));
+  }
+  if (filterParams.experience && filterParams.experience !== 'All') {
+    if (filterParams.experience === '0-1') {
+      filtered = filtered.filter(j => (j.experience_min === 0 || j.experience_min === null || /intern|fresher|graduate/i.test(j.title)));
+    } else if (filterParams.experience === '1-3') {
+      filtered = filtered.filter(j => (j.experience_min !== null && j.experience_min >= 1 && j.experience_min <= 3));
+    } else if (filterParams.experience === '3-5') {
+      filtered = filtered.filter(j => (j.experience_min !== null && j.experience_min >= 3 && j.experience_min <= 5));
+    } else if (filterParams.experience === '5+') {
+      filtered = filtered.filter(j => (j.experience_min !== null && j.experience_min >= 5) || /senior|lead|principal|director/i.test(j.title));
+    }
   }
 
   const offset = (page - 1) * limit;

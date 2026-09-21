@@ -51,7 +51,7 @@ export async function GET(request: Request) {
   const uniqueNames = Array.from(new Set(cities.map(c => c.name)));
 
   const result = [
-    { label: `📍 All Cities`, value: 'All' },
+    { label: `All Cities`, value: 'All' },
     ...uniqueNames.map(name => ({
       label: name,
       value: name
