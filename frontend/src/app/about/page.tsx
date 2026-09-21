@@ -9,9 +9,6 @@ export default function AboutPage() {
       <div className="container mx-auto px-4 max-w-5xl">
         {/* Header Hero */}
         <div className="text-center max-w-3xl mx-auto mb-16">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-teal-500/10 border border-teal-500/20 text-teal-600 text-xs font-bold uppercase tracking-wider mb-4">
-            About JobPulse
-          </div>
           <h1 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-black text-slate-900 mb-3 tracking-tight leading-snug max-w-3xl mx-auto">
             World&apos;s Real-Time Official Job Discovery Engine
           </h1>

@@ -42,12 +42,8 @@ export default function BlogPage() {
       <div className="container mx-auto px-4 max-w-5xl">
         {/* Header Hero */}
         <div className="text-center max-w-2xl mx-auto mb-12">
-          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-teal-500/10 border border-teal-500/20 text-teal-600 text-xs font-bold uppercase tracking-wider mb-4 shadow-2xs">
-            <Sparkles className="w-3.5 h-3.5 animate-spin" style={{ animationDuration: "5s" }} />
-            Official Career & Engineering Guides
-          </div>
           <h1 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-black text-slate-900 mb-3 tracking-tight leading-snug max-w-3xl mx-auto">
-            JobPulse Playbook & Career Blog
+            JobPulse Playbook &amp; Career Blog
           </h1>
           <p className="text-xs sm:text-sm md:text-base text-slate-600 mb-5 max-w-2xl mx-auto leading-relaxed">
             Data-backed playbooks on beating ATS parsers, cracking high-paying tech interviews, and landing verified roles worldwide.

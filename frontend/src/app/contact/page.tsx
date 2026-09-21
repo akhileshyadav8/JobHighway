@@ -93,10 +93,6 @@ export default function ContactPage() {
         
         {/* Header Hero */}
         <div className="text-center max-w-2xl mx-auto mb-12">
-          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-teal-500/10 border border-teal-500/20 text-teal-600 text-xs font-bold uppercase tracking-wider mb-4 shadow-2xs">
-            <Sparkles className="w-3.5 h-3.5 animate-spin" style={{ animationDuration: "5s" }} />
-            Direct Communication & Support
-          </div>
           <h1 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-black text-slate-900 mb-3 tracking-tight leading-snug max-w-3xl mx-auto">
             Get In Touch With Us
           </h1>

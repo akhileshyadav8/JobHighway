@@ -41,10 +41,6 @@ export default function AdminLoginPage() {
       <div className="w-full max-w-md relative z-10">
         {/* Header */}
         <div className="text-center mb-8">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-teal-50 border border-teal-200 text-teal-800 text-xs font-bold uppercase tracking-wider mb-3">
-            <Shield className="w-3.5 h-3.5 text-teal-600" />
-            Restricted Operator Console
-          </div>
           <h1 className="text-3xl font-black text-slate-900 tracking-tight">
             JobPulse Admin Login
           </h1>

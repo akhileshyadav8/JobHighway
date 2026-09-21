@@ -47,10 +47,6 @@ export default function RegisterPage() {
     <div className="min-h-screen bg-slate-50 py-16 px-4 flex items-center justify-center">
       <div className="w-full max-w-md">
         <div className="text-center mb-8">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-teal-500/10 border border-teal-500/20 text-teal-600 text-xs font-bold uppercase tracking-wider mb-3">
-            <Sparkles className="w-3.5 h-3.5" />
-            100% Free Forever
-          </div>
           <h1 className="text-3xl font-black text-slate-900 tracking-tight">
             Create Candidate Account
           </h1>
