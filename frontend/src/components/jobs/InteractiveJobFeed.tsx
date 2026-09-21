@@ -1077,15 +1077,9 @@ export function InteractiveJobFeed({ initialJobs, stats, initialTotal, initialTo
             Direct ATS Stream • Synced Every 1–2 Hours
           </div>
 
-          {/* Strong but concise heading */}
-          <h1 className="text-2xl sm:text-3xl md:text-4xl font-black text-slate-900 tracking-tight leading-tight mb-2">
+          <h1 className="text-2xl sm:text-3xl md:text-4xl font-black text-slate-900 tracking-tight leading-tight mb-4 sm:mb-5">
             Discover official tech jobs before they hit applicant caps
           </h1>
-
-          {/* Short explanation */}
-          <p className="text-sm text-slate-600 max-w-2xl leading-relaxed mb-5">
-            Aggregated directly from company career portals. Apply during the golden window while traditional job boards are still crawling.
-          </p>
 
           {/* Large search field */}
           <div className="relative w-full">
