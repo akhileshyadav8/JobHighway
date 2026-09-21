@@ -177,13 +177,13 @@ export function SearchableSelect({
           disabled || loading
             ? "bg-slate-100/70 dark:bg-slate-900/40 border-slate-200 dark:border-slate-800 text-slate-400 cursor-not-allowed"
             : isOpen
-            ? "bg-white dark:bg-slate-900 border-teal-500 ring-2 ring-teal-500/20 text-slate-900 dark:text-slate-100"
+            ? "bg-white dark:bg-slate-900 border-slate-400 dark:border-slate-600 ring-2 ring-slate-200 dark:ring-slate-800 text-slate-900 dark:text-slate-100"
             : "bg-slate-50 dark:bg-slate-900 border-slate-200 dark:border-slate-800 text-slate-800 dark:text-slate-100 hover:border-slate-300 dark:hover:border-slate-700"
         }`}
       >
         {/* Leading Icon */}
         {icon && (
-          <span className="absolute left-2 sm:left-2.5 flex items-center pointer-events-none text-teal-600 dark:text-teal-400">
+          <span className="absolute left-2 sm:left-2.5 flex items-center pointer-events-none text-slate-400">
             {icon}
           </span>
         )}
@@ -200,7 +200,7 @@ export function SearchableSelect({
         {/* Trailing Down Chevron */}
         <ChevronDown
           className={`w-3 h-3 sm:w-3.5 sm:h-3.5 text-slate-400 shrink-0 transition-transform duration-150 ${
-            isOpen ? "rotate-180 text-teal-500" : ""
+            isOpen ? "rotate-180 text-slate-600 dark:text-slate-300" : ""
           }`}
         />
       </button>
@@ -218,7 +218,7 @@ export function SearchableSelect({
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder={searchPlaceholder}
-                className="w-full pl-8 pr-7 py-1.5 text-xs bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-lg text-slate-900 dark:text-slate-100 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent transition-all"
+                className="w-full pl-8 pr-7 py-1.5 text-xs bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-lg text-slate-900 dark:text-slate-100 placeholder-slate-400 focus:outline-none focus:ring-1 focus:ring-slate-400 dark:focus:ring-slate-600 focus:border-transparent transition-all"
               />
               {searchQuery && (
                 <button
@@ -248,15 +248,15 @@ export function SearchableSelect({
                     type="button"
                     onClick={() => handleSelect(option.value)}
                     onMouseEnter={() => setHighlightedIndex(idx)}
-                    className={`w-full flex items-center justify-between px-2.5 py-1.5 text-xs rounded-lg text-left transition-colors cursor-pointer ${
+                    className={`w-full flex items-center justify-between px-2.5 py-1.5 text-xs rounded-md text-left transition-colors cursor-pointer ${
                       isHighlighted
-                        ? "bg-teal-50 dark:bg-teal-950/60 text-teal-900 dark:text-teal-100 font-medium"
-                        : "text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800/60"
-                    } ${isSelected ? "font-semibold text-teal-600 dark:text-teal-400" : ""}`}
+                        ? "bg-slate-100 dark:bg-slate-800 text-slate-900 dark:text-white"
+                        : "text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800/50"
+                    } ${isSelected ? "font-semibold text-slate-900 dark:text-white" : ""}`}
                   >
                     <span className="truncate pr-2">{option.label}</span>
                     {isSelected && (
-                      <Check className="w-3.5 h-3.5 text-teal-600 dark:text-teal-400 shrink-0" />
+                      <Check className="w-3.5 h-3.5 text-slate-900 dark:text-white shrink-0" />
                     )}
                   </button>
                 );

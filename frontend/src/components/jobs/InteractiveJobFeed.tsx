@@ -3,9 +3,7 @@
 import { useState, useMemo, useEffect, useCallback, useRef } from "react";
 import { Job, OverviewStats } from "@/lib/api";
 import { JobCard } from "@/components/jobs/JobCard";
-import { Search, X, RotateCcw, Sparkles, MapPin, Globe, Building2, ArrowUpDown, Clock, Navigation, Briefcase, GraduationCap, Laptop, Coins } from "lucide-react";
-import { formatRelativeTime } from "@/lib/utils";
-import { Button } from "@/components/ui/button";
+import { Search, X, RotateCcw, MapPin, Globe, Building2, ArrowUpDown, Navigation, Briefcase, GraduationCap, Laptop, Coins } from "lucide-react";
 import { ALL_WORLD_COUNTRIES, COUNTRY_STATES, STATE_CITIES } from "@/lib/world_locations";
 import { SearchableSelect } from "@/components/ui/SearchableSelect";
 
@@ -367,49 +365,49 @@ export function InteractiveJobFeed({ initialJobs, stats, initialTotal, initialTo
   }, [jobsList]);
 
   const companyOptions = useMemo(() => [
-    { label: "🏢 All Companies", value: "All" },
+    { label: "All Companies", value: "All" },
     ...availableCompanies.map(comp => ({
-      label: `🏢 ${comp.name}`,
+      label: comp.name,
       value: comp.slug
     }))
   ], [availableCompanies]);
 
   const jobTypeOptions = useMemo(() => [
-    { label: "💼 All Job Types", value: "All" },
-    { label: "💼 Full Time", value: "Full Time" },
-    { label: "💼 Internship", value: "Internship" },
-    { label: "💼 Contract", value: "Contract" }
+    { label: "All Job Types", value: "All" },
+    { label: "Full Time", value: "Full Time" },
+    { label: "Internship", value: "Internship" },
+    { label: "Contract", value: "Contract" }
   ], []);
 
   const workModeOptions = useMemo(() => [
-    { label: "💻 All Work Modes", value: "All" },
-    { label: "💻 Remote", value: "Remote" },
-    { label: "💻 Hybrid", value: "Hybrid" },
-    { label: "🏢 Onsite", value: "Onsite" }
+    { label: "All Work Modes", value: "All" },
+    { label: "Remote", value: "Remote" },
+    { label: "Hybrid", value: "Hybrid" },
+    { label: "Onsite", value: "Onsite" }
   ], []);
 
   const experienceOptions = useMemo(() => [
-    { label: "🎯 All Experience", value: "All" },
-    { label: "🎯 Freshers (0–1 Yrs)", value: "0-1" },
-    { label: "💼 Early Career (1–3 Yrs)", value: "1-3" },
-    { label: "🚀 Mid Level (3–5 Yrs)", value: "3-5" },
-    { label: "👑 Senior / Lead (5+ Yrs)", value: "5+" }
+    { label: "All Experience", value: "All" },
+    { label: "Freshers (0–1 Yrs)", value: "0-1" },
+    { label: "Early Career (1–3 Yrs)", value: "1-3" },
+    { label: "Mid Level (3–5 Yrs)", value: "3-5" },
+    { label: "Senior / Lead (5+ Yrs)", value: "5+" }
   ], []);
 
   const salaryOptions = useMemo(() => [
-    { label: "💰 All Salaries", value: "All" },
-    { label: "💎 High Salary (₹12L+ / $80K+)", value: "High Salary" },
-    { label: "🚀 Mid Salary (₹6L–₹12L / $40K–$80K)", value: "Mid Salary" },
-    { label: "🌱 Entry Salary (< ₹6L / < $40K)", value: "Entry Level" }
+    { label: "All Salaries", value: "All" },
+    { label: "High Salary (₹12L+ / \$80K+)", value: "High Salary" },
+    { label: "Mid Salary (₹6L–₹12L / \$40K–\$80K)", value: "Mid Salary" },
+    { label: "Entry Salary (< ₹6L / < \$40K)", value: "Entry Level" }
   ], []);
 
   const sortOptions = useMemo(() => [
-    { label: "🔥 Newest First", value: "newest" },
-    { label: "🎓 Fresher + Highest Salary", value: "fresher_highest_salary" },
-    { label: "⚡ High Salary + Newest", value: "high_salary_newest" },
-    { label: "💰 Highest Salary", value: "salary_high" },
-    { label: "📉 Accessible Salary (Low to High)", value: "salary_low" },
-    { label: "⏳ Oldest First", value: "oldest" }
+    { label: "Newest First", value: "newest" },
+    { label: "Fresher + Highest Salary", value: "fresher_highest_salary" },
+    { label: "High Salary + Newest", value: "high_salary_newest" },
+    { label: "Highest Salary", value: "salary_high" },
+    { label: "Accessible Salary (Low to High)", value: "salary_low" },
+    { label: "Oldest First", value: "oldest" }
   ], []);
 
   // Dynamic States & Cities from server API (covering all 250 countries, 5,000+ states, 150,000+ cities)
@@ -428,7 +426,7 @@ export function InteractiveJobFeed({ initialJobs, stats, initialTotal, initialTo
       return states;
     }
     return [
-      { label: `📍 All Regions in ${selectedCountry}`, value: "All" }
+      { label: `All Regions in ${selectedCountry}`, value: "All" }
     ];
   }, [selectedCountry]);
 
@@ -469,7 +467,7 @@ export function InteractiveJobFeed({ initialJobs, stats, initialTotal, initialTo
       });
 
       cities = [
-        { label: `📍 All Cities in ${selectedCountry}`, value: "All" },
+        { label: `All Cities in ${selectedCountry}`, value: "All" },
         ...Array.from(extractedSet).map(cityName => ({
           label: cityName,
           value: cityName
@@ -1089,85 +1087,67 @@ export function InteractiveJobFeed({ initialJobs, stats, initialTotal, initialTo
 
   return (
     <div className="flex flex-col min-h-screen">
-      {/* Hero Section */}
-      <section className="relative overflow-hidden bg-gradient-to-b from-white via-slate-50/60 to-slate-100/70 dark:from-slate-950 dark:via-slate-900/80 dark:to-slate-950 pt-8 pb-6 px-4 border-b border-slate-200/80 dark:border-slate-800/80">
-        {/* Subtle background glow effect */}
-        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-7xl h-64 bg-gradient-to-r from-teal-400/10 via-emerald-400/10 to-cyan-400/10 blur-3xl -z-10 pointer-events-none" />
-
-        <div className="container mx-auto text-center max-w-4xl relative z-10">
-          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-teal-50 dark:bg-teal-500/15 border border-teal-500/20 text-teal-700 dark:text-teal-300 text-xs font-semibold mb-6 shadow-2xs">
-            <Sparkles className="w-3.5 h-3.5 text-teal-600 dark:text-teal-400 animate-spin" style={{ animationDuration: '4s' }} />
-            <span>⚡ Hourly Sync • Discovered Within 1–2 Hours of Company Posting</span>
-          </div>
-          
-          <h1 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-black text-slate-900 dark:text-white mb-3 tracking-tight leading-snug max-w-3xl mx-auto">
-            Discover Official Jobs Within 1–2 Hours. Apply Before The Crowd.
+      {/* Header */}
+      <section className="bg-white dark:bg-slate-950 border-b border-slate-200 dark:border-slate-800 px-4 py-5">
+        <div className="container mx-auto max-w-5xl">
+          <h1 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-black text-slate-900 dark:text-white tracking-tight leading-snug">
+            Jobs updated within 1–2 hours of company posting
           </h1>
-          <p className="text-xs sm:text-sm md:text-base text-slate-600 dark:text-slate-400 mb-5 max-w-2xl mx-auto leading-relaxed">
-            While traditional job boards take 3 to 14 days to crawl listings, JobPulse syncs directly with official company ATS portals every hour. Apply in the golden window before roles hit applicant caps.
+          <p className="text-sm text-slate-500 dark:text-slate-400 mt-1.5 max-w-2xl">
+            Direct from official career portals. While other boards take 3–14 days, JobPulse syncs hourly.
           </p>
 
-          {/* Interactive Search Bar */}
-          <div className="relative w-full max-w-2xl mx-auto">
-            <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-              <Search className="h-5 w-5 text-teal-600 dark:text-teal-400" />
-            </div>
+          {/* Search */}
+          <div className="relative mt-4 max-w-xl">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
             <input
               type="text"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Search by role (e.g. SDE, Data Analyst), company, skills, or city..."
-              className="block w-full pl-12 pr-10 py-3.5 md:py-4 border border-slate-200 dark:border-slate-800 rounded-2xl bg-white dark:bg-slate-900/95 text-slate-900 dark:text-white placeholder-slate-400 shadow-lg shadow-slate-200/40 dark:shadow-2xl focus:border-teal-500 dark:focus:border-teal-400 focus:ring-4 focus:ring-teal-500/15 outline-none text-sm md:text-base transition-all"
+              placeholder="Search role, company, skill, or city..."
+              className="w-full pl-10 pr-9 py-2.5 border border-slate-200 dark:border-slate-800 rounded-lg bg-white dark:bg-slate-900 text-slate-900 dark:text-white placeholder-slate-400 text-sm focus:border-slate-400 dark:focus:border-slate-600 focus:ring-2 focus:ring-slate-200 dark:focus:ring-slate-800 outline-none transition-colors"
             />
             {searchQuery && (
               <button
                 onClick={() => setSearchQuery("")}
-                className="absolute inset-y-0 right-0 pr-3.5 flex items-center text-slate-400 hover:text-slate-600 dark:hover:text-white transition-colors"
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-white transition-colors"
                 title="Clear search"
               >
-                <X className="h-5 w-5" />
+                <X className="h-4 w-4" />
               </button>
             )}
           </div>
 
-          {/* Live Stats & Freshness Indicator (Dynamic to incoming feeds) */}
-          <div className="mt-8 flex flex-wrap justify-center items-center gap-2.5 text-xs md:text-sm text-slate-600 dark:text-slate-400">
-            <span className="flex items-center gap-1.5 bg-white dark:bg-slate-900/80 px-3 py-1.5 rounded-full border border-slate-200 dark:border-slate-800 shadow-2xs font-medium">
-              <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-              <strong className="text-slate-900 dark:text-white">{(stats?.total_jobs || totalRecentJobs || filteredAndSortedJobs.length).toLocaleString()}</strong> active jobs monitored
+          {/* Inline stats */}
+          <div className="mt-3 flex items-center gap-4 text-xs text-slate-500 dark:text-slate-400">
+            <span>
+              <strong className="text-slate-900 dark:text-white font-semibold">{(stats?.total_jobs || totalRecentJobs || filteredAndSortedJobs.length).toLocaleString()}</strong> active jobs
             </span>
-            <span className="text-slate-300 dark:text-slate-700 hidden sm:inline">•</span>
-            <span className="bg-white dark:bg-slate-900/80 px-3 py-1.5 rounded-full border border-slate-200 dark:border-slate-800 shadow-2xs font-medium">
-              <strong className="text-slate-900 dark:text-white">{(stats?.total_companies || availableCompanies.length).toLocaleString()}</strong> official portals
+            <span className="text-slate-300 dark:text-slate-700">·</span>
+            <span>
+              <strong className="text-slate-900 dark:text-white font-semibold">{(stats?.total_companies || availableCompanies.length).toLocaleString()}</strong> companies
             </span>
-            <span className="text-slate-300 dark:text-slate-700 hidden sm:inline">•</span>
-            <span className="bg-white dark:bg-slate-900/80 px-3 py-1.5 rounded-full border border-slate-200 dark:border-slate-800 shadow-2xs flex items-center gap-1.5 font-medium">
-              <Clock className="w-3.5 h-3.5 text-teal-600 dark:text-teal-400" />
-              <span>Synced within 1–2 hrs • Last 30 days only</span>
-            </span>
+            <span className="text-slate-300 dark:text-slate-700">·</span>
+            <span>Last 30 days only</span>
           </div>
         </div>
       </section>
 
-      {/* Sleek Compact Sticky Filter Bar */}
-      <div className="w-full border-b border-slate-200/90 dark:border-slate-800/90 bg-white/95 dark:bg-slate-950/95 backdrop-blur-md sticky top-16 z-40 shadow-xs">
-        <div className="container mx-auto px-2.5 sm:px-4 py-2.5 max-w-[1440px]">
-          {/* 2-Tier Compact Grid: Row 1 = Location & Company, Row 2 = Job Type, Batch, Work Mode, Sort */}
+      {/* Filter Bar */}
+      <div className="w-full border-b border-slate-200/90 dark:border-slate-800/90 bg-white/95 dark:bg-slate-950/95 backdrop-blur-md sticky top-16 z-40">
+        <div className="container mx-auto px-2.5 sm:px-4 py-2 max-w-[1440px]">
           <div className="flex flex-col gap-2">
-            {/* Row 1: Location & Company Filters */}
+            {/* Row 1: Location & Company */}
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
-              {/* 1. Country */}
               <SearchableSelect
                 ariaLabel="Country"
                 icon={<Globe className="w-3.5 h-3.5" />}
                 options={ALL_WORLD_COUNTRIES}
                 value={selectedCountry}
                 onChange={handleCountryChange}
-                placeholder="🌍 All Countries"
+                placeholder="All Countries"
                 searchPlaceholder="Search 250+ countries..."
               />
-
-              {/* 2. State / Region */}
               <SearchableSelect
                 ariaLabel="State or Region"
                 icon={<Navigation className="w-3.5 h-3.5" />}
@@ -1175,13 +1155,11 @@ export function InteractiveJobFeed({ initialJobs, stats, initialTotal, initialTo
                 value={selectedState}
                 disabled={selectedCountry === "All" || selectedCountry === "Remote"}
                 loading={loadingStates}
-                loadingText="⏳ Loading States..."
+                loadingText="Loading States..."
                 onChange={handleStateChange}
-                placeholder={selectedCountry === "All" ? "← Pick Country First" : "📍 All States"}
+                placeholder={selectedCountry === "All" ? "Select country first" : "All States"}
                 searchPlaceholder="Search states / regions..."
               />
-
-              {/* 3. City */}
               <SearchableSelect
                 ariaLabel="City"
                 icon={<MapPin className="w-3.5 h-3.5" />}
@@ -1189,15 +1167,13 @@ export function InteractiveJobFeed({ initialJobs, stats, initialTotal, initialTo
                 value={selectedCity}
                 disabled={selectedCountry === "All" || selectedCountry === "Remote"}
                 loading={loadingCities}
-                loadingText="⏳ Loading Cities..."
+                loadingText="Loading Cities..."
                 onChange={(val) => {
                   setSelectedCity(val);
                               }}
-                placeholder={selectedCountry === "All" ? "← Pick Country First" : "🏙️ All Cities"}
+                placeholder={selectedCountry === "All" ? "Select country first" : "All Cities"}
                 searchPlaceholder="Search cities..."
               />
-
-              {/* 4. Company */}
               <SearchableSelect
                 ariaLabel="Company"
                 icon={<Building2 className="w-3.5 h-3.5" />}
@@ -1206,264 +1182,215 @@ export function InteractiveJobFeed({ initialJobs, stats, initialTotal, initialTo
                 onChange={(val) => {
                   setSelectedCompany(val);
                               }}
-                placeholder="🏢 All Companies"
+                placeholder="All Companies"
                 searchPlaceholder="Search companies..."
               />
             </div>
 
-            {/* Row 2: Job Type, Work Mode, Experience Level, Salary Range, Sort Order */}
+            {/* Row 2: Type, Mode, Experience, Salary, Sort */}
             <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2">
-              {/* 5. Job Type Dropdown */}
               <SearchableSelect
                 ariaLabel="Job Type"
                 icon={<Briefcase className="w-3.5 h-3.5" />}
                 options={jobTypeOptions}
                 value={activeFilters["Job Type"]}
                 onChange={(val) => toggleFilter("Job Type", val)}
-                placeholder="💼 All Job Types"
+                placeholder="All Job Types"
                 searchPlaceholder="Search job type..."
               />
-
-              {/* 6. Work Mode Dropdown */}
               <SearchableSelect
                 ariaLabel="Work Mode"
                 icon={<Laptop className="w-3.5 h-3.5" />}
                 options={workModeOptions}
                 value={activeFilters["Work Mode"]}
                 onChange={(val) => toggleFilter("Work Mode", val)}
-                placeholder="💻 All Work Modes"
+                placeholder="All Work Modes"
                 searchPlaceholder="Search work mode..."
               />
-
-              {/* 7. Experience Level Dropdown */}
               <SearchableSelect
                 ariaLabel="Experience Level"
                 icon={<GraduationCap className="w-3.5 h-3.5" />}
                 options={experienceOptions}
                 value={activeFilters["Experience"]}
                 onChange={(val) => toggleFilter("Experience", val)}
-                placeholder="🎯 All Experience"
+                placeholder="All Experience"
                 searchPlaceholder="Search experience..."
               />
-
-              {/* 8. Salary Range Dropdown */}
               <SearchableSelect
                 ariaLabel="Salary Range"
                 icon={<Coins className="w-3.5 h-3.5" />}
                 options={salaryOptions}
                 value={activeFilters["Salary"]}
                 onChange={(val) => toggleFilter("Salary", val)}
-                placeholder="💰 All Salaries"
+                placeholder="All Salaries"
                 searchPlaceholder="Search salary..."
               />
-
-              {/* 9. Sort Order Dropdown */}
               <SearchableSelect
                 ariaLabel="Sort Order"
                 icon={<ArrowUpDown className="w-3.5 h-3.5" />}
                 options={sortOptions}
                 value={sortBy}
                 onChange={(val) => setSortBy(val as any)}
-                placeholder="🔥 Newest First"
+                placeholder="Newest First"
                 searchPlaceholder="Search sort order..."
               />
             </div>
           </div>
 
-          {/* Active Filter Summary & Reset Bar */}
+          {/* Active Filter Summary */}
           {isFiltered && (
             <div className="mt-2 pt-2 border-t border-slate-100 dark:border-slate-800/80 flex items-center justify-between text-xs flex-wrap gap-2">
-              <div className="flex items-center gap-1.5 flex-wrap text-teal-700 dark:text-teal-400 font-medium">
-                <span>Showing <strong>{filteredAndSortedJobs.length}</strong> matching {filteredAndSortedJobs.length === 1 ? "posting" : "postings"}</span>
+              <div className="flex items-center gap-1.5 flex-wrap text-slate-600 dark:text-slate-400">
+                <span><strong className="text-slate-900 dark:text-white">{filteredAndSortedJobs.length}</strong> {filteredAndSortedJobs.length === 1 ? "result" : "results"}</span>
                 {selectedCountry !== "All" && (
-                  <span className="bg-teal-50 dark:bg-teal-900/40 text-teal-800 dark:text-teal-300 px-2 py-0.5 rounded-full border border-teal-200 dark:border-teal-800">
-                    🌍 {selectedCountry}
-                  </span>
+                  <span className="text-slate-500 dark:text-slate-400">· {selectedCountry}</span>
                 )}
                 {selectedState !== "All" && (
-                  <span className="bg-teal-50 dark:bg-teal-900/40 text-teal-800 dark:text-teal-300 px-2 py-0.5 rounded-full border border-teal-200 dark:border-teal-800">
-                    📍 {selectedState}
-                  </span>
+                  <span className="text-slate-500 dark:text-slate-400">· {selectedState}</span>
                 )}
                 {selectedCity !== "All" && (
-                  <span className="bg-teal-50 dark:bg-teal-900/40 text-teal-800 dark:text-teal-300 px-2 py-0.5 rounded-full border border-teal-200 dark:border-teal-800">
-                    🏙️ {selectedCity}
-                  </span>
+                  <span className="text-slate-500 dark:text-slate-400">· {selectedCity}</span>
                 )}
                 {selectedCompany !== "All" && (
-                  <span className="bg-teal-50 dark:bg-teal-900/40 text-teal-800 dark:text-teal-300 px-2 py-0.5 rounded-full border border-teal-200 dark:border-teal-800">
-                    🏢 {availableCompanies.find(c => c.slug === selectedCompany)?.name || selectedCompany}
-                  </span>
+                  <span className="text-slate-500 dark:text-slate-400">· {availableCompanies.find(c => c.slug === selectedCompany)?.name || selectedCompany}</span>
                 )}
                 {activeFilters["Job Type"] !== "All" && (
-                  <span className="bg-teal-50 dark:bg-teal-900/40 text-teal-800 dark:text-teal-300 px-2 py-0.5 rounded-full border border-teal-200 dark:border-teal-800">
-                    💼 {activeFilters["Job Type"]}
-                  </span>
+                  <span className="text-slate-500 dark:text-slate-400">· {activeFilters["Job Type"]}</span>
                 )}
                 {activeFilters["Work Mode"] !== "All" && (
-                  <span className="bg-teal-50 dark:bg-teal-900/40 text-teal-800 dark:text-teal-300 px-2 py-0.5 rounded-full border border-teal-200 dark:border-teal-800">
-                    💻 {activeFilters["Work Mode"]}
-                  </span>
+                  <span className="text-slate-500 dark:text-slate-400">· {activeFilters["Work Mode"]}</span>
                 )}
                 {activeFilters["Experience"] !== "All" && (
-                  <span className="bg-teal-50 dark:bg-teal-900/40 text-teal-800 dark:text-teal-300 px-2 py-0.5 rounded-full border border-teal-200 dark:border-teal-800">
-                    🎯 {activeFilters["Experience"] === "0-1" ? "Freshers (0–1 Yrs)" : `${activeFilters["Experience"]} Yrs Exp`}
-                  </span>
+                  <span className="text-slate-500 dark:text-slate-400">· {activeFilters["Experience"] === "0-1" ? "Freshers (0–1 Yrs)" : `${activeFilters["Experience"]} Yrs`}</span>
                 )}
                 {activeFilters["Salary"] !== "All" && (
-                  <span className="bg-teal-50 dark:bg-teal-900/40 text-teal-800 dark:text-teal-300 px-2 py-0.5 rounded-full border border-teal-200 dark:border-teal-800">
-                    💰 {activeFilters["Salary"] === "High Salary" ? "High Salary (₹12L+ / $80K+)" : activeFilters["Salary"] === "Mid Salary" ? "Mid Salary (₹6L-₹12L / $40K-$80K)" : "Entry Salary (< ₹6L / < $40K)"}
-                  </span>
+                  <span className="text-slate-500 dark:text-slate-400">· {activeFilters["Salary"]}</span>
                 )}
                 {sortBy === "high_salary_newest" && (
-                  <span className="bg-emerald-50 dark:bg-emerald-950/40 text-emerald-800 dark:text-emerald-300 px-2 py-0.5 rounded-full border border-emerald-200 dark:border-emerald-800 font-semibold">
-                    ⚡ High Salary + Newest
-                  </span>
+                  <span className="text-slate-500 dark:text-slate-400">· High Salary + Newest</span>
                 )}
               </div>
               <button
                 onClick={resetFilters}
-                className="flex items-center gap-1 text-red-600 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300 font-semibold transition-colors bg-red-50 dark:bg-red-950/40 px-2.5 py-0.5 rounded-full border border-red-200 dark:border-red-900/40 text-xs"
+                className="flex items-center gap-1 text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200 font-medium transition-colors text-xs"
               >
                 <RotateCcw className="w-3 h-3" />
-                Reset All
+                Reset
               </button>
             </div>
           )}
         </div>
       </div>
 
-      {/* Job Feed List */}
-      <section id="job-results-section" className="py-8 bg-slate-50 dark:bg-slate-950 flex-1 scroll-mt-28">
+      {/* Job Feed */}
+      <section id="job-results-section" className="py-6 bg-slate-50 dark:bg-slate-950 flex-1 scroll-mt-28">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-[1440px]">
-          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 mb-6">
-            <div>
-              <h2 className="text-2xl font-bold text-slate-900 dark:text-white flex items-center gap-2">
-                <span>Latest Openings (Last 1 Month)</span>
-                <span className="text-xs bg-emerald-100 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-400 px-2.5 py-0.5 rounded-full font-semibold border border-emerald-200 dark:border-emerald-800">
-                  Newest On Top
-                </span>
-              </h2>
-              <p className="text-xs text-slate-500 mt-0.5">
-                Direct official career portal openings verified through company career systems
-              </p>
-            </div>
-            <div className="text-xs font-semibold text-slate-600 dark:text-slate-300 bg-white dark:bg-slate-900 px-3 py-1.5 rounded-full border border-slate-200 dark:border-slate-800 shadow-2xs">
-              Page {currentPage} of {totalPages} • {totalJobs.toLocaleString()} matching jobs
-            </div>
+          <div className="flex items-center justify-between mb-5">
+            <p className="text-sm text-slate-500 dark:text-slate-400">
+              Page {currentPage} of {totalPages} · <strong className="text-slate-700 dark:text-slate-300">{totalJobs.toLocaleString()}</strong> jobs
+            </p>
           </div>
 
-          {/* Real-Time Live Job Discovery Alert */}
+          {/* New Jobs Alert */}
           {incomingJobs.length > 0 && (
-            <div className="mb-6 p-4 rounded-2xl bg-emerald-50/90 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-500/40 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 shadow-sm">
-              <div className="flex items-center gap-3">
-                <span className="relative flex h-3 w-3 shrink-0">
+            <div className="mb-5 px-4 py-3 rounded-lg bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-200 dark:border-emerald-800/50 flex items-center justify-between gap-3">
+              <div className="flex items-center gap-2.5">
+                <span className="relative flex h-2 w-2 shrink-0">
                   <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-                  <span className="relative inline-flex rounded-full h-3 w-3 bg-emerald-500"></span>
+                  <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
                 </span>
-                <div>
-                  <h4 className="text-sm font-bold text-emerald-900 dark:text-emerald-300 flex items-center gap-1.5">
-                    <Sparkles className="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0" />
-                    <span>🔥 {incomingJobs.length} New Live Job{incomingJobs.length > 1 ? 's' : ''} Just Discovered!</span>
-                  </h4>
-                  <p className="text-xs text-emerald-700/90 dark:text-emerald-400/80 mt-0.5">
-                    Fresh verified postings detected in real-time. Click to update your feed instantly.
-                  </p>
-                </div>
+                <span className="text-sm text-emerald-800 dark:text-emerald-300">
+                  <strong>{incomingJobs.length}</strong> new {incomingJobs.length === 1 ? 'job' : 'jobs'} discovered
+                </span>
               </div>
-              <Button
-                size="sm"
+              <button
                 onClick={applyIncomingJobs}
-                className="w-full sm:w-auto shrink-0 bg-emerald-600 hover:bg-emerald-500 text-white font-semibold text-xs px-4 py-2.5 h-auto rounded-xl shadow-md shadow-emerald-600/20 transition-all cursor-pointer"
+                className="text-xs font-semibold text-emerald-700 dark:text-emerald-300 hover:text-emerald-900 dark:hover:text-emerald-100 transition-colors cursor-pointer"
               >
-                Update Feed Now
-              </Button>
+                Refresh
+              </button>
             </div>
           )}
 
-          {/* Job Grid or Empty State */}
+          {/* Job Grid */}
           {displayedJobs.length > 0 ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 lg:gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
               {displayedJobs.map((job) => (
                 <JobCard key={job.id} job={job} />
               ))}
             </div>
           ) : (
-            <div className="text-center py-20 bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-8 shadow-2xs">
-              <div className="text-5xl mb-4">📍</div>
-              <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-2">
-                No active postings found for this selection
+            <div className="text-center py-16">
+              <h3 className="text-lg font-semibold text-slate-900 dark:text-white mb-1.5">
+                No jobs match your filters
               </h3>
-              <p className="text-slate-500 max-w-md mx-auto mb-6 text-sm">
-                No openings in &quot;{selectedCity !== 'All' ? selectedCity : selectedState !== 'All' ? selectedState : selectedCountry !== 'All' ? selectedCountry : searchQuery}&quot; within the last 1 month matching your filters.
+              <p className="text-sm text-slate-500 mb-5">
+                Try broadening your search or removing some filters.
               </p>
-              <Button onClick={resetFilters} className="bg-teal-600 hover:bg-teal-700 text-white font-semibold rounded-xl cursor-pointer">
-                <RotateCcw className="w-4 h-4 mr-2" />
-                Reset Filters & Show All
-              </Button>
+              <button
+                onClick={resetFilters}
+                className="inline-flex items-center gap-1.5 text-sm font-medium text-slate-700 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white transition-colors cursor-pointer"
+              >
+                <RotateCcw className="w-3.5 h-3.5" />
+                Reset all filters
+              </button>
             </div>
           )}
 
-          {/* Loading Indicator Overlay */}
+          {/* Loading */}
           {isFetchingPage && (
-            <div className="flex items-center justify-center gap-2 py-4 text-xs font-semibold text-teal-600 dark:text-teal-400">
-              <Sparkles className="w-4 h-4 animate-spin" />
-              <span>Fetching live opportunities...</span>
+            <div className="flex items-center justify-center gap-2 py-4 text-xs text-slate-500 dark:text-slate-400">
+              <span className="w-3.5 h-3.5 border-2 border-slate-300 dark:border-slate-600 border-t-transparent rounded-full animate-spin" />
+              <span>Loading...</span>
             </div>
           )}
 
-          {/* Server-Side Pagination Bar */}
+          {/* Pagination */}
           {totalPages > 1 && (
-            <div className="mt-12 flex flex-col md:flex-row items-center justify-between gap-4 p-4 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm">
-              <div className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 font-medium">
-                Showing <strong className="text-slate-900 dark:text-white">{((currentPage - 1) * 50) + 1}</strong>–<strong className="text-slate-900 dark:text-white">{Math.min(currentPage * 50, totalJobs)}</strong> of <strong className="text-slate-900 dark:text-white">{totalJobs.toLocaleString()}</strong> jobs (Page {currentPage} of {totalPages})
+            <div className="mt-10 flex flex-col md:flex-row items-center justify-between gap-3 py-4 border-t border-slate-200 dark:border-slate-800">
+              <div className="text-xs text-slate-500 dark:text-slate-400">
+                {((currentPage - 1) * 50) + 1}–{Math.min(currentPage * 50, totalJobs)} of {totalJobs.toLocaleString()}
               </div>
 
-              <div className="flex items-center gap-1.5 flex-wrap justify-center">
-                <Button
-                  variant="outline"
-                  size="sm"
+              <div className="flex items-center gap-1">
+                <button
                   disabled={currentPage <= 1 || isFetchingPage}
                   onClick={() => handlePageChange(currentPage - 1)}
-                  className="rounded-xl text-xs font-semibold px-3 h-8 cursor-pointer"
+                  className="px-2.5 py-1.5 text-xs font-medium text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700 rounded-md hover:bg-slate-100 dark:hover:bg-slate-800 disabled:opacity-40 disabled:cursor-not-allowed transition-colors cursor-pointer"
                 >
-                  ← Previous
-                </Button>
+                  Previous
+                </button>
 
                 {getPageNumbers().map((p, idx) => (
                   typeof p === "number" ? (
-                    <Button
+                    <button
                       key={idx}
-                      variant={p === currentPage ? "default" : "outline"}
-                      size="sm"
                       disabled={isFetchingPage}
                       onClick={() => handlePageChange(p)}
-                      className={`w-8 h-8 p-0 rounded-xl text-xs font-bold cursor-pointer ${
+                      className={`w-8 h-8 text-xs font-medium rounded-md transition-colors cursor-pointer ${
                         p === currentPage
-                          ? "bg-teal-600 hover:bg-teal-500 text-white shadow-xs border-teal-600"
-                          : "text-slate-700 dark:text-slate-300 hover:border-teal-500 hover:text-teal-600"
+                          ? "bg-slate-900 dark:bg-white text-white dark:text-slate-900"
+                          : "text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800"
                       }`}
                     >
                       {p}
-                    </Button>
+                    </button>
                   ) : (
-                    <span key={idx} className="px-1 text-slate-400 text-xs font-bold">...</span>
+                    <span key={idx} className="px-1 text-slate-400 text-xs">...</span>
                   )
                 ))}
 
-                <Button
-                  variant="outline"
-                  size="sm"
+                <button
                   disabled={currentPage >= totalPages || isFetchingPage}
                   onClick={() => handlePageChange(currentPage + 1)}
-                  className="rounded-xl text-xs font-semibold px-3 h-8 cursor-pointer"
+                  className="px-2.5 py-1.5 text-xs font-medium text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700 rounded-md hover:bg-slate-100 dark:hover:bg-slate-800 disabled:opacity-40 disabled:cursor-not-allowed transition-colors cursor-pointer"
                 >
-                  Next →
-                </Button>
+                  Next
+                </button>
               </div>
 
-              <div className="flex items-center gap-2 text-xs">
-                <span className="text-slate-500 dark:text-slate-400">Go to:</span>
+              <div className="flex items-center gap-1.5 text-xs">
+                <span className="text-slate-500 dark:text-slate-400">Page</span>
                 <input
                   type="number"
                   min={1}
@@ -1474,16 +1401,14 @@ export function InteractiveJobFeed({ initialJobs, stats, initialTotal, initialTo
                     if (e.key === "Enter") handleJumpPage();
                   }}
                   placeholder={String(currentPage)}
-                  className="w-14 px-2 py-1 border border-slate-200 dark:border-slate-800 rounded-lg bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-white text-center outline-none focus:border-teal-500"
+                  className="w-12 px-2 py-1 border border-slate-200 dark:border-slate-800 rounded-md bg-white dark:bg-slate-900 text-slate-900 dark:text-white text-center text-xs outline-none focus:border-slate-400 dark:focus:border-slate-600"
                 />
-                <Button
-                  variant="outline"
-                  size="sm"
+                <button
                   onClick={handleJumpPage}
-                  className="text-xs h-7 px-2.5 rounded-lg cursor-pointer"
+                  className="px-2 py-1 text-xs font-medium text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700 rounded-md hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer"
                 >
                   Go
-                </Button>
+                </button>
               </div>
             </div>
           )}
