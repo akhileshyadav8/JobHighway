@@ -133,8 +133,8 @@ export async function getLiveJobsPaginated(params: JobFilterParams = {}): Promis
         j.title ILIKE $${paramIdx} OR 
         c.name ILIKE $${paramIdx} OR 
         j.description_text ILIKE $${paramIdx} OR 
-        array_to_string(j.skills_required, ' ') ILIKE $${paramIdx} OR 
-        array_to_string(j.location, ' ') ILIKE $${paramIdx}
+        j.skills_required::text ILIKE $${paramIdx} OR 
+        j.location::text ILIKE $${paramIdx}
       )`);
       values.push(term);
       paramIdx++;
@@ -143,14 +143,33 @@ export async function getLiveJobsPaginated(params: JobFilterParams = {}): Promis
     // 2. Country
     if (params.country && params.country !== 'All') {
       if (params.country === 'Remote') {
-        conditions.push(`(j.work_mode ILIKE '%remote%' OR array_to_string(j.location, ' ') ILIKE '%remote%')`);
+        conditions.push(`(j.work_mode ILIKE '%remote%' OR j.location::text ILIKE '%remote%')`);
       } else if (params.country.toLowerCase() === 'india') {
-        conditions.push(`(array_to_string(j.location, ' ') ILIKE '%india%' OR array_to_string(j.location, ' ') ILIKE '%bengaluru%' OR array_to_string(j.location, ' ') ILIKE '%bangalore%' OR array_to_string(j.location, ' ') ILIKE '%mumbai%' OR array_to_string(j.location, ' ') ILIKE '%delhi%' OR array_to_string(j.location, ' ') ILIKE '%hyderabad%' OR array_to_string(j.location, ' ') ILIKE '%pune%' OR array_to_string(j.location, ' ') ILIKE '%chennai%' OR array_to_string(j.location, ' ') ILIKE '%noida%' OR array_to_string(j.location, ' ') ILIKE '%gurgaon%')`);
+        conditions.push(`(
+          j.location::text ~* '\\mIndia\\M' OR 
+          j.location::text ILIKE '%bengaluru%' OR 
+          j.location::text ILIKE '%bangalore%' OR 
+          j.location::text ILIKE '%mumbai%' OR 
+          j.location::text ILIKE '%delhi%' OR 
+          j.location::text ILIKE '%hyderabad%' OR 
+          j.location::text ILIKE '%pune%' OR 
+          j.location::text ILIKE '%chennai%' OR 
+          j.location::text ILIKE '%noida%' OR 
+          j.location::text ILIKE '%gurgaon%' OR 
+          j.location::text ILIKE '%gurugram%'
+        )`);
       } else if (params.country.toLowerCase() === 'united states' || params.country.toLowerCase() === 'usa') {
-        conditions.push(`(array_to_string(j.location, ' ') ILIKE '%united states%' OR array_to_string(j.location, ' ') ILIKE '%usa%' OR array_to_string(j.location, ' ') ILIKE '%san francisco%' OR array_to_string(j.location, ' ') ILIKE '%new york%' OR array_to_string(j.location, ' ') ILIKE '%seattle%' OR array_to_string(j.location, ' ') ILIKE '%california%' OR array_to_string(j.location, ' ') ILIKE '%austin%')`);
+        conditions.push(`(
+          j.location::text ~* '\\m(United States|USA|US)\\M' OR 
+          j.location::text ILIKE '%san francisco%' OR 
+          j.location::text ILIKE '%new york%' OR 
+          j.location::text ILIKE '%seattle%' OR 
+          j.location::text ILIKE '%california%' OR 
+          j.location::text ILIKE '%austin%'
+        )`);
       } else {
         const cTerm = `%${params.country}%`;
-        conditions.push(`array_to_string(j.location, ' ') ILIKE $${paramIdx}`);
+        conditions.push(`j.location::text ILIKE $${paramIdx}`);
         values.push(cTerm);
         paramIdx++;
       }
@@ -159,7 +178,7 @@ export async function getLiveJobsPaginated(params: JobFilterParams = {}): Promis
     // 3. State
     if (params.state && params.state !== 'All') {
       const sTerm = `%${params.state}%`;
-      conditions.push(`array_to_string(j.location, ' ') ILIKE $${paramIdx}`);
+      conditions.push(`j.location::text ILIKE $${paramIdx}`);
       values.push(sTerm);
       paramIdx++;
     }
@@ -168,16 +187,16 @@ export async function getLiveJobsPaginated(params: JobFilterParams = {}): Promis
     if (params.city && params.city !== 'All') {
       const cityLower = params.city.toLowerCase().trim();
       if (cityLower === 'bengaluru' || cityLower === 'bangalore') {
-        conditions.push(`(array_to_string(j.location, ' ') ILIKE '%bengaluru%' OR array_to_string(j.location, ' ') ILIKE '%bangalore%' OR array_to_string(j.location, ' ') ILIKE '%blr%')`);
+        conditions.push(`(j.location::text ILIKE '%bengaluru%' OR j.location::text ILIKE '%bangalore%' OR j.location::text ILIKE '%blr%')`);
       } else if (cityLower === 'gurgaon' || cityLower === 'gurugram') {
-        conditions.push(`(array_to_string(j.location, ' ') ILIKE '%gurgaon%' OR array_to_string(j.location, ' ') ILIKE '%gurugram%')`);
+        conditions.push(`(j.location::text ILIKE '%gurgaon%' OR j.location::text ILIKE '%gurugram%')`);
       } else if (cityLower === 'delhi' || cityLower === 'new delhi') {
-        conditions.push(`(array_to_string(j.location, ' ') ILIKE '%delhi%' OR array_to_string(j.location, ' ') ILIKE '%ncr%' OR array_to_string(j.location, ' ') ILIKE '%noida%' OR array_to_string(j.location, ' ') ILIKE '%gurgaon%')`);
+        conditions.push(`(j.location::text ILIKE '%delhi%' OR j.location::text ILIKE '%ncr%' OR j.location::text ILIKE '%noida%' OR j.location::text ILIKE '%gurgaon%')`);
       } else if (cityLower === 'mumbai' || cityLower === 'bombay') {
-        conditions.push(`(array_to_string(j.location, ' ') ILIKE '%mumbai%' OR array_to_string(j.location, ' ') ILIKE '%bombay%' OR array_to_string(j.location, ' ') ILIKE '%thane%')`);
+        conditions.push(`(j.location::text ILIKE '%mumbai%' OR j.location::text ILIKE '%bombay%' OR j.location::text ILIKE '%thane%')`);
       } else {
         const cityTerm = `%${params.city.trim()}%`;
-        conditions.push(`array_to_string(j.location, ' ') ILIKE $${paramIdx}`);
+        conditions.push(`j.location::text ILIKE $${paramIdx}`);
         values.push(cityTerm);
         paramIdx++;
       }
@@ -201,7 +220,7 @@ export async function getLiveJobsPaginated(params: JobFilterParams = {}): Promis
     // 7. Work Mode
     if (params.workMode && params.workMode !== 'All') {
       const wm = `%${params.workMode}%`;
-      conditions.push(`(j.work_mode ILIKE $${paramIdx} OR array_to_string(j.location, ' ') ILIKE $${paramIdx})`);
+      conditions.push(`(j.work_mode ILIKE $${paramIdx} OR j.location::text ILIKE $${paramIdx})`);
       values.push(wm);
       paramIdx++;
     }
