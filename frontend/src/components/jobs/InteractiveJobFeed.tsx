@@ -1070,15 +1070,15 @@ export function InteractiveJobFeed({ initialJobs, stats, initialTotal, initialTo
   return (
     <div className="flex flex-col min-h-screen bg-slate-50">
       {/* Hero Section */}
-      <section className="bg-white border-b border-slate-200 px-4 py-6 sm:py-8">
+      <section className="bg-white border-b border-slate-200 px-4 py-4 sm:py-5">
         <div className="container mx-auto max-w-4xl">
           {/* Small supporting line */}
-          <div className="text-xs font-semibold text-teal-700 tracking-wide uppercase mb-1.5">
+          <div className="text-[11px] font-semibold text-teal-700 tracking-wide uppercase mb-1">
             Direct ATS Stream • Synced Every 1–2 Hours
           </div>
 
-          <h1 className="text-2xl sm:text-3xl md:text-4xl font-black text-slate-900 tracking-tight leading-tight mb-4 sm:mb-5">
-            Skip the wait — Be the first
+          <h1 className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight leading-tight mb-3">
+            Find fresh opportunities before they get crowded
           </h1>
 
           {/* Large search field */}
@@ -1273,8 +1273,8 @@ export function InteractiveJobFeed({ initialJobs, stats, initialTotal, initialTo
       </div>
 
       {/* Job Feed */}
-      <section id="job-results-section" className="py-6 bg-slate-50 flex-1 scroll-mt-28">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-[1440px]">
+      <section id="job-results-section" className="py-4 bg-slate-50 flex-1 scroll-mt-28">
+        <div className="container mx-auto px-4 sm:px-6 max-w-4xl">
           <div className="flex items-center justify-between mb-4">
             <p className="text-xs sm:text-sm text-slate-600">
               Page {currentPage} of {totalPages} · <strong className="text-slate-900">{totalJobs.toLocaleString()}</strong> active jobs
@@ -1302,9 +1302,9 @@ export function InteractiveJobFeed({ initialJobs, stats, initialTotal, initialTo
             </div>
           )}
 
-          {/* Job Grid */}
+          {/* Job List */}
           {displayedJobs.length > 0 ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            <div className="flex flex-col gap-2">
               {displayedJobs.map((job) => (
                 <JobCard key={job.id} job={job} />
               ))}
