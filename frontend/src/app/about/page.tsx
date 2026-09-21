@@ -125,14 +125,14 @@ export default function AboutPage() {
         </div>
 
         {/* Free Guarantee Banner */}
-        <div className="bg-slate-900 text-white rounded-3xl p-8 md:p-12 text-center shadow-xl mb-12">
-          <ShieldCheck className="w-14 h-14 text-teal-400 mx-auto mb-4" />
-          <h2 className="text-2xl md:text-3xl font-bold mb-3">100% Free For All Candidates</h2>
-          <p className="text-slate-300 max-w-xl mx-auto mb-8 text-sm md:text-base leading-relaxed">
+        <div className="bg-teal-50/60 border border-teal-200/80 rounded-2xl p-8 md:p-12 text-center shadow-2xs mb-12">
+          <ShieldCheck className="w-14 h-14 text-teal-600 mx-auto mb-4" />
+          <h2 className="text-2xl md:text-3xl font-black text-slate-900 mb-3">100% Free For All Candidates</h2>
+          <p className="text-slate-600 max-w-xl mx-auto mb-8 text-sm md:text-base leading-relaxed">
             JobPulse never charges candidates for job applications, referrals, or study materials. We strictly redirect candidates directly to the official hiring company&apos;s verified career portal.
           </p>
           <Link href="/">
-            <Button size="lg" className="bg-teal-500 hover:bg-teal-600 text-slate-950 font-bold px-8">
+            <Button size="lg" className="bg-teal-600 hover:bg-teal-700 text-white font-bold px-8 cursor-pointer rounded-xl shadow-xs">
               Explore Live Openings <ArrowRight className="w-4 h-4 ml-2" />
             </Button>
           </Link>

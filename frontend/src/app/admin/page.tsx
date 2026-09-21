@@ -311,22 +311,22 @@ export default function AdminDashboardPage() {
       <div className="container mx-auto px-4 max-w-6xl">
 
         {/* Admin Header */}
-        <div className="bg-slate-900 text-white rounded-3xl p-6 sm:p-8 mb-8 shadow-xl border border-slate-800 flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
+        <div className="bg-white text-slate-900 rounded-2xl p-6 sm:p-7 mb-8 shadow-xs border border-slate-200/90 flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
           <div className="flex items-center gap-4">
-            <div className="w-14 h-14 rounded-2xl bg-teal-500 text-slate-950 flex items-center justify-center font-black text-2xl shadow-lg">
-              <Shield className="w-7 h-7" />
+            <div className="w-12 h-12 rounded-xl bg-teal-50 text-teal-600 border border-teal-200 flex items-center justify-center font-black text-2xl shadow-2xs">
+              <Shield className="w-6 h-6" />
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <h1 className="text-xl sm:text-2xl font-black tracking-tight">
+                <h1 className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight">
                   JobPulse Master Admin
                 </h1>
-                <span className="text-[10px] font-bold text-teal-400 bg-teal-950 border border-teal-800 px-2.5 py-0.5 rounded-full uppercase">
+                <span className="text-[10px] font-bold text-teal-700 bg-teal-50 border border-teal-200 px-2.5 py-0.5 rounded-full uppercase tracking-wider">
                   Verified Operator
                 </span>
               </div>
-              <p className="text-xs text-slate-400 mt-1">
-                Operator: <strong className="text-slate-200">{user.name}</strong> ({user.email}) • Genuine Origin Telemetry & Live Pipeline
+              <p className="text-xs text-slate-500 mt-1">
+                Operator: <strong className="text-slate-800 font-semibold">{user.name}</strong> ({user.email}) • Genuine Origin Telemetry &amp; Live Pipeline
               </p>
             </div>
           </div>
@@ -336,13 +336,13 @@ export default function AdminDashboardPage() {
               onClick={refreshData}
               variant="outline"
               size="sm"
-              className="text-xs bg-slate-800 border-slate-700 hover:bg-slate-700 text-slate-200 rounded-xl cursor-pointer"
+              className="text-xs bg-white border-slate-200 hover:bg-slate-50 text-slate-700 rounded-xl cursor-pointer shadow-2xs font-semibold"
             >
               <RefreshCw className="w-3.5 h-3.5 mr-1.5" />
               Refresh Data
             </Button>
             <Link href="/dashboard">
-              <Button size="sm" className="text-xs bg-slate-800 hover:bg-slate-700 text-slate-200 rounded-xl cursor-pointer">
+              <Button size="sm" className="text-xs bg-slate-100 hover:bg-slate-200 text-slate-700 border border-slate-200 rounded-xl cursor-pointer font-semibold">
                 Candidate Dashboard
               </Button>
             </Link>
@@ -350,7 +350,7 @@ export default function AdminDashboardPage() {
               onClick={handleLogout}
               size="sm"
               variant="ghost"
-              className="text-xs text-rose-400 hover:bg-rose-950/40 rounded-xl cursor-pointer"
+              className="text-xs text-rose-600 hover:bg-rose-50 hover:text-rose-700 rounded-xl cursor-pointer font-semibold"
             >
               Sign Out
             </Button>
@@ -764,7 +764,7 @@ export default function AdminDashboardPage() {
                   <div className="p-4 border-t border-slate-100 flex justify-end">
                     <Button
                       onClick={() => setSelectedCandidate(null)}
-                      className="text-xs font-semibold rounded-xl bg-slate-800 text-white cursor-pointer"
+                      className="text-xs font-semibold rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 border border-slate-200 cursor-pointer"
                     >
                       Close Viewer
                     </Button>

@@ -1359,7 +1359,7 @@ export function InteractiveJobFeed({ initialJobs, stats, initialTotal, initialTo
                       onClick={() => handlePageChange(p)}
                       className={`w-8 h-8 text-xs font-medium rounded transition-colors cursor-pointer ${
                         p === currentPage
-                          ? "bg-slate-900 text-white font-semibold"
+                          ? "bg-teal-600 text-white font-semibold shadow-xs"
                           : "text-slate-700 hover:bg-slate-100"
                       }`}
                     >
