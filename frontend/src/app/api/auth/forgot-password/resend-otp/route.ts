@@ -73,8 +73,9 @@ export async function POST(req: NextRequest) {
       try {
         const { Resend } = await import('resend');
         const resend = new Resend(RESEND_API_KEY);
+        const fromEmail = process.env.RESEND_FROM_EMAIL || 'JobPulse Security <onboarding@resend.dev>';
         await resend.emails.send({
-          from: 'JobPulse Security <noreply@jobpulse.in>',
+          from: fromEmail,
           to: [email],
           subject: `${newOtp} — Your New JobPulse Password Reset Code`,
           html: `
