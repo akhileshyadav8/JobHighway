@@ -43,6 +43,33 @@ export default function AboutPage() {
         <hr className="border-slate-200 mb-14 sm:mb-18" />
 
         {/* =======================================================
+            SECTION 1.5 — THE PROBLEM (Timing)
+        ======================================================= */}
+        <section className="mb-14 sm:mb-18">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-12 items-start">
+            <div className="lg:col-span-5">
+              <div className="text-[11px] font-mono font-bold tracking-widest text-slate-500 uppercase mb-3">
+                The Problem
+              </div>
+              <h2 className="text-2xl sm:text-3xl md:text-4xl font-black text-slate-900 tracking-tight leading-tight">
+                Most openings are discovered too late.
+              </h2>
+            </div>
+            <div className="lg:col-span-7 lg:pt-6 space-y-4 text-slate-600 text-sm sm:text-base leading-relaxed">
+              <p>
+                Most job seekers discover openings after they&apos;ve already accumulated dozens of applications. By the time a job appears on a popular job board, it may already have hundreds of candidates ahead of you.
+              </p>
+              <p>
+                The first 24–48 hours after a job is posted are when you have the highest chance of being noticed. Applications submitted early tend to get more attention from recruiters before the volume picks up.
+              </p>
+              <p>
+                JobPulse is built around this idea — connecting directly to the systems where companies post first, so you can find opportunities before they spread widely.
+              </p>
+            </div>
+          </div>
+        </section>
+
+        {/* =======================================================
             SECTION 2 — THE IDEA (Start with the Source)
         ======================================================= */}
         <section className="mb-14 sm:mb-18">

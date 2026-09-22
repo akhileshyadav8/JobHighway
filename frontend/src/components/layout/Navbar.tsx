@@ -74,13 +74,13 @@ export function Navbar() {
         {/* Logo and Tagline */}
         <div className="flex items-center gap-3 sm:gap-4">
           <Link href="/" className="flex items-center gap-2.5 group">
-            <div className="relative w-9 h-9 sm:w-10 sm:h-10 rounded-lg overflow-hidden border border-slate-200 bg-white flex items-center justify-center shrink-0">
+            <div className="relative w-10 h-10 sm:w-11 sm:h-11 flex items-center justify-center shrink-0">
               <Image
                 src="/logo.png"
                 alt="JobPulse Logo"
-                width={40}
-                height={40}
-                className="w-full h-full object-cover"
+                width={44}
+                height={44}
+                className="w-full h-full object-contain"
                 priority
               />
             </div>

@@ -2,10 +2,11 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { useRouter } from "next/navigation";
-import { MapPin, Clock, Bookmark, CheckCircle2 } from "lucide-react";
+import { MapPin, Clock, Bookmark, CheckCircle2, ExternalLink } from "lucide-react";
 import { Job } from "@/lib/api";
-import { formatSalary, formatRelativeTime, formatDate, sanitizeJobSkills } from "@/lib/utils";
+import { formatSalary, formatRelativeTime, formatDate, sanitizeJobSkills, getCountryFlag, inferAtsSource } from "@/lib/utils";
 import { getCurrentUser, markJobApplied, isJobApplied, toggleBookmark, isJobBookmarked, User } from "@/lib/auth";
 import { trackEvent } from "@/lib/telemetry";
 
@@ -59,13 +60,12 @@ export function JobCard({ job }: JobCardProps) {
     });
 
     const user = getCurrentUser();
-    // Only candidates track applications; admins are admin-only
     if (user && user.role !== "admin") {
       markJobApplied(user.id, {
         jobId: String(job.id),
         title: job.title,
         company: job.company.name,
-        location: job.location.join(", ") || "Remote",
+        location: Array.isArray(job.location) && job.location.length > 0 ? job.location.join(", ") : "Remote",
         salary: formatSalary(job.salary_min, job.salary_max, job.salary_currency, job.salary_period, true),
         applyUrl: job.apply_url || ""
       });
@@ -87,7 +87,7 @@ export function JobCard({ job }: JobCardProps) {
       jobId: String(job.id),
       title: job.title,
       company: job.company.name,
-      location: job.location.join(", ") || "Remote",
+      location: Array.isArray(job.location) && job.location.length > 0 ? job.location.join(", ") : "Remote",
       salary: formatSalary(job.salary_min, job.salary_max, job.salary_currency, job.salary_period, true),
       applyUrl: job.apply_url || ""
     });
@@ -108,7 +108,7 @@ export function JobCard({ job }: JobCardProps) {
       jobId: String(job.id),
       title: job.title,
       company: job.company.name,
-      location: job.location.join(", ") || "Remote",
+      location: Array.isArray(job.location) && job.location.length > 0 ? job.location.join(", ") : "Remote",
       salary: formatSalary(job.salary_min, job.salary_max, job.salary_currency, job.salary_period, true),
       applyUrl: job.apply_url || ""
     });
@@ -132,76 +132,96 @@ export function JobCard({ job }: JobCardProps) {
     ? `${job.experience_min}+ Yrs`
     : null;
 
-  // Location display
-  const locationText = job.location && job.location.length > 0
-    ? job.location.slice(0, 2).join(", ") + (job.location.length > 2 ? ` +${job.location.length - 2}` : "")
+  // Location display — safe guard against null/non-array
+  const safeLocation = Array.isArray(job.location) ? job.location : [];
+  const locationText = safeLocation.length > 0
+    ? safeLocation.slice(0, 2).join(", ") + (safeLocation.length > 2 ? ` +${safeLocation.length - 2}` : "")
     : null;
+
+  // Country flag
+  const countryFlag = getCountryFlag(safeLocation);
+
+  // Source ATS badge
+  const atsSource = inferAtsSource(job.apply_url || job.job_url);
 
   // Salary display
   const salaryText = formatSalary(job.salary_min, job.salary_max, job.salary_currency, job.salary_period, true);
+  const showSalary = salaryText && salaryText !== "Competitive (Disclosed on Application)";
 
   // Batch information: display only if real meaningful data is present
   const batchText = (job.eligible_batches && Array.isArray(job.eligible_batches) && job.eligible_batches.length > 0)
     ? job.eligible_batches.filter(b => Boolean(b && String(b).trim())).join(", ")
     : null;
 
-  // Closing / Expiry date information:
-  // If actual date present -> "Apply by [Date]"
-  // If non-date deadline message present -> display message
-  // If NO deadline present -> do NOT display "ASAP" or anything
+  // Closing / Expiry date
   const getClosingDateText = (): string | null => {
     if (!job.deadline) return null;
     const trimmed = String(job.deadline).trim();
-    if (!trimmed || trimmed.toLowerCase() === "null" || trimmed.toLowerCase() === "undefined") {
-      return null;
-    }
+    if (!trimmed || trimmed.toLowerCase() === "null" || trimmed.toLowerCase() === "undefined") return null;
     const parsedDate = new Date(trimmed);
     if (!isNaN(parsedDate.getTime()) && parsedDate.getFullYear() > 2000) {
       const formatted = formatDate(trimmed);
       if (formatted) return `Apply by ${formatted}`;
     }
-    // Return explicit non-date deadline message if present
     return `Deadline: ${trimmed}`;
   };
   const closingText = getClosingDateText();
 
-  // Metadata line parts
-  const metaParts: string[] = [];
-  if (locationText) metaParts.push(locationText);
-  if (job.work_mode) metaParts.push(job.work_mode);
-  if (job.employment_type) metaParts.push(job.employment_type);
-  if (expText) metaParts.push(expText);
-
   return (
-    <div className="bg-white border border-slate-200 rounded-lg p-4 hover:border-slate-300 transition-colors flex flex-col h-full">
-      {/* Title + Company */}
-      <div className="mb-2">
-        <Link href={`/jobs/${job.slug}`} onClick={handleJobClick}>
-          <h3 className="font-semibold text-[15px] leading-snug text-slate-900 hover:text-teal-700 transition-colors line-clamp-2">
-            {job.title}
-          </h3>
-        </Link>
-        <p className="text-sm font-medium text-slate-600 mt-0.5">
-          {job.company.name}
-        </p>
+    <div className="bg-white border border-slate-200 rounded-lg p-4 hover:border-slate-300 hover:shadow-sm transition-all flex flex-col h-full">
+      {/* Company + Title header */}
+      <div className="flex items-start gap-2.5 mb-2.5">
+        {/* Company Logo */}
+        {job.company.logo_url ? (
+          <div className="w-9 h-9 shrink-0 rounded border border-slate-100 bg-white flex items-center justify-center overflow-hidden mt-0.5">
+            <Image
+              src={job.company.logo_url}
+              alt={job.company.name}
+              width={36}
+              height={36}
+              className="w-full h-full object-contain"
+              onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }}
+            />
+          </div>
+        ) : (
+          <div className="w-9 h-9 shrink-0 rounded border border-slate-100 bg-slate-50 flex items-center justify-center mt-0.5">
+            <span className="text-xs font-bold text-slate-400 uppercase">
+              {job.company.name.charAt(0)}
+            </span>
+          </div>
+        )}
+
+        <div className="flex-1 min-w-0">
+          <Link href={`/jobs/${job.slug}`} onClick={handleJobClick}>
+            <h3 className="font-semibold text-[14px] leading-snug text-slate-900 hover:text-teal-700 transition-colors line-clamp-2">
+              {job.title}
+            </h3>
+          </Link>
+          <p className="text-xs font-medium text-slate-500 mt-0.5 truncate">
+            {job.company.name}
+          </p>
+        </div>
       </div>
 
-      {/* Metadata line */}
-      {metaParts.length > 0 && (
+      {/* Location + Meta */}
+      {(locationText || job.work_mode || job.employment_type || expText) && (
         <div className="flex items-start gap-1 text-xs text-slate-500 mb-2">
-          <MapPin className="w-3.5 h-3.5 mt-0.5 shrink-0 text-slate-400" />
-          <span className="line-clamp-1">{metaParts.join(" · ")}</span>
+          <MapPin className="w-3 h-3 mt-0.5 shrink-0 text-slate-400" />
+          <span className="line-clamp-1">
+            {countryFlag && <span className="mr-1">{countryFlag}</span>}
+            {[locationText, job.work_mode, job.employment_type, expText].filter(Boolean).join(" · ")}
+          </span>
         </div>
       )}
 
       {/* Salary */}
-      {salaryText && salaryText !== "Not Disclosed" && (
+      {showSalary && (
         <p className="text-sm font-semibold text-slate-900 mb-2">
           {salaryText}
         </p>
       )}
 
-      {/* Batch & Closing Date (Restored) */}
+      {/* Batch & Closing Date */}
       {(batchText || closingText) && (
         <div className="flex flex-wrap items-center gap-2 text-xs mb-2">
           {batchText && (
@@ -217,17 +237,17 @@ export function JobCard({ job }: JobCardProps) {
         </div>
       )}
 
-      {/* Skills */}
+      {/* Skills — max 3 visible */}
       {displaySkills && displaySkills.length > 0 && (
         <div className="flex flex-wrap gap-1 mt-auto pt-2">
-          {displaySkills.slice(0, 4).map((skill, i) => (
+          {displaySkills.slice(0, 3).map((skill, i) => (
             <span key={i} className="text-[11px] bg-slate-100 px-1.5 py-0.5 rounded text-slate-600">
               {skill}
             </span>
           ))}
-          {displaySkills.length > 4 && (
+          {displaySkills.length > 3 && (
             <span className="text-[11px] text-slate-400 self-center">
-              +{displaySkills.length - 4}
+              +{displaySkills.length - 3}
             </span>
           )}
         </div>
@@ -235,10 +255,18 @@ export function JobCard({ job }: JobCardProps) {
 
       {/* Footer */}
       <div className="flex items-center justify-between mt-3 pt-3 border-t border-slate-100">
-        <span className="flex items-center gap-1 text-xs text-slate-400" suppressHydrationWarning>
-          <Clock className="w-3 h-3" />
-          <span suppressHydrationWarning>{formatRelativeTime(job.posted_at || job.first_seen_at)}</span>
-        </span>
+        {/* Left: time + source badge */}
+        <div className="flex flex-col gap-0.5">
+          <span className="flex items-center gap-1 text-xs text-slate-400" suppressHydrationWarning>
+            <Clock className="w-3 h-3" />
+            <span suppressHydrationWarning>{formatRelativeTime(job.posted_at || job.first_seen_at)}</span>
+          </span>
+          {atsSource && (
+            <span className="text-[10px] text-teal-700 font-medium">
+              via {atsSource}
+            </span>
+          )}
+        </div>
 
         <div className="flex items-center gap-1.5">
           {!isAdmin && (
@@ -283,9 +311,10 @@ export function JobCard({ job }: JobCardProps) {
               onClick={handleApplyClick}
               target="_blank"
               rel="noopener noreferrer"
-              className="px-3 py-1 text-xs font-semibold bg-teal-600 hover:bg-teal-700 text-white rounded transition-colors cursor-pointer"
+              className="px-2.5 py-1 text-xs font-semibold bg-teal-600 hover:bg-teal-700 text-white rounded transition-colors cursor-pointer inline-flex items-center gap-1"
             >
               Apply
+              <ExternalLink className="w-2.5 h-2.5" />
             </a>
           )}
         </div>

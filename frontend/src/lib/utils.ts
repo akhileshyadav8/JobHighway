@@ -306,3 +306,62 @@ export function cleanHtmlDescription(rawHtml?: string | null, rawText?: string |
 
   return content;
 }
+
+/**
+ * Infers a country flag emoji from a job's location array.
+ * Returns the most specific match found, or empty string if unknown.
+ */
+export function getCountryFlag(locations: string[]): string {
+  if (!locations || locations.length === 0) return '';
+  const text = locations.join(' ').toLowerCase();
+
+  if (/\b(india|bengaluru|bangalore|blr|pune|hyderabad|mumbai|delhi|noida|gurgaon|gurugram|chennai|kolkata|ahmedabad|karnataka|maharashtra|tamil\s*nadu|telangana|andhra|gujarat|rajasthan|kerala|lucknow|chandigarh)\b/.test(text)) return '🇮🇳';
+  if (/\b(united\s*states|usa|u\.s\.?|san\s*francisco|new\s*york|nyc|seattle|austin|chicago|boston|los\s*angeles|california|texas|washington|colorado|denver|atlanta|silicon\s*valley|sunnyvale|menlo\s*park|palo\s*alto|mountain\s*view|us\s*remote|remote\s*us)\b/.test(text)) return '🇺🇸';
+  if (/\b(united\s*kingdom|uk|u\.k\.?|london|manchester|edinburgh|bristol|birmingham|glasgow|leeds|liverpool)\b/.test(text)) return '🇬🇧';
+  if (/\b(germany|deutschland|berlin|munich|münchen|frankfurt|hamburg|cologne|stuttgart|düsseldorf|karlsruhe)\b/.test(text)) return '🇩🇪';
+  if (/\b(canada|toronto|vancouver|montreal|ottawa|calgary|waterloo|quebec)\b/.test(text)) return '🇨🇦';
+  if (/\b(australia|sydney|melbourne|brisbane|perth|canberra|adelaide)\b/.test(text)) return '🇦🇺';
+  if (/\b(singapore|sg\b)/.test(text)) return '🇸🇬';
+  if (/\b(ireland|dublin|cork|galway|limerick)\b/.test(text)) return '🇮🇪';
+  if (/\b(france|paris|lyon|marseille|toulouse|nice|nantes|bordeaux)\b/.test(text)) return '🇫🇷';
+  if (/\b(japan|tokyo|osaka|kyoto|yokohama)\b/.test(text)) return '🇯🇵';
+  if (/\b(netherlands|amsterdam|rotterdam|utrecht|eindhoven|hague)\b/.test(text)) return '🇳🇱';
+  if (/\b(united\s*arab\s*emirates|uae|dubai|abu\s*dhabi)\b/.test(text)) return '🇦🇪';
+  if (/\b(switzerland|zurich|geneva|basel|lausanne|bern)\b/.test(text)) return '🇨🇭';
+  if (/\b(sweden|stockholm|gothenburg|malmo)\b/.test(text)) return '🇸🇪';
+  if (/\b(poland|warsaw|krakow|wroclaw|gdansk|poznan)\b/.test(text)) return '🇵🇱';
+  if (/\b(spain|madrid|barcelona|valencia|seville|malaga)\b/.test(text)) return '🇪🇸';
+  if (/\b(italy|milan|rome|turin|florence|bologna)\b/.test(text)) return '🇮🇹';
+  if (/\b(brazil|são\s*paulo|sao\s*paulo|rio\s*de\s*janeiro)\b/.test(text)) return '🇧🇷';
+  if (/\b(mexico|mexico\s*city|guadalajara|monterrey)\b/.test(text)) return '🇲🇽';
+  if (/\b(remote|worldwide|global|anywhere)\b/.test(text)) return '🌍';
+  return '';
+}
+
+/**
+ * Infers the ATS/source name from a job URL domain.
+ * Returns a short human-readable source name or empty string.
+ */
+export function inferAtsSource(url?: string | null): string {
+  if (!url) return '';
+  try {
+    const hostname = new URL(url).hostname.toLowerCase();
+    if (hostname.includes('greenhouse.io')) return 'Greenhouse';
+    if (hostname.includes('lever.co')) return 'Lever';
+    if (hostname.includes('ashbyhq.com')) return 'Ashby';
+    if (hostname.includes('myworkdayjobs.com') || hostname.includes('workday.com')) return 'Workday';
+    if (hostname.includes('smartrecruiters.com')) return 'SmartRecruiters';
+    if (hostname.includes('workable.com')) return 'Workable';
+    if (hostname.includes('teamtailor.com')) return 'Teamtailor';
+    if (hostname.includes('jobvite.com')) return 'Jobvite';
+    if (hostname.includes('icims.com')) return 'iCIMS';
+    if (hostname.includes('taleo.net') || hostname.includes('oraclecloud.com')) return 'Oracle Taleo';
+    if (hostname.includes('successfactors.com') || hostname.includes('sap.com')) return 'SAP SuccessFactors';
+    if (hostname.includes('linkedin.com')) return 'LinkedIn';
+    if (hostname.includes('indeed.com')) return 'Indeed';
+    if (hostname.includes('naukri.com')) return 'Naukri';
+    return '';
+  } catch {
+    return '';
+  }
+}

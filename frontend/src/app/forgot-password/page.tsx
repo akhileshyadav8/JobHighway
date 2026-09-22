@@ -53,8 +53,12 @@ export default function ForgotPasswordPage() {
   return (
     <div className="min-h-[calc(100vh-4rem)] bg-slate-50 py-16 px-4 flex items-center justify-center">
       <div className="w-full max-w-md">
-        {/* Header */}
+        {/* Logo */}
         <div className="text-center mb-6">
+          <a href="/" className="inline-flex items-center gap-2 mb-4">
+            <img src="/logo.png" alt="JobPulse" className="w-10 h-10 object-contain" />
+            <span className="text-2xl font-black tracking-tight text-teal-700">JobPulse</span>
+          </a>
           <h1 className="text-2xl sm:text-3xl font-bold text-slate-900 tracking-tight">
             Reset your password
           </h1>

@@ -8,13 +8,13 @@ export function Footer() {
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8 mb-8">
           <div className="md:col-span-2">
             <Link href="/" className="inline-flex items-center gap-2.5 mb-3 group">
-              <div className="relative w-9 h-9 sm:w-10 sm:h-10 rounded-lg overflow-hidden border border-slate-200 bg-white flex items-center justify-center shrink-0">
+              <div className="relative w-10 h-10 flex items-center justify-center shrink-0">
                 <Image
                   src="/logo.png"
                   alt="JobPulse Logo"
-                  width={36}
-                  height={36}
-                  className="w-full h-full object-cover"
+                  width={40}
+                  height={40}
+                  className="w-full h-full object-contain"
                 />
               </div>
               <span className="text-2xl font-black tracking-tight text-teal-700 group-hover:opacity-90 transition-opacity">
@@ -22,7 +22,7 @@ export function Footer() {
               </span>
             </Link>
             <p className="text-sm max-w-sm mb-4 leading-relaxed text-slate-600">
-              World&apos;s Fastest Official Job Engine. We index official career portals within 1–2 hours of posting — beating standard aggregators by days with zero recruiter spam.
+              JobPulse indexes official ATS career portals regularly so you can discover and apply to jobs early, directly at the source.
             </p>
           </div>
           
