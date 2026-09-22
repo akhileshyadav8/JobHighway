@@ -692,49 +692,131 @@ export function InteractiveJobFeed({ initialJobs, stats, initialTotal, initialTo
   return (
     <div className="flex flex-col min-h-screen bg-slate-50">
       {/* Hero Section */}
-      <section className="bg-white border-b border-slate-200 px-4 py-6 sm:py-8">
+      <section className="bg-white border-b border-slate-200 px-4 py-8 sm:py-12">
         <div className="container mx-auto max-w-4xl">
-          {/* Small supporting line */}
-          <div className="text-xs font-semibold text-teal-700 tracking-wide uppercase mb-1.5">
-            Direct ATS Stream • Synced Every 1–2 Hours
+          {/* Eyebrow badge */}
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-semibold bg-teal-50 text-teal-700 border border-teal-200/80 mb-3.5 tracking-wide">
+            <span className="relative flex h-2 w-2">
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-teal-400 opacity-75"></span>
+              <span className="relative inline-flex rounded-full h-2 w-2 bg-teal-600"></span>
+            </span>
+            <span>REAL-TIME ATS JOB DISCOVERY</span>
           </div>
 
-          <h1 className="text-2xl sm:text-3xl md:text-4xl font-black text-slate-900 tracking-tight leading-tight mb-4 sm:mb-5">
-            Skip the wait — Be the first
+          {/* Punchy Headline */}
+          <h1 className="text-3xl sm:text-4xl md:text-5xl font-black text-slate-900 tracking-tight leading-[1.12] mb-3">
+            Find the job.{" "}
+            <span className="text-transparent bg-clip-text bg-gradient-to-r from-teal-600 to-emerald-600">
+              Before everyone else.
+            </span>
           </h1>
 
-          {/* Canonical Search Field */}
-          <div className="relative w-full">
-            <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-teal-600 w-5 h-5 pointer-events-none" />
-            <input
-              type="text"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Search by role (e.g. Frontend Engineer, SDE), company, skills, or city..."
-              className="w-full pl-12 pr-10 py-3.5 rounded-2xl bg-white shadow-md border border-slate-200 text-slate-900 placeholder-slate-400 focus:ring-2 focus:ring-teal-500 outline-none text-sm transition-all"
-            />
-            {searchQuery && (
-              <button
-                onClick={() => setSearchQuery("")}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition-colors p-1"
-                title="Clear search"
-              >
-                <X className="w-4 h-4" />
-              </button>
-            )}
+          {/* Highlighted Value Proposition */}
+          <p className="text-sm sm:text-base text-slate-600 max-w-2xl leading-relaxed mb-6">
+            JobPulse continuously discovers openings{" "}
+            <span className="text-slate-900 font-semibold bg-teal-50 text-teal-900 px-1.5 py-0.5 rounded border border-teal-200/60">
+              directly from official company career systems
+            </span>
+            , so you can find fresh opportunities{" "}
+            <span className="text-slate-900 font-semibold bg-teal-50 text-teal-900 px-1.5 py-0.5 rounded border border-teal-200/60">
+              before outdated listings reach other job boards
+            </span>
+            .
+          </p>
+
+          {/* Canonical Search Bar with prominent Search Button */}
+          <div className="relative flex items-center gap-2 w-full max-w-3xl mb-4">
+            <div className="relative flex-1">
+              <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-teal-600 w-5 h-5 pointer-events-none" />
+              <input
+                type="text"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") {
+                    document.getElementById("job-results-section")?.scrollIntoView({ behavior: "smooth" });
+                  }
+                }}
+                placeholder="Search by role (e.g. Software Engineer), company, tech stack, or city..."
+                className="w-full pl-12 pr-10 py-3.5 rounded-xl bg-white shadow-sm border border-slate-200 text-slate-900 placeholder-slate-400 focus:ring-2 focus:ring-teal-500 focus:border-teal-500 outline-none text-sm transition-all"
+              />
+              {searchQuery && (
+                <button
+                  onClick={() => setSearchQuery("")}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition-colors p-1"
+                  title="Clear search"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              )}
+            </div>
+            <button
+              onClick={() => {
+                document.getElementById("job-results-section")?.scrollIntoView({ behavior: "smooth" });
+              }}
+              className="px-6 py-3.5 bg-teal-600 hover:bg-teal-700 active:bg-teal-800 text-white font-semibold text-sm rounded-xl transition-all shadow-sm hover:shadow flex items-center gap-2 shrink-0 cursor-pointer"
+            >
+              <Search className="w-4 h-4" />
+              <span>Search</span>
+            </button>
           </div>
 
-          {/* Small factual job/company statistics */}
-          <div className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-slate-500">
-            <span>
+          {/* Dynamic Factual Stats Row */}
+          <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-xs text-slate-600 mb-6">
+            <span className="flex items-center gap-1.5 font-medium">
+              <span className="w-1.5 h-1.5 rounded-full bg-teal-600"></span>
               <strong className="text-slate-900 font-semibold">{totalJobs.toLocaleString()}</strong> active opportunities
             </span>
             <span className="text-slate-300">·</span>
-            <span>
+            <span className="flex items-center gap-1.5 font-medium">
               <strong className="text-slate-900 font-semibold">{(stats?.total_companies || availableCompanies.length).toLocaleString()}</strong> verified portals
             </span>
             <span className="text-slate-300">·</span>
-            <span>Last 30 days only</span>
+            <span className="font-medium">Updated hourly</span>
+            <span className="text-slate-300">·</span>
+            <span className="inline-flex items-center gap-1.5 text-emerald-700 font-medium">
+              <span className="relative flex h-2 w-2">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+              </span>
+              Live ATS sync · Updated recently
+            </span>
+          </div>
+
+          {/* Visual USP Mechanism Flow */}
+          <div className="p-3.5 sm:p-4 rounded-xl bg-slate-50 border border-slate-200/80 max-w-3xl">
+            <div className="text-[10px] font-mono uppercase tracking-wider text-slate-400 font-semibold mb-2">
+              Direct Ingestion Pipeline
+            </div>
+            <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-2.5 text-xs">
+              <div className="flex items-center gap-2.5 bg-white px-3 py-2 rounded-lg border border-slate-200 shadow-2xs flex-1">
+                <Building2 className="w-4 h-4 text-slate-600 shrink-0" />
+                <div>
+                  <span className="font-semibold text-slate-900 block leading-tight">Official Company ATS</span>
+                  <span className="text-[10px] text-slate-500">Greenhouse · Lever · Ashby · Workday</span>
+                </div>
+              </div>
+              <div className="hidden sm:flex text-slate-300 items-center justify-center px-1 font-bold text-sm">
+                →
+              </div>
+              <div className="flex items-center gap-2.5 bg-teal-50/80 border border-teal-200/80 px-3 py-2 rounded-lg shadow-2xs flex-1">
+                <div className="w-2 h-2 rounded-full bg-teal-500 animate-pulse shrink-0"></div>
+                <div>
+                  <span className="font-semibold text-teal-900 block leading-tight">JobPulse Frequent Sync</span>
+                  <span className="text-[10px] text-teal-700">Zero intermediary delay</span>
+                </div>
+              </div>
+              <div className="hidden sm:flex text-slate-300 items-center justify-center px-1 font-bold text-sm">
+                →
+              </div>
+              <div className="flex items-center gap-2.5 bg-white px-3 py-2 rounded-lg border border-slate-200 shadow-2xs flex-1">
+                <div className="w-2 h-2 rounded-full bg-emerald-500 shrink-0"></div>
+                <div>
+                  <span className="font-semibold text-slate-900 block leading-tight">Candidate First</span>
+                  <span className="text-[10px] text-slate-500">Apply before caps hit</span>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </section>
@@ -897,10 +979,27 @@ export function InteractiveJobFeed({ initialJobs, stats, initialTotal, initialTo
       {/* Job Feed */}
       <section id="job-results-section" className="py-6 bg-slate-50 flex-1 scroll-mt-28">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-[1440px]">
-          <div className="flex items-center justify-between mb-4">
-            <p className="text-xs sm:text-sm text-slate-600">
-              Page {currentPage} of {totalPages} · <strong className="text-slate-900">{totalJobs.toLocaleString()}</strong> active jobs
-            </p>
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 mb-5 pb-3 border-b border-slate-200">
+            <div>
+              <p className="text-sm sm:text-base font-bold text-slate-900 flex items-center gap-2">
+                <span>Showing {totalJobs.toLocaleString()} verified openings</span>
+                <span className="hidden sm:inline text-slate-300 font-normal">|</span>
+                <span className="hidden sm:inline text-xs font-normal text-slate-500">
+                  Synced directly from official company ATS portals
+                </span>
+              </p>
+              <p className="sm:hidden text-xs text-slate-500 mt-0.5">
+                Synced directly from official company ATS portals
+              </p>
+            </div>
+            <div className="flex items-center gap-3 text-xs text-slate-500">
+              <span className="inline-flex items-center gap-1.5 text-teal-700 font-medium">
+                <span className="w-1.5 h-1.5 rounded-full bg-teal-500 animate-pulse"></span>
+                Updated continuously
+              </span>
+              <span>·</span>
+              <span className="font-medium text-slate-700">Page {currentPage} of {totalPages}</span>
+            </div>
           </div>
 
           {/* New Jobs Alert */}
