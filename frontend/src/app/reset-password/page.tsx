@@ -81,8 +81,14 @@ function ResetPasswordForm() {
   return (
     <div className="min-h-[calc(100vh-4rem)] bg-slate-50 py-16 px-4 flex items-center justify-center">
       <div className="w-full max-w-md">
-        {/* Header */}
+        {/* Logo and Header */}
         <div className="text-center mb-6">
+          <Link href="/" className="inline-flex items-center gap-2 mb-4 group">
+            <img src="/logo.png" alt="JobPulse" className="w-10 h-10 object-contain" />
+            <span className="text-2xl font-black tracking-tight text-teal-700 group-hover:opacity-90 transition-opacity">
+              JobPulse
+            </span>
+          </Link>
           <h1 className="text-2xl sm:text-3xl font-bold text-slate-900 tracking-tight">
             Create New Password
           </h1>
