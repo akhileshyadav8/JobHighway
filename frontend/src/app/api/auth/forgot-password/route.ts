@@ -57,7 +57,7 @@ export async function POST(req: NextRequest) {
 
     // Generate 6-digit numeric OTP
     const otp = generateOtp();
-    const expiresAt = Date.now() + 10 * 60 * 1000; // 10 minutes
+    const expiresAt = Date.now() + 60 * 1000; // 1 minute
 
     // Sign JWT token stored in HttpOnly cookie
     const secret = new TextEncoder().encode(
@@ -71,8 +71,11 @@ export async function POST(req: NextRequest) {
       purpose: 'password_reset'
     })
       .setProtectedHeader({ alg: 'HS256' })
-      .setExpirationTime('10m')
+      .setExpirationTime('1m')
       .sign(secret);
+
+    let emailSentSuccessfully = false;
+    let emailErrorMessage = '';
 
     // Send OTP email via Resend if configured
     const RESEND_API_KEY = process.env.RESEND_API_KEY;
@@ -81,7 +84,7 @@ export async function POST(req: NextRequest) {
         const { Resend } = await import('resend');
         const resend = new Resend(RESEND_API_KEY);
         const fromEmail = process.env.RESEND_FROM_EMAIL || 'JobPulse Security <onboarding@resend.dev>';
-        await resend.emails.send({
+        const sendResult = await resend.emails.send({
           from: fromEmail,
           to: [cleanEmail],
           subject: `${otp} — JobPulse Password Reset Code`,
@@ -99,7 +102,7 @@ export async function POST(req: NextRequest) {
               <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 24px; text-align: center; margin: 0 0 24px;">
                 <div style="font-size: 38px; font-weight: 900; letter-spacing: 8px; color: #0f172a; font-variant-numeric: tabular-nums;">${otp}</div>
                 <p style="color: #64748b; font-size: 12px; margin: 10px 0 0; font-weight: 500;">
-                  Expires in 10 minutes · Single-use code
+                  Expires in 1 minute · Single-use code
                 </p>
               </div>
               <p style="color: #64748b; font-size: 12px; margin: 0 0 8px; line-height: 1.5;">
@@ -112,8 +115,15 @@ export async function POST(req: NextRequest) {
             </div>
           `,
         });
-      } catch (emailErr) {
+        if (sendResult.error) {
+          console.warn('Resend send warning:', sendResult.error);
+          emailErrorMessage = sendResult.error.message;
+        } else {
+          emailSentSuccessfully = true;
+        }
+      } catch (emailErr: any) {
         console.error('Failed to dispatch password reset OTP email:', emailErr);
+        emailErrorMessage = emailErr?.message || 'Failed to dispatch email';
       }
     } else {
       console.info(`[DEV] Password Reset OTP for ${cleanEmail}: ${otp}`);
@@ -121,15 +131,18 @@ export async function POST(req: NextRequest) {
 
     const response = NextResponse.json({
       success: true,
-      message: 'Verification code sent to your email. Please check your inbox.',
-      ...(RESEND_API_KEY ? {} : { devOtp: otp })
+      message: emailSentSuccessfully ? 'Verification code sent to your email. Please check your inbox.' : 'Verification code generated.',
+      ...(!emailSentSuccessfully ? { 
+        devOtp: otp,
+        emailWarning: emailErrorMessage || 'Email not sent (Resend sandbox only delivers to your registered account email until domain is verified).'
+      } : {})
     });
 
     response.cookies.set('jobpulse_reset_otp_token', token, {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
       sameSite: 'lax',
-      maxAge: 600, // 10 minutes
+      maxAge: 60, // 1 minute
       path: '/',
     });
 

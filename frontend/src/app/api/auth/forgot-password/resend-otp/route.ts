@@ -51,9 +51,9 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // Generate new OTP
+    // Generate new OTP (valid for 1 minute)
     const newOtp = Math.floor(100000 + Math.random() * 900000).toString();
-    const expiresAt = Date.now() + 10 * 60 * 1000;
+    const expiresAt = Date.now() + 60 * 1000; // 1 minute
 
     resendCooldowns.set(email, Date.now());
     resendAttemptCount.set(email, attempts + 1);
@@ -64,8 +64,11 @@ export async function POST(req: NextRequest) {
       expiresAt,
     })
       .setProtectedHeader({ alg: 'HS256' })
-      .setExpirationTime('10m')
+      .setExpirationTime('1m')
       .sign(secret);
+
+    let emailSentSuccessfully = false;
+    let emailErrorMessage = '';
 
     // Send email via Resend
     const RESEND_API_KEY = process.env.RESEND_API_KEY;
@@ -74,7 +77,7 @@ export async function POST(req: NextRequest) {
         const { Resend } = await import('resend');
         const resend = new Resend(RESEND_API_KEY);
         const fromEmail = process.env.RESEND_FROM_EMAIL || 'JobPulse Security <onboarding@resend.dev>';
-        await resend.emails.send({
+        const sendResult = await resend.emails.send({
           from: fromEmail,
           to: [email],
           subject: `${newOtp} — Your New JobPulse Password Reset Code`,
@@ -92,7 +95,7 @@ export async function POST(req: NextRequest) {
               <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 24px; text-align: center; margin: 0 0 24px;">
                 <div style="font-size: 38px; font-weight: 900; letter-spacing: 8px; color: #0f172a; font-variant-numeric: tabular-nums;">${newOtp}</div>
                 <p style="color: #64748b; font-size: 12px; margin: 10px 0 0; font-weight: 500;">
-                  Expires in 10 minutes · Single use only
+                  Expires in 1 minute · Single use only
                 </p>
               </div>
               <p style="color: #64748b; font-size: 12px; margin: 0;">
@@ -101,8 +104,15 @@ export async function POST(req: NextRequest) {
             </div>
           `,
         });
-      } catch (emailErr) {
+        if (sendResult.error) {
+          console.warn('Resend send warning:', sendResult.error);
+          emailErrorMessage = sendResult.error.message;
+        } else {
+          emailSentSuccessfully = true;
+        }
+      } catch (emailErr: any) {
         console.error('Failed to send resend password reset email:', emailErr);
+        emailErrorMessage = emailErr?.message || 'Failed to dispatch email';
       }
     } else {
       console.info(`[DEV] New Password Reset OTP for ${email}: ${newOtp}`);
@@ -110,16 +120,19 @@ export async function POST(req: NextRequest) {
 
     const response = NextResponse.json({
       success: true,
-      message: 'A new verification code has been dispatched to your email.',
+      message: emailSentSuccessfully ? 'A new verification code has been dispatched to your email.' : 'A new verification code has been generated.',
       attemptsRemaining: MAX_RESEND_ATTEMPTS - (attempts + 1),
-      ...(RESEND_API_KEY ? {} : { devOtp: newOtp }),
+      ...(!emailSentSuccessfully ? { 
+        devOtp: newOtp,
+        emailWarning: emailErrorMessage || 'Email not sent (Resend sandbox only delivers to your registered account email until domain is verified).'
+      } : {}),
     });
 
     response.cookies.set('jobpulse_reset_otp_token', newToken, {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
       sameSite: 'lax',
-      maxAge: 600,
+      maxAge: 60, // 1 minute
       path: '/',
     });
 

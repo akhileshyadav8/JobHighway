@@ -30,6 +30,7 @@ export default function RegisterPage() {
   const [resendCooldown, setResendCooldown] = useState(0);
   const [resendAttempts, setResendAttempts] = useState(0);
   const [devOtp, setDevOtp] = useState<string | null>(null);
+  const [emailWarning, setEmailWarning] = useState<string | null>(null);
   const otpRefs = useRef<(HTMLInputElement | null)[]>([]);
   const cooldownRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -90,8 +91,9 @@ export default function RegisterPage() {
         setFormError(data.error || "Registration failed. Please try again.");
         return;
       }
-      // Development: show OTP inline
+      // Handle development or sandbox mode warnings
       if (data.devOtp) setDevOtp(data.devOtp);
+      if (data.emailWarning) setEmailWarning(data.emailWarning);
       setStep("otp");
       setResendCooldown(60);
     } catch {
@@ -172,11 +174,12 @@ export default function RegisterPage() {
         return;
       }
       if (data.devOtp) setDevOtp(data.devOtp);
+      if (data.emailWarning) setEmailWarning(data.emailWarning);
       setResendAttempts(a => a + 1);
       setResendCooldown(60);
       setOtp(["", "", "", "", "", ""]);
       setOtpError("");
-      setOtpSuccess("New OTP sent to your email.");
+      setOtpSuccess(data.emailWarning ? "New OTP generated." : "New OTP sent to your email.");
       setTimeout(() => setOtpSuccess(""), 4000);
       otpRefs.current[0]?.focus();
     } catch {
@@ -205,12 +208,25 @@ export default function RegisterPage() {
               We sent a 6-digit code to{" "}
               <strong className="text-slate-700">{email}</strong>
             </p>
-            {devOtp && (
+            {emailWarning ? (
+              <div className="mt-3 p-3 bg-amber-50 border border-amber-200 rounded-lg text-xs text-amber-900 text-left">
+                <div className="font-bold flex items-center gap-1.5 mb-1 text-amber-800">
+                  <span>⚠️ Resend Sandbox Notice:</span>
+                </div>
+                <p className="text-[12px] leading-relaxed mb-2 text-amber-800">{emailWarning}</p>
+                {devOtp && (
+                  <div className="bg-amber-100/90 p-2 rounded border border-amber-300">
+                    <span className="text-[11px] text-amber-900 block font-medium">Use this verification code:</span>
+                    <span className="font-mono text-lg font-black text-teal-800 tracking-widest">{devOtp}</span>
+                  </div>
+                )}
+              </div>
+            ) : devOtp ? (
               <div className="mt-3 p-2.5 bg-amber-50 border border-amber-200 rounded-lg text-xs text-amber-800">
                 <strong>Dev mode — your OTP: {devOtp}</strong>
                 <br />Add RESEND_API_KEY to .env to send real emails.
               </div>
-            )}
+            ) : null}
           </div>
 
           <Card className="border-slate-200 shadow-sm bg-white rounded-xl overflow-hidden">
@@ -247,8 +263,12 @@ export default function RegisterPage() {
                     />
                   ))}
                 </div>
-                <p className="text-[11px] text-center text-slate-400 mt-2">
-                  Code expires in 10 minutes
+                <p className="text-[11px] text-center text-slate-400 mt-2 font-medium">
+                  {resendCooldown > 0 ? (
+                    <span>Code expires in <strong className="text-teal-700 font-semibold">{resendCooldown}s</strong></span>
+                  ) : (
+                    <span className="text-rose-600 font-semibold">Code expired (1 min limit). Click &quot;Resend code&quot; below.</span>
+                  )}
                 </p>
               </div>
 

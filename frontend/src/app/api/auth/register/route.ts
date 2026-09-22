@@ -58,9 +58,9 @@ export async function POST(req: NextRequest) {
     }
     incrementAttempts(email);
 
-    // Generate OTP
+    // Generate OTP (valid for 1 minute)
     const otp = generateOtp();
-    const expiresAt = Date.now() + 10 * 60 * 1000; // 10 minutes
+    const expiresAt = Date.now() + 60 * 1000; // 1 minute
 
     // Sign a JWT containing the OTP + user data (sent back as a cookie)
     const secret = new TextEncoder().encode(
@@ -68,8 +68,11 @@ export async function POST(req: NextRequest) {
     );
     const token = await new SignJWT({ name: name.trim(), email: email.trim().toLowerCase(), password, otp, expiresAt })
       .setProtectedHeader({ alg: 'HS256' })
-      .setExpirationTime('10m')
+      .setExpirationTime('1m')
       .sign(secret);
+
+    let emailSentSuccessfully = false;
+    let emailErrorMessage = '';
 
     // Send OTP email via Resend
     const RESEND_API_KEY = process.env.RESEND_API_KEY;
@@ -78,7 +81,7 @@ export async function POST(req: NextRequest) {
         const { Resend } = await import('resend');
         const resend = new Resend(RESEND_API_KEY);
         const fromEmail = process.env.RESEND_FROM_EMAIL || 'JobPulse <onboarding@resend.dev>';
-        await resend.emails.send({
+        const sendResult = await resend.emails.send({
           from: fromEmail,
           to: [email.trim()],
           subject: `${otp} — Your JobPulse Verification Code`,
@@ -93,7 +96,7 @@ export async function POST(req: NextRequest) {
               </p>
               <div style="background: #f1f5f9; border-radius: 12px; padding: 24px; text-align: center; margin: 0 0 24px;">
                 <div style="font-size: 40px; font-weight: 900; letter-spacing: 8px; color: #0f172a; font-variant-numeric: tabular-nums;">${otp}</div>
-                <p style="color: #64748b; font-size: 12px; margin: 8px 0 0;">Expires in 10 minutes · Do not share this code</p>
+                <p style="color: #64748b; font-size: 12px; margin: 8px 0 0;">Expires in 1 minute · Do not share this code</p>
               </div>
               <p style="color: #94a3b8; font-size: 12px; margin: 0;">
                 If you didn't request this, you can safely ignore this email. This code is only valid once.
@@ -103,9 +106,15 @@ export async function POST(req: NextRequest) {
             </div>
           `,
         });
-      } catch (emailErr) {
+        if (sendResult.error) {
+          console.warn('Resend send warning:', sendResult.error);
+          emailErrorMessage = sendResult.error.message;
+        } else {
+          emailSentSuccessfully = true;
+        }
+      } catch (emailErr: any) {
         console.error('Failed to send OTP email:', emailErr);
-        // Don't fail the request — still set the cookie
+        emailErrorMessage = emailErr?.message || 'Failed to send OTP email.';
       }
     } else {
       // Development fallback — log OTP to server console
@@ -115,15 +124,18 @@ export async function POST(req: NextRequest) {
     // Set the OTP token as an HttpOnly cookie
     const response = NextResponse.json({ 
       success: true, 
-      message: 'OTP sent to your email. Please check your inbox.',
-      // In development (no RESEND_API_KEY), expose OTP for testing
-      ...(RESEND_API_KEY ? {} : { devOtp: otp })
+      message: emailSentSuccessfully ? 'OTP sent to your email. Please check your inbox.' : 'OTP generated.',
+      // If email failed or in development without key, expose OTP so user isn't stuck
+      ...(!emailSentSuccessfully ? { 
+        devOtp: otp,
+        emailWarning: emailErrorMessage || 'Email not sent (Resend sandbox only delivers to your registered account email until domain is verified).'
+      } : {})
     });
     response.cookies.set('jobpulse_otp_token', token, {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
       sameSite: 'lax',
-      maxAge: 600, // 10 minutes
+      maxAge: 60, // 1 minute
       path: '/',
     });
 

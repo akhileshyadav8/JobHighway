@@ -42,9 +42,9 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Maximum resend attempts reached. Please register again.' }, { status: 429 });
     }
 
-    // Generate new OTP
+    // Generate new OTP (valid for 1 minute)
     const newOtp = Math.floor(100000 + Math.random() * 900000).toString();
-    const expiresAt = Date.now() + 10 * 60 * 1000;
+    const expiresAt = Date.now() + 60 * 1000; // 1 minute
 
     // Update cooldown and attempts
     resendCooldowns.set(email, Date.now());
@@ -53,8 +53,11 @@ export async function POST(req: NextRequest) {
     // Sign new token
     const newToken = await new SignJWT({ ...payload, otp: newOtp, expiresAt })
       .setProtectedHeader({ alg: 'HS256' })
-      .setExpirationTime('10m')
+      .setExpirationTime('1m')
       .sign(secret);
+
+    let emailSentSuccessfully = false;
+    let emailErrorMessage = '';
 
     // Send new OTP email
     const RESEND_API_KEY = process.env.RESEND_API_KEY;
@@ -63,7 +66,7 @@ export async function POST(req: NextRequest) {
         const { Resend } = await import('resend');
         const resend = new Resend(RESEND_API_KEY);
         const fromEmail = process.env.RESEND_FROM_EMAIL || 'JobPulse <onboarding@resend.dev>';
-        await resend.emails.send({
+        const sendResult = await resend.emails.send({
           from: fromEmail,
           to: [email],
           subject: `${newOtp} — Your new JobPulse Verification Code`,
@@ -76,14 +79,21 @@ export async function POST(req: NextRequest) {
               <p style="color: #64748b; font-size: 14px; margin: 0 0 24px;">Your new OTP is:</p>
               <div style="background: #f1f5f9; border-radius: 12px; padding: 24px; text-align: center; margin: 0 0 24px;">
                 <div style="font-size: 40px; font-weight: 900; letter-spacing: 8px; color: #0f172a;">${newOtp}</div>
-                <p style="color: #64748b; font-size: 12px; margin: 8px 0 0;">Expires in 10 minutes · Single use only</p>
+                <p style="color: #64748b; font-size: 12px; margin: 8px 0 0;">Expires in 1 minute · Single use only</p>
               </div>
               <p style="color: #94a3b8; font-size: 12px;">If you didn't request this, ignore this email.</p>
             </div>
           `,
         });
-      } catch (emailErr) {
+        if (sendResult.error) {
+          console.warn('Resend send warning:', sendResult.error);
+          emailErrorMessage = sendResult.error.message;
+        } else {
+          emailSentSuccessfully = true;
+        }
+      } catch (emailErr: any) {
         console.error('Resend OTP email failed:', emailErr);
+        emailErrorMessage = emailErr?.message || 'Failed to send OTP email.';
       }
     } else {
       console.info(`[DEV] New OTP for ${email}: ${newOtp}`);
@@ -92,15 +102,18 @@ export async function POST(req: NextRequest) {
     // Set updated cookie
     const response = NextResponse.json({
       success: true,
-      message: 'New OTP sent to your email.',
+      message: emailSentSuccessfully ? 'New OTP sent to your email.' : 'New OTP generated.',
       attemptsRemaining: MAX_RESEND_ATTEMPTS - (attempts + 1),
-      ...(RESEND_API_KEY ? {} : { devOtp: newOtp }),
+      ...(!emailSentSuccessfully ? { 
+        devOtp: newOtp,
+        emailWarning: emailErrorMessage || 'Email not sent (Resend sandbox only delivers to your registered account email until domain is verified).'
+      } : {}),
     });
     response.cookies.set('jobpulse_otp_token', newToken, {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
       sameSite: 'lax',
-      maxAge: 600,
+      maxAge: 60, // 1 minute
       path: '/',
     });
 

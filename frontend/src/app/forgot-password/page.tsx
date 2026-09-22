@@ -41,6 +41,7 @@ export default function ForgotPasswordPage() {
   const [resendCooldown, setResendCooldown] = useState(0);
   const [resendAttempts, setResendAttempts] = useState(0);
   const [devOtp, setDevOtp] = useState<string | null>(null);
+  const [emailWarning, setEmailWarning] = useState<string | null>(null);
   const [resetToken, setResetToken] = useState<string | null>(null);
   const otpRefs = useRef<(HTMLInputElement | null)[]>([]);
 
@@ -96,6 +97,9 @@ export default function ForgotPasswordPage() {
 
       if (data.devOtp) {
         setDevOtp(data.devOtp);
+      }
+      if (data.emailWarning) {
+        setEmailWarning(data.emailWarning);
       }
       setStep("otp");
       setResendCooldown(60);
@@ -183,11 +187,12 @@ export default function ForgotPasswordPage() {
       }
 
       if (data.devOtp) setDevOtp(data.devOtp);
+      if (data.emailWarning) setEmailWarning(data.emailWarning);
       setResendAttempts((a) => a + 1);
       setResendCooldown(60);
       setOtp(["", "", "", "", "", ""]);
       setOtpError("");
-      setOtpSuccess("New verification code dispatched to your email.");
+      setOtpSuccess(data.emailWarning ? "New verification code generated." : "New verification code dispatched to your email.");
       setTimeout(() => setOtpSuccess(""), 4000);
       otpRefs.current[0]?.focus();
     } catch {
@@ -271,7 +276,20 @@ export default function ForgotPasswordPage() {
                 We sent a 6-digit verification code to{" "}
                 <strong className="text-slate-800">{email}</strong>
               </p>
-              {devOtp && (
+              {emailWarning ? (
+                <div className="mt-3 p-3 bg-amber-50 border border-amber-200 rounded-lg text-xs text-amber-900 text-left">
+                  <div className="font-bold flex items-center gap-1.5 mb-1 text-amber-800">
+                    <span>⚠️ Resend Sandbox Notice:</span>
+                  </div>
+                  <p className="text-[12px] leading-relaxed mb-2 text-amber-800">{emailWarning}</p>
+                  {devOtp && (
+                    <div className="bg-amber-100/90 p-2 rounded border border-amber-300">
+                      <span className="text-[11px] text-amber-900 block font-medium">Use this verification code:</span>
+                      <span className="font-mono text-lg font-black text-teal-800 tracking-widest">{devOtp}</span>
+                    </div>
+                  )}
+                </div>
+              ) : devOtp ? (
                 <div className="mt-3 p-2.5 bg-amber-50 border border-amber-200 rounded-lg text-xs text-amber-900 text-left">
                   <div className="font-bold flex items-center gap-1.5 mb-0.5">
                     <span>⚡ Development Mode:</span>
@@ -281,7 +299,7 @@ export default function ForgotPasswordPage() {
                     (In production with RESEND_API_KEY set, this code is sent to your email)
                   </p>
                 </div>
-              )}
+              ) : null}
             </>
           )}
 
@@ -395,8 +413,12 @@ export default function ForgotPasswordPage() {
                       />
                     ))}
                   </div>
-                  <p className="text-[11px] text-center text-slate-400 mt-2">
-                    Code expires in 10 minutes · Single-use authorization
+                  <p className="text-[11px] text-center text-slate-400 mt-2 font-medium">
+                    {resendCooldown > 0 ? (
+                      <span>Code expires in <strong className="text-teal-700 font-semibold">{resendCooldown}s</strong></span>
+                    ) : (
+                      <span className="text-rose-600 font-semibold">Code expired (1 min limit). Click &quot;Resend Code&quot; below.</span>
+                    )}
                   </p>
                 </div>
 
