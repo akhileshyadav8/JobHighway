@@ -41,6 +41,10 @@ export default function AdminLoginPage() {
       <div className="w-full max-w-md relative z-10">
         {/* Header */}
         <div className="text-center mb-8">
+          <Link href="/" className="inline-flex items-center gap-2 mb-4">
+            <img src="/logo.png" alt="JobPulse" className="w-10 h-10 object-contain" />
+            <span className="text-2xl font-black tracking-tight text-teal-700">JobPulse</span>
+          </Link>
           <h1 className="text-3xl font-black text-slate-900 tracking-tight">
             JobPulse Admin Login
           </h1>

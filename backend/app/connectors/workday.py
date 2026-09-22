@@ -53,8 +53,9 @@ class WorkdayConnector(ATSConnector):
                     )
                     jobs.append(job)
                     
+                total_postings = data.get("total", len(jobs))
                 offset += limit
-                if offset >= 100: # hard limit for now
+                if offset >= total_postings or offset >= 2000:
                     break
                     
         return jobs

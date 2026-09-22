@@ -98,7 +98,7 @@ function mapRowToJob(row: any): Job {
     first_seen_at: row.first_seen_at ? new Date(row.first_seen_at).toISOString() : new Date().toISOString(),
     last_seen_at: row.last_seen_at ? new Date(row.last_seen_at).toISOString() : new Date().toISOString(),
     status: row.status || 'active',
-    description_html: '',
+    description_html: row.description_html || '',
     description_text: row.description_text || '',
     selection_process: null,
     interview_experience: null,
@@ -289,16 +289,16 @@ export async function getLiveJobsPaginated(params: JobFilterParams = {}): Promis
 
     const whereClause = conditions.length > 0 ? `WHERE ${conditions.join(' AND ')}` : '';
 
-    // 11. Ordering
-    let orderClause = 'ORDER BY LEAST(COALESCE(j.posted_at, j.first_seen_at), NOW()) DESC NULLS LAST';
+    // 11. Ordering - Deterministic tie-breaker on j.id prevents arbitrary PostgreSQL row shuffling
+    let orderClause = 'ORDER BY LEAST(COALESCE(j.posted_at, j.first_seen_at), NOW()) DESC NULLS LAST, j.id DESC';
     if (params.sort === 'oldest') {
-      orderClause = 'ORDER BY COALESCE(j.posted_at, j.first_seen_at) ASC NULLS LAST';
+      orderClause = 'ORDER BY COALESCE(j.posted_at, j.first_seen_at) ASC NULLS LAST, j.id ASC';
     } else if (params.sort === 'salary_high' || isFresherHighestPreset) {
-      orderClause = 'ORDER BY COALESCE(j.salary_max, j.salary_min, 0) DESC, LEAST(COALESCE(j.posted_at, j.first_seen_at), NOW()) DESC NULLS LAST';
+      orderClause = 'ORDER BY COALESCE(j.salary_max, j.salary_min, 0) DESC, LEAST(COALESCE(j.posted_at, j.first_seen_at), NOW()) DESC NULLS LAST, j.id DESC';
     } else if (params.sort === 'salary_low') {
-      orderClause = 'ORDER BY CASE WHEN COALESCE(j.salary_min, j.salary_max, 0) > 0 THEN COALESCE(j.salary_min, j.salary_max, 0) ELSE 999999999 END ASC, LEAST(COALESCE(j.posted_at, j.first_seen_at), NOW()) DESC NULLS LAST';
+      orderClause = 'ORDER BY CASE WHEN COALESCE(j.salary_min, j.salary_max, 0) > 0 THEN COALESCE(j.salary_min, j.salary_max, 0) ELSE 999999999 END ASC, LEAST(COALESCE(j.posted_at, j.first_seen_at), NOW()) DESC NULLS LAST, j.id DESC';
     } else if (params.sort === 'high_salary_newest') {
-      orderClause = 'ORDER BY LEAST(COALESCE(j.posted_at, j.first_seen_at), NOW()) DESC NULLS LAST';
+      orderClause = 'ORDER BY LEAST(COALESCE(j.posted_at, j.first_seen_at), NOW()) DESC NULLS LAST, j.id DESC';
     }
 
     // Count Query
@@ -388,7 +388,7 @@ export async function getLiveJobsFromDb(limit?: number): Promise<Job[] | null> {
       JOIN companies c ON j.company_id = c.id
       WHERE j.status = 'active'
       AND ((j.posted_at IS NOT NULL AND j.posted_at >= NOW() - INTERVAL '30 DAYS') OR (j.posted_at IS NULL AND j.first_seen_at >= NOW() - INTERVAL '30 DAYS'))
-      ORDER BY LEAST(COALESCE(j.posted_at, j.first_seen_at), NOW()) DESC NULLS LAST
+      ORDER BY LEAST(COALESCE(j.posted_at, j.first_seen_at), NOW()) DESC NULLS LAST, j.id DESC
       ${hasLimit ? 'LIMIT $1' : ''};
     `;
     const res = hasLimit ? await p.query(query, [limit]) : await p.query(query);

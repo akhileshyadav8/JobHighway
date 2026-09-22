@@ -6,7 +6,8 @@ import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { MapPin, Clock, Bookmark, CheckCircle2, ExternalLink } from "lucide-react";
 import { Job } from "@/lib/api";
-import { formatSalary, formatRelativeTime, formatDate, sanitizeJobSkills, getCountryFlag, inferAtsSource } from "@/lib/utils";
+import { formatSalary, formatRelativeTime, formatDate, sanitizeJobSkills, inferAtsSource } from "@/lib/utils";
+import { CountryFlag } from "@/components/ui/CountryFlag";
 import { getCurrentUser, markJobApplied, isJobApplied, toggleBookmark, isJobBookmarked, User } from "@/lib/auth";
 import { trackEvent } from "@/lib/telemetry";
 
@@ -138,8 +139,6 @@ export function JobCard({ job }: JobCardProps) {
     ? safeLocation.slice(0, 2).join(", ") + (safeLocation.length > 2 ? ` +${safeLocation.length - 2}` : "")
     : null;
 
-  // Country flag
-  const countryFlag = getCountryFlag(safeLocation);
 
   // Source ATS badge
   const atsSource = inferAtsSource(job.apply_url || job.job_url);
@@ -150,7 +149,7 @@ export function JobCard({ job }: JobCardProps) {
 
   // Batch information: display only if real meaningful data is present
   const batchText = (job.eligible_batches && Array.isArray(job.eligible_batches) && job.eligible_batches.length > 0)
-    ? job.eligible_batches.filter(b => Boolean(b && String(b).trim())).join(", ")
+    ? job.eligible_batches.filter((b: any) => Boolean(b && String(b).trim())).join(", ")
     : null;
 
   // Closing / Expiry date
@@ -205,11 +204,11 @@ export function JobCard({ job }: JobCardProps) {
 
       {/* Location + Meta */}
       {(locationText || job.work_mode || job.employment_type || expText) && (
-        <div className="flex items-start gap-1 text-xs text-slate-500 mb-2">
+        <div className="flex items-start gap-1.5 text-xs text-slate-500 mb-2">
           <MapPin className="w-3 h-3 mt-0.5 shrink-0 text-slate-400" />
-          <span className="line-clamp-1">
-            {countryFlag && <span className="mr-1">{countryFlag}</span>}
-            {[locationText, job.work_mode, job.employment_type, expText].filter(Boolean).join(" · ")}
+          <span className="line-clamp-1 flex items-center gap-1.5">
+            <CountryFlag locations={safeLocation} size="sm" />
+            <span>{[locationText, job.work_mode, job.employment_type, expText].filter(Boolean).join(" · ")}</span>
           </span>
         </div>
       )}

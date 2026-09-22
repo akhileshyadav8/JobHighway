@@ -313,9 +313,9 @@ export default function AdminDashboardPage() {
         {/* Admin Header */}
         <div className="bg-white text-slate-900 rounded-2xl p-6 sm:p-7 mb-8 shadow-xs border border-slate-200/90 flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
           <div className="flex items-center gap-4">
-            <div className="w-12 h-12 rounded-xl bg-teal-50 text-teal-600 border border-teal-200 flex items-center justify-center font-black text-2xl shadow-2xs">
-              <Shield className="w-6 h-6" />
-            </div>
+            <Link href="/" title="Back to JobPulse" className="w-12 h-12 rounded-xl bg-white border border-slate-200 flex items-center justify-center p-1.5 shadow-2xs hover:border-teal-500 transition-colors shrink-0">
+              <img src="/logo.png" alt="JobPulse Logo" className="w-9 h-9 object-contain" />
+            </Link>
             <div>
               <div className="flex items-center gap-2">
                 <h1 className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight">

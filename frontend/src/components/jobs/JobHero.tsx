@@ -4,6 +4,7 @@ import { MapPin, Calendar, Building2, ExternalLink } from "lucide-react";
 import { Job } from "@/lib/api";
 import { Badge } from "@/components/ui/badge";
 import { formatSalary, formatDate, inferAtsSource } from "@/lib/utils";
+import { CountryFlag } from "@/components/ui/CountryFlag";
 
 export function JobHero({ job }: { job: Job }) {
   const safeLocation = Array.isArray(job.location) ? job.location : [];
@@ -103,8 +104,9 @@ export function JobHero({ job }: { job: Job }) {
             <div className="text-xl bg-white/10 p-2 rounded-full"><MapPin className="w-5 h-5" /></div>
             <div>
               <div className="text-xs text-teal-100/70 uppercase tracking-wider">Location</div>
-              <div className="font-semibold line-clamp-1">
-                {safeLocation.length > 0 ? safeLocation.join(', ') : 'Not specified'}
+              <div className="font-semibold line-clamp-1 flex items-center gap-1.5">
+                <CountryFlag locations={safeLocation} size="sm" />
+                <span>{safeLocation.length > 0 ? safeLocation.join(', ') : 'Not specified'}</span>
               </div>
             </div>
           </div>

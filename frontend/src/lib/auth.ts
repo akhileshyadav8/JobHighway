@@ -8,10 +8,24 @@ export interface User {
   email: string;
   role: "user" | "admin";
   createdAt: string;
+  phone?: string;
+  linkedinUrl?: string;
+  githubUrl?: string;
+  portfolioUrl?: string;
+  currentRole?: string;
+  yearsExperience?: string;
+  education?: string;
+  graduationYear?: string;
   targetCtc?: string;
   preferredLocation?: string;
   targetRole?: string;
   skills?: string[];
+  resumeFile?: {
+    name: string;
+    size: number;
+    uploadedAt: string;
+    dataUrl?: string;
+  };
 }
 
 export interface AppliedJob {

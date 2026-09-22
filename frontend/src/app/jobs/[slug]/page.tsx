@@ -8,6 +8,7 @@ import { RelatedJobs } from "@/components/jobs/RelatedJobs";
 import { QuickInfo } from "@/components/jobs/QuickInfo";
 import { Card, CardContent } from "@/components/ui/card";
 import { sanitizeJobSkills, formatSalary, cleanHtmlDescription, inferAtsSource, formatDate } from "@/lib/utils";
+import { CountryFlag } from "@/components/ui/CountryFlag";
 import {
   Building2,
   MapPin,
@@ -24,7 +25,7 @@ import {
   Info
 } from "lucide-react";
 
-export const revalidate = 60;
+export const dynamic = 'force-dynamic';
 
 export default async function JobDetailPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
@@ -128,7 +129,10 @@ export default async function JobDetailPage({ params }: { params: Promise<{ slug
                   </div>
                   <div>
                     <div className="text-xs font-semibold text-slate-500">Location</div>
-                    <div className="text-sm font-bold text-slate-900 line-clamp-1">{safeLocation.join(', ')}</div>
+                    <div className="text-sm font-bold text-slate-900 line-clamp-1 flex items-center gap-1.5">
+                      <CountryFlag locations={safeLocation} size="sm" />
+                      <span>{safeLocation.join(', ')}</span>
+                    </div>
                   </div>
                 </div>
               )}

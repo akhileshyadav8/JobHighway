@@ -29,12 +29,27 @@ class AshbyConnector(ATSConnector):
             comp_tier = job_data.get("compensationTierSummary")
             # Usually unstructured, would need parsing, skip for now or store as string
             
+            locations = []
+            if job_data.get("location"):
+                locations.append(str(job_data.get("location")).strip())
+            for sec in job_data.get("secondaryLocations", []):
+                if isinstance(sec, dict) and sec.get("location"):
+                    locations.append(str(sec.get("location")).strip())
+                elif isinstance(sec, str) and sec.strip():
+                    locations.append(sec.strip())
+            seen_locs = set()
+            clean_locations = []
+            for l in locations:
+                if l and l.lower() not in seen_locs:
+                    seen_locs.add(l.lower())
+                    clean_locations.append(l)
+
             job = RawJob(
                 external_id=str(job_data.get("id")),
                 title=job_data.get("title", ""),
                 description_html=desc_html,
                 description_text=desc_text,
-                location=[job_data.get("location", "")] if job_data.get("location") else [],
+                location=clean_locations,
                 department=job_data.get("department"),
                 team=job_data.get("team"),
                 employment_type=job_data.get("employmentType"),

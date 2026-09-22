@@ -558,46 +558,50 @@ export function InteractiveJobFeed({ initialJobs, stats, initialTotal, initialTo
     }));
   };
 
-  // Restore filters and scroll position on browser back button navigation or initial page load
+  // Restore filters and scroll position on browser navigation
   useEffect(() => {
     try {
       const urlParams = new URLSearchParams(window.location.search);
-      const saved = sessionStorage.getItem("jobpulse_feed_state");
-      const parsed = saved ? JSON.parse(saved) : null;
+      const hasUrlParams = urlParams.toString().length > 0;
 
-      const q = urlParams.get("q") ?? parsed?.searchQuery;
-      if (q) setSearchQuery(q);
+      // Only restore filter state if URL explicitly contains query parameters
+      // This prevents a clean page visit or browser refresh from resurrecting stale search filters
+      if (hasUrlParams) {
+        const q = urlParams.get("q");
+        if (q) setSearchQuery(q);
 
-      const country = urlParams.get("country") ?? parsed?.selectedCountry;
-      if (country && country !== "All") setSelectedCountry(country);
+        const country = urlParams.get("country");
+        if (country && country !== "All") setSelectedCountry(country);
 
-      const state = urlParams.get("state") ?? parsed?.selectedState;
-      if (state && state !== "All") setSelectedState(state);
+        const state = urlParams.get("state");
+        if (state && state !== "All") setSelectedState(state);
 
-      const city = urlParams.get("city") ?? parsed?.selectedCity;
-      if (city && city !== "All") setSelectedCity(city);
+        const city = urlParams.get("city");
+        if (city && city !== "All") setSelectedCity(city);
 
-      const company = urlParams.get("company") ?? parsed?.selectedCompany;
-      if (company && company !== "All") setSelectedCompany(company);
+        const company = urlParams.get("company");
+        if (company && company !== "All") setSelectedCompany(company);
 
-      const sort = (urlParams.get("sort") ?? parsed?.sortBy) as SortBy;
-      if (sort && ["newest", "high_salary_newest", "oldest", "salary_high", "salary_low"].includes(sort)) {
-        setSortBy(sort);
-      }
+        const sort = urlParams.get("sort") as SortBy;
+        if (sort && ["newest", "high_salary_newest", "oldest", "salary_high", "salary_low"].includes(sort)) {
+          setSortBy(sort);
+        }
 
-      const type = urlParams.get("type") ?? parsed?.activeFilters?.["Job Type"];
-      const mode = urlParams.get("mode") ?? parsed?.activeFilters?.["Work Mode"];
-      const exp = urlParams.get("exp") ?? parsed?.activeFilters?.["Experience"];
-      if (type || mode || exp) {
-        setActiveFilters({
-          "Job Type": type || "All",
-          "Work Mode": mode || "All",
-          "Experience": exp || "All"
-        });
-      }
+        const type = urlParams.get("type");
+        const mode = urlParams.get("mode");
+        const exp = urlParams.get("exp");
+        if (type || mode || exp) {
+          setActiveFilters({
+            "Job Type": type || "All",
+            "Work Mode": mode || "All",
+            "Experience": exp || "All"
+          });
+        }
 
-      if (parsed?.currentPage && parsed.currentPage > 1) {
-        setCurrentPage(parsed.currentPage);
+        const page = parseInt(urlParams.get("page") || "1", 10);
+        if (page > 1) {
+          setCurrentPage(page);
+        }
       }
 
       // Smoothly restore previous scroll position when returning from details
@@ -680,388 +684,6 @@ export function InteractiveJobFeed({ initialJobs, stats, initialTotal, initialTo
       Object.values(activeFilters).some(v => v !== "All")
     );
   }, [searchQuery, selectedCountry, selectedState, selectedCity, selectedCompany, sortBy, activeFilters]);
-
-  // Real-time filtering engine with strict 1-month recency and sorting
-  const filteredAndSortedJobs = useMemo(() => {
-    const now = new Date().getTime();
-    const THIRTY_DAYS_MS = 30 * 24 * 60 * 60 * 1000;
-
-    // 1. Filter jobs
-    const filtered = jobsList.filter(job => {
-      // Recency check: only jobs from last 1 month
-      const postTime = new Date(job.posted_at || job.first_seen_at).getTime();
-      if ((now - postTime) > THIRTY_DAYS_MS) {
-        return false;
-      }
-
-      // Search Query
-      if (searchQuery.trim() !== "") {
-        const query = searchQuery.toLowerCase().trim();
-        const matchesTitle = job.title.toLowerCase().includes(query);
-        const matchesCompany = job.company.name.toLowerCase().includes(query);
-        const matchesLocation = job.location.some(l => l.toLowerCase().includes(query));
-        const matchesSkills = (job.skills_required || []).some(s => s.toLowerCase().includes(query));
-        const matchesDept = (job.department || "").toLowerCase().includes(query);
-
-        if (!matchesTitle && !matchesCompany && !matchesLocation && !matchesSkills && !matchesDept) {
-          return false;
-        }
-      }
-
-      // Company Filter
-      if (selectedCompany !== "All") {
-        if (job.company.slug !== selectedCompany && job.company.name !== selectedCompany) {
-          return false;
-        }
-      }
-
-      // Country Filter
-      if (selectedCountry !== "All") {
-        const country = selectedCountry.toLowerCase();
-        if (country === "india") {
-          const isIndia = job.location.some(l => {
-            const loc = l.toLowerCase();
-            return INDIA_LOC_KEYWORDS.some(k => loc.includes(k));
-          });
-          if (!isIndia) return false;
-        } else if (country === "united states") {
-          const isUS = job.location.some(l => {
-            const loc = l.toLowerCase();
-            return US_LOC_KEYWORDS.some(k => loc.includes(k));
-          });
-          if (!isUS) return false;
-        } else if (country === "united kingdom") {
-          const isUK = job.location.some(l => {
-            const loc = l.toLowerCase();
-            return UK_LOC_KEYWORDS.some(k => loc.includes(k));
-          });
-          if (!isUK) return false;
-        } else if (country === "germany") {
-          const isDE = job.location.some(l => {
-            const loc = l.toLowerCase();
-            return GERMANY_LOC_KEYWORDS.some(k => loc.includes(k));
-          });
-          if (!isDE) return false;
-        } else if (country === "canada") {
-          const isCA = job.location.some(l => {
-            const loc = l.toLowerCase();
-            return CANADA_LOC_KEYWORDS.some(k => loc.includes(k));
-          });
-          if (!isCA) return false;
-        } else if (country === "ireland") {
-          const isIE = job.location.some(l => {
-            const loc = l.toLowerCase();
-            return IRELAND_LOC_KEYWORDS.some(k => loc.includes(k));
-          });
-          if (!isIE) return false;
-        } else if (country === "australia") {
-          const isAU = job.location.some(l => {
-            const loc = l.toLowerCase();
-            return AUSTRALIA_LOC_KEYWORDS.some(k => loc.includes(k));
-          });
-          if (!isAU) return false;
-        } else if (country === "france") {
-          const isFR = job.location.some(l => FR_LOC_KEYWORDS.some(k => l.toLowerCase().includes(k)));
-          if (!isFR) return false;
-        } else if (country === "japan") {
-          const isJP = job.location.some(l => JP_LOC_KEYWORDS.some(k => l.toLowerCase().includes(k)));
-          if (!isJP) return false;
-        } else if (country === "singapore") {
-          const isSG = job.location.some(l => SG_LOC_KEYWORDS.some(k => l.toLowerCase().includes(k)));
-          if (!isSG) return false;
-        } else if (country === "united arab emirates" || country === "uae") {
-          const isAE = job.location.some(l => AE_LOC_KEYWORDS.some(k => l.toLowerCase().includes(k)));
-          if (!isAE) return false;
-        } else if (country === "netherlands") {
-          const isNL = job.location.some(l => NL_LOC_KEYWORDS.some(k => l.toLowerCase().includes(k)));
-          if (!isNL) return false;
-        } else if (country === "poland") {
-          const isPL = job.location.some(l => PL_LOC_KEYWORDS.some(k => l.toLowerCase().includes(k)));
-          if (!isPL) return false;
-        } else if (country === "spain") {
-          const isES = job.location.some(l => ES_LOC_KEYWORDS.some(k => l.toLowerCase().includes(k)));
-          if (!isES) return false;
-        } else if (country === "switzerland") {
-          const isCH = job.location.some(l => CH_LOC_KEYWORDS.some(k => l.toLowerCase().includes(k)));
-          if (!isCH) return false;
-        } else if (country === "sweden") {
-          const isSE = job.location.some(l => SE_LOC_KEYWORDS.some(k => l.toLowerCase().includes(k)));
-          if (!isSE) return false;
-        } else if (country === "italy") {
-          const isIT = job.location.some(l => IT_LOC_KEYWORDS.some(k => l.toLowerCase().includes(k)));
-          if (!isIT) return false;
-        } else if (country === "brazil") {
-          const isBR = job.location.some(l => BR_LOC_KEYWORDS.some(k => l.toLowerCase().includes(k)));
-          if (!isBR) return false;
-        } else if (country === "mexico") {
-          const isMX = job.location.some(l => MX_LOC_KEYWORDS.some(k => l.toLowerCase().includes(k)));
-          if (!isMX) return false;
-        } else if (country === "remote") {
-          const isRemote = (job.work_mode || "").toLowerCase() === "remote" || job.location.some(l => l.toLowerCase().includes("remote"));
-          if (!isRemote) return false;
-        } else {
-          const matches = job.location.some(l => l.toLowerCase().includes(country));
-          if (!matches) return false;
-        }
-      }
-
-      // State Filter (Smart Mapping: check state name OR any city known to belong to this state)
-      if (selectedState !== "All") {
-        const stateLower = selectedState.toLowerCase();
-        
-        // Find cities belonging to this state from STATE_CITIES
-        const stateCityValues = (STATE_CITIES[selectedCountry]?.[selectedState] || [])
-          .map(c => c.value.toLowerCase())
-          .filter(v => v !== "all");
-
-        if (stateLower === "delhi" || stateLower === "delhi ncr") {
-          stateCityValues.push("delhi", "new delhi", "noida", "gurgaon", "gurugram", "faridabad", "ghaziabad", "ncr");
-        } else if (stateLower === "karnataka") {
-          stateCityValues.push("bengaluru", "bangalore", "blr", "mysuru", "mysore", "mangalore", "hubli", "belgaum");
-        } else if (stateLower === "maharashtra") {
-          stateCityValues.push("mumbai", "bombay", "pune", "nagpur", "nashik", "aurangabad", "thane", "navi mumbai");
-        } else if (stateLower === "haryana") {
-          stateCityValues.push("gurgaon", "gurugram", "faridabad", "panchkula", "ambala");
-        } else if (stateLower === "uttar pradesh") {
-          stateCityValues.push("noida", "greater noida", "lucknow", "kanpur", "varanasi", "agra", "ghaziabad");
-        } else if (stateLower === "telangana") {
-          stateCityValues.push("hyderabad", "secunderabad", "warangal");
-        } else if (stateLower === "tamil nadu") {
-          stateCityValues.push("chennai", "madras", "coimbatore", "madurai", "trichy");
-        }
-
-        const stateMatches = job.location.some(l => {
-          const locLower = l.toLowerCase();
-          if (locLower.includes(stateLower)) return true;
-          return stateCityValues.some(cityVal => locLower.includes(cityVal));
-        }) || ((job as any).state && (job as any).state.toLowerCase().includes(stateLower));
-
-        if (!stateMatches) {
-          return false;
-        }
-      }
-
-      // City Filter (Smart Synonyms: e.g. Bengaluru/Bangalore, Delhi/Noida/Gurgaon)
-      if (selectedCity !== "All") {
-        const targetCity = selectedCity.toLowerCase();
-        let cityMatch = false;
-
-        if (targetCity === "bengaluru" || targetCity === "bangalore") {
-          cityMatch = job.location.some(l => {
-            const loc = l.toLowerCase();
-            return loc.includes("bengaluru") || loc.includes("bangalore") || loc.includes("blr");
-          });
-        } else if (targetCity === "delhi") {
-          cityMatch = job.location.some(l => {
-            const loc = l.toLowerCase();
-            return loc.includes("delhi") || loc.includes("new delhi") || loc.includes("noida") || loc.includes("gurgaon") || loc.includes("gurugram") || loc.includes("ncr");
-          });
-        } else if (targetCity === "gurgaon" || targetCity === "gurugram") {
-          cityMatch = job.location.some(l => {
-            const loc = l.toLowerCase();
-            return loc.includes("gurgaon") || loc.includes("gurugram");
-          });
-        } else if (targetCity === "noida") {
-          cityMatch = job.location.some(l => {
-            const loc = l.toLowerCase();
-            return loc.includes("noida");
-          });
-        } else if (targetCity === "mumbai") {
-          cityMatch = job.location.some(l => {
-            const loc = l.toLowerCase();
-            return loc.includes("mumbai") || loc.includes("bombay") || loc.includes("thane") || loc.includes("navi mumbai");
-          });
-        } else if (targetCity === "pune") {
-          cityMatch = job.location.some(l => l.toLowerCase().includes("pune"));
-        } else if (targetCity === "hyderabad") {
-          cityMatch = job.location.some(l => {
-            const loc = l.toLowerCase();
-            return loc.includes("hyderabad") || loc.includes("secunderabad");
-          });
-        } else if (targetCity === "chennai") {
-          cityMatch = job.location.some(l => {
-            const loc = l.toLowerCase();
-            return loc.includes("chennai") || loc.includes("madras");
-          });
-        } else if (targetCity === "kolkata") {
-          cityMatch = job.location.some(l => {
-            const loc = l.toLowerCase();
-            return loc.includes("kolkata") || loc.includes("calcutta");
-          });
-        } else if (targetCity === "remote") {
-          cityMatch = (job.work_mode || "").toLowerCase() === "remote" || job.location.some(l => l.toLowerCase().includes("remote") || l.toLowerCase().includes("pan-india"));
-        } else {
-          cityMatch = job.location.some(l => l.toLowerCase().includes(targetCity)) ||
-                      ((job as any).city && (job as any).city.toLowerCase().includes(targetCity));
-        }
-
-        if (!cityMatch) {
-          return false;
-        }
-      }
-
-      // Job Type filter (Smart Matching with Title & Employment Type)
-      if (activeFilters["Job Type"] !== "All") {
-        const filter = activeFilters["Job Type"].toLowerCase();
-        const titleLower = (job.title || "").toLowerCase();
-        const empTypeLower = (job.employment_type || "").toLowerCase();
-
-        if (filter === "internship") {
-          const isIntern =
-            titleLower.includes("intern") ||
-            titleLower.includes("co-op") ||
-            titleLower.includes("trainee") ||
-            titleLower.includes("apprentice") ||
-            empTypeLower.includes("intern");
-          if (!isIntern) return false;
-        } else if (filter === "contract") {
-          const isContract =
-            empTypeLower.includes("contract") ||
-            empTypeLower.includes("short term") ||
-            empTypeLower.includes("temp") ||
-            titleLower.includes("contract") ||
-            titleLower.includes("freelance");
-          if (!isContract) return false;
-        } else if (filter === "full time") {
-          const isIntern =
-            titleLower.includes("intern") ||
-            titleLower.includes("co-op") ||
-            titleLower.includes("trainee") ||
-            titleLower.includes("apprentice") ||
-            empTypeLower.includes("intern");
-          const isContract =
-            empTypeLower.includes("contract") ||
-            empTypeLower.includes("short term") ||
-            titleLower.includes("contract");
-          const isFull =
-            !isIntern &&
-            !isContract &&
-            (empTypeLower.includes("full") ||
-              empTypeLower.includes("permanent") ||
-              titleLower.includes("full-time") ||
-              titleLower.includes("full time") ||
-              !empTypeLower);
-          if (!isFull) return false;
-        } else {
-          const filterNormalized = filter.replace(/\s|-/g, "");
-          const empNormalized = empTypeLower.replace(/\s|-/g, "");
-          if (!empNormalized.includes(filterNormalized) && !titleLower.includes(filter)) {
-            return false;
-          }
-        }
-      }
-
-      // Work Mode filter (Smart Synonyms: Onsite/In-Office, Remote, Hybrid)
-      if (activeFilters["Work Mode"] !== "All") {
-        const targetMode = activeFilters["Work Mode"].toLowerCase();
-        const workModeLower = (job.work_mode || "").toLowerCase();
-        const locationLower = (job.location || []).join(" ").toLowerCase();
-
-        if (targetMode === "onsite") {
-          const isOnsite =
-            workModeLower.includes("office") ||
-            workModeLower.includes("onsite") ||
-            workModeLower.includes("on-site") ||
-            workModeLower.includes("in-person") ||
-            (!workModeLower.includes("remote") &&
-              !workModeLower.includes("hybrid") &&
-              !locationLower.includes("remote"));
-          if (!isOnsite) return false;
-        } else if (targetMode === "remote") {
-          const isRemote =
-            workModeLower === "remote" ||
-            workModeLower.includes("remote") ||
-            locationLower.includes("remote") ||
-            locationLower.includes("work from anywhere");
-          if (!isRemote) return false;
-        } else if (targetMode === "hybrid") {
-          const isHybrid =
-            workModeLower.includes("hybrid") ||
-            locationLower.includes("hybrid");
-          if (!isHybrid) return false;
-        }
-      }
-
-      // Experience Level filter
-      if (activeFilters["Experience"] !== "All") {
-        const expFilter = activeFilters["Experience"];
-        const expMin = job.experience_min ?? 0;
-        const isSeniorTitle = SENIOR_TITLE_REGEX.test(job.title) && !FRESHER_TITLE_REGEX.test(job.title);
-        const isFresherTitle = FRESHER_TITLE_REGEX.test(job.title) || FRESHER_TITLE_REGEX.test(job.employment_type || "");
-
-        if (expFilter === "0-1") {
-          if (isSeniorTitle) return false;
-          if (job.experience_min !== null && job.experience_min !== undefined && job.experience_min > 0) return false;
-          if (job.experience_max !== null && job.experience_max !== undefined && job.experience_max > 1 && !isFresherTitle) return false;
-          const isFresher = job.experience_min === 0 || isFresherTitle;
-          if (!isFresher) return false;
-        } else if (expFilter === "1-3") {
-          if (isSeniorTitle) return false;
-          const effectiveMin = job.experience_min ?? 2;
-          if (effectiveMin < 1 || effectiveMin > 3) return false;
-        } else if (expFilter === "3-5") {
-          const effectiveMin = job.experience_min ?? 3;
-          if (effectiveMin < 3 || effectiveMin > 5) return false;
-        } else if (expFilter === "5+") {
-          const effectiveMin = job.experience_min ?? 0;
-          const isSenior = effectiveMin >= 5 || isSeniorTitle;
-          if (!isSenior) return false;
-        }
-      }
-
-      // 1-Click Preset: High Salary + Newest
-      if (sortBy === "high_salary_newest") {
-        if (!isHighSalaryRole(job)) {
-          return false;
-        }
-      }
-
-      return true;
-    });
-
-    // 2. Sort jobs with protected timestamp resolution
-    const getJobTime = (j: Job) => {
-      const now = Date.now();
-      const postTime = j.posted_at ? new Date(j.posted_at).getTime() : 0;
-      const seenTime = j.first_seen_at ? new Date(j.first_seen_at).getTime() : 0;
-      // If postTime is in the future (due to timezone offsets or clock skew), fallback to seenTime or now
-      if (postTime > now || postTime === 0) {
-        return seenTime > 0 && seenTime <= now ? seenTime : now;
-      }
-      return postTime;
-    };
-
-    return filtered.sort((a, b) => {
-      if (sortBy === "high_salary_newest") {
-        return getJobTime(b) - getJobTime(a);
-      }
-      if (sortBy === "salary_high") {
-        const salaryA = getNormalizedAnnualSalaryUsd(a);
-        const salaryB = getNormalizedAnnualSalaryUsd(b);
-        if (salaryB !== salaryA) {
-          return salaryB - salaryA;
-        }
-        return getJobTime(b) - getJobTime(a);
-      }
-      if (sortBy === "salary_low") {
-        const salaryA = getNormalizedAnnualSalaryUsd(a);
-        const salaryB = getNormalizedAnnualSalaryUsd(b);
-        if (salaryA > 0 && salaryB > 0) {
-          if (salaryA !== salaryB) return salaryA - salaryB;
-        } else if (salaryA > 0) {
-          return -1;
-        } else if (salaryB > 0) {
-          return 1;
-        }
-        return getJobTime(b) - getJobTime(a);
-      }
-      if (sortBy === "oldest") {
-        return getJobTime(a) - getJobTime(b);
-      }
-      // Default: newest posted on top
-      return getJobTime(b) - getJobTime(a);
-    });
-  }, [jobsList, searchQuery, selectedCountry, selectedState, selectedCity, selectedCompany, sortBy, activeFilters]);
 
   const displayedJobs = jobsList;
 

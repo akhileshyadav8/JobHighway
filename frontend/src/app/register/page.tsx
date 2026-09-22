@@ -189,8 +189,14 @@ export default function RegisterPage() {
       <div className="min-h-screen bg-slate-50 py-16 px-4 flex items-center justify-center">
         <div className="w-full max-w-md">
           <div className="text-center mb-6">
-            <div className="inline-flex items-center justify-center w-14 h-14 bg-teal-50 border border-teal-200 rounded-2xl mb-3">
-              <span className="text-2xl">📧</span>
+            <Link href="/" className="inline-flex items-center gap-2 mb-3">
+              <img src="/logo.png" alt="JobPulse" className="w-9 h-9 object-contain" />
+              <span className="text-xl font-black tracking-tight text-teal-700">JobPulse</span>
+            </Link>
+            <div className="flex justify-center mb-2">
+              <div className="inline-flex items-center justify-center w-12 h-12 bg-teal-50 border border-teal-200 rounded-2xl">
+                <span className="text-2xl">📧</span>
+              </div>
             </div>
             <h1 className="text-2xl sm:text-3xl font-bold text-slate-900 tracking-tight">
               Check your email
@@ -296,6 +302,10 @@ export default function RegisterPage() {
     <div className="min-h-screen bg-slate-50 py-16 px-4 flex items-center justify-center">
       <div className="w-full max-w-md">
         <div className="text-center mb-6">
+          <Link href="/" className="inline-flex items-center gap-2 mb-4">
+            <img src="/logo.png" alt="JobPulse" className="w-10 h-10 object-contain" />
+            <span className="text-2xl font-black tracking-tight text-teal-700">JobPulse</span>
+          </Link>
           <h1 className="text-2xl sm:text-3xl font-bold text-slate-900 tracking-tight">
             Create Account
           </h1>

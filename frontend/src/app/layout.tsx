@@ -20,11 +20,12 @@ export const metadata: Metadata = {
   description: "Discover jobs minutes after they're posted. We monitor 1000+ company career pages every 10 minutes. Never miss a fresh opportunity again.",
   icons: {
     icon: [
-      { url: '/icon.png' },
-      { url: '/logo.png' }
+      { url: '/favicon.ico' },
+      { url: '/icon.png', type: 'image/png' },
+      { url: '/logo.png', type: 'image/png' }
     ],
     apple: [
-      { url: '/icon.png' }
+      { url: '/apple-icon.png' }
     ],
   },
 };

@@ -1,7 +1,7 @@
 import { getJobs, getOverviewStats } from "@/lib/api";
 import { InteractiveJobFeed } from "@/components/jobs/InteractiveJobFeed";
 
-export const revalidate = 60; // Revalidate in background every 60s while serving instant cached RSC to client routers
+export const dynamic = 'force-dynamic';
 
 export default async function Home() {
   const [jobsData, stats] = await Promise.all([

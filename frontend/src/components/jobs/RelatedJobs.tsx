@@ -3,6 +3,7 @@ import Link from "next/link";
 import { Building2, MapPin, ExternalLink } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { inferAtsSource } from "@/lib/utils";
+import { CountryFlag } from "@/components/ui/CountryFlag";
 
 export async function RelatedJobs({ currentJob }: { currentJob: Job }) {
   let jobs: Job[] = [];
@@ -52,7 +53,8 @@ export async function RelatedJobs({ currentJob }: { currentJob: Job }) {
                     {safeLocation.length > 0 && (
                       <span className="flex items-center gap-1">
                         <MapPin className="w-3 h-3" />
-                        {safeLocation[0]}
+                        <CountryFlag locations={safeLocation} size="sm" />
+                        <span>{safeLocation[0]}</span>
                       </span>
                     )}
                     {atsSource && (
