@@ -18,8 +18,8 @@ import {
   ArrowUpDown,
   X
 } from "lucide-react";
-import { Button } from "@/components/ui/button";
 import { CompanyLogo, getCleanDomain } from "@/components/ui/CompanyLogo";
+import { Button } from "@/components/ui/button";
 
 interface InteractiveCompaniesProps {
   initialCompanies: Company[];
@@ -163,7 +163,8 @@ export function InteractiveCompanies({ initialCompanies, initialStats }: Interac
       `}} />
 
       {/* ========================================================
-          HERO SECTION: Pixel-matched to Reference Image
+          HERO SECTION: Pixel-matched to Reference Image (media_1790186014554.png)
+          Container max-width matches Jobs page (1440px)
           ======================================================== */}
       <section className="relative overflow-hidden bg-gradient-to-b from-teal-50/40 via-white to-slate-50 pt-10 pb-8 sm:pt-14 sm:pb-10">
         {/* Subtle mesh & ambient light */}
@@ -171,11 +172,12 @@ export function InteractiveCompanies({ initialCompanies, initialStats }: Interac
         <div className="absolute top-0 right-1/4 -translate-y-12 w-96 h-96 bg-teal-200/25 rounded-full blur-3xl pointer-events-none" />
         <div className="absolute top-1/3 left-10 w-72 h-72 bg-emerald-200/20 rounded-full blur-3xl pointer-events-none" />
 
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-7xl relative z-10">
+        {/* max-w-[1440px] px-4 sm:px-6 lg:px-8 matches Jobs page, Navbar, and Footer */}
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-[1440px] relative z-10">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-8 xl:gap-12 items-center">
             
             {/* Left Content Column */}
-            <div className="lg:col-span-6 xl:col-span-6 flex flex-col items-start text-left">
+            <div className="lg:col-span-5 flex flex-col items-start text-left">
               {/* Eyebrow badge */}
               <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-50 border border-emerald-200/80 text-emerald-800 text-xs font-bold uppercase tracking-wider mb-4 shadow-2xs">
                 <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" />
@@ -242,109 +244,115 @@ export function InteractiveCompanies({ initialCompanies, initialStats }: Interac
               </div>
             </div>
 
-            {/* Right Visual Column: Network Globe with 6 Floating Logos + 3 Feature Badges + Annotation */}
-            <div className="lg:col-span-6 xl:col-span-6 relative hidden sm:flex items-center justify-center min-h-[380px] lg:min-h-[400px]">
-              <div className="relative w-full h-[380px] lg:h-[400px] max-w-[620px]">
+            {/* Right Visual Column: World Map + Network Globe + 6 Floating Logos + 3 Badges + Annotation */}
+            <div className="lg:col-span-7 relative hidden sm:flex items-center justify-end min-h-[410px]">
+              <div className="relative w-full max-w-[780px] h-[410px] flex items-center">
                 
-                {/* Subtle Central Network Globe SVG */}
-                <svg className="absolute left-6 sm:left-12 top-1/2 -translate-y-1/2 w-[300px] h-[300px] sm:w-[330px] sm:h-[330px] pointer-events-none" viewBox="0 0 360 360" fill="none">
+                {/* World Map Silhouette + Dotted Network Globe Canvas */}
+                <svg className="absolute left-0 top-1/2 -translate-y-1/2 w-[460px] h-[340px] pointer-events-none" viewBox="0 0 520 340" fill="none">
                   <defs>
-                    <radialGradient id="globe-glow" cx="50%" cy="50%" r="50%">
-                      <stop offset="0%" stopColor="#99f6e4" stopOpacity="0.45"/>
-                      <stop offset="65%" stopColor="#ccfbf1" stopOpacity="0.15"/>
+                    <radialGradient id="globe-glow" cx="45%" cy="50%" r="50%">
+                      <stop offset="0%" stopColor="#99f6e4" stopOpacity="0.5"/>
+                      <stop offset="65%" stopColor="#ccfbf1" stopOpacity="0.18"/>
                       <stop offset="100%" stopColor="#ffffff" stopOpacity="0"/>
                     </radialGradient>
                   </defs>
-                  
-                  {/* Globe radial soft glow */}
-                  <circle cx="180" cy="180" r="140" fill="url(#globe-glow)"/>
-                  
-                  {/* Concentric latitude & meridian rings */}
-                  <circle cx="180" cy="180" r="135" stroke="#0d9488" strokeWidth="1.2" strokeDasharray="3 3" opacity="0.3" />
-                  <ellipse cx="180" cy="180" rx="135" ry="50" stroke="#0d9488" strokeWidth="1" strokeDasharray="3 3" opacity="0.25" />
-                  <ellipse cx="180" cy="180" rx="135" ry="95" stroke="#0d9488" strokeWidth="1" strokeDasharray="3 3" opacity="0.25" />
-                  <ellipse cx="180" cy="180" rx="55" ry="135" stroke="#0d9488" strokeWidth="1" strokeDasharray="3 3" opacity="0.25" />
-                  <ellipse cx="180" cy="180" rx="100" ry="135" stroke="#0d9488" strokeWidth="1" strokeDasharray="3 3" opacity="0.25" />
-                  
-                  {/* Subtle node dots at intersections */}
-                  <circle cx="140" cy="130" r="2.5" fill="#0d9488" opacity="0.6"/>
-                  <circle cx="225" cy="155" r="2.5" fill="#0d9488" opacity="0.6"/>
-                  <circle cx="170" cy="235" r="2.5" fill="#0d9488" opacity="0.5"/>
-                  <circle cx="250" cy="210" r="2" fill="#0d9488" opacity="0.5"/>
-                  <circle cx="110" cy="165" r="2" fill="#0d9488" opacity="0.5"/>
-                  <circle cx="190" cy="100" r="2.5" fill="#0d9488" opacity="0.6"/>
+
+                  {/* Soft radial glow */}
+                  <circle cx="230" cy="170" r="160" fill="url(#globe-glow)"/>
+
+                  {/* World Map Silhouette in Soft Mint (matching 2nd reference image) */}
+                  <g fill="#2dd4bf" opacity="0.25">
+                    {/* North America */}
+                    <path d="M 55,75 Q 70,55 95,50 Q 120,55 135,70 Q 145,85 130,110 Q 120,130 110,145 Q 95,160 85,175 Q 80,185 75,175 Q 65,150 55,130 Q 42,100 55,75 Z" />
+                    <path d="M 115,40 Q 130,35 140,45 Q 135,55 120,50 Z" />
+                    {/* Central America */}
+                    <path d="M 85,175 Q 95,190 105,200 Q 100,205 90,195 Q 80,185 85,175 Z" />
+                    {/* South America */}
+                    <path d="M 105,200 Q 125,205 135,225 Q 140,250 130,275 Q 120,300 110,315 Q 105,310 100,285 Q 95,250 98,225 Q 100,210 105,200 Z" />
+                    {/* Europe */}
+                    <path d="M 210,70 Q 230,60 250,65 Q 260,75 250,95 Q 235,110 220,115 Q 210,110 205,95 Q 203,80 210,70 Z" />
+                    <path d="M 200,75 Q 210,70 210,80 Q 203,85 200,75 Z" />
+                    <path d="M 230,45 Q 240,40 245,55 Q 235,65 230,45 Z" />
+                    {/* Africa */}
+                    <path d="M 210,125 Q 240,120 260,135 Q 270,165 265,195 Q 255,230 240,260 Q 230,270 225,255 Q 210,220 200,175 Q 195,150 205,135 Q 207,128 210,125 Z" />
+                    <path d="M 270,225 Q 277,220 280,235 Q 275,248 270,242 Z" />
+                    {/* Asia */}
+                    <path d="M 260,65 Q 305,50 355,55 Q 395,65 405,90 Q 410,120 390,145 Q 365,165 335,170 Q 310,170 290,150 Q 275,125 270,95 Q 263,75 260,65 Z" />
+                    <path d="M 305,165 Q 325,170 330,195 Q 320,215 310,210 Q 300,195 305,165 Z" />
+                    <path d="M 350,160 Q 375,165 380,190 Q 370,210 355,195 Q 350,180 350,160 Z" />
+                    <path d="M 405,110 Q 415,105 417,125 Q 410,135 405,110 Z" />
+                    {/* Australia */}
+                    <path d="M 365,225 Q 395,215 415,230 Q 420,255 405,270 Q 380,275 370,255 Q 360,240 365,225 Z" />
+                  </g>
+
+                  {/* Concentric latitude & meridian dotted rings on top */}
+                  <circle cx="230" cy="170" r="145" stroke="#0d9488" strokeWidth="1.2" strokeDasharray="3 3" opacity="0.32" />
+                  <ellipse cx="230" cy="170" rx="145" ry="55" stroke="#0d9488" strokeWidth="1" strokeDasharray="3 3" opacity="0.25" />
+                  <ellipse cx="230" cy="170" rx="145" ry="105" stroke="#0d9488" strokeWidth="1" strokeDasharray="3 3" opacity="0.25" />
+                  <ellipse cx="230" cy="170" rx="60" ry="145" stroke="#0d9488" strokeWidth="1" strokeDasharray="3 3" opacity="0.25" />
+                  <ellipse cx="230" cy="170" rx="110" ry="145" stroke="#0d9488" strokeWidth="1" strokeDasharray="3 3" opacity="0.25" />
+
+                  {/* Network nodes */}
+                  <circle cx="105" cy="110" r="2.5" fill="#0d9488" opacity="0.7"/>
+                  <circle cx="225" cy="85" r="2.5" fill="#0d9488" opacity="0.7"/>
+                  <circle cx="335" cy="100" r="3" fill="#0d9488" opacity="0.7"/>
+                  <circle cx="235" cy="190" r="2.5" fill="#0d9488" opacity="0.6"/>
+                  <circle cx="390" cy="245" r="2.5" fill="#0d9488" opacity="0.6"/>
+                  <circle cx="115" cy="250" r="2" fill="#0d9488" opacity="0.6"/>
                 </svg>
 
-                {/* 6 Floating Company Logos */}
+                {/* 6 Floating Company Logos (Spread out, with zero overlap with cards) */}
                 {/* 1. Google (Top Center) */}
                 <div 
-                  className="absolute top-4 left-[165px] sm:left-[190px] w-12 h-12 rounded-2xl bg-white shadow-md border border-slate-100 flex items-center justify-center p-2.5 hover:scale-110 hover:shadow-lg transition-all duration-300 z-10"
+                  className="absolute top-3 left-[195px] w-12 h-12 rounded-2xl bg-white shadow-md border border-slate-100 flex items-center justify-center p-2.5 hover:scale-110 hover:shadow-lg transition-all duration-300 z-10"
                   title="Google"
                 >
-                  <svg viewBox="0 0 24 24" className="w-6 h-6">
-                    <path fill="#4285F4" d="M23.745 12.27c0-.7-.06-1.4-.19-2.07H12v4.51h6.6c-.29 1.52-1.14 2.8-2.4 3.65v3h3.88c2.27-2.09 3.665-5.17 3.665-9.09z" />
-                    <path fill="#34A853" d="M12 24c3.24 0 5.95-1.08 7.93-2.91l-3.88-3c-1.08.72-2.45 1.16-4.05 1.16-3.12 0-5.77-2.1-6.72-4.93H1.25v3.1C3.27 21.44 7.35 24 12 24z" />
-                    <path fill="#FBBC05" d="M5.28 14.32c-.25-.72-.38-1.49-.38-2.32s.13-1.6.38-2.32V6.58H1.25C.45 8.18 0 9.99 0 12s.45 3.82 1.25 5.42l4.03-3.1z" />
-                    <path fill="#EA4335" d="M12 4.75c1.77 0 3.35.61 4.6 1.8l3.42-3.42C17.95 1.19 15.24 0 12 0 7.35 0 3.27 2.56 1.25 6.58l4.03 3.1c.95-2.83 3.6-4.93 6.72-4.93z" />
-                  </svg>
+                  <CompanyLogo name="Google" slug="google" size="sm" />
                 </div>
 
                 {/* 2. Microsoft (Mid Left) */}
                 <div 
-                  className="absolute top-[125px] left-[15px] sm:left-[35px] w-12 h-12 rounded-2xl bg-white shadow-md border border-slate-100 flex items-center justify-center p-2.5 hover:scale-110 hover:shadow-lg transition-all duration-300 z-10"
+                  className="absolute top-[125px] left-[25px] w-12 h-12 rounded-2xl bg-white shadow-md border border-slate-100 flex items-center justify-center p-2.5 hover:scale-110 hover:shadow-lg transition-all duration-300 z-10"
                   title="Microsoft"
                 >
-                  <svg viewBox="0 0 24 24" className="w-6 h-6">
-                    <rect x="1.5" y="1.5" width="9.5" height="9.5" fill="#F25022" rx="0.5" />
-                    <rect x="13" y="1.5" width="9.5" height="9.5" fill="#7FBA00" rx="0.5" />
-                    <rect x="1.5" y="13" width="9.5" height="9.5" fill="#00A4EF" rx="0.5" />
-                    <rect x="13" y="13" width="9.5" height="9.5" fill="#FFB900" rx="0.5" />
-                  </svg>
+                  <CompanyLogo name="Microsoft" slug="microsoft" size="sm" />
                 </div>
 
-                {/* 3. Meta (Top Right) */}
+                {/* 3. Amazon (Center, slightly larger) */}
                 <div 
-                  className="absolute top-[75px] left-[275px] sm:left-[315px] w-12 h-12 rounded-2xl bg-white shadow-md border border-slate-100 flex items-center justify-center p-2.5 hover:scale-110 hover:shadow-lg transition-all duration-300 z-10"
-                  title="Meta"
-                >
-                  <svg viewBox="0 0 24 24" className="w-6 h-6" fill="#0081FB">
-                    <path d="M16.974 6.242c-1.928 0-3.328 1.096-4.974 3.01-1.646-1.914-3.046-3.01-4.974-3.01-3.642 0-6.026 2.875-6.026 6.84 0 4.152 2.566 7.214 6.136 7.214 2.193 0 3.646-1.096 4.864-2.825 1.218 1.729 2.671 2.825 4.864 2.825 3.57 0 6.136-3.062 6.136-7.214 0-3.965-2.384-6.84-6.026-6.84zm-4.974 7.247c-.886 1.488-1.996 2.738-3.676 2.738-2.128 0-3.69-1.942-3.69-4.819 0-2.738 1.507-4.764 3.635-4.764 1.625 0 2.793 1.151 3.731 2.738v4.107zm6.65 2.738c-1.68 0-2.79-1.25-3.676-2.738V9.382c.938-1.587 2.106-2.738 3.731-2.738 2.128 0 3.635 2.026 3.635 4.764 0 2.877-1.562 4.819-3.69 4.819z" />
-                  </svg>
-                </div>
-
-                {/* 4. Amazon (Center Right) */}
-                <div 
-                  className="absolute top-[165px] left-[220px] sm:left-[245px] w-13 h-13 sm:w-14 sm:h-14 rounded-2xl bg-white shadow-lg border border-slate-100 flex items-center justify-center p-2.5 hover:scale-110 hover:shadow-xl transition-all duration-300 z-10"
+                  className="absolute top-[150px] left-[215px] w-13 h-13 sm:w-14 sm:h-14 rounded-2xl bg-white shadow-lg border border-slate-100 flex items-center justify-center p-2.5 hover:scale-110 hover:shadow-xl transition-all duration-300 z-10"
                   title="Amazon"
                 >
-                  <svg viewBox="0 0 24 24" className="w-7 h-7">
-                    <path fill="#111827" d="M13.62 14.16c-.66.52-1.57.82-2.58.82-1.94 0-3.06-1.12-3.06-3.03 0-2.34 1.78-3.4 4.82-3.4.74 0 1.27.05 1.58.12v.94c-.26-.06-.69-.1-1.3-.1-1.89 0-3.03.62-3.03 1.93 0 1.09.68 1.74 1.83 1.74.84 0 1.55-.38 2.02-.97v1.95zm-3.05-8.73c2.93 0 4.87 1.43 4.87 4.54v4.75c0 .69.04 1.34.1 1.84h-1.82c-.08-.28-.12-.76-.14-1.14-.6.76-1.55 1.35-2.79 1.35-2.07 0-3.6-1.42-3.6-3.47 0-2.28 1.63-3.5 4.41-3.5.76 0 1.44.07 1.97.18v-.76c0-1.74-1.07-2.61-2.88-2.61-1.19 0-2.45.41-3.23.95l-.7-1.63c1.07-.68 2.59-1.15 4.01-1.15z"/>
-                    <path fill="#FF9900" d="M19.8 19.34c-3.13 2.19-7.39 3.09-11.45 2.12-2.42-.58-4.66-1.73-6.52-3.34-.23-.2-.04-.54.24-.41 4.56 2.09 9.94 2.14 14.77-.38.41-.21.78.26.36.61zM20.73 17.8c.24-.31 1.54-.15 2.17-.07.21.03.25.26.06.39-1.2 1.02-2.58 1.48-3.04 1.25-.33-.16-.25-1.09.81-1.57z"/>
-                  </svg>
+                  <CompanyLogo name="Amazon" slug="amazon" size="md" />
                 </div>
 
-                {/* 5. Apple (Bottom Center) */}
+                {/* 4. Apple (Bottom Center) */}
                 <div 
-                  className="absolute bottom-4 left-[145px] sm:left-[170px] w-12 h-12 rounded-2xl bg-white shadow-md border border-slate-100 flex items-center justify-center p-2.5 hover:scale-110 hover:shadow-lg transition-all duration-300 z-10"
+                  className="absolute bottom-[10px] left-[165px] w-12 h-12 rounded-2xl bg-white shadow-md border border-slate-100 flex items-center justify-center p-2.5 hover:scale-110 hover:shadow-lg transition-all duration-300 z-10"
                   title="Apple"
                 >
-                  <svg viewBox="0 0 24 24" className="w-6 h-6" fill="#111827">
-                    <path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.81-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M15.97 6.37c.62-.75 1.04-1.8 0.92-2.85-.9.04-2 .6-2.65 1.35-.58.67-1.09 1.74-.95 2.77.99.08 2.06-.52 2.68-1.27z"/>
-                  </svg>
+                  <CompanyLogo name="Apple" slug="apple" size="sm" />
                 </div>
 
-                {/* 6. Netflix (Bottom Right) */}
+                {/* 5. Meta (Top Right of Globe - ends at 378px) */}
                 <div 
-                  className="absolute bottom-10 left-[280px] sm:left-[320px] w-12 h-12 rounded-2xl bg-white shadow-md border border-slate-100 flex items-center justify-center p-2.5 hover:scale-110 hover:shadow-lg transition-all duration-300 z-10"
+                  className="absolute top-[65px] left-[330px] w-12 h-12 rounded-2xl bg-white shadow-md border border-slate-100 flex items-center justify-center p-2.5 hover:scale-110 hover:shadow-lg transition-all duration-300 z-10"
+                  title="Meta"
+                >
+                  <CompanyLogo name="Meta" slug="meta" size="sm" />
+                </div>
+
+                {/* 6. Netflix (Bottom Right of Globe - ends at 383px) */}
+                <div 
+                  className="absolute bottom-[45px] left-[335px] w-12 h-12 rounded-2xl bg-white shadow-md border border-slate-100 flex items-center justify-center p-2.5 hover:scale-110 hover:shadow-lg transition-all duration-300 z-10"
                   title="Netflix"
                 >
-                  <svg viewBox="0 0 24 24" className="w-6 h-6" fill="#E50914">
-                    <path d="M5.398 0v24c1.196-.27 2.417-.504 3.656-.696V0H5.398zm9.546 0v17.484c1.239-.12 2.464-.204 3.656-.252V0h-3.656zm-4.773 0l4.82 23.016c-1.127.132-2.265.288-3.41.468L6.82 5.04V0h3.351z"/>
-                  </svg>
+                  <CompanyLogo name="Netflix" slug="netflix" size="sm" />
                 </div>
 
-                {/* 3 Stacked Feature Badges */}
-                <div className="absolute right-12 sm:right-16 top-[56px] flex flex-col gap-2.5 z-10 w-[175px] sm:w-[185px]">
+                {/* 3 Stacked Feature Badges (Starts at 445px -> 67px safe margin from Meta/Netflix!) */}
+                <div className="absolute left-[445px] top-[48px] flex flex-col gap-2.5 z-10 w-[195px]">
                   <div className="bg-white/95 backdrop-blur-xs border border-slate-200/90 rounded-xl p-2.5 shadow-2xs flex items-center gap-2.5 hover:border-emerald-300 transition-colors">
                     <div className="w-8 h-8 rounded-lg bg-emerald-50 text-emerald-600 flex items-center justify-center shrink-0 border border-emerald-100">
                       <ShieldCheck className="w-4 h-4" />
@@ -376,9 +384,9 @@ export function InteractiveCompanies({ initialCompanies, initialStats }: Interac
                   </div>
                 </div>
 
-                {/* Right Annotation: "Top companies hiring worldwide" with curved arrow pointing to the cards */}
-                <div className="absolute top-10 -right-2 sm:-right-4 lg:-right-6 z-20 pointer-events-none flex flex-col items-center select-none">
-                  <span className="font-handwriting text-teal-800 text-sm sm:text-base font-bold -rotate-6 tracking-wide leading-tight text-center">
+                {/* Right Annotation: "Top companies hiring worldwide" (Starts at 655px -> completely free space!) */}
+                <div className="absolute left-[655px] top-[40px] flex flex-col items-center select-none z-20 pointer-events-none">
+                  <span className="font-handwriting text-teal-800 text-sm font-bold -rotate-6 tracking-wide leading-tight text-center whitespace-nowrap">
                     Top companies<br />hiring worldwide
                   </span>
                   <svg width="42" height="42" viewBox="0 0 42 42" fill="none" className="text-teal-600 mt-1 -ml-3">
@@ -396,13 +404,14 @@ export function InteractiveCompanies({ initialCompanies, initialStats }: Interac
 
       {/* ========================================================
           SEARCH BAR, FILTERS & 3-COLUMN CARDS GRID
+          Matches Jobs Page width (max-w-[1440px])
           ======================================================== */}
-      <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-7xl pt-4 pb-12">
+      <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-[1440px] pt-4 pb-12">
         
-        {/* Centered Medium-Width Search Bar */}
-        <div className="max-w-2xl mx-auto mb-5 w-full px-2 sm:px-0">
-          <div className="relative flex items-center bg-white border border-slate-200/90 rounded-2xl shadow-xs hover:border-slate-300 focus-within:border-teal-500 focus-within:ring-2 focus-within:ring-teal-500/20 transition-all p-1.5 sm:p-2">
-            <Search className="w-5 h-5 text-slate-400 ml-3 shrink-0" />
+        {/* Centered Medium-Width Search Bar with Substantial Search Button */}
+        <div className="max-w-3xl mx-auto mb-6 w-full px-2 sm:px-0">
+          <div className="relative flex items-center bg-white border border-slate-200/90 rounded-2xl shadow-xs hover:border-slate-300 focus-within:border-teal-500 focus-within:ring-2 focus-within:ring-teal-500/20 transition-all p-1.5 sm:p-2 min-h-[58px]">
+            <Search className="w-5 h-5 text-slate-400 ml-3.5 shrink-0" />
             <input
               type="text"
               value={search}
@@ -414,39 +423,39 @@ export function InteractiveCompanies({ initialCompanies, initialStats }: Interac
                 }
               }}
               placeholder="Search companies by name, domain, or location..."
-              className="w-full bg-transparent px-3 py-2 text-sm sm:text-base text-slate-900 placeholder:text-slate-400 outline-none"
+              className="w-full bg-transparent px-3.5 py-2 text-sm sm:text-base text-slate-900 placeholder:text-slate-400 outline-none"
             />
             {search && (
               <button
                 onClick={() => setSearch("")}
-                className="p-1 rounded-full text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition-colors mr-2 cursor-pointer"
+                className="p-1.5 rounded-full text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition-colors mr-2 cursor-pointer"
                 aria-label="Clear search"
               >
                 <X className="w-4 h-4" />
               </button>
             )}
-            <Button
+            <button
               onClick={() => {
                 const gridEl = document.getElementById("companies-results-grid");
                 if (gridEl) gridEl.scrollIntoView({ behavior: "smooth", block: "start" });
               }}
-              className="bg-teal-600 hover:bg-teal-700 text-white font-semibold px-6 py-2.5 rounded-xl flex items-center gap-2 text-sm shadow-xs transition-all shrink-0 cursor-pointer"
+              className="bg-teal-600 hover:bg-teal-700 active:bg-teal-800 text-white font-bold px-7 sm:px-8 h-11 sm:h-12 rounded-xl flex items-center gap-2 text-sm sm:text-base shadow-xs transition-all shrink-0 cursor-pointer"
             >
-              <Search className="w-4 h-4" />
+              <Search className="w-4 h-4 sm:w-5 sm:h-5 stroke-[2.5]" />
               <span>Search</span>
-            </Button>
+            </button>
           </div>
         </div>
 
-        {/* Single-Row Filter Controls (Centered, 4 in one row on desktop) */}
-        <div className="max-w-4xl mx-auto flex items-center justify-center gap-3 flex-wrap md:flex-nowrap mb-6 w-full px-2 sm:px-0">
+        {/* Single-Row Filter Controls (Centered, 4 in one row on desktop without awkward truncation) */}
+        <div className="max-w-4xl mx-auto flex items-center justify-center gap-3 md:gap-3.5 flex-wrap md:flex-nowrap mb-6 w-full px-2 sm:px-0">
           {/* Country Filter */}
-          <div className="relative flex-1 min-w-[170px]">
+          <div className="relative flex-1 min-w-[190px]">
             <Globe className="w-3.5 h-3.5 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
             <select
               value={selectedCountry}
               onChange={(e) => setSelectedCountry(e.target.value)}
-              className="w-full h-10 appearance-none bg-white border border-slate-200/90 rounded-xl pl-9 pr-8 text-xs font-semibold text-slate-700 hover:border-slate-300 focus:outline-none focus:border-teal-500 cursor-pointer shadow-2xs transition-colors truncate"
+              className="w-full h-11 appearance-none bg-white border border-slate-200/90 rounded-xl pl-9 pr-8 text-xs sm:text-sm font-semibold text-slate-700 hover:border-slate-300 focus:outline-none focus:border-teal-500 cursor-pointer shadow-2xs transition-colors"
             >
               <option value="All">All Countries (Worldwide)</option>
               {countries.map((c) => (
@@ -457,12 +466,12 @@ export function InteractiveCompanies({ initialCompanies, initialStats }: Interac
           </div>
 
           {/* Industry Filter */}
-          <div className="relative flex-1 min-w-[150px]">
+          <div className="relative flex-1 min-w-[160px]">
             <Building2 className="w-3.5 h-3.5 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
             <select
               value={selectedIndustry}
               onChange={(e) => setSelectedIndustry(e.target.value)}
-              className="w-full h-10 appearance-none bg-white border border-slate-200/90 rounded-xl pl-9 pr-8 text-xs font-semibold text-slate-700 hover:border-slate-300 focus:outline-none focus:border-teal-500 cursor-pointer shadow-2xs transition-colors truncate"
+              className="w-full h-11 appearance-none bg-white border border-slate-200/90 rounded-xl pl-9 pr-8 text-xs sm:text-sm font-semibold text-slate-700 hover:border-slate-300 focus:outline-none focus:border-teal-500 cursor-pointer shadow-2xs transition-colors"
             >
               <option value="All">All Industries</option>
               {industries.map((ind) => (
@@ -473,12 +482,12 @@ export function InteractiveCompanies({ initialCompanies, initialStats }: Interac
           </div>
 
           {/* Company Size Filter */}
-          <div className="relative flex-1 min-w-[160px]">
+          <div className="relative flex-1 min-w-[170px]">
             <Users className="w-3.5 h-3.5 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
             <select
               value={selectedSize}
               onChange={(e) => setSelectedSize(e.target.value)}
-              className="w-full h-10 appearance-none bg-white border border-slate-200/90 rounded-xl pl-9 pr-8 text-xs font-semibold text-slate-700 hover:border-slate-300 focus:outline-none focus:border-teal-500 cursor-pointer shadow-2xs transition-colors truncate"
+              className="w-full h-11 appearance-none bg-white border border-slate-200/90 rounded-xl pl-9 pr-8 text-xs sm:text-sm font-semibold text-slate-700 hover:border-slate-300 focus:outline-none focus:border-teal-500 cursor-pointer shadow-2xs transition-colors"
             >
               <option value="All">All Company Sizes</option>
               <option value="10k+">10K+ employees</option>
@@ -489,12 +498,12 @@ export function InteractiveCompanies({ initialCompanies, initialStats }: Interac
           </div>
 
           {/* Sort Filter */}
-          <div className="relative flex-1 min-w-[140px]">
+          <div className="relative flex-1 min-w-[150px]">
             <ArrowUpDown className="w-3.5 h-3.5 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
             <select
               value={sortBy}
               onChange={(e) => setSortBy(e.target.value)}
-              className="w-full h-10 appearance-none bg-white border border-slate-200/90 rounded-xl pl-9 pr-8 text-xs font-semibold text-slate-700 hover:border-slate-300 focus:outline-none focus:border-teal-500 cursor-pointer shadow-2xs transition-colors truncate"
+              className="w-full h-11 appearance-none bg-white border border-slate-200/90 rounded-xl pl-9 pr-8 text-xs sm:text-sm font-semibold text-slate-700 hover:border-slate-300 focus:outline-none focus:border-teal-500 cursor-pointer shadow-2xs transition-colors"
             >
               <option value="newest">Newest First</option>
               <option value="openings">Most Openings</option>
