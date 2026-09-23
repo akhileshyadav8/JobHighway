@@ -263,59 +263,59 @@ export function InteractiveCompanies({ initialCompanies, initialStats }: Interac
                 </div>
 
 
-                {/* 6 Floating Company Logos (Single clean white tiles with official SVGs, no double boxes) */}
+                {/* 6 Floating Company Logos (Sized containers using user's exact SVGs) */}
                 {/* 1. Google (Top Center) */}
                 <div 
-                  className="absolute top-4 left-[200px] w-12 h-12 rounded-2xl bg-white shadow-md border border-slate-100 flex items-center justify-center p-2.5 hover:scale-110 hover:shadow-lg transition-all duration-300 z-10"
+                  className="absolute top-3 left-[190px] w-[76px] h-14 rounded-2xl bg-white shadow-md border border-slate-100 flex items-center justify-center p-2 px-3 hover:scale-110 hover:shadow-lg transition-all duration-300 z-10"
                   title="Google"
                 >
                   {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img src="/logos/google.svg" alt="Google logo" className="w-full h-full object-contain pointer-events-none select-none" />
+                  <img src="/logos/GOOG_BIG.svg" alt="Google logo" className="w-full h-full object-contain pointer-events-none select-none" />
                 </div>
 
                 {/* 2. Microsoft (Mid Left) */}
                 <div 
-                  className="absolute top-[125px] left-[30px] w-12 h-12 rounded-2xl bg-white shadow-md border border-slate-100 flex items-center justify-center p-2.5 hover:scale-110 hover:shadow-lg transition-all duration-300 z-10"
+                  className="absolute top-[115px] left-[24px] w-[60px] h-[60px] rounded-2xl bg-white shadow-md border border-slate-100 flex items-center justify-center p-2.5 hover:scale-110 hover:shadow-lg transition-all duration-300 z-10"
                   title="Microsoft"
                 >
                   {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img src="/logos/microsoft.svg" alt="Microsoft logo" className="w-full h-full object-contain pointer-events-none select-none" />
+                  <img src="/logos/MSFT.svg" alt="Microsoft logo" className="w-full h-full object-contain pointer-events-none select-none" />
                 </div>
 
                 {/* 3. Amazon (Center, prominent) */}
                 <div 
-                  className="absolute top-[150px] left-[215px] w-13 h-13 sm:w-14 sm:h-14 rounded-2xl bg-white shadow-lg border border-slate-100 flex items-center justify-center p-2.5 hover:scale-110 hover:shadow-xl transition-all duration-300 z-10"
+                  className="absolute top-[138px] left-[202px] w-[68px] h-[68px] rounded-2xl bg-white shadow-lg border border-slate-100 flex items-center justify-center p-2.5 hover:scale-110 hover:shadow-xl transition-all duration-300 z-10"
                   title="Amazon"
                 >
                   {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img src="/logos/amazon.svg" alt="Amazon logo" className="w-full h-full object-contain pointer-events-none select-none" />
+                  <img src="/logos/AMZN.svg" alt="Amazon logo" className="w-full h-full object-contain pointer-events-none select-none" />
                 </div>
 
                 {/* 4. Apple (Bottom Center) */}
                 <div 
-                  className="absolute bottom-[10px] left-[170px] w-12 h-12 rounded-2xl bg-white shadow-md border border-slate-100 flex items-center justify-center p-2.5 hover:scale-110 hover:shadow-lg transition-all duration-300 z-10"
+                  className="absolute bottom-3 left-[165px] w-[60px] h-[60px] rounded-2xl bg-white shadow-md border border-slate-100 flex items-center justify-center p-2.5 hover:scale-110 hover:shadow-lg transition-all duration-300 z-10"
                   title="Apple"
                 >
                   {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img src="/logos/apple.svg" alt="Apple logo" className="w-full h-full object-contain pointer-events-none select-none" />
+                  <img src="/logos/AAPL.svg" alt="Apple logo" className="w-full h-full object-contain pointer-events-none select-none" />
                 </div>
 
-                {/* 5. Meta (Top Right of Globe - ends at 378px) */}
+                {/* 5. Meta (Top Right of Globe - enlarged container so infinity logo is bold & clearly visible) */}
                 <div 
-                  className="absolute top-[65px] left-[330px] w-12 h-12 rounded-2xl bg-white shadow-md border border-slate-100 flex items-center justify-center p-2.5 hover:scale-110 hover:shadow-lg transition-all duration-300 z-10"
+                  className="absolute top-[56px] left-[328px] w-16 h-16 rounded-2xl bg-white shadow-md border border-slate-100 flex items-center justify-center p-2.5 hover:scale-110 hover:shadow-lg transition-all duration-300 z-10"
                   title="Meta"
                 >
                   {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img src="/logos/meta.svg" alt="Meta logo" className="w-full h-full object-contain pointer-events-none select-none" />
+                  <img src="/logos/META.svg" alt="Meta logo" className="w-full h-full object-contain pointer-events-none select-none" />
                 </div>
 
-                {/* 6. Netflix (Bottom Right of Globe - ends at 383px) */}
+                {/* 6. Netflix (Bottom Right of Globe) */}
                 <div 
-                  className="absolute bottom-[45px] left-[335px] w-12 h-12 rounded-2xl bg-white shadow-md border border-slate-100 flex items-center justify-center p-2.5 hover:scale-110 hover:shadow-lg transition-all duration-300 z-10"
+                  className="absolute bottom-9 left-[332px] w-[60px] h-[60px] rounded-2xl bg-white shadow-md border border-slate-100 flex items-center justify-center p-2.5 hover:scale-110 hover:shadow-lg transition-all duration-300 z-10"
                   title="Netflix"
                 >
                   {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img src="/logos/netflix.svg" alt="Netflix logo" className="w-full h-full object-contain pointer-events-none select-none" />
+                  <img src="/logos/NFLX.svg" alt="Netflix logo" className="w-full h-full object-contain pointer-events-none select-none" />
                 </div>
 
                 {/* 3 Stacked Feature Badges (Starts at 445px -> 67px safe margin from Meta/Netflix!) */}
