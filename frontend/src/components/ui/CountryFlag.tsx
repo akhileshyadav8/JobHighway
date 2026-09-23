@@ -74,7 +74,7 @@ export function CountryFlag({ locations, countryCode, className = "", size = "sm
     lg: { width: 24, height: 18 },
   }[size];
 
-  if (code === "global") {
+  if (code === "global" || code === "all" || code === "remote") {
     return (
       <span
         title="Worldwide / Remote"

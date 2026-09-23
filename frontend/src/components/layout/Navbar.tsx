@@ -142,23 +142,20 @@ export function Navbar() {
               ) : (
                 <>
                   <Link href="/dashboard">
-                    <Button
-                      size="sm"
-                      className="text-xs font-semibold bg-teal-600 hover:bg-teal-700 text-white rounded-md cursor-pointer"
+                    <button
+                      className="text-xs font-semibold bg-teal-600 hover:bg-teal-700 active:bg-teal-800 text-white rounded-full px-3 py-1.5 flex items-center gap-1.5 shadow-2xs transition-colors cursor-pointer"
                     >
-                      <UserIcon className="w-3.5 h-3.5 mr-1.5" />
-                      {user.name.split(" ")[0]}
-                    </Button>
+                      <UserIcon className="w-3.5 h-3.5" />
+                      <span>{user.name.split(" ")[0]}</span>
+                    </button>
                   </Link>
-                  <Button
-                    variant="ghost"
-                    size="sm"
+                  <button
                     onClick={handleLogout}
-                    className="text-xs font-medium text-slate-600 hover:text-slate-900 rounded-md cursor-pointer"
+                    className="p-1.5 text-slate-500 hover:text-slate-900 hover:bg-slate-100 rounded-lg transition-colors cursor-pointer"
                     title="Sign Out"
                   >
-                    <LogOut className="w-3.5 h-3.5" />
-                  </Button>
+                    <LogOut className="w-4 h-4" />
+                  </button>
                 </>
               )}
             </div>

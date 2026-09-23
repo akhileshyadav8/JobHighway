@@ -2,11 +2,18 @@
 
 import React, { useState, useRef, useEffect, useMemo } from "react";
 import { Search, X, ChevronDown, Check } from "lucide-react";
+import { CountryFlag } from "@/components/ui/CountryFlag";
 
 export interface SearchableOption {
   label: string;
   value: string;
   code?: string;
+}
+
+export function getCleanLabel(label: string, code?: string): string {
+  if (!code) return label;
+  // If label starts with emoji sequences or flag characters, strip them cleanly
+  return label.replace(/^[\p{Extended_Pictographic}\uD83C\uDDE6-\uD83C\uDDFF\uFE0F\s]+/u, "").trim() || label;
 }
 
 interface SearchableSelectProps {
@@ -73,11 +80,13 @@ export function SearchableSelect({
     const contains: SearchableOption[] = [];
 
     options.forEach((opt) => {
-      const label = opt.label.toLowerCase();
+      const clean = getCleanLabel(opt.label, opt.code).toLowerCase();
+      const raw = opt.label.toLowerCase();
       const val = opt.value.toLowerCase();
-      if (label.startsWith(query) || val.startsWith(query)) {
+      const code = (opt.code || "").toLowerCase();
+      if (clean.startsWith(query) || raw.startsWith(query) || val.startsWith(query) || code.startsWith(query)) {
         startsWith.push(opt);
-      } else if (label.includes(query) || val.includes(query)) {
+      } else if (clean.includes(query) || raw.includes(query) || val.includes(query) || code.includes(query)) {
         contains.push(opt);
       }
     });
@@ -173,12 +182,12 @@ export function SearchableSelect({
         aria-expanded={isOpen}
         disabled={disabled || loading}
         onClick={() => setIsOpen((prev) => !prev)}
-        className={`w-full flex items-center justify-between pl-7 sm:pl-8 pr-2 py-1.5 sm:py-2 text-[11px] sm:text-xs md:text-sm font-medium border rounded-md shadow-2xs transition-all text-left outline-none cursor-pointer ${
+        className={`w-full flex items-center justify-between pl-8 pr-2.5 py-2 sm:py-2.5 text-xs sm:text-sm font-medium border rounded-xl shadow-2xs transition-all text-left outline-none cursor-pointer ${
           disabled || loading
-            ? "bg-slate-100 border-slate-200 text-slate-400 cursor-not-allowed"
+            ? "bg-slate-50 border-slate-200 text-slate-400 cursor-not-allowed"
             : isOpen
-            ? "bg-white border-slate-400 ring-1 ring-slate-300 text-slate-900"
-            : "bg-white border-slate-200 text-slate-800 hover:border-slate-300"
+            ? "bg-white border-teal-500 ring-2 ring-teal-500/20 text-slate-900"
+            : "bg-white border-slate-200/90 text-slate-800 hover:border-slate-300"
         }`}
       >
         {/* Leading Icon */}
@@ -189,12 +198,19 @@ export function SearchableSelect({
         )}
 
         {/* Selected Label */}
-        <span className="truncate flex-1 pr-1.5 sm:pr-2">
-          {loading
-            ? loadingText
-            : selectedOption
-            ? selectedOption.label
-            : placeholder}
+        <span className="truncate flex-1 pr-1.5 sm:pr-2 flex items-center gap-1.5 min-w-0">
+          {loading ? (
+            loadingText
+          ) : selectedOption ? (
+            <>
+              {selectedOption.code && (
+                <CountryFlag countryCode={selectedOption.code} size="sm" />
+              )}
+              <span className="truncate">{getCleanLabel(selectedOption.label, selectedOption.code)}</span>
+            </>
+          ) : (
+            placeholder
+          )}
         </span>
 
         {/* Trailing Down Chevron */}
@@ -254,7 +270,12 @@ export function SearchableSelect({
                         : "text-slate-700 hover:bg-slate-50"
                     } ${isSelected ? "font-semibold text-slate-900 bg-slate-50" : ""}`}
                   >
-                    <span className="truncate pr-2">{option.label}</span>
+                    <div className="flex items-center gap-2 truncate pr-2 min-w-0">
+                      {option.code && (
+                        <CountryFlag countryCode={option.code} size="sm" />
+                      )}
+                      <span className="truncate">{getCleanLabel(option.label, option.code)}</span>
+                    </div>
                     {isSelected && (
                       <Check className="w-3.5 h-3.5 text-teal-700 shrink-0" />
                     )}

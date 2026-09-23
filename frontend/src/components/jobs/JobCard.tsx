@@ -171,7 +171,7 @@ export function JobCard({ job }: JobCardProps) {
   const isRecent = Boolean(postDate && (Date.now() - new Date(postDate).getTime() <= 24 * 60 * 60 * 1000) && (Date.now() - new Date(postDate).getTime() >= 0));
 
   return (
-    <div className="bg-white border border-slate-200/90 rounded-xl p-4 sm:p-5 hover:border-slate-300 hover:shadow-md transition-all flex flex-col h-full group relative">
+    <div className="bg-white border border-slate-200/90 rounded-2xl p-4 sm:p-5 hover:border-slate-300 hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 flex flex-col h-full group relative">
       {/* Top Header: Logo + Company + Badges */}
       <div className="flex items-start justify-between gap-3 mb-2.5">
         <div className="flex items-center gap-2.5 min-w-0">
@@ -244,7 +244,7 @@ export function JobCard({ job }: JobCardProps) {
         <div className="flex items-start gap-1.5 text-xs text-slate-500 mb-2.5">
           <MapPin className="w-3.5 h-3.5 mt-0.5 shrink-0 text-slate-400" />
           <span className="line-clamp-1 flex items-center gap-1.5">
-            <CountryFlag locations={safeLocation} size="sm" />
+            <CountryFlag locations={safeLocation} countryCode={(job as any).country_code || (job as any).country} size="sm" />
             <span>{[locationText, job.work_mode, job.employment_type, expText].filter(Boolean).join(" · ")}</span>
           </span>
         </div>
