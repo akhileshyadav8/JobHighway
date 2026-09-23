@@ -54,7 +54,39 @@ const KNOWN_DOMAINS: Record<string, string> = {
   snap: "snap.com",
   lyft: "lyft.com",
   doordash: "doordash.com",
-  instacart: "instacart.com"
+  instacart: "instacart.com",
+  adecco: "adecco.com",
+  superprof: "superprof.com",
+  domestiko: "domestiko.com"
+};
+
+const COLOR_MAP: Record<string, string> = {
+  A: "bg-rose-50 text-rose-700",
+  B: "bg-blue-50 text-blue-700",
+  C: "bg-indigo-50 text-indigo-700",
+  D: "bg-purple-50 text-purple-700",
+  E: "bg-emerald-50 text-emerald-700",
+  F: "bg-teal-50 text-teal-700",
+  G: "bg-sky-50 text-sky-700",
+  H: "bg-cyan-50 text-cyan-700",
+  I: "bg-violet-50 text-violet-700",
+  J: "bg-amber-50 text-amber-700",
+  K: "bg-orange-50 text-orange-700",
+  L: "bg-pink-50 text-pink-700",
+  M: "bg-red-50 text-red-700",
+  N: "bg-fuchsia-50 text-fuchsia-700",
+  O: "bg-blue-50 text-blue-700",
+  P: "bg-emerald-50 text-emerald-700",
+  Q: "bg-teal-50 text-teal-700",
+  R: "bg-rose-50 text-rose-700",
+  S: "bg-emerald-50 text-emerald-700",
+  T: "bg-sky-50 text-sky-700",
+  U: "bg-indigo-50 text-indigo-700",
+  V: "bg-purple-50 text-purple-700",
+  W: "bg-teal-50 text-teal-700",
+  X: "bg-slate-100 text-slate-800",
+  Y: "bg-amber-50 text-amber-700",
+  Z: "bg-blue-50 text-blue-700",
 };
 
 export function getCleanDomain(rawDomainOrUrl?: string | null, slug?: string | null, name?: string | null): string {
@@ -105,6 +137,7 @@ export function CompanyLogo({
     : null;
 
   const initial = (name || "C").charAt(0).toUpperCase();
+  const avatarColors = COLOR_MAP[initial] || "bg-teal-50 text-teal-700";
 
   const sizeClasses = {
     sm: "w-9 h-9 rounded-lg p-1.5",
@@ -132,7 +165,7 @@ export function CompanyLogo({
         />
       ) : (
         <span
-          className={`w-full h-full rounded flex items-center justify-center text-teal-700 bg-teal-50/90 ${fontClasses}`}
+          className={`w-full h-full rounded flex items-center justify-center font-bold ${avatarColors} ${fontClasses}`}
         >
           {initial}
         </span>
