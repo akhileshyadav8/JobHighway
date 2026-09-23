@@ -264,13 +264,13 @@ export function InteractiveCompanies({ initialCompanies, initialStats }: Interac
 
 
                 {/* 6 Floating Company Logos (Sized containers using user's exact SVGs) */}
-                {/* 1. Google (Top Center) */}
+                {/* 1. Google (Top Center - square tile for official "G" logo) */}
                 <div 
-                  className="absolute top-3 left-[190px] w-[76px] h-14 rounded-2xl bg-white shadow-md border border-slate-100 flex items-center justify-center p-2 px-3 hover:scale-110 hover:shadow-lg transition-all duration-300 z-10"
+                  className="absolute top-3 left-[206px] w-[60px] h-[60px] rounded-2xl bg-white shadow-md border border-slate-100 flex items-center justify-center p-2.5 hover:scale-110 hover:shadow-lg transition-all duration-300 z-10"
                   title="Google"
                 >
                   {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img src="/logos/GOOG_BIG.svg" alt="Google logo" className="w-full h-full object-contain pointer-events-none select-none" />
+                  <img src="/logos/google.svg" alt="Google logo" className="w-full h-full object-contain pointer-events-none select-none" />
                 </div>
 
                 {/* 2. Microsoft (Mid Left) */}
@@ -279,7 +279,7 @@ export function InteractiveCompanies({ initialCompanies, initialStats }: Interac
                   title="Microsoft"
                 >
                   {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img src="/logos/MSFT.svg" alt="Microsoft logo" className="w-full h-full object-contain pointer-events-none select-none" />
+                  <img src="/logos/microsoft.svg" alt="Microsoft logo" className="w-full h-full object-contain pointer-events-none select-none" />
                 </div>
 
                 {/* 3. Amazon (Center, prominent) */}
@@ -288,7 +288,7 @@ export function InteractiveCompanies({ initialCompanies, initialStats }: Interac
                   title="Amazon"
                 >
                   {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img src="/logos/AMZN.svg" alt="Amazon logo" className="w-full h-full object-contain pointer-events-none select-none" />
+                  <img src="/logos/amazon.svg" alt="Amazon logo" className="w-full h-full object-contain pointer-events-none select-none" />
                 </div>
 
                 {/* 4. Apple (Bottom Center) */}
@@ -297,16 +297,16 @@ export function InteractiveCompanies({ initialCompanies, initialStats }: Interac
                   title="Apple"
                 >
                   {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img src="/logos/AAPL.svg" alt="Apple logo" className="w-full h-full object-contain pointer-events-none select-none" />
+                  <img src="/logos/apple.svg" alt="Apple logo" className="w-full h-full object-contain pointer-events-none select-none" />
                 </div>
 
-                {/* 5. Meta (Top Right of Globe - enlarged container so infinity logo is bold & clearly visible) */}
+                {/* 5. Meta (Top Right of Globe - enlarged container & lowercase /logos/meta.svg for Linux/Vercel) */}
                 <div 
-                  className="absolute top-[56px] left-[328px] w-16 h-16 rounded-2xl bg-white shadow-md border border-slate-100 flex items-center justify-center p-2.5 hover:scale-110 hover:shadow-lg transition-all duration-300 z-10"
+                  className="absolute top-[56px] left-[328px] w-16 h-16 rounded-2xl bg-white shadow-md border border-slate-100 flex items-center justify-center p-2 hover:scale-110 hover:shadow-lg transition-all duration-300 z-10"
                   title="Meta"
                 >
                   {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img src="/logos/META.svg" alt="Meta logo" className="w-full h-full object-contain pointer-events-none select-none" />
+                  <img src="/logos/meta.svg" alt="Meta logo" className="w-full h-full object-contain pointer-events-none select-none" />
                 </div>
 
                 {/* 6. Netflix (Bottom Right of Globe) */}
@@ -315,7 +315,7 @@ export function InteractiveCompanies({ initialCompanies, initialStats }: Interac
                   title="Netflix"
                 >
                   {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img src="/logos/NFLX.svg" alt="Netflix logo" className="w-full h-full object-contain pointer-events-none select-none" />
+                  <img src="/logos/netflix.svg" alt="Netflix logo" className="w-full h-full object-contain pointer-events-none select-none" />
                 </div>
 
                 {/* 3 Stacked Feature Badges (Starts at 445px -> 67px safe margin from Meta/Netflix!) */}
