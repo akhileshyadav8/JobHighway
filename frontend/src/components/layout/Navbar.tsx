@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { usePathname, useRouter } from 'next/navigation';
-import { Menu, X, Briefcase, Building2, BookOpen, Info, Mail, User as UserIcon, Shield, LogOut } from 'lucide-react';
+import { Menu, X, Briefcase, Building2, BookOpen, Info, Mail, User as UserIcon, Shield, LogOut, ChevronDown } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { getCurrentUser, logoutUser, User } from '@/lib/auth';
 
@@ -141,13 +141,11 @@ export function Navbar() {
                 </>
               ) : (
                 <>
-                  <Link href="/dashboard">
-                    <button
-                      className="text-xs font-semibold bg-teal-600 hover:bg-teal-700 active:bg-teal-800 text-white rounded-full px-3 py-1.5 flex items-center gap-1.5 shadow-2xs transition-colors cursor-pointer"
-                    >
-                      <UserIcon className="w-3.5 h-3.5" />
-                      <span>{user.name.split(" ")[0]}</span>
-                    </button>
+                  <Link href="/dashboard" className="flex items-center gap-1.5 p-1 rounded-full hover:bg-slate-100 transition-colors group cursor-pointer" title="Dashboard">
+                    <div className="w-8 h-8 rounded-full bg-teal-600 group-hover:bg-teal-700 text-white font-bold text-xs flex items-center justify-center shadow-2xs transition-colors">
+                      {user.name ? user.name.split(" ").map(n => n[0]).filter(Boolean).slice(0, 2).join("").toUpperCase() : "AK"}
+                    </div>
+                    <ChevronDown className="w-3.5 h-3.5 text-slate-400 group-hover:text-slate-600 transition-colors" />
                   </Link>
                   <button
                     onClick={handleLogout}

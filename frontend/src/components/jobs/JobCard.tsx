@@ -8,6 +8,7 @@ import { MapPin, Clock, Bookmark, CheckCircle2, ExternalLink } from "lucide-reac
 import { Job } from "@/lib/api";
 import { formatSalary, formatRelativeTime, formatDate, sanitizeJobSkills, inferAtsSource } from "@/lib/utils";
 import { CountryFlag } from "@/components/ui/CountryFlag";
+import { CompanyLogo } from "@/components/ui/CompanyLogo";
 import { getCurrentUser, markJobApplied, isJobApplied, toggleBookmark, isJobBookmarked, User } from "@/lib/auth";
 import { trackEvent } from "@/lib/telemetry";
 
@@ -176,24 +177,13 @@ export function JobCard({ job }: JobCardProps) {
       <div className="flex items-start justify-between gap-3 mb-2.5">
         <div className="flex items-center gap-2.5 min-w-0">
           {/* Company Logo */}
-          {job.company.logo_url ? (
-            <div className="w-10 h-10 shrink-0 rounded-lg border border-slate-100 bg-white flex items-center justify-center overflow-hidden p-1 shadow-2xs">
-              <Image
-                src={job.company.logo_url}
-                alt={job.company.name}
-                width={36}
-                height={36}
-                className="w-full h-full object-contain"
-                onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }}
-              />
-            </div>
-          ) : (
-            <div className="w-10 h-10 shrink-0 rounded-lg border border-slate-100 bg-slate-50 flex items-center justify-center shadow-2xs">
-              <span className="text-xs font-bold text-slate-400 uppercase">
-                {job.company.name.charAt(0)}
-              </span>
-            </div>
-          )}
+          <CompanyLogo
+            name={job.company.name}
+            website={job.company.website}
+            slug={job.company.slug}
+            logoUrl={job.company.logo_url}
+            size="sm"
+          />
 
           <div className="min-w-0">
             <p className="text-xs font-semibold text-slate-700 truncate">

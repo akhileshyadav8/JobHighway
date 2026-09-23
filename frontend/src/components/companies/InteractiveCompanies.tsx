@@ -37,7 +37,7 @@ export function InteractiveCompanies({ initialCompanies, initialStats }: Interac
   const [currentPage, setCurrentPage] = useState(1);
   const [jumpPageInput, setJumpPageInput] = useState("");
 
-  const totalCompaniesCount = initialStats?.total_companies || initialCompanies.length || 17584;
+  const totalCompaniesCount = initialStats?.total_companies || initialCompanies.length || 17578;
 
   // Extract unique industries for filter dropdown
   const industries = useMemo(() => {
@@ -178,62 +178,63 @@ export function InteractiveCompanies({ initialCompanies, initialStats }: Interac
             <div className="lg:col-span-6 xl:col-span-6 flex flex-col items-start text-left">
               {/* Eyebrow badge */}
               <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-50 border border-emerald-200/80 text-emerald-800 text-xs font-bold uppercase tracking-wider mb-4 shadow-2xs">
-                <Building2 className="w-3.5 h-3.5 text-emerald-600" />
+                <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" />
                 <span>VERIFIED COMPANIES</span>
               </div>
 
-              {/* Main Heading */}
-              <h1 className="text-3xl sm:text-4xl lg:text-[44px] xl:text-[50px] font-black text-slate-900 tracking-tight leading-[1.12] mb-4">
-                Discover companies that are{" "}
-                <span className="text-teal-600 underline decoration-teal-300 decoration-wavy decoration-2 underline-offset-4">
-                  actually hiring
-                </span>.
+              {/* Main Heading without underline under 'actually hiring.' */}
+              <h1 className="text-3xl sm:text-4xl lg:text-[44px] xl:text-[48px] font-black text-slate-900 tracking-tight leading-[1.15] mb-4">
+                Discover companies<br className="hidden sm:inline" />
+                {" "}that are <span className="text-teal-600 font-black">actually hiring.</span>
               </h1>
 
               {/* Supporting Text */}
-              <p className="text-sm sm:text-base text-slate-600 mb-7 max-w-xl leading-relaxed">
+              <p className="text-sm sm:text-base text-slate-600 mb-6 max-w-xl leading-relaxed">
                 Explore verified companies and discover fresh opportunities directly from official career portals. Follow your favorite companies and never miss a new opportunity.
               </p>
 
-              {/* 3 Metric Badges side-by-side */}
-              <div className="grid grid-cols-3 gap-3 sm:gap-3.5 w-full max-w-lg">
-                <div className="bg-white/90 backdrop-blur-xs border border-slate-200/80 rounded-2xl p-3 sm:p-3.5 flex items-center gap-3 shadow-2xs hover:border-slate-300 transition-colors">
-                  <div className="w-10 h-10 rounded-xl bg-emerald-50 border border-emerald-100 flex items-center justify-center shrink-0">
-                    <Building2 className="w-5 h-5 text-emerald-600" />
+              {/* 3 Metric Badges side-by-side (clean circular icons, matching reference image) */}
+              <div className="flex items-center flex-wrap gap-5 sm:gap-7 pt-1">
+                {/* 1. Verified Companies */}
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-full bg-emerald-50 text-emerald-600 flex items-center justify-center shrink-0 border border-emerald-100/80">
+                    <Building2 className="w-5 h-5" />
                   </div>
-                  <div className="min-w-0">
-                    <div className="text-sm sm:text-base font-black text-slate-900 truncate">
+                  <div>
+                    <div className="text-base sm:text-lg font-black text-slate-900 leading-tight">
                       {totalCompaniesCount.toLocaleString()}
                     </div>
-                    <div className="text-[11px] sm:text-xs font-medium text-slate-500 truncate">
+                    <div className="text-xs text-slate-500 font-medium">
                       Verified Companies
                     </div>
                   </div>
                 </div>
 
-                <div className="bg-white/90 backdrop-blur-xs border border-slate-200/80 rounded-2xl p-3 sm:p-3.5 flex items-center gap-3 shadow-2xs hover:border-slate-300 transition-colors">
-                  <div className="w-10 h-10 rounded-xl bg-teal-50 border border-teal-100 flex items-center justify-center shrink-0">
-                    <Briefcase className="w-5 h-5 text-teal-600" />
+                {/* 2. Active Openings */}
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-full bg-teal-50 text-teal-600 flex items-center justify-center shrink-0 border border-teal-100/80">
+                    <Briefcase className="w-5 h-5" />
                   </div>
-                  <div className="min-w-0">
-                    <div className="text-sm sm:text-base font-black text-slate-900 truncate">
-                      {initialStats?.total_jobs ? `${Number(initialStats.total_jobs).toLocaleString()}+` : "1.2M+"}
+                  <div>
+                    <div className="text-base sm:text-lg font-black text-slate-900 leading-tight">
+                      {initialStats?.total_jobs ? `${Number(initialStats.total_jobs).toLocaleString()}+` : "55,484+"}
                     </div>
-                    <div className="text-[11px] sm:text-xs font-medium text-slate-500 truncate">
+                    <div className="text-xs text-slate-500 font-medium">
                       Active Openings
                     </div>
                   </div>
                 </div>
 
-                <div className="bg-white/90 backdrop-blur-xs border border-slate-200/80 rounded-2xl p-3 sm:p-3.5 flex items-center gap-3 shadow-2xs hover:border-slate-300 transition-colors">
-                  <div className="w-10 h-10 rounded-xl bg-sky-50 border border-sky-100 flex items-center justify-center shrink-0">
-                    <Globe className="w-5 h-5 text-sky-600" />
+                {/* 3. Countries */}
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-full bg-sky-50 text-sky-600 flex items-center justify-center shrink-0 border border-sky-100/80">
+                    <Globe className="w-5 h-5" />
                   </div>
-                  <div className="min-w-0">
-                    <div className="text-sm sm:text-base font-black text-slate-900 truncate">
+                  <div>
+                    <div className="text-base sm:text-lg font-black text-slate-900 leading-tight">
                       150+
                     </div>
-                    <div className="text-[11px] sm:text-xs font-medium text-slate-500 truncate">
+                    <div className="text-xs text-slate-500 font-medium">
                       Countries
                     </div>
                   </div>
@@ -241,9 +242,9 @@ export function InteractiveCompanies({ initialCompanies, initialStats }: Interac
               </div>
             </div>
 
-            {/* Right Visual Column: Network Globe with 6 Floating Logos + Annotations + 3 Feature Badges */}
+            {/* Right Visual Column: Network Globe with 6 Floating Logos + 3 Feature Badges + Annotation */}
             <div className="lg:col-span-6 xl:col-span-6 relative hidden sm:flex items-center justify-center min-h-[380px] lg:min-h-[400px]">
-              <div className="relative w-full h-[380px] lg:h-[400px] max-w-[580px]">
+              <div className="relative w-full h-[380px] lg:h-[400px] max-w-[620px]">
                 
                 {/* Subtle Central Network Globe SVG */}
                 <svg className="absolute left-6 sm:left-12 top-1/2 -translate-y-1/2 w-[300px] h-[300px] sm:w-[330px] sm:h-[330px] pointer-events-none" viewBox="0 0 360 360" fill="none">
@@ -273,17 +274,6 @@ export function InteractiveCompanies({ initialCompanies, initialStats }: Interac
                   <circle cx="110" cy="165" r="2" fill="#0d9488" opacity="0.5"/>
                   <circle cx="190" cy="100" r="2.5" fill="#0d9488" opacity="0.6"/>
                 </svg>
-
-                {/* Left Annotation: "Top companies hiring worldwide" */}
-                <div className="absolute top-2 left-0 sm:left-2 z-20 pointer-events-none flex flex-col items-start select-none">
-                  <span className="font-handwriting text-teal-800 text-sm sm:text-base font-bold -rotate-6 tracking-wide leading-tight">
-                    Top companies<br />hiring worldwide
-                  </span>
-                  <svg width="44" height="34" viewBox="0 0 44 34" fill="none" className="text-teal-600 ml-5 mt-0.5">
-                    <path d="M4 4C6 14 16 26 30 24C34 23 37 20 39 15" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
-                    <path d="M33 16L39 15L40 21" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
-                  </svg>
-                </div>
 
                 {/* 6 Floating Company Logos */}
                 {/* 1. Google (Top Center) */}
@@ -322,7 +312,7 @@ export function InteractiveCompanies({ initialCompanies, initialStats }: Interac
                   </svg>
                 </div>
 
-                {/* 4. Amazon (Center Right, slightly larger) */}
+                {/* 4. Amazon (Center Right) */}
                 <div 
                   className="absolute top-[165px] left-[220px] sm:left-[245px] w-13 h-13 sm:w-14 sm:h-14 rounded-2xl bg-white shadow-lg border border-slate-100 flex items-center justify-center p-2.5 hover:scale-110 hover:shadow-xl transition-all duration-300 z-10"
                   title="Amazon"
@@ -333,7 +323,7 @@ export function InteractiveCompanies({ initialCompanies, initialStats }: Interac
                   </svg>
                 </div>
 
-                {/* 5. Apple (Bottom Center-Left) */}
+                {/* 5. Apple (Bottom Center) */}
                 <div 
                   className="absolute bottom-4 left-[145px] sm:left-[170px] w-12 h-12 rounded-2xl bg-white shadow-md border border-slate-100 flex items-center justify-center p-2.5 hover:scale-110 hover:shadow-lg transition-all duration-300 z-10"
                   title="Apple"
@@ -353,19 +343,8 @@ export function InteractiveCompanies({ initialCompanies, initialStats }: Interac
                   </svg>
                 </div>
 
-                {/* Right Annotation: "Verified from official career portals" */}
-                <div className="absolute top-1 right-0 sm:right-2 z-20 pointer-events-none flex items-center gap-1 select-none">
-                  <svg width="36" height="30" viewBox="0 0 36 30" fill="none" className="text-teal-600 shrink-0">
-                    <path d="M30 4C22 6 10 13 6 23" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
-                    <path d="M4 15L6 24L14 22" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
-                  </svg>
-                  <span className="font-handwriting text-teal-800 text-xs sm:text-sm font-bold -rotate-3 tracking-wide whitespace-nowrap leading-tight">
-                    Verified from<br />official career portals
-                  </span>
-                </div>
-
-                {/* 3 Stacked Feature Badges on Far Right */}
-                <div className="absolute right-0 sm:right-1 top-[56px] flex flex-col gap-2.5 z-10 w-[185px] sm:w-[195px]">
+                {/* 3 Stacked Feature Badges */}
+                <div className="absolute right-12 sm:right-16 top-[56px] flex flex-col gap-2.5 z-10 w-[175px] sm:w-[185px]">
                   <div className="bg-white/95 backdrop-blur-xs border border-slate-200/90 rounded-xl p-2.5 shadow-2xs flex items-center gap-2.5 hover:border-emerald-300 transition-colors">
                     <div className="w-8 h-8 rounded-lg bg-emerald-50 text-emerald-600 flex items-center justify-center shrink-0 border border-emerald-100">
                       <ShieldCheck className="w-4 h-4" />
@@ -397,6 +376,17 @@ export function InteractiveCompanies({ initialCompanies, initialStats }: Interac
                   </div>
                 </div>
 
+                {/* Right Annotation: "Top companies hiring worldwide" with curved arrow pointing to the cards */}
+                <div className="absolute top-10 -right-2 sm:-right-4 lg:-right-6 z-20 pointer-events-none flex flex-col items-center select-none">
+                  <span className="font-handwriting text-teal-800 text-sm sm:text-base font-bold -rotate-6 tracking-wide leading-tight text-center">
+                    Top companies<br />hiring worldwide
+                  </span>
+                  <svg width="42" height="42" viewBox="0 0 42 42" fill="none" className="text-teal-600 mt-1 -ml-3">
+                    <path d="M26 4C26 14 18 28 6 30" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
+                    <path d="M12 24L5 30L9 38" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+                  </svg>
+                </div>
+
               </div>
             </div>
 
@@ -405,12 +395,12 @@ export function InteractiveCompanies({ initialCompanies, initialStats }: Interac
       </section>
 
       {/* ========================================================
-          SEARCH BAR & FILTER CONTROLS: FULL CONTAINER WIDTH
+          SEARCH BAR, FILTERS & 3-COLUMN CARDS GRID
           ======================================================== */}
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-7xl pt-4 pb-12">
         
-        {/* Full-width Search Bar */}
-        <div className="w-full mb-4">
+        {/* Centered Medium-Width Search Bar */}
+        <div className="max-w-2xl mx-auto mb-5 w-full px-2 sm:px-0">
           <div className="relative flex items-center bg-white border border-slate-200/90 rounded-2xl shadow-xs hover:border-slate-300 focus-within:border-teal-500 focus-within:ring-2 focus-within:ring-teal-500/20 transition-all p-1.5 sm:p-2">
             <Search className="w-5 h-5 text-slate-400 ml-3 shrink-0" />
             <input
@@ -440,7 +430,7 @@ export function InteractiveCompanies({ initialCompanies, initialStats }: Interac
                 const gridEl = document.getElementById("companies-results-grid");
                 if (gridEl) gridEl.scrollIntoView({ behavior: "smooth", block: "start" });
               }}
-              className="bg-teal-600 hover:bg-teal-700 text-white font-semibold px-5 sm:px-6 py-2.5 rounded-xl flex items-center gap-2 text-sm shadow-xs transition-all shrink-0 cursor-pointer"
+              className="bg-teal-600 hover:bg-teal-700 text-white font-semibold px-6 py-2.5 rounded-xl flex items-center gap-2 text-sm shadow-xs transition-all shrink-0 cursor-pointer"
             >
               <Search className="w-4 h-4" />
               <span>Search</span>
@@ -448,77 +438,75 @@ export function InteractiveCompanies({ initialCompanies, initialStats }: Interac
           </div>
         </div>
 
-        {/* Filter & Sort Controls Row */}
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-3 mb-8">
-          <div className="flex flex-wrap items-center gap-2.5">
-            {/* Country Filter */}
-            <div className="relative">
-              <Globe className="w-3.5 h-3.5 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
-              <select
-                value={selectedCountry}
-                onChange={(e) => setSelectedCountry(e.target.value)}
-                className="appearance-none bg-white border border-slate-200/90 rounded-xl pl-8 pr-7 py-2 text-xs font-semibold text-slate-700 hover:border-slate-300 focus:outline-none focus:border-teal-500 cursor-pointer shadow-2xs transition-colors"
-              >
-                <option value="All">All Countries (Worldwide)</option>
-                {countries.map((c) => (
-                  <option key={c} value={c}>{c}</option>
-                ))}
-              </select>
-              <ChevronDown className="w-3.5 h-3.5 text-slate-400 absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
-            </div>
-
-            {/* Industry Filter */}
-            <div className="relative">
-              <Building2 className="w-3.5 h-3.5 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
-              <select
-                value={selectedIndustry}
-                onChange={(e) => setSelectedIndustry(e.target.value)}
-                className="appearance-none bg-white border border-slate-200/90 rounded-xl pl-8 pr-7 py-2 text-xs font-semibold text-slate-700 hover:border-slate-300 focus:outline-none focus:border-teal-500 cursor-pointer shadow-2xs transition-colors"
-              >
-                <option value="All">All Industries</option>
-                {industries.map((ind) => (
-                  <option key={ind} value={ind}>{ind}</option>
-                ))}
-              </select>
-              <ChevronDown className="w-3.5 h-3.5 text-slate-400 absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
-            </div>
-
-            {/* Company Size Filter */}
-            <div className="relative">
-              <Users className="w-3.5 h-3.5 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
-              <select
-                value={selectedSize}
-                onChange={(e) => setSelectedSize(e.target.value)}
-                className="appearance-none bg-white border border-slate-200/90 rounded-xl pl-8 pr-7 py-2 text-xs font-semibold text-slate-700 hover:border-slate-300 focus:outline-none focus:border-teal-500 cursor-pointer shadow-2xs transition-colors"
-              >
-                <option value="All">All Company Sizes</option>
-                <option value="10k+">10K+ employees</option>
-                <option value="1k-10k">1K–10K employees</option>
-                <option value="<1k">Under 1K employees</option>
-              </select>
-              <ChevronDown className="w-3.5 h-3.5 text-slate-400 absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
-            </div>
-
-            {/* Sort Filter */}
-            <div className="relative">
-              <ArrowUpDown className="w-3.5 h-3.5 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
-              <select
-                value={sortBy}
-                onChange={(e) => setSortBy(e.target.value)}
-                className="appearance-none bg-white border border-slate-200/90 rounded-xl pl-8 pr-7 py-2 text-xs font-semibold text-slate-700 hover:border-slate-300 focus:outline-none focus:border-teal-500 cursor-pointer shadow-2xs transition-colors"
-              >
-                <option value="newest">Newest First</option>
-                <option value="openings">Most Openings</option>
-                <option value="name">Company Name (A–Z)</option>
-              </select>
-              <ChevronDown className="w-3.5 h-3.5 text-slate-400 absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
-            </div>
+        {/* Single-Row Filter Controls (Centered, 4 in one row on desktop) */}
+        <div className="max-w-4xl mx-auto flex items-center justify-center gap-3 flex-wrap md:flex-nowrap mb-6 w-full px-2 sm:px-0">
+          {/* Country Filter */}
+          <div className="relative flex-1 min-w-[170px]">
+            <Globe className="w-3.5 h-3.5 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+            <select
+              value={selectedCountry}
+              onChange={(e) => setSelectedCountry(e.target.value)}
+              className="w-full h-10 appearance-none bg-white border border-slate-200/90 rounded-xl pl-9 pr-8 text-xs font-semibold text-slate-700 hover:border-slate-300 focus:outline-none focus:border-teal-500 cursor-pointer shadow-2xs transition-colors truncate"
+            >
+              <option value="All">All Countries (Worldwide)</option>
+              {countries.map((c) => (
+                <option key={c} value={c}>{c}</option>
+              ))}
+            </select>
+            <ChevronDown className="w-3.5 h-3.5 text-slate-400 absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none" />
           </div>
 
-          {/* Dynamic Company Counter */}
-          <div className="text-xs sm:text-sm font-semibold text-slate-600">
-            <span className="text-slate-900 font-bold">{filtered.length.toLocaleString()}</span> companies
+          {/* Industry Filter */}
+          <div className="relative flex-1 min-w-[150px]">
+            <Building2 className="w-3.5 h-3.5 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+            <select
+              value={selectedIndustry}
+              onChange={(e) => setSelectedIndustry(e.target.value)}
+              className="w-full h-10 appearance-none bg-white border border-slate-200/90 rounded-xl pl-9 pr-8 text-xs font-semibold text-slate-700 hover:border-slate-300 focus:outline-none focus:border-teal-500 cursor-pointer shadow-2xs transition-colors truncate"
+            >
+              <option value="All">All Industries</option>
+              {industries.map((ind) => (
+                <option key={ind} value={ind}>{ind}</option>
+              ))}
+            </select>
+            <ChevronDown className="w-3.5 h-3.5 text-slate-400 absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none" />
           </div>
+
+          {/* Company Size Filter */}
+          <div className="relative flex-1 min-w-[160px]">
+            <Users className="w-3.5 h-3.5 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+            <select
+              value={selectedSize}
+              onChange={(e) => setSelectedSize(e.target.value)}
+              className="w-full h-10 appearance-none bg-white border border-slate-200/90 rounded-xl pl-9 pr-8 text-xs font-semibold text-slate-700 hover:border-slate-300 focus:outline-none focus:border-teal-500 cursor-pointer shadow-2xs transition-colors truncate"
+            >
+              <option value="All">All Company Sizes</option>
+              <option value="10k+">10K+ employees</option>
+              <option value="1k-10k">1K–10K employees</option>
+              <option value="<1k">Under 1K employees</option>
+            </select>
+            <ChevronDown className="w-3.5 h-3.5 text-slate-400 absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none" />
+          </div>
+
+          {/* Sort Filter */}
+          <div className="relative flex-1 min-w-[140px]">
+            <ArrowUpDown className="w-3.5 h-3.5 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+            <select
+              value={sortBy}
+              onChange={(e) => setSortBy(e.target.value)}
+              className="w-full h-10 appearance-none bg-white border border-slate-200/90 rounded-xl pl-9 pr-8 text-xs font-semibold text-slate-700 hover:border-slate-300 focus:outline-none focus:border-teal-500 cursor-pointer shadow-2xs transition-colors truncate"
+            >
+              <option value="newest">Newest First</option>
+              <option value="openings">Most Openings</option>
+              <option value="name">Company Name (A–Z)</option>
+            </select>
+            <ChevronDown className="w-3.5 h-3.5 text-slate-400 absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none" />
+          </div>
+        </div>
+
+        {/* Dynamic Company Counter on Left, directly above the 3-column card grid */}
+        <div className="text-xs sm:text-sm font-semibold text-slate-700 mb-4">
+          {filtered.length.toLocaleString()} companies
         </div>
 
         {/* ========================================================
