@@ -18,8 +18,8 @@ import {
   ArrowUpDown,
   X
 } from "lucide-react";
-import { CompanyLogo, getCleanDomain } from "@/components/ui/CompanyLogo";
 import { Button } from "@/components/ui/button";
+import { CompanyLogo, getCleanDomain, VECTOR_LOGOS } from "@/components/ui/CompanyLogo";
 
 interface InteractiveCompaniesProps {
   initialCompanies: Company[];
@@ -244,95 +244,122 @@ export function InteractiveCompanies({ initialCompanies, initialStats }: Interac
               </div>
             </div>
 
-            {/* Right Visual Column: World Map + Network Globe + 6 Floating Logos + 3 Badges + Annotation */}
+            {/* Right Visual Column: Professional World Network Globe + 6 Floating Logos + 3 Badges + Annotation */}
             <div className="lg:col-span-7 relative hidden sm:flex items-center justify-end min-h-[410px]">
               <div className="relative w-full max-w-[780px] h-[410px] flex items-center">
                 
-                {/* World Map Silhouette + Dotted Network Globe Canvas */}
+                {/* Modern Hiring Platform Global Network Visualization SVG */}
                 <svg className="absolute left-0 top-1/2 -translate-y-1/2 w-[460px] h-[340px] pointer-events-none" viewBox="0 0 520 340" fill="none">
                   <defs>
                     <radialGradient id="globe-glow" cx="45%" cy="50%" r="50%">
-                      <stop offset="0%" stopColor="#99f6e4" stopOpacity="0.5"/>
-                      <stop offset="65%" stopColor="#ccfbf1" stopOpacity="0.18"/>
+                      <stop offset="0%" stopColor="#99f6e4" stopOpacity="0.55"/>
+                      <stop offset="65%" stopColor="#ccfbf1" stopOpacity="0.2"/>
                       <stop offset="100%" stopColor="#ffffff" stopOpacity="0"/>
                     </radialGradient>
+                    <linearGradient id="arc-grad" x1="0%" y1="0%" x2="100%" y2="0%">
+                      <stop offset="0%" stopColor="#0d9488" stopOpacity="0.2" />
+                      <stop offset="50%" stopColor="#0d9488" stopOpacity="0.7" />
+                      <stop offset="100%" stopColor="#0d9488" stopOpacity="0.2" />
+                    </linearGradient>
                   </defs>
 
-                  {/* Soft radial glow */}
+                  {/* Soft ambient radial glow */}
                   <circle cx="230" cy="170" r="160" fill="url(#globe-glow)"/>
 
-                  {/* World Map Silhouette in Soft Mint (matching 2nd reference image) */}
-                  <g fill="#2dd4bf" opacity="0.25">
+                  {/* Elegant World Landmass Silhouettes (Very light mint, professional) */}
+                  <g fill="#14b8a6" fillOpacity="0.12">
                     {/* North America */}
-                    <path d="M 55,75 Q 70,55 95,50 Q 120,55 135,70 Q 145,85 130,110 Q 120,130 110,145 Q 95,160 85,175 Q 80,185 75,175 Q 65,150 55,130 Q 42,100 55,75 Z" />
-                    <path d="M 115,40 Q 130,35 140,45 Q 135,55 120,50 Z" />
-                    {/* Central America */}
-                    <path d="M 85,175 Q 95,190 105,200 Q 100,205 90,195 Q 80,185 85,175 Z" />
-                    {/* South America */}
-                    <path d="M 105,200 Q 125,205 135,225 Q 140,250 130,275 Q 120,300 110,315 Q 105,310 100,285 Q 95,250 98,225 Q 100,210 105,200 Z" />
+                    <path d="M 50,60 C 65,48 95,45 125,52 C 145,58 152,72 142,92 C 135,108 125,122 115,138 C 102,152 92,168 85,182 C 82,188 78,188 75,178 C 68,158 58,140 50,118 C 42,96 40,78 50,60 Z" />
+                    <path d="M 125,32 C 140,28 152,38 148,48 C 142,54 130,50 125,32 Z" />
+                    {/* Central & South America */}
+                    <path d="M 85,182 C 92,192 100,200 102,208 C 118,206 132,220 136,236 C 140,256 132,278 122,300 C 114,312 108,312 104,295 C 98,272 94,245 96,224 C 98,208 92,196 85,182 Z" />
                     {/* Europe */}
-                    <path d="M 210,70 Q 230,60 250,65 Q 260,75 250,95 Q 235,110 220,115 Q 210,110 205,95 Q 203,80 210,70 Z" />
-                    <path d="M 200,75 Q 210,70 210,80 Q 203,85 200,75 Z" />
-                    <path d="M 230,45 Q 240,40 245,55 Q 235,65 230,45 Z" />
+                    <path d="M 215,62 C 232,54 252,58 262,70 C 268,80 258,95 245,102 C 230,108 218,102 212,88 C 208,76 210,66 215,62 Z" />
+                    <path d="M 202,68 C 210,64 212,74 204,78 C 198,78 198,70 202,68 Z" />
+                    <path d="M 235,38 C 244,32 250,46 244,54 C 238,54 234,44 235,38 Z" />
                     {/* Africa */}
-                    <path d="M 210,125 Q 240,120 260,135 Q 270,165 265,195 Q 255,230 240,260 Q 230,270 225,255 Q 210,220 200,175 Q 195,150 205,135 Q 207,128 210,125 Z" />
-                    <path d="M 270,225 Q 277,220 280,235 Q 275,248 270,242 Z" />
+                    <path d="M 212,118 C 238,114 262,128 268,152 C 274,180 266,218 248,248 C 238,262 232,258 226,244 C 215,214 205,175 202,148 C 200,132 205,120 212,118 Z" />
+                    <path d="M 272,218 C 278,214 282,228 276,238 C 272,238 270,224 272,218 Z" />
                     {/* Asia */}
-                    <path d="M 260,65 Q 305,50 355,55 Q 395,65 405,90 Q 410,120 390,145 Q 365,165 335,170 Q 310,170 290,150 Q 275,125 270,95 Q 263,75 260,65 Z" />
-                    <path d="M 305,165 Q 325,170 330,195 Q 320,215 310,210 Q 300,195 305,165 Z" />
-                    <path d="M 350,160 Q 375,165 380,190 Q 370,210 355,195 Q 350,180 350,160 Z" />
-                    <path d="M 405,110 Q 415,105 417,125 Q 410,135 405,110 Z" />
+                    <path d="M 265,58 C 305,44 355,48 395,58 C 420,72 422,98 408,122 C 388,144 360,158 330,162 C 305,164 285,148 275,128 C 265,105 260,82 265,58 Z" />
+                    <path d="M 305,158 C 322,162 328,185 318,202 C 310,202 302,185 305,158 Z" />
+                    <path d="M 352,154 C 372,158 378,180 368,198 C 358,198 350,178 352,154 Z" />
+                    <path d="M 410,102 C 418,98 422,114 416,125 C 410,125 408,108 410,102 Z" />
                     {/* Australia */}
-                    <path d="M 365,225 Q 395,215 415,230 Q 420,255 405,270 Q 380,275 370,255 Q 360,240 365,225 Z" />
+                    <path d="M 370,220 C 398,212 420,224 424,246 C 426,264 408,274 388,272 C 372,270 364,250 368,235 C 368,228 370,222 370,220 Z" />
                   </g>
 
-                  {/* Concentric latitude & meridian dotted rings on top */}
-                  <circle cx="230" cy="170" r="145" stroke="#0d9488" strokeWidth="1.2" strokeDasharray="3 3" opacity="0.32" />
-                  <ellipse cx="230" cy="170" rx="145" ry="55" stroke="#0d9488" strokeWidth="1" strokeDasharray="3 3" opacity="0.25" />
-                  <ellipse cx="230" cy="170" rx="145" ry="105" stroke="#0d9488" strokeWidth="1" strokeDasharray="3 3" opacity="0.25" />
-                  <ellipse cx="230" cy="170" rx="60" ry="145" stroke="#0d9488" strokeWidth="1" strokeDasharray="3 3" opacity="0.25" />
-                  <ellipse cx="230" cy="170" rx="110" ry="145" stroke="#0d9488" strokeWidth="1" strokeDasharray="3 3" opacity="0.25" />
+                  {/* Concentric latitude & meridian dotted rings */}
+                  <circle cx="230" cy="170" r="148" stroke="#0d9488" strokeWidth="1" strokeDasharray="3 3" opacity="0.28" />
+                  <ellipse cx="230" cy="170" rx="148" ry="58" stroke="#0d9488" strokeWidth="0.9" strokeDasharray="3 3" opacity="0.22" />
+                  <ellipse cx="230" cy="170" rx="148" ry="110" stroke="#0d9488" strokeWidth="0.9" strokeDasharray="3 3" opacity="0.22" />
+                  <ellipse cx="230" cy="170" rx="65" ry="148" stroke="#0d9488" strokeWidth="0.9" strokeDasharray="3 3" opacity="0.22" />
+                  <ellipse cx="230" cy="170" rx="115" ry="148" stroke="#0d9488" strokeWidth="0.9" strokeDasharray="3 3" opacity="0.22" />
 
-                  {/* Network nodes */}
-                  <circle cx="105" cy="110" r="2.5" fill="#0d9488" opacity="0.7"/>
-                  <circle cx="225" cy="85" r="2.5" fill="#0d9488" opacity="0.7"/>
-                  <circle cx="335" cy="100" r="3" fill="#0d9488" opacity="0.7"/>
-                  <circle cx="235" cy="190" r="2.5" fill="#0d9488" opacity="0.6"/>
-                  <circle cx="390" cy="245" r="2.5" fill="#0d9488" opacity="0.6"/>
-                  <circle cx="115" cy="250" r="2" fill="#0d9488" opacity="0.6"/>
+                  {/* Flight/Network Arcs between Major Global Tech Hubs */}
+                  <path d="M 90,110 Q 155,50 225,82" stroke="url(#arc-grad)" strokeWidth="1.2" strokeDasharray="3 3" opacity="0.6" />
+                  <path d="M 225,82 Q 320,45 410,105" stroke="url(#arc-grad)" strokeWidth="1.2" strokeDasharray="3 3" opacity="0.6" />
+                  <path d="M 120,115 Q 210,165 310,180" stroke="url(#arc-grad)" strokeWidth="1.2" strokeDasharray="3 3" opacity="0.45" />
+
+                  {/* Glowing Tech Hub Intersection Nodes */}
+                  <circle cx="90" cy="110" r="2.5" fill="#0d9488" opacity="0.9"/>
+                  <circle cx="90" cy="110" r="6" fill="#2dd4bf" opacity="0.25"/>
+
+                  <circle cx="120" cy="115" r="2.5" fill="#0d9488" opacity="0.9"/>
+                  <circle cx="120" cy="115" r="5" fill="#2dd4bf" opacity="0.25"/>
+
+                  <circle cx="225" cy="82" r="3" fill="#0d9488" opacity="0.9"/>
+                  <circle cx="225" cy="82" r="7" fill="#2dd4bf" opacity="0.3"/>
+
+                  <circle cx="310" cy="180" r="3" fill="#0d9488" opacity="0.9"/>
+                  <circle cx="310" cy="180" r="6" fill="#2dd4bf" opacity="0.25"/>
+
+                  <circle cx="410" cy="105" r="3" fill="#0d9488" opacity="0.9"/>
+                  <circle cx="410" cy="105" r="7" fill="#2dd4bf" opacity="0.3"/>
+
+                  <circle cx="390" cy="245" r="2.5" fill="#0d9488" opacity="0.8"/>
+                  <circle cx="390" cy="245" r="5" fill="#2dd4bf" opacity="0.2"/>
                 </svg>
 
-                {/* 6 Floating Company Logos (Spread out, with zero overlap with cards) */}
+                {/* 6 Floating Company Logos (Single clean white tiles with official SVGs, no double boxes) */}
                 {/* 1. Google (Top Center) */}
                 <div 
-                  className="absolute top-3 left-[195px] w-12 h-12 rounded-2xl bg-white shadow-md border border-slate-100 flex items-center justify-center p-2.5 hover:scale-110 hover:shadow-lg transition-all duration-300 z-10"
+                  className="absolute top-4 left-[200px] w-12 h-12 rounded-2xl bg-white shadow-md border border-slate-100 flex items-center justify-center p-2.5 hover:scale-110 hover:shadow-lg transition-all duration-300 z-10"
                   title="Google"
                 >
-                  <CompanyLogo name="Google" slug="google" size="sm" />
+                  <div className="w-full h-full flex items-center justify-center">
+                    {VECTOR_LOGOS.google}
+                  </div>
                 </div>
 
                 {/* 2. Microsoft (Mid Left) */}
                 <div 
-                  className="absolute top-[125px] left-[25px] w-12 h-12 rounded-2xl bg-white shadow-md border border-slate-100 flex items-center justify-center p-2.5 hover:scale-110 hover:shadow-lg transition-all duration-300 z-10"
+                  className="absolute top-[125px] left-[30px] w-12 h-12 rounded-2xl bg-white shadow-md border border-slate-100 flex items-center justify-center p-2.5 hover:scale-110 hover:shadow-lg transition-all duration-300 z-10"
                   title="Microsoft"
                 >
-                  <CompanyLogo name="Microsoft" slug="microsoft" size="sm" />
+                  <div className="w-full h-full flex items-center justify-center">
+                    {VECTOR_LOGOS.microsoft}
+                  </div>
                 </div>
 
-                {/* 3. Amazon (Center, slightly larger) */}
+                {/* 3. Amazon (Center, prominent) */}
                 <div 
                   className="absolute top-[150px] left-[215px] w-13 h-13 sm:w-14 sm:h-14 rounded-2xl bg-white shadow-lg border border-slate-100 flex items-center justify-center p-2.5 hover:scale-110 hover:shadow-xl transition-all duration-300 z-10"
                   title="Amazon"
                 >
-                  <CompanyLogo name="Amazon" slug="amazon" size="md" />
+                  <div className="w-full h-full flex items-center justify-center">
+                    {VECTOR_LOGOS.amazon}
+                  </div>
                 </div>
 
                 {/* 4. Apple (Bottom Center) */}
                 <div 
-                  className="absolute bottom-[10px] left-[165px] w-12 h-12 rounded-2xl bg-white shadow-md border border-slate-100 flex items-center justify-center p-2.5 hover:scale-110 hover:shadow-lg transition-all duration-300 z-10"
+                  className="absolute bottom-[10px] left-[170px] w-12 h-12 rounded-2xl bg-white shadow-md border border-slate-100 flex items-center justify-center p-2.5 hover:scale-110 hover:shadow-lg transition-all duration-300 z-10"
                   title="Apple"
                 >
-                  <CompanyLogo name="Apple" slug="apple" size="sm" />
+                  <div className="w-full h-full flex items-center justify-center">
+                    {VECTOR_LOGOS.apple}
+                  </div>
                 </div>
 
                 {/* 5. Meta (Top Right of Globe - ends at 378px) */}
@@ -340,7 +367,9 @@ export function InteractiveCompanies({ initialCompanies, initialStats }: Interac
                   className="absolute top-[65px] left-[330px] w-12 h-12 rounded-2xl bg-white shadow-md border border-slate-100 flex items-center justify-center p-2.5 hover:scale-110 hover:shadow-lg transition-all duration-300 z-10"
                   title="Meta"
                 >
-                  <CompanyLogo name="Meta" slug="meta" size="sm" />
+                  <div className="w-full h-full flex items-center justify-center">
+                    {VECTOR_LOGOS.meta}
+                  </div>
                 </div>
 
                 {/* 6. Netflix (Bottom Right of Globe - ends at 383px) */}
@@ -348,7 +377,9 @@ export function InteractiveCompanies({ initialCompanies, initialStats }: Interac
                   className="absolute bottom-[45px] left-[335px] w-12 h-12 rounded-2xl bg-white shadow-md border border-slate-100 flex items-center justify-center p-2.5 hover:scale-110 hover:shadow-lg transition-all duration-300 z-10"
                   title="Netflix"
                 >
-                  <CompanyLogo name="Netflix" slug="netflix" size="sm" />
+                  <div className="w-full h-full flex items-center justify-center">
+                    {VECTOR_LOGOS.netflix}
+                  </div>
                 </div>
 
                 {/* 3 Stacked Feature Badges (Starts at 445px -> 67px safe margin from Meta/Netflix!) */}
@@ -447,69 +478,69 @@ export function InteractiveCompanies({ initialCompanies, initialStats }: Interac
           </div>
         </div>
 
-        {/* Single-Row Filter Controls (Centered, 4 in one row on desktop without awkward truncation) */}
-        <div className="max-w-4xl mx-auto flex items-center justify-center gap-3 md:gap-3.5 flex-wrap md:flex-nowrap mb-6 w-full px-2 sm:px-0">
-          {/* Country Filter */}
-          <div className="relative flex-1 min-w-[190px]">
-            <Globe className="w-3.5 h-3.5 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+        {/* Single-Row Filter Controls (Centered, 4 in one row on desktop; All Countries (Worldwide) fully visible) */}
+        <div className="max-w-[960px] mx-auto flex items-center justify-center gap-3 md:gap-3.5 flex-wrap md:flex-nowrap mb-6 w-full px-2 sm:px-0">
+          {/* Country Filter - wider flex allocation so '(Worldwide)' is never clipped */}
+          <div className="relative flex-[1.3] min-w-[220px]">
+            <Globe className="w-3.5 h-3.5 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
             <select
               value={selectedCountry}
               onChange={(e) => setSelectedCountry(e.target.value)}
-              className="w-full h-11 appearance-none bg-white border border-slate-200/90 rounded-xl pl-9 pr-8 text-xs sm:text-sm font-semibold text-slate-700 hover:border-slate-300 focus:outline-none focus:border-teal-500 cursor-pointer shadow-2xs transition-colors"
+              className="w-full h-11 appearance-none bg-white border border-slate-200/90 rounded-xl pl-8 pr-7 text-xs sm:text-[13px] font-semibold text-slate-700 hover:border-slate-300 focus:outline-none focus:border-teal-500 cursor-pointer shadow-2xs transition-colors"
             >
               <option value="All">All Countries (Worldwide)</option>
               {countries.map((c) => (
                 <option key={c} value={c}>{c}</option>
               ))}
             </select>
-            <ChevronDown className="w-3.5 h-3.5 text-slate-400 absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none" />
+            <ChevronDown className="w-3.5 h-3.5 text-slate-400 absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
           </div>
 
           {/* Industry Filter */}
-          <div className="relative flex-1 min-w-[160px]">
-            <Building2 className="w-3.5 h-3.5 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+          <div className="relative flex-1 min-w-[150px]">
+            <Building2 className="w-3.5 h-3.5 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
             <select
               value={selectedIndustry}
               onChange={(e) => setSelectedIndustry(e.target.value)}
-              className="w-full h-11 appearance-none bg-white border border-slate-200/90 rounded-xl pl-9 pr-8 text-xs sm:text-sm font-semibold text-slate-700 hover:border-slate-300 focus:outline-none focus:border-teal-500 cursor-pointer shadow-2xs transition-colors"
+              className="w-full h-11 appearance-none bg-white border border-slate-200/90 rounded-xl pl-8 pr-7 text-xs sm:text-[13px] font-semibold text-slate-700 hover:border-slate-300 focus:outline-none focus:border-teal-500 cursor-pointer shadow-2xs transition-colors"
             >
               <option value="All">All Industries</option>
               {industries.map((ind) => (
                 <option key={ind} value={ind}>{ind}</option>
               ))}
             </select>
-            <ChevronDown className="w-3.5 h-3.5 text-slate-400 absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none" />
+            <ChevronDown className="w-3.5 h-3.5 text-slate-400 absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
           </div>
 
           {/* Company Size Filter */}
-          <div className="relative flex-1 min-w-[170px]">
-            <Users className="w-3.5 h-3.5 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+          <div className="relative flex-[1.1] min-w-[165px]">
+            <Users className="w-3.5 h-3.5 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
             <select
               value={selectedSize}
               onChange={(e) => setSelectedSize(e.target.value)}
-              className="w-full h-11 appearance-none bg-white border border-slate-200/90 rounded-xl pl-9 pr-8 text-xs sm:text-sm font-semibold text-slate-700 hover:border-slate-300 focus:outline-none focus:border-teal-500 cursor-pointer shadow-2xs transition-colors"
+              className="w-full h-11 appearance-none bg-white border border-slate-200/90 rounded-xl pl-8 pr-7 text-xs sm:text-[13px] font-semibold text-slate-700 hover:border-slate-300 focus:outline-none focus:border-teal-500 cursor-pointer shadow-2xs transition-colors"
             >
               <option value="All">All Company Sizes</option>
               <option value="10k+">10K+ employees</option>
               <option value="1k-10k">1K–10K employees</option>
               <option value="<1k">Under 1K employees</option>
             </select>
-            <ChevronDown className="w-3.5 h-3.5 text-slate-400 absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none" />
+            <ChevronDown className="w-3.5 h-3.5 text-slate-400 absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
           </div>
 
           {/* Sort Filter */}
-          <div className="relative flex-1 min-w-[150px]">
-            <ArrowUpDown className="w-3.5 h-3.5 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+          <div className="relative flex-[0.95] min-w-[145px]">
+            <ArrowUpDown className="w-3.5 h-3.5 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
             <select
               value={sortBy}
               onChange={(e) => setSortBy(e.target.value)}
-              className="w-full h-11 appearance-none bg-white border border-slate-200/90 rounded-xl pl-9 pr-8 text-xs sm:text-sm font-semibold text-slate-700 hover:border-slate-300 focus:outline-none focus:border-teal-500 cursor-pointer shadow-2xs transition-colors"
+              className="w-full h-11 appearance-none bg-white border border-slate-200/90 rounded-xl pl-8 pr-7 text-xs sm:text-[13px] font-semibold text-slate-700 hover:border-slate-300 focus:outline-none focus:border-teal-500 cursor-pointer shadow-2xs transition-colors"
             >
               <option value="newest">Newest First</option>
               <option value="openings">Most Openings</option>
               <option value="name">Company Name (A–Z)</option>
             </select>
-            <ChevronDown className="w-3.5 h-3.5 text-slate-400 absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none" />
+            <ChevronDown className="w-3.5 h-3.5 text-slate-400 absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
           </div>
         </div>
 
