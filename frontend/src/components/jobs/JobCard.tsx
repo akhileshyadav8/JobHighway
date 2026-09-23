@@ -120,9 +120,7 @@ export function JobCard({ job }: JobCardProps) {
   const displaySkills = sanitizeJobSkills(job.skills_required, job.title, job.description_text);
 
   const handleJobClick = () => {
-    if (typeof window !== "undefined") {
-      sessionStorage.setItem("jobpulse_scroll_pos", String(window.scrollY));
-    }
+    // Jobs page always starts cleanly from the top on page load/refresh
   };
 
   // Experience text

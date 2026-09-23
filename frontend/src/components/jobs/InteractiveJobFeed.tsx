@@ -603,17 +603,30 @@ export function InteractiveJobFeed({ initialJobs, stats, initialTotal, initialTo
           setCurrentPage(page);
         }
       }
-
-      // Smoothly restore previous scroll position when returning from details
-      const savedScroll = sessionStorage.getItem("jobpulse_scroll_pos");
-      if (savedScroll) {
-        setTimeout(() => {
-          window.scrollTo({ top: Number(savedScroll), behavior: "instant" });
-        }, 100);
-      }
     } catch (e) {
       // ignore
     }
+  }, []);
+
+  // Ensure Jobs page ALWAYS starts at the very top on load or refresh
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      if ("scrollRestoration" in window.history) {
+        window.history.scrollRestoration = "manual";
+      }
+      window.scrollTo({ top: 0, left: 0, behavior: "instant" });
+      try {
+        sessionStorage.removeItem("jobpulse_scroll_pos");
+      } catch (e) {
+        // ignore
+      }
+    }
+
+    const handleBeforeUnload = () => {
+      window.scrollTo(0, 0);
+    };
+    window.addEventListener("beforeunload", handleBeforeUnload);
+    return () => window.removeEventListener("beforeunload", handleBeforeUnload);
   }, []);
 
   // Sync state to URL search params and sessionStorage on any change
@@ -692,14 +705,14 @@ export function InteractiveJobFeed({ initialJobs, stats, initialTotal, initialTo
   return (
     <div className="flex flex-col min-h-screen bg-slate-50">
       {/* Hero Section */}
-      <section className="relative overflow-hidden bg-gradient-to-b from-teal-50/70 via-emerald-50/20 to-slate-50 border-b border-slate-200/90 px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
+      <section className="relative overflow-hidden bg-gradient-to-b from-teal-50/70 via-emerald-50/20 to-slate-50 border-b border-slate-200/90 px-4 sm:px-6 lg:px-8 pt-7 sm:pt-9 pb-7 sm:pb-9">
         {/* Ambient subtle tech background patterns */}
         <div className="absolute inset-0 bg-[radial-gradient(#0d9488_1px,transparent_1px)] [background-size:24px_24px] opacity-[0.06] pointer-events-none" />
         <div className="absolute -top-32 right-10 w-96 h-96 bg-teal-200/30 rounded-full blur-3xl pointer-events-none" />
         <div className="absolute top-1/2 -left-20 w-80 h-80 bg-emerald-100/40 rounded-full blur-3xl pointer-events-none" />
 
         <div className="container mx-auto max-w-[1360px] relative z-10">
-          <div className="flex flex-col lg:grid lg:grid-cols-12 gap-8 lg:gap-10 items-center">
+          <div className="flex flex-col lg:grid lg:grid-cols-12 gap-6 lg:gap-8 items-center">
             {/* LEFT COLUMN: 58% width - Badge, Headline, Paragraph, Live Statistics */}
             <div className="order-1 lg:col-span-7 flex flex-col justify-center">
               {/* Small live badge */}
@@ -716,7 +729,7 @@ export function InteractiveJobFeed({ initialJobs, stats, initialTotal, initialTo
               </h1>
 
               {/* Concise Description */}
-              <p className="text-sm sm:text-base lg:text-lg text-slate-600 max-w-[620px] leading-relaxed mb-8 font-normal">
+              <p className="text-sm sm:text-base lg:text-lg text-slate-600 max-w-[620px] leading-relaxed mb-6 font-normal">
                 JobPulse continuously discovers job openings directly from official company career systems, so you can find and apply to new opportunities before they get buried on other job boards.
               </p>
 
@@ -765,10 +778,10 @@ export function InteractiveJobFeed({ initialJobs, stats, initialTotal, initialTo
 
             {/* RIGHT COLUMN: 42% width - Art-Directed Visual Composition */}
             <div className="order-3 lg:order-2 lg:col-span-5 relative w-full flex items-center justify-center lg:justify-end select-none">
-              {/* DESKTOP ART-DIRECTED CANVAS: Exactly 560px × 500px, all elements in dedicated coordinate space */}
-              <div className="hidden lg:block relative w-[560px] h-[500px] origin-top-right lg:scale-[0.92] xl:scale-100 transition-transform">
+              {/* DESKTOP ART-DIRECTED CANVAS: Exactly 560px × 435px, all elements in dedicated coordinate space */}
+              <div className="hidden lg:block relative w-[560px] h-[435px] origin-top-right lg:scale-[0.92] xl:scale-100 transition-transform">
                 {/* 1. Globe / Orbital Backdrop (Behind, centered at x:330, y:230) */}
-                <div className="absolute right-[0px] top-[40px] w-[340px] h-[340px] pointer-events-none opacity-45">
+                <div className="absolute right-[0px] top-[30px] w-[320px] h-[320px] pointer-events-none opacity-45">
                   <svg viewBox="0 0 340 340" className="w-full h-full text-teal-500/40">
                     <circle cx="170" cy="170" r="160" fill="none" stroke="currentColor" strokeWidth="1" strokeDasharray="4 4" />
                     <circle cx="170" cy="170" r="120" fill="none" stroke="currentColor" strokeWidth="1" opacity="0.6" />
@@ -788,25 +801,25 @@ export function InteractiveJobFeed({ initialJobs, stats, initialTotal, initialTo
                 </div>
 
                 {/* 2. ATS Source Labels along the right orbital boundary (completely unclipped, never behind cards) */}
-                <div className="absolute top-[14px] right-[75px] z-10 flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/95 border border-teal-200/80 shadow-2xs text-[11px] font-semibold text-slate-700">
+                <div className="absolute top-[10px] right-[75px] z-10 flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/95 border border-teal-200/80 shadow-2xs text-[11px] font-semibold text-slate-700">
                   <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
                   <span>Greenhouse</span>
                 </div>
-                <div className="absolute top-[96px] right-[0px] z-10 flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/95 border border-teal-200/80 shadow-2xs text-[11px] font-semibold text-slate-700">
+                <div className="absolute top-[86px] right-[0px] z-10 flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/95 border border-teal-200/80 shadow-2xs text-[11px] font-semibold text-slate-700">
                   <span className="w-2 h-2 rounded-full bg-teal-500"></span>
                   <span>Lever</span>
                 </div>
-                <div className="absolute top-[215px] -right-[10px] z-10 flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/95 border border-teal-200/80 shadow-2xs text-[11px] font-semibold text-slate-700">
+                <div className="absolute top-[198px] -right-[10px] z-10 flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/95 border border-teal-200/80 shadow-2xs text-[11px] font-semibold text-slate-700">
                   <span className="w-2 h-2 rounded-full bg-cyan-500"></span>
                   <span>Ashby</span>
                 </div>
-                <div className="absolute top-[350px] right-[4px] z-10 flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/95 border border-teal-200/80 shadow-2xs text-[11px] font-semibold text-slate-700">
+                <div className="absolute top-[318px] right-[4px] z-10 flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/95 border border-teal-200/80 shadow-2xs text-[11px] font-semibold text-slate-700">
                   <span className="w-2 h-2 rounded-full bg-blue-500"></span>
                   <span>Workday</span>
                 </div>
 
                 {/* 3. Annotation 1 (Top Left, dedicated whitespace above Card 1) */}
-                <div className="absolute top-[8px] left-[55px] z-30 pointer-events-none flex items-center gap-1.5">
+                <div className="absolute top-[6px] left-[55px] z-30 pointer-events-none flex items-center gap-1.5">
                   <span className="font-serif italic font-semibold text-slate-700 text-xs sm:text-sm tracking-wide">
                     New jobs as soon as they&apos;re live!
                   </span>
@@ -817,7 +830,7 @@ export function InteractiveJobFeed({ initialJobs, stats, initialTotal, initialTo
                 </div>
 
                 {/* 4. CARD 1: Upper-Right (Google / Software Engineer) */}
-                <div className="absolute top-[48px] right-[24px] w-[335px] bg-white border border-slate-200/90 rounded-2xl p-4 shadow-md shadow-slate-200/50 hover:shadow-lg transition-all z-20">
+                <div className="absolute top-[38px] right-[24px] w-[335px] bg-white border border-slate-200/90 rounded-2xl p-4 shadow-md shadow-slate-200/50 hover:shadow-lg transition-all z-20">
                   <div className="flex items-start justify-between gap-3 mb-2">
                     <div className="flex items-center gap-3 min-w-0">
                       <div className="w-9 h-9 rounded-xl bg-white border border-slate-100 p-1.5 flex items-center justify-center shadow-2xs shrink-0">
@@ -857,7 +870,7 @@ export function InteractiveJobFeed({ initialJobs, stats, initialTotal, initialTo
                 </div>
 
                 {/* 5. CARD 2: Middle-Left (Microsoft / Product Manager) */}
-                <div className="absolute top-[172px] left-[16px] w-[335px] bg-white border border-slate-200/90 rounded-2xl p-4 shadow-md shadow-slate-200/50 hover:shadow-lg transition-all z-20">
+                <div className="absolute top-[150px] left-[16px] w-[335px] bg-white border border-slate-200/90 rounded-2xl p-4 shadow-md shadow-slate-200/50 hover:shadow-lg transition-all z-20">
                   <div className="flex items-start justify-between gap-3 mb-2">
                     <div className="flex items-center gap-3 min-w-0">
                       <div className="w-9 h-9 rounded-xl bg-white border border-slate-100 p-2 flex items-center justify-center shadow-2xs shrink-0">
@@ -892,7 +905,7 @@ export function InteractiveJobFeed({ initialJobs, stats, initialTotal, initialTo
                 </div>
 
                 {/* 6. Annotation 2 (Mid-Right, open space between cards and Ashby/Workday labels) */}
-                <div className="absolute top-[260px] right-[38px] z-30 pointer-events-none flex items-center gap-2">
+                <div className="absolute top-[235px] right-[38px] z-30 pointer-events-none flex items-center gap-2">
                   <svg width="42" height="28" viewBox="0 0 45 30" fill="none" className="text-slate-600">
                     <path d="M40 24 C28 26, 14 18, 6 6" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
                     <path d="M5 13 L5 5 L13 6" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
@@ -903,7 +916,7 @@ export function InteractiveJobFeed({ initialJobs, stats, initialTotal, initialTo
                 </div>
 
                 {/* 7. CARD 3: Lower-Left (Airbnb / Data Analyst) */}
-                <div className="absolute top-[296px] left-[52px] w-[320px] bg-white border border-slate-200/90 rounded-2xl p-4 shadow-md shadow-slate-200/50 hover:shadow-lg transition-all z-20">
+                <div className="absolute top-[262px] left-[52px] w-[320px] bg-white border border-slate-200/90 rounded-2xl p-4 shadow-md shadow-slate-200/50 hover:shadow-lg transition-all z-20">
                   <div className="flex items-start justify-between gap-3 mb-2">
                     <div className="flex items-center gap-3 min-w-0">
                       <div className="w-9 h-9 rounded-xl bg-white border border-slate-100 p-1.5 flex items-center justify-center shadow-2xs shrink-0">
@@ -931,7 +944,7 @@ export function InteractiveJobFeed({ initialJobs, stats, initialTotal, initialTo
                 </div>
 
                 {/* 8. Worldwide Opportunities Card (Bottom-Right, isolated below all cards & annotations) */}
-                <div className="absolute top-[416px] right-[12px] w-[275px] bg-white border border-slate-200/90 rounded-2xl px-4 py-3 shadow-md shadow-slate-200/50 flex items-center justify-between gap-3 hover:border-teal-300 transition-colors z-20">
+                <div className="absolute top-[372px] right-[12px] w-[275px] bg-white border border-slate-200/90 rounded-2xl px-4 py-3 shadow-md shadow-slate-200/50 flex items-center justify-between gap-3 hover:border-teal-300 transition-colors z-20">
                   <div className="flex items-center gap-3 min-w-0">
                     <div className="w-9 h-9 rounded-full bg-teal-50 border border-teal-200/80 text-teal-600 flex items-center justify-center shrink-0">
                       <Globe className="w-4 h-4" />
@@ -1053,47 +1066,45 @@ export function InteractiveJobFeed({ initialJobs, stats, initialTotal, initialTo
               </div>
             </div>
 
-            {/* Canonical Search Bar + Trending Row (order-2 on mobile, order-3 on desktop spanning col-span-12) */}
-            <div className="order-2 lg:order-3 lg:col-span-12 w-full max-w-3xl lg:max-w-4xl mx-auto mt-2 lg:mt-6">
-              {/* Canonical Search Bar with Prominent Search Button */}
-              <div className="relative flex items-center gap-2 w-full">
-                <div className="relative flex-1">
-                  <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-teal-600 w-5 h-5 pointer-events-none" />
-                  <input
-                    type="text"
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                    onKeyDown={(e) => {
-                      if (e.key === "Enter") {
-                        document.getElementById("job-results-section")?.scrollIntoView({ behavior: "smooth" });
-                      }
-                    }}
-                    placeholder="Search by role (e.g. Software Engineer), company, tech stack, or city..."
-                    className="w-full pl-12 pr-10 py-3.5 sm:py-4 rounded-2xl bg-white shadow-xs border border-slate-200/90 text-slate-900 placeholder-slate-400 focus:ring-2 focus:ring-teal-500 focus:border-teal-500 outline-none text-sm transition-all"
-                  />
-                  {searchQuery && (
-                    <button
-                      onClick={() => setSearchQuery("")}
-                      className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition-colors p-1 cursor-pointer"
-                      title="Clear search"
-                    >
-                      <X className="w-4 h-4" />
-                    </button>
-                  )}
-                </div>
+            {/* Search Bar + Trending Row (order-2 on mobile, order-3 on desktop spanning col-span-12) */}
+            <div className="order-2 lg:order-3 lg:col-span-12 w-full max-w-3xl mx-auto mt-2 lg:mt-4 px-2 sm:px-0">
+              {/* Search Bar matching Companies Page visual design */}
+              <div className="relative flex items-center bg-white border border-slate-200/90 rounded-2xl shadow-xs hover:border-slate-300 focus-within:border-teal-500 focus-within:ring-2 focus-within:ring-teal-500/20 transition-all p-1.5 sm:p-2 min-h-[58px]">
+                <Search className="w-5 h-5 text-slate-400 ml-3.5 shrink-0" />
+                <input
+                  type="text"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") {
+                      document.getElementById("job-results-section")?.scrollIntoView({ behavior: "smooth" });
+                    }
+                  }}
+                  placeholder="Search by role (e.g. Software Engineer), company, tech stack, or city..."
+                  className="w-full bg-transparent px-3.5 py-2 text-sm sm:text-base text-slate-900 placeholder:text-slate-400 outline-none"
+                />
+                {searchQuery && (
+                  <button
+                    onClick={() => setSearchQuery("")}
+                    className="p-1.5 rounded-full text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition-colors mr-2 cursor-pointer"
+                    aria-label="Clear search"
+                  >
+                    <X className="w-4 h-4" />
+                  </button>
+                )}
                 <button
                   onClick={() => {
                     document.getElementById("job-results-section")?.scrollIntoView({ behavior: "smooth" });
                   }}
-                  className="px-6 sm:px-8 py-3.5 sm:py-4 bg-teal-600 hover:bg-teal-700 active:bg-teal-800 text-white font-semibold text-sm rounded-2xl transition-all shadow-sm hover:shadow flex items-center gap-2 shrink-0 cursor-pointer"
+                  className="bg-teal-600 hover:bg-teal-700 active:bg-teal-800 text-white font-bold px-7 sm:px-8 h-11 sm:h-12 rounded-xl flex items-center gap-2 text-sm sm:text-base shadow-xs transition-all shrink-0 cursor-pointer"
                 >
-                  <Search className="w-4 h-4" />
+                  <Search className="w-4 h-4 sm:w-5 sm:h-5 stroke-[2.5]" />
                   <span>Search</span>
                 </button>
               </div>
 
               {/* 🔥 Trending Searches Row */}
-              <div className="flex flex-wrap items-center gap-2 max-w-4xl mx-auto mt-3.5 text-xs text-slate-600 px-1">
+              <div className="flex flex-wrap items-center gap-2 max-w-3xl mx-auto mt-2.5 sm:mt-3 text-xs text-slate-600 px-1 justify-center sm:justify-start">
                 <span className="flex items-center gap-1 font-bold text-slate-800 mr-1">
                   <span>🔥</span>
                   <span>Trending:</span>
