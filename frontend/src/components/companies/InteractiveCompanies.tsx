@@ -248,78 +248,20 @@ export function InteractiveCompanies({ initialCompanies, initialStats }: Interac
             <div className="lg:col-span-7 relative hidden sm:flex items-center justify-end min-h-[410px]">
               <div className="relative w-full max-w-[780px] h-[410px] flex items-center">
                 
-                {/* Modern Hiring Platform Global Network Visualization SVG */}
-                <svg className="absolute left-0 top-1/2 -translate-y-1/2 w-[460px] h-[340px] pointer-events-none" viewBox="0 0 520 340" fill="none">
-                  <defs>
-                    <radialGradient id="globe-glow" cx="45%" cy="50%" r="50%">
-                      <stop offset="0%" stopColor="#99f6e4" stopOpacity="0.55"/>
-                      <stop offset="65%" stopColor="#ccfbf1" stopOpacity="0.2"/>
-                      <stop offset="100%" stopColor="#ffffff" stopOpacity="0"/>
-                    </radialGradient>
-                    <linearGradient id="arc-grad" x1="0%" y1="0%" x2="100%" y2="0%">
-                      <stop offset="0%" stopColor="#0d9488" stopOpacity="0.2" />
-                      <stop offset="50%" stopColor="#0d9488" stopOpacity="0.7" />
-                      <stop offset="100%" stopColor="#0d9488" stopOpacity="0.2" />
-                    </linearGradient>
-                  </defs>
+                {/* Authentic MapSVG Vector World Map Backdrop with soft ambient glow */}
+                <div className="absolute left-0 top-1/2 -translate-y-1/2 w-[510px] h-[336px] pointer-events-none flex items-center justify-center">
+                  {/* Soft radial glow behind the world map */}
+                  <div className="absolute w-[440px] h-[300px] bg-radial from-teal-200/40 via-teal-100/20 to-transparent rounded-full blur-2xl pointer-events-none" />
+                  
+                  {/* Detailed 256-country blank vector world map (from MapSVG) with crisp white borders */}
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img 
+                    src="/world.svg" 
+                    alt="Global Hiring Network World Map"
+                    className="w-full h-full object-contain pointer-events-none select-none relative z-0" 
+                  />
+                </div>
 
-                  {/* Soft ambient radial glow */}
-                  <circle cx="230" cy="170" r="160" fill="url(#globe-glow)"/>
-
-                  {/* Elegant World Landmass Silhouettes (Very light mint, professional) */}
-                  <g fill="#14b8a6" fillOpacity="0.12">
-                    {/* North America */}
-                    <path d="M 50,60 C 65,48 95,45 125,52 C 145,58 152,72 142,92 C 135,108 125,122 115,138 C 102,152 92,168 85,182 C 82,188 78,188 75,178 C 68,158 58,140 50,118 C 42,96 40,78 50,60 Z" />
-                    <path d="M 125,32 C 140,28 152,38 148,48 C 142,54 130,50 125,32 Z" />
-                    {/* Central & South America */}
-                    <path d="M 85,182 C 92,192 100,200 102,208 C 118,206 132,220 136,236 C 140,256 132,278 122,300 C 114,312 108,312 104,295 C 98,272 94,245 96,224 C 98,208 92,196 85,182 Z" />
-                    {/* Europe */}
-                    <path d="M 215,62 C 232,54 252,58 262,70 C 268,80 258,95 245,102 C 230,108 218,102 212,88 C 208,76 210,66 215,62 Z" />
-                    <path d="M 202,68 C 210,64 212,74 204,78 C 198,78 198,70 202,68 Z" />
-                    <path d="M 235,38 C 244,32 250,46 244,54 C 238,54 234,44 235,38 Z" />
-                    {/* Africa */}
-                    <path d="M 212,118 C 238,114 262,128 268,152 C 274,180 266,218 248,248 C 238,262 232,258 226,244 C 215,214 205,175 202,148 C 200,132 205,120 212,118 Z" />
-                    <path d="M 272,218 C 278,214 282,228 276,238 C 272,238 270,224 272,218 Z" />
-                    {/* Asia */}
-                    <path d="M 265,58 C 305,44 355,48 395,58 C 420,72 422,98 408,122 C 388,144 360,158 330,162 C 305,164 285,148 275,128 C 265,105 260,82 265,58 Z" />
-                    <path d="M 305,158 C 322,162 328,185 318,202 C 310,202 302,185 305,158 Z" />
-                    <path d="M 352,154 C 372,158 378,180 368,198 C 358,198 350,178 352,154 Z" />
-                    <path d="M 410,102 C 418,98 422,114 416,125 C 410,125 408,108 410,102 Z" />
-                    {/* Australia */}
-                    <path d="M 370,220 C 398,212 420,224 424,246 C 426,264 408,274 388,272 C 372,270 364,250 368,235 C 368,228 370,222 370,220 Z" />
-                  </g>
-
-                  {/* Concentric latitude & meridian dotted rings */}
-                  <circle cx="230" cy="170" r="148" stroke="#0d9488" strokeWidth="1" strokeDasharray="3 3" opacity="0.28" />
-                  <ellipse cx="230" cy="170" rx="148" ry="58" stroke="#0d9488" strokeWidth="0.9" strokeDasharray="3 3" opacity="0.22" />
-                  <ellipse cx="230" cy="170" rx="148" ry="110" stroke="#0d9488" strokeWidth="0.9" strokeDasharray="3 3" opacity="0.22" />
-                  <ellipse cx="230" cy="170" rx="65" ry="148" stroke="#0d9488" strokeWidth="0.9" strokeDasharray="3 3" opacity="0.22" />
-                  <ellipse cx="230" cy="170" rx="115" ry="148" stroke="#0d9488" strokeWidth="0.9" strokeDasharray="3 3" opacity="0.22" />
-
-                  {/* Flight/Network Arcs between Major Global Tech Hubs */}
-                  <path d="M 90,110 Q 155,50 225,82" stroke="url(#arc-grad)" strokeWidth="1.2" strokeDasharray="3 3" opacity="0.6" />
-                  <path d="M 225,82 Q 320,45 410,105" stroke="url(#arc-grad)" strokeWidth="1.2" strokeDasharray="3 3" opacity="0.6" />
-                  <path d="M 120,115 Q 210,165 310,180" stroke="url(#arc-grad)" strokeWidth="1.2" strokeDasharray="3 3" opacity="0.45" />
-
-                  {/* Glowing Tech Hub Intersection Nodes */}
-                  <circle cx="90" cy="110" r="2.5" fill="#0d9488" opacity="0.9"/>
-                  <circle cx="90" cy="110" r="6" fill="#2dd4bf" opacity="0.25"/>
-
-                  <circle cx="120" cy="115" r="2.5" fill="#0d9488" opacity="0.9"/>
-                  <circle cx="120" cy="115" r="5" fill="#2dd4bf" opacity="0.25"/>
-
-                  <circle cx="225" cy="82" r="3" fill="#0d9488" opacity="0.9"/>
-                  <circle cx="225" cy="82" r="7" fill="#2dd4bf" opacity="0.3"/>
-
-                  <circle cx="310" cy="180" r="3" fill="#0d9488" opacity="0.9"/>
-                  <circle cx="310" cy="180" r="6" fill="#2dd4bf" opacity="0.25"/>
-
-                  <circle cx="410" cy="105" r="3" fill="#0d9488" opacity="0.9"/>
-                  <circle cx="410" cy="105" r="7" fill="#2dd4bf" opacity="0.3"/>
-
-                  <circle cx="390" cy="245" r="2.5" fill="#0d9488" opacity="0.8"/>
-                  <circle cx="390" cy="245" r="5" fill="#2dd4bf" opacity="0.2"/>
-                </svg>
 
                 {/* 6 Floating Company Logos (Single clean white tiles with official SVGs, no double boxes) */}
                 {/* 1. Google (Top Center) */}
