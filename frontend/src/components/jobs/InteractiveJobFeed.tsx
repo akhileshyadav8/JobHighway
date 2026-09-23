@@ -6,8 +6,6 @@ import { JobCard } from "@/components/jobs/JobCard";
 import { Search, X, RotateCcw, MapPin, Globe, Building2, ArrowUpDown, Navigation, Briefcase, GraduationCap, Laptop, Zap, ShieldCheck, Clock, Bookmark, ChevronRight } from "lucide-react";
 import { ALL_WORLD_COUNTRIES, COUNTRY_STATES, STATE_CITIES } from "@/lib/world_locations";
 import { SearchableSelect } from "@/components/ui/SearchableSelect";
-import { SearchBar } from "@/components/ui/SearchBar";
-import { CompanyLogo } from "@/components/ui/CompanyLogo";
 
 const FILTER_CONFIG = {
   "Job Type": ["All", "Full Time", "Internship", "Contract"],
@@ -763,51 +761,6 @@ export function InteractiveJobFeed({ initialJobs, stats, initialTotal, initialTo
                   </div>
                 </div>
               </div>
-
-              {/* Standardized Search Bar & Trending Row */}
-              <div className="mt-8 w-full max-w-[620px]">
-                <SearchBar
-                  value={searchQuery}
-                  onChange={setSearchQuery}
-                  onSearch={() => {
-                    document.getElementById("job-results-section")?.scrollIntoView({ behavior: "smooth" });
-                  }}
-                  placeholder="Search by role (e.g. Software Engineer), company, tech stack, or city..."
-                  className="w-full"
-                />
-
-                {/* 🔥 Trending Searches Row */}
-                <div className="flex flex-wrap items-center gap-2 mt-3 text-xs text-slate-600 px-0.5">
-                  <span className="flex items-center gap-1 font-bold text-slate-800 mr-1">
-                    <span>🔥</span>
-                    <span>Trending:</span>
-                  </span>
-                  {[
-                    "Software Engineer",
-                    "Data Analyst",
-                    "Product Manager",
-                    "Customer Service",
-                    "DevOps",
-                    "Designer"
-                  ].map((term) => (
-                    <button
-                      key={term}
-                      type="button"
-                      onClick={() => {
-                        setSearchQuery(term);
-                        document.getElementById("job-results-section")?.scrollIntoView({ behavior: "smooth" });
-                      }}
-                      className={`px-3 py-1 rounded-full text-xs font-medium transition-all cursor-pointer border ${
-                        searchQuery.toLowerCase() === term.toLowerCase()
-                          ? "bg-teal-600 text-white border-teal-600 shadow-2xs"
-                          : "bg-teal-50/70 hover:bg-teal-100 text-teal-800 border-teal-200/60"
-                      }`}
-                    >
-                      {term}
-                    </button>
-                  ))}
-                </div>
-              </div>
             </div>
 
             {/* RIGHT COLUMN: 42% width - Art-Directed Visual Composition */}
@@ -867,7 +820,14 @@ export function InteractiveJobFeed({ initialJobs, stats, initialTotal, initialTo
                 <div className="absolute top-[48px] right-[24px] w-[335px] bg-white border border-slate-200/90 rounded-2xl p-4 shadow-md shadow-slate-200/50 hover:shadow-lg transition-all z-20">
                   <div className="flex items-start justify-between gap-3 mb-2">
                     <div className="flex items-center gap-3 min-w-0">
-                      <CompanyLogo name="Google" slug="google" size="sm" />
+                      <div className="w-9 h-9 rounded-xl bg-white border border-slate-100 p-1.5 flex items-center justify-center shadow-2xs shrink-0">
+                        <svg viewBox="0 0 24 24" className="w-5 h-5">
+                          <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+                          <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+                          <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"/>
+                          <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"/>
+                        </svg>
+                      </div>
                       <div className="min-w-0">
                         <h4 className="font-bold text-sm text-slate-900 leading-tight truncate">Software Engineer</h4>
                         <p className="text-xs text-slate-500 font-medium">Google</p>
@@ -900,7 +860,14 @@ export function InteractiveJobFeed({ initialJobs, stats, initialTotal, initialTo
                 <div className="absolute top-[172px] left-[16px] w-[335px] bg-white border border-slate-200/90 rounded-2xl p-4 shadow-md shadow-slate-200/50 hover:shadow-lg transition-all z-20">
                   <div className="flex items-start justify-between gap-3 mb-2">
                     <div className="flex items-center gap-3 min-w-0">
-                      <CompanyLogo name="Microsoft" slug="microsoft" size="sm" />
+                      <div className="w-9 h-9 rounded-xl bg-white border border-slate-100 p-2 flex items-center justify-center shadow-2xs shrink-0">
+                        <div className="grid grid-cols-2 gap-0.5 w-4 h-4">
+                          <div className="bg-[#f25022] w-2 h-2"></div>
+                          <div className="bg-[#7fba00] w-2 h-2"></div>
+                          <div className="bg-[#00a4ef] w-2 h-2"></div>
+                          <div className="bg-[#ffb900] w-2 h-2"></div>
+                        </div>
+                      </div>
                       <div className="min-w-0">
                         <h4 className="font-bold text-sm text-slate-900 leading-tight truncate">Product Manager</h4>
                         <p className="text-xs text-slate-500 font-medium">Microsoft</p>
@@ -939,7 +906,11 @@ export function InteractiveJobFeed({ initialJobs, stats, initialTotal, initialTo
                 <div className="absolute top-[296px] left-[52px] w-[320px] bg-white border border-slate-200/90 rounded-2xl p-4 shadow-md shadow-slate-200/50 hover:shadow-lg transition-all z-20">
                   <div className="flex items-start justify-between gap-3 mb-2">
                     <div className="flex items-center gap-3 min-w-0">
-                      <CompanyLogo name="Airbnb" slug="airbnb" size="sm" />
+                      <div className="w-9 h-9 rounded-xl bg-white border border-slate-100 p-1.5 flex items-center justify-center shadow-2xs shrink-0">
+                        <svg viewBox="0 0 32 32" className="w-5 h-5 text-[#FF5A5F] fill-current">
+                          <path d="M16 1c2.008 0 3.463.963 4.751 3.269l.533 1.025c1.954 3.83 6.18 12.607 6.18 16.592 0 5.568-4.524 9.114-10.464 9.114-5.94 0-11.464-3.546-11.464-9.114 0-3.985 4.226-12.762 6.18-16.592l.533-1.025C8.537 1.963 10.992 1 16 1zm0 2c-4.148 0-6.223.771-7.818 3.619l-.533 1.025C5.787 11.298 2 19.68 2 21.886c0 4.394 4.542 7.114 9.464 7.114 4.922 0 8.464-2.72 8.464-7.114 0-2.206-3.787-10.588-5.649-14.242l-.533-1.025C12.223 3.771 10.148 3 16 3zm0 10c2.761 0 5 2.239 5 5 0 2.253-1.492 4.156-3.542 4.767l-.458.118-.458-.118C14.492 22.156 13 20.253 13 18c0-2.761 2.239-5 5-5zm0 2c-1.657 0-3 1.343-3 3 0 1.258.775 2.335 1.874 2.769l.126.046.126-.046C16.225 20.335 17 19.258 17 18c0-1.657-1.343-3-3-3z"/>
+                        </svg>
+                      </div>
                       <div className="min-w-0">
                         <h4 className="font-bold text-sm text-slate-900 leading-tight truncate">Data Analyst</h4>
                         <p className="text-xs text-slate-500 font-medium">Airbnb</p>
@@ -996,7 +967,14 @@ export function InteractiveJobFeed({ initialJobs, stats, initialTotal, initialTo
                 <div className="bg-white border border-slate-200/90 rounded-2xl p-4 shadow-sm">
                   <div className="flex items-start justify-between gap-3 mb-2">
                     <div className="flex items-center gap-2.5">
-                      <CompanyLogo name="Google" slug="google" size="sm" />
+                      <div className="w-8 h-8 rounded-lg bg-white border border-slate-100 p-1 flex items-center justify-center shadow-2xs shrink-0">
+                        <svg viewBox="0 0 24 24" className="w-4 h-4">
+                          <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+                          <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+                          <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"/>
+                          <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"/>
+                        </svg>
+                      </div>
                       <div>
                         <h4 className="font-bold text-xs sm:text-sm text-slate-900 leading-tight">Software Engineer</h4>
                         <p className="text-[11px] text-slate-500">Google</p>
@@ -1016,7 +994,14 @@ export function InteractiveJobFeed({ initialJobs, stats, initialTotal, initialTo
                 <div className="bg-white border border-slate-200/90 rounded-2xl p-4 shadow-sm">
                   <div className="flex items-start justify-between gap-3 mb-2">
                     <div className="flex items-center gap-2.5">
-                      <CompanyLogo name="Microsoft" slug="microsoft" size="sm" />
+                      <div className="w-8 h-8 rounded-lg bg-white border border-slate-100 p-1 flex items-center justify-center shadow-2xs shrink-0">
+                        <div className="grid grid-cols-2 gap-0.5 w-3.5 h-3.5">
+                          <div className="bg-[#f25022]"></div>
+                          <div className="bg-[#7fba00]"></div>
+                          <div className="bg-[#00a4ef]"></div>
+                          <div className="bg-[#ffb900]"></div>
+                        </div>
+                      </div>
                       <div>
                         <h4 className="font-bold text-xs sm:text-sm text-slate-900 leading-tight">Product Manager</h4>
                         <p className="text-[11px] text-slate-500">Microsoft</p>
@@ -1034,7 +1019,11 @@ export function InteractiveJobFeed({ initialJobs, stats, initialTotal, initialTo
                 <div className="bg-white border border-slate-200/90 rounded-2xl p-4 shadow-sm">
                   <div className="flex items-start justify-between gap-3 mb-2">
                     <div className="flex items-center gap-2.5">
-                      <CompanyLogo name="Airbnb" slug="airbnb" size="sm" />
+                      <div className="w-8 h-8 rounded-lg bg-white border border-slate-100 p-1 flex items-center justify-center shadow-2xs shrink-0">
+                        <svg viewBox="0 0 32 32" className="w-4 h-4 text-[#FF5A5F] fill-current">
+                          <path d="M16 1c2.008 0 3.463.963 4.751 3.269l.533 1.025c1.954 3.83 6.18 12.607 6.18 16.592 0 5.568-4.524 9.114-10.464 9.114-5.94 0-11.464-3.546-11.464-9.114 0-3.985 4.226-12.762 6.18-16.592l.533-1.025C8.537 1.963 10.992 1 16 1zm0 2c-4.148 0-6.223.771-7.818 3.619l-.533 1.025C5.787 11.298 2 19.68 2 21.886c0 4.394 4.542 7.114 9.464 7.114 4.922 0 8.464-2.72 8.464-7.114 0-2.206-3.787-10.588-5.649-14.242l-.533-1.025C12.223 3.771 10.148 3 16 3zm0 10c2.761 0 5 2.239 5 5 0 2.253-1.492 4.156-3.542 4.767l-.458.118-.458-.118C14.492 22.156 13 20.253 13 18c0-2.761 2.239-5 5-5zm0 2c-1.657 0-3 1.343-3 3 0 1.258.775 2.335 1.874 2.769l.126.046.126-.046C16.225 20.335 17 19.258 17 18c0-1.657-1.343-3-3-3z"/>
+                        </svg>
+                      </div>
                       <div>
                         <h4 className="font-bold text-xs sm:text-sm text-slate-900 leading-tight">Data Analyst</h4>
                         <p className="text-[11px] text-slate-500">Airbnb</p>
@@ -1061,6 +1050,77 @@ export function InteractiveJobFeed({ initialJobs, stats, initialTotal, initialTo
                   </div>
                   <ChevronRight className="w-4 h-4 text-slate-400 shrink-0" />
                 </div>
+              </div>
+            </div>
+
+            {/* Canonical Search Bar + Trending Row (order-2 on mobile, order-3 on desktop spanning col-span-12) */}
+            <div className="order-2 lg:order-3 lg:col-span-12 w-full max-w-3xl lg:max-w-4xl mx-auto mt-2 lg:mt-6">
+              {/* Canonical Search Bar with Prominent Search Button */}
+              <div className="relative flex items-center gap-2 w-full">
+                <div className="relative flex-1">
+                  <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-teal-600 w-5 h-5 pointer-events-none" />
+                  <input
+                    type="text"
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter") {
+                        document.getElementById("job-results-section")?.scrollIntoView({ behavior: "smooth" });
+                      }
+                    }}
+                    placeholder="Search by role (e.g. Software Engineer), company, tech stack, or city..."
+                    className="w-full pl-12 pr-10 py-3.5 sm:py-4 rounded-2xl bg-white shadow-xs border border-slate-200/90 text-slate-900 placeholder-slate-400 focus:ring-2 focus:ring-teal-500 focus:border-teal-500 outline-none text-sm transition-all"
+                  />
+                  {searchQuery && (
+                    <button
+                      onClick={() => setSearchQuery("")}
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition-colors p-1 cursor-pointer"
+                      title="Clear search"
+                    >
+                      <X className="w-4 h-4" />
+                    </button>
+                  )}
+                </div>
+                <button
+                  onClick={() => {
+                    document.getElementById("job-results-section")?.scrollIntoView({ behavior: "smooth" });
+                  }}
+                  className="px-6 sm:px-8 py-3.5 sm:py-4 bg-teal-600 hover:bg-teal-700 active:bg-teal-800 text-white font-semibold text-sm rounded-2xl transition-all shadow-sm hover:shadow flex items-center gap-2 shrink-0 cursor-pointer"
+                >
+                  <Search className="w-4 h-4" />
+                  <span>Search</span>
+                </button>
+              </div>
+
+              {/* 🔥 Trending Searches Row */}
+              <div className="flex flex-wrap items-center gap-2 max-w-4xl mx-auto mt-3.5 text-xs text-slate-600 px-1">
+                <span className="flex items-center gap-1 font-bold text-slate-800 mr-1">
+                  <span>🔥</span>
+                  <span>Trending:</span>
+                </span>
+                {[
+                  "Software Engineer",
+                  "Data Analyst",
+                  "Product Manager",
+                  "Customer Service",
+                  "DevOps",
+                  "Designer"
+                ].map((term) => (
+                  <button
+                    key={term}
+                    onClick={() => {
+                      setSearchQuery(term);
+                      document.getElementById("job-results-section")?.scrollIntoView({ behavior: "smooth" });
+                    }}
+                    className={`px-3 py-1 rounded-full text-xs font-medium transition-all cursor-pointer border ${
+                      searchQuery.toLowerCase() === term.toLowerCase()
+                        ? "bg-teal-600 text-white border-teal-600 shadow-2xs"
+                        : "bg-teal-50/70 hover:bg-teal-100 text-teal-800 border-teal-200/60"
+                    }`}
+                  >
+                    {term}
+                  </button>
+                ))}
               </div>
             </div>
           </div>
