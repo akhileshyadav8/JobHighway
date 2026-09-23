@@ -4,21 +4,20 @@ import { useState, useMemo, useEffect } from "react";
 import { Company, OverviewStats } from "@/lib/api";
 import Link from "next/link";
 import { 
-  Search, 
   ExternalLink, 
   MapPin, 
   Building2, 
-  X, 
   ShieldCheck, 
   Clock, 
   Users, 
   Briefcase, 
   Globe, 
   ArrowRight, 
-  Zap,
   ChevronDown
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { SearchBar } from "@/components/ui/SearchBar";
+import { CompanyLogo, getCleanDomain } from "@/components/ui/CompanyLogo";
 
 interface InteractiveCompaniesProps {
   initialCompanies: Company[];
@@ -27,54 +26,11 @@ interface InteractiveCompaniesProps {
 
 const COMPANIES_PER_PAGE = 12;
 
-function getCleanDomain(websiteOrSlug?: string | null): string {
-  if (!websiteOrSlug) return "";
-  try {
-    const raw = websiteOrSlug.trim();
-    const withProtocol = raw.startsWith("http") ? raw : `https://${raw}`;
-    const parsed = new URL(withProtocol);
-    return parsed.hostname.replace(/^www\./, "");
-  } catch {
-    return (websiteOrSlug || "").replace(/^https?:\/\//, "").replace(/^www\./, "").split("/")[0];
-  }
-}
-
-function CompanyLogo({ company }: { company: Company }) {
-  const [imgError, setImgError] = useState(false);
-  const domain = getCleanDomain(company.website || company.slug);
-  
-  // Prefer logo_url if provided, otherwise high-res favicon based on official company domain
-  const logoSrc = (!imgError && company.logo_url)
-    ? company.logo_url
-    : (!imgError && domain)
-    ? `https://www.google.com/s2/favicons?domain=${encodeURIComponent(domain)}&sz=128`
-    : null;
-
-  const initial = (company.name || "C").charAt(0).toUpperCase();
-
-  return (
-    <div className="w-12 h-12 rounded-xl bg-white border border-slate-200/90 shadow-2xs flex items-center justify-center p-2 shrink-0 group-hover:border-slate-300 transition-colors overflow-hidden">
-      {logoSrc ? (
-        <img
-          src={logoSrc}
-          alt={`${company.name} logo`}
-          className="w-full h-full object-contain"
-          onError={() => setImgError(true)}
-          loading="lazy"
-        />
-      ) : (
-        <span className="text-base font-black text-teal-700 bg-teal-50 w-full h-full rounded-lg flex items-center justify-center">
-          {initial}
-        </span>
-      )}
-    </div>
-  );
-}
-
 export function InteractiveCompanies({ initialCompanies, initialStats }: InteractiveCompaniesProps) {
   const [search, setSearch] = useState("");
   const [selectedIndustry, setSelectedIndustry] = useState("All");
   const [selectedCountry, setSelectedCountry] = useState("All");
+  const [selectedSize, setSelectedSize] = useState("All");
   const [sortBy, setSortBy] = useState("openings"); // "openings", "name", "newest"
   const [currentPage, setCurrentPage] = useState(1);
   const [jumpPageInput, setJumpPageInput] = useState("");
@@ -129,6 +85,17 @@ export function InteractiveCompanies({ initialCompanies, initialStats }: Interac
       list = list.filter(c => (c.headquarters || "").toLowerCase().includes(selectedCountry.toLowerCase()));
     }
 
+    // Size filter
+    if (selectedSize !== "All") {
+      if (selectedSize === "10k+") {
+        list = list.filter(c => (c.employee_count_range || "").includes("10k") || (c.employee_count_range || "").includes("10K"));
+      } else if (selectedSize === "1k-10k") {
+        list = list.filter(c => (c.employee_count_range || "").includes("1k") || (c.employee_count_range || "").includes("5k"));
+      } else if (selectedSize === "<1k") {
+        list = list.filter(c => !((c.employee_count_range || "").includes("10k")) && !((c.employee_count_range || "").includes("10K")));
+      }
+    }
+
     // Sorting
     return [...list].sort((a, b) => {
       if (sortBy === "openings") return (b.active_job_count || 0) - (a.active_job_count || 0);
@@ -136,14 +103,14 @@ export function InteractiveCompanies({ initialCompanies, initialStats }: Interac
       if (sortBy === "newest") return b.id - a.id;
       return 0;
     });
-  }, [initialCompanies, search, selectedIndustry, selectedCountry, sortBy]);
+  }, [initialCompanies, search, selectedIndustry, selectedCountry, selectedSize, sortBy]);
 
   const totalPages = Math.ceil(filtered.length / COMPANIES_PER_PAGE) || 1;
 
   // Reset to page 1 whenever filters change
   useEffect(() => {
     setCurrentPage(1);
-  }, [search, selectedIndustry, selectedCountry, sortBy]);
+  }, [search, selectedIndustry, selectedCountry, selectedSize, sortBy]);
 
   const displayedCompanies = useMemo(() => {
     const start = (currentPage - 1) * COMPANIES_PER_PAGE;
@@ -186,22 +153,22 @@ export function InteractiveCompanies({ initialCompanies, initialStats }: Interac
   return (
     <div className="bg-slate-50 min-h-screen">
       {/* ========================================================
-          HERO SECTION: High Impact, Compact, SaaS/ATS Aesthetic
+          HERO SECTION: High Impact, Compact, SaaS Aesthetic
           ======================================================== */}
-      <section className="relative overflow-hidden bg-gradient-to-b from-teal-50/50 via-white to-slate-50 border-b border-slate-200/80 pt-10 pb-12 sm:pt-14 sm:pb-16">
+      <section className="relative overflow-hidden bg-gradient-to-b from-teal-50/50 via-white to-slate-50 border-b border-slate-200/80 pt-10 pb-10 sm:pt-14 sm:pb-14">
         {/* Subtle mesh background grid & ambient light */}
         <div className="absolute inset-0 pointer-events-none opacity-40 bg-[radial-gradient(#0d9488_1px,transparent_1px)] [background-size:24px_24px] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_40%,#000_70%,transparent_100%)]" />
         <div className="absolute top-0 right-1/4 -translate-y-12 w-96 h-96 bg-teal-200/25 rounded-full blur-3xl pointer-events-none" />
         <div className="absolute top-1/3 left-10 w-72 h-72 bg-emerald-200/20 rounded-full blur-3xl pointer-events-none" />
 
         <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-7xl relative z-10">
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center mb-10">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center mb-8">
             {/* Left Content */}
             <div className="lg:col-span-7 flex flex-col items-start text-left">
               {/* Eyebrow badge */}
               <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-50 border border-emerald-200/80 text-emerald-800 text-xs font-semibold uppercase tracking-wider mb-4 shadow-2xs">
                 <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" />
-                <span>VERIFIED COMPANIES • OFFICIAL CAREER PORTALS</span>
+                <span>VERIFIED COMPANIES</span>
               </div>
 
               {/* Main Heading */}
@@ -263,8 +230,8 @@ export function InteractiveCompanies({ initialCompanies, initialStats }: Interac
               </div>
             </div>
 
-            {/* Right Visual: Art-directed Floating Network & Trust Indicators */}
-            <div className="lg:col-span-5 relative hidden sm:flex items-center justify-center min-h-[340px]">
+            {/* Right Visual: Art-directed Floating Network with Reference Annotations */}
+            <div className="lg:col-span-5 relative hidden sm:flex items-center justify-center min-h-[350px]">
               {/* Radial Network Glow / Mesh */}
               <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
                 <div className="w-72 h-72 rounded-full bg-teal-100/50 blur-2xl" />
@@ -278,40 +245,56 @@ export function InteractiveCompanies({ initialCompanies, initialStats }: Interac
                 </svg>
               </div>
 
+              {/* Hand-drawn annotation: "Top companies hiring worldwide" */}
+              <div className="absolute top-2 left-6 z-20 pointer-events-none flex items-center gap-1.5 text-teal-800 font-serif italic text-xs">
+                <span>Top companies hiring worldwide</span>
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" className="text-teal-600">
+                  <path d="M4 8C8 14 14 16 18 14M18 14L15 11M18 14L17 18" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                </svg>
+              </div>
+
               {/* Floating Company Logos */}
-              <div className="absolute top-4 left-24 w-12 h-12 rounded-2xl bg-white shadow-md border border-slate-100 flex items-center justify-center p-2.5 hover:scale-110 transition-transform duration-300">
-                <img src="https://www.google.com/s2/favicons?domain=google.com&sz=128" alt="Google" className="w-full h-full object-contain" />
+              <div className="absolute top-8 left-28 w-12 h-12 rounded-2xl bg-white shadow-md border border-slate-100 flex items-center justify-center p-2.5 hover:scale-110 transition-transform duration-300">
+                <CompanyLogo name="Google" slug="google" size="sm" />
               </div>
 
-              <div className="absolute top-20 left-4 w-12 h-12 rounded-2xl bg-white shadow-md border border-slate-100 flex items-center justify-center p-2.5 hover:scale-110 transition-transform duration-300">
-                <img src="https://www.google.com/s2/favicons?domain=microsoft.com&sz=128" alt="Microsoft" className="w-full h-full object-contain" />
+              <div className="absolute top-24 left-4 w-12 h-12 rounded-2xl bg-white shadow-md border border-slate-100 flex items-center justify-center p-2.5 hover:scale-110 transition-transform duration-300">
+                <CompanyLogo name="Microsoft" slug="microsoft" size="sm" />
               </div>
 
-              <div className="absolute top-24 left-36 w-14 h-14 rounded-2xl bg-white shadow-lg border border-slate-100 flex items-center justify-center p-2.5 hover:scale-110 transition-transform duration-300">
-                <img src="https://www.google.com/s2/favicons?domain=amazon.com&sz=128" alt="Amazon" className="w-full h-full object-contain" />
+              <div className="absolute top-28 left-36 w-14 h-14 rounded-2xl bg-white shadow-lg border border-slate-100 flex items-center justify-center p-2.5 hover:scale-110 transition-transform duration-300">
+                <CompanyLogo name="Amazon" slug="amazon" size="md" />
               </div>
 
-              <div className="absolute bottom-10 left-12 w-12 h-12 rounded-2xl bg-white shadow-md border border-slate-100 flex items-center justify-center p-2.5 hover:scale-110 transition-transform duration-300">
-                <img src="https://www.google.com/s2/favicons?domain=apple.com&sz=128" alt="Apple" className="w-full h-full object-contain" />
+              <div className="absolute bottom-8 left-16 w-12 h-12 rounded-2xl bg-white shadow-md border border-slate-100 flex items-center justify-center p-2.5 hover:scale-110 transition-transform duration-300">
+                <CompanyLogo name="Apple" slug="apple" size="sm" />
               </div>
 
-              <div className="absolute top-10 right-28 w-12 h-12 rounded-2xl bg-white shadow-md border border-slate-100 flex items-center justify-center p-2.5 hover:scale-110 transition-transform duration-300">
-                <img src="https://www.google.com/s2/favicons?domain=meta.com&sz=128" alt="Meta" className="w-full h-full object-contain" />
+              <div className="absolute top-12 right-28 w-12 h-12 rounded-2xl bg-white shadow-md border border-slate-100 flex items-center justify-center p-2.5 hover:scale-110 transition-transform duration-300">
+                <CompanyLogo name="Meta" slug="meta" size="sm" />
               </div>
 
-              <div className="absolute top-32 right-20 w-12 h-12 rounded-2xl bg-white shadow-md border border-slate-100 flex items-center justify-center p-2.5 hover:scale-110 transition-transform duration-300">
-                <img src="https://www.google.com/s2/favicons?domain=netflix.com&sz=128" alt="Netflix" className="w-full h-full object-contain" />
+              <div className="absolute top-36 right-20 w-12 h-12 rounded-2xl bg-white shadow-md border border-slate-100 flex items-center justify-center p-2.5 hover:scale-110 transition-transform duration-300">
+                <CompanyLogo name="Netflix" slug="netflix" size="sm" />
               </div>
 
-              {/* 3 Trust Badges Stacked on Right */}
-              <div className="absolute right-0 top-2 flex flex-col gap-2.5 z-10 max-w-[195px]">
+              {/* Hand-drawn annotation: "Verified from official career portals" (top right) */}
+              <div className="absolute top-0 right-2 z-20 pointer-events-none flex items-center gap-1.5 text-teal-800 font-serif italic text-xs">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" className="text-teal-600 -rotate-45">
+                  <path d="M4 16C10 8 16 6 20 10M20 10L16 6M20 10L18 14" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                </svg>
+                <span>Verified from official career portals</span>
+              </div>
+
+              {/* 3 Trust Badges Stacked on Right (matching screenshot exactly) */}
+              <div className="absolute right-0 top-8 flex flex-col gap-2.5 z-10 max-w-[195px]">
                 <div className="bg-white/95 backdrop-blur-xs border border-slate-200/90 rounded-xl p-2.5 shadow-xs flex items-center gap-2.5 hover:border-emerald-300 transition-colors">
                   <div className="w-7 h-7 rounded-lg bg-emerald-50 text-emerald-600 flex items-center justify-center shrink-0">
                     <ShieldCheck className="w-4 h-4" />
                   </div>
                   <div className="min-w-0">
-                    <p className="text-xs font-bold text-slate-800 leading-tight">Verified Sources</p>
-                    <p className="text-[10px] text-slate-500 truncate">Official career portals only</p>
+                    <p className="text-xs font-bold text-slate-800 leading-tight">Official Sources</p>
+                    <p className="text-[10px] text-slate-500 truncate">Company career portals only</p>
                   </div>
                 </div>
 
@@ -335,51 +318,23 @@ export function InteractiveCompanies({ initialCompanies, initialStats }: Interac
                   </div>
                 </div>
               </div>
-
-              {/* Floating speech pill at bottom right */}
-              <div className="absolute bottom-2 right-4 bg-emerald-50/95 border border-emerald-200/80 rounded-xl px-3 py-2 flex items-center gap-2 shadow-2xs z-10">
-                <Zap className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
-                <div className="text-[11px] leading-tight">
-                  <span className="font-semibold text-emerald-900">Real openings. </span>
-                  <span className="text-emerald-700">Direct from company career pages.</span>
-                </div>
-              </div>
             </div>
           </div>
 
           {/* ========================================================
-              SEARCH BAR: Premium Floating Style
+              STANDARDIZED SEARCH BAR
               ======================================================== */}
           <div className="max-w-4xl mx-auto mb-4">
-            <div className="relative flex items-center bg-white rounded-2xl shadow-sm border border-slate-200/90 p-1.5 focus-within:border-teal-500 focus-within:ring-2 focus-within:ring-teal-500/20 transition-all">
-              <Search className="w-5 h-5 text-slate-400 ml-3.5 shrink-0 pointer-events-none" />
-              <input
-                type="text"
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-                placeholder="Search companies by name, domain, or industry..."
-                className="w-full px-3.5 py-2.5 text-sm sm:text-base text-slate-900 placeholder:text-slate-400 bg-transparent outline-none"
-              />
-              {search && (
-                <button
-                  onClick={() => setSearch("")}
-                  className="p-1.5 text-slate-400 hover:text-slate-600 rounded-lg mr-1 transition-colors cursor-pointer"
-                  title="Clear search"
-                >
-                  <X className="w-4 h-4" />
-                </button>
-              )}
-              <button
-                onClick={() => {
-                  const gridEl = document.getElementById("companies-results-grid");
-                  if (gridEl) gridEl.scrollIntoView({ behavior: "smooth", block: "start" });
-                }}
-                className="bg-teal-600 hover:bg-teal-700 active:bg-teal-800 text-white font-semibold text-sm px-5 py-2.5 rounded-xl flex items-center gap-2 transition-colors shrink-0 shadow-2xs cursor-pointer"
-              >
-                <Search className="w-4 h-4" />
-                <span>Search</span>
-              </button>
-            </div>
+            <SearchBar
+              value={search}
+              onChange={setSearch}
+              onSearch={() => {
+                const gridEl = document.getElementById("companies-results-grid");
+                if (gridEl) gridEl.scrollIntoView({ behavior: "smooth", block: "start" });
+              }}
+              placeholder="Search companies by name, domain, or location..."
+              className="w-full"
+            />
           </div>
 
           {/* Secondary Filter & Sort Row */}
@@ -415,6 +370,21 @@ export function InteractiveCompanies({ initialCompanies, initialStats }: Interac
                 <ChevronDown className="w-3.5 h-3.5 text-slate-400 absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
               </div>
 
+              {/* Company Size Filter */}
+              <div className="relative">
+                <select
+                  value={selectedSize}
+                  onChange={(e) => setSelectedSize(e.target.value)}
+                  className="appearance-none bg-white border border-slate-200/90 rounded-xl px-3 py-1.5 pr-7 text-xs font-medium text-slate-700 hover:border-slate-300 focus:outline-none focus:border-teal-500 cursor-pointer shadow-2xs"
+                >
+                  <option value="All">All Company Sizes</option>
+                  <option value="10k+">10K+ employees</option>
+                  <option value="1k-10k">1K–10K employees</option>
+                  <option value="<1k">Under 1K employees</option>
+                </select>
+                <ChevronDown className="w-3.5 h-3.5 text-slate-400 absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+              </div>
+
               {/* Sort Filter */}
               <div className="relative">
                 <select
@@ -423,8 +393,8 @@ export function InteractiveCompanies({ initialCompanies, initialStats }: Interac
                   className="appearance-none bg-white border border-slate-200/90 rounded-xl px-3 py-1.5 pr-7 text-xs font-medium text-slate-700 hover:border-slate-300 focus:outline-none focus:border-teal-500 cursor-pointer shadow-2xs"
                 >
                   <option value="openings">Most Openings</option>
-                  <option value="name">Company Name (A–Z)</option>
                   <option value="newest">Newest First</option>
+                  <option value="name">Company Name (A–Z)</option>
                 </select>
                 <ChevronDown className="w-3.5 h-3.5 text-slate-400 absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
               </div>
@@ -439,7 +409,7 @@ export function InteractiveCompanies({ initialCompanies, initialStats }: Interac
       </section>
 
       {/* ========================================================
-          COMPANIES GRID: 3-column desktop, 2-column tablet, 1-col mobile
+          COMPANIES GRID: STRICTLY 3 columns on desktop, 2 on tablet, 1 on mobile
           ======================================================== */}
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-7xl py-10">
         <div id="companies-results-grid" className="scroll-mt-24">
@@ -455,7 +425,13 @@ export function InteractiveCompanies({ initialCompanies, initialStats }: Interac
                       {/* Top Header: Logo, Name, Domain & Featured Tag */}
                       <div className="flex items-start justify-between gap-3 mb-3.5">
                         <div className="flex items-center gap-3 min-w-0">
-                          <CompanyLogo company={company} />
+                          <CompanyLogo
+                            name={company.name}
+                            website={company.website}
+                            slug={company.slug}
+                            logoUrl={company.logo_url}
+                            size="md"
+                          />
                           <div className="min-w-0">
                             <Link href={`/companies/${company.slug}`} className="group/link block">
                               <h2 className="text-base sm:text-lg font-bold text-slate-900 group-hover/link:text-teal-600 transition-colors truncate">
@@ -463,13 +439,13 @@ export function InteractiveCompanies({ initialCompanies, initialStats }: Interac
                               </h2>
                             </Link>
                             <span className="text-xs text-slate-400 font-medium truncate block">
-                              {getCleanDomain(company.website || company.slug) || (company.industry || "Official ATS")}
+                              {getCleanDomain(company.website, company.slug, company.name) || (company.industry || "Official ATS")}
                             </span>
                           </div>
                         </div>
 
                         <span className="bg-emerald-50 text-emerald-700 border border-emerald-100/90 text-[11px] font-semibold px-2 py-0.5 rounded-full shrink-0">
-                          {company.active_job_count > 0 ? "Featured" : "Verified"}
+                          Featured
                         </span>
                       </div>
 
@@ -613,6 +589,7 @@ export function InteractiveCompanies({ initialCompanies, initialStats }: Interac
                   setSearch("");
                   setSelectedIndustry("All");
                   setSelectedCountry("All");
+                  setSelectedSize("All");
                 }}
                 className="rounded-xl text-xs font-semibold cursor-pointer"
               >

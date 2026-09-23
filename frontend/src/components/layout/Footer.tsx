@@ -1,90 +1,24 @@
 import Link from "next/link";
 import Image from "next/image";
-import { Building2, Briefcase, Globe, Clock, ShieldCheck, ArrowUpRight } from "lucide-react";
 
 export function Footer() {
   const currentYear = new Date().getFullYear();
 
   return (
-    <footer className="border-t border-slate-200 bg-white text-slate-500 relative z-20">
-      {/* Top Trust Metrics & Guarantee Bar (as highlighted in modern platform design) */}
-      <div className="border-b border-slate-100 bg-slate-50/70 py-6">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-[1440px]">
-          <div className="flex flex-col lg:flex-row items-center justify-between gap-6">
-            {/* Left Brand Summary */}
-            <div className="flex items-center gap-3 text-left">
-              <div className="relative w-8 h-8 shrink-0">
-                <Image
-                  src="/logo.png"
-                  alt="JobPulse Logo"
-                  width={32}
-                  height={32}
-                  className="w-full h-full object-contain"
-                />
-              </div>
-              <p className="text-xs text-slate-600 max-w-md leading-relaxed">
-                JobPulse indexes official company career portals regularly so you can discover and apply to jobs early, directly at the source.
-              </p>
-            </div>
-
-            {/* Middle Live Trust Metrics */}
-            <div className="flex flex-wrap items-center justify-center gap-4 sm:gap-6 text-xs">
-              <div className="flex items-center gap-2">
-                <div className="w-6 h-6 rounded-lg bg-emerald-50 text-emerald-600 flex items-center justify-center">
-                  <Building2 className="w-3.5 h-3.5" />
-                </div>
-                <div>
-                  <span className="font-bold text-slate-800">17,584+</span>
-                  <span className="text-slate-500 ml-1">Verified Companies</span>
-                </div>
-              </div>
-
-              <div className="flex items-center gap-2">
-                <div className="w-6 h-6 rounded-lg bg-teal-50 text-teal-600 flex items-center justify-center">
-                  <Briefcase className="w-3.5 h-3.5" />
-                </div>
-                <div>
-                  <span className="font-bold text-slate-800">1.2M+</span>
-                  <span className="text-slate-500 ml-1">Active Openings</span>
-                </div>
-              </div>
-
-              <div className="flex items-center gap-2">
-                <div className="w-6 h-6 rounded-lg bg-sky-50 text-sky-600 flex items-center justify-center">
-                  <Globe className="w-3.5 h-3.5" />
-                </div>
-                <div>
-                  <span className="font-bold text-slate-800">150+</span>
-                  <span className="text-slate-500 ml-1">Countries</span>
-                </div>
-              </div>
-
-              <div className="flex items-center gap-2">
-                <div className="w-6 h-6 rounded-lg bg-slate-100 text-slate-600 flex items-center justify-center">
-                  <Clock className="w-3.5 h-3.5" />
-                </div>
-                <div>
-                  <span className="font-bold text-slate-800">Updated Hourly</span>
-                  <span className="text-slate-400 text-[10px] ml-1">Fresh. Accurate.</span>
-                </div>
-              </div>
-            </div>
-
-            {/* Right Sketch / Note */}
-            <div className="hidden xl:flex items-center gap-2 text-teal-700 text-xs font-medium italic">
-              <svg className="w-6 h-5 text-teal-500 -rotate-12" viewBox="0 0 32 24" fill="none">
-                <path d="M4 18C12 6 22 4 28 8M28 8L22 4M28 8L26 14" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-              </svg>
-              <span>Same jobs, fresher opportunities.</span>
-            </div>
-          </div>
-        </div>
+    <footer className="relative border-t border-slate-200/90 bg-white text-slate-500 overflow-hidden">
+      {/* Subtle decorative glow & pattern on bottom-right (as shown in reference design) */}
+      <div className="absolute right-0 bottom-0 w-96 h-96 bg-gradient-to-tl from-teal-50/70 via-emerald-50/20 to-transparent pointer-events-none rounded-full blur-2xl" />
+      <div className="absolute -right-10 -bottom-10 w-72 h-72 opacity-25 pointer-events-none">
+        <svg viewBox="0 0 200 200" fill="none" className="w-full h-full text-teal-400">
+          <circle cx="150" cy="150" r="140" stroke="currentColor" strokeWidth="1" strokeDasharray="3 3" />
+          <circle cx="150" cy="150" r="100" stroke="currentColor" strokeWidth="1" opacity="0.6" />
+          <circle cx="150" cy="150" r="60" stroke="currentColor" strokeWidth="1" strokeDasharray="2 2" opacity="0.4" />
+        </svg>
       </div>
 
-      {/* Main Footer Navigation Links */}
-      <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-[1440px] py-12">
+      <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-[1440px] pt-12 pb-8 relative z-10">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8 lg:gap-12 mb-10">
-          {/* Col 1: Brand & Direct ATS Guarantee */}
+          {/* Col 1: Brand & Tagline */}
           <div className="md:col-span-2">
             <Link href="/" className="inline-flex items-center gap-2.5 mb-3 group">
               <div className="relative w-9 h-9 flex items-center justify-center shrink-0">
@@ -100,42 +34,38 @@ export function Footer() {
                 JobPulse
               </span>
             </Link>
-            <p className="text-sm max-w-sm mb-4 leading-relaxed text-slate-600">
-              The direct-from-source hiring engine. Zero third-party recruiter spam, zero stale job aggregator listings.
+            <p className="text-xs sm:text-sm max-w-sm mb-4 leading-relaxed text-slate-600 font-normal">
+              World&apos;s Fastest Official Job Engine. We index official career portals within 1–2 hours of posting — beating standard aggregators by days with zero recruiter spam.
             </p>
-            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg bg-teal-50 border border-teal-100/80 text-teal-800 text-xs font-medium">
-              <ShieldCheck className="w-4 h-4 text-teal-600 shrink-0" />
-              <span>Direct ingestion from Greenhouse, Lever, Ashby & Workday</span>
-            </div>
           </div>
           
           {/* Col 2: Quick Links */}
           <div>
-            <h3 className="text-slate-900 font-bold mb-4 text-sm tracking-tight">Quick Links</h3>
-            <ul className="space-y-2.5 text-sm">
+            <h3 className="text-slate-900 font-bold mb-3.5 text-xs sm:text-sm tracking-tight">Quick Links</h3>
+            <ul className="space-y-2 text-xs sm:text-sm">
               <li>
-                <Link href="/" className="text-slate-600 hover:text-teal-700 transition-colors inline-flex items-center gap-1">
-                  <span>Browse Jobs</span>
+                <Link href="/" className="text-slate-600 hover:text-teal-700 transition-colors inline-block py-0.5">
+                  Browse Jobs
                 </Link>
               </li>
               <li>
-                <Link href="/companies" className="text-slate-600 hover:text-teal-700 transition-colors inline-flex items-center gap-1">
-                  <span>Verified Companies</span>
+                <Link href="/companies" className="text-slate-600 hover:text-teal-700 transition-colors inline-block py-0.5">
+                  Verified Companies
                 </Link>
               </li>
               <li>
-                <Link href="/about" className="text-slate-600 hover:text-teal-700 transition-colors inline-flex items-center gap-1">
-                  <span>About Us</span>
+                <Link href="/about" className="text-slate-600 hover:text-teal-700 transition-colors inline-block py-0.5">
+                  About Us
                 </Link>
               </li>
               <li>
-                <Link href="/blog" className="text-slate-600 hover:text-teal-700 transition-colors inline-flex items-center gap-1">
-                  <span>Career Blog</span>
+                <Link href="/blog" className="text-slate-600 hover:text-teal-700 transition-colors inline-block py-0.5">
+                  Career Blog
                 </Link>
               </li>
               <li>
-                <Link href="/contact" className="text-slate-600 hover:text-teal-700 transition-colors inline-flex items-center gap-1">
-                  <span>Contact Us</span>
+                <Link href="/contact" className="text-slate-600 hover:text-teal-700 transition-colors inline-block py-0.5">
+                  Contact Us
                 </Link>
               </li>
             </ul>
@@ -143,22 +73,21 @@ export function Footer() {
           
           {/* Col 3: Legal & Trust */}
           <div>
-            <h3 className="text-slate-900 font-bold mb-4 text-sm tracking-tight">Legal & Trust</h3>
-            <ul className="space-y-2.5 text-sm">
+            <h3 className="text-slate-900 font-bold mb-3.5 text-xs sm:text-sm tracking-tight">Legal & Trust</h3>
+            <ul className="space-y-2 text-xs sm:text-sm">
               <li>
-                <Link href="/ats-policy" className="text-slate-600 hover:text-teal-700 transition-colors inline-flex items-center gap-1">
-                  <span>Direct ATS Policy</span>
-                  <ArrowUpRight className="w-3 h-3 text-slate-400" />
+                <Link href="/ats-policy" className="text-slate-600 hover:text-teal-700 transition-colors inline-block py-0.5">
+                  Direct ATS Policy
                 </Link>
               </li>
               <li>
-                <Link href="/privacy" className="text-slate-600 hover:text-teal-700 transition-colors inline-flex items-center gap-1">
-                  <span>Privacy Policy</span>
+                <Link href="/privacy" className="text-slate-600 hover:text-teal-700 transition-colors inline-block py-0.5">
+                  Privacy Policy
                 </Link>
               </li>
               <li>
-                <Link href="/terms" className="text-slate-600 hover:text-teal-700 transition-colors inline-flex items-center gap-1">
-                  <span>Terms of Service</span>
+                <Link href="/terms" className="text-slate-600 hover:text-teal-700 transition-colors inline-block py-0.5">
+                  Terms of Service
                 </Link>
               </li>
             </ul>
@@ -166,13 +95,9 @@ export function Footer() {
         </div>
         
         {/* Bottom Copyright & Guarantee */}
-        <div className="border-t border-slate-200 pt-6 flex flex-col md:flex-row items-center justify-between text-xs text-slate-500 gap-3">
+        <div className="border-t border-slate-100 pt-6 flex flex-col sm:flex-row items-center justify-between text-xs text-slate-400 gap-2 font-normal">
           <p>© {currentYear} JobPulse. All rights reserved.</p>
-          <div className="flex items-center gap-4">
-            <span className="text-slate-600 font-medium">100% Direct Official Links</span>
-            <span>•</span>
-            <span>Zero Aggregator Middlemen</span>
-          </div>
+          <p className="text-slate-500 font-medium">100% Direct Official Links</p>
         </div>
       </div>
     </footer>
