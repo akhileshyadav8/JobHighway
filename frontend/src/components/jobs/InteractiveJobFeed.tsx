@@ -699,9 +699,9 @@ export function InteractiveJobFeed({ initialJobs, stats, initialTotal, initialTo
         <div className="absolute top-1/2 -left-20 w-80 h-80 bg-emerald-100/40 rounded-full blur-3xl pointer-events-none" />
 
         <div className="container mx-auto max-w-[1360px] relative z-10">
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-8 items-center">
-            {/* LEFT COLUMN: Badge, Headline, Paragraph, Live Statistics */}
-            <div className="lg:col-span-7 flex flex-col justify-center">
+          <div className="flex flex-col lg:grid lg:grid-cols-12 gap-8 lg:gap-10 items-center">
+            {/* LEFT COLUMN: 58% width - Badge, Headline, Paragraph, Live Statistics */}
+            <div className="order-1 lg:col-span-7 flex flex-col justify-center">
               {/* Small live badge */}
               <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-emerald-50/90 text-emerald-800 border border-emerald-200/90 mb-4 tracking-wide shadow-2xs w-fit">
                 <Zap className="w-3.5 h-3.5 text-emerald-600 fill-emerald-500" />
@@ -709,14 +709,14 @@ export function InteractiveJobFeed({ initialJobs, stats, initialTotal, initialTo
               </div>
 
               {/* Main Headline */}
-              <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-[54px] font-black text-slate-900 tracking-tight leading-[1.08] mb-4">
+              <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-[56px] xl:text-[62px] font-black text-slate-900 tracking-tight leading-[1.08] mb-4">
                 Fresh jobs today.<br />
                 A head start for your<br />
                 <span className="text-teal-600">tomorrow.</span>
               </h1>
 
               {/* Concise Description */}
-              <p className="text-sm sm:text-base text-slate-600 max-w-xl leading-relaxed mb-7 font-normal">
+              <p className="text-sm sm:text-base lg:text-lg text-slate-600 max-w-[620px] leading-relaxed mb-8 font-normal">
                 JobPulse continuously discovers job openings directly from official company career systems, so you can find and apply to new opportunities before they get buried on other job boards.
               </p>
 
@@ -742,7 +742,7 @@ export function InteractiveJobFeed({ initialJobs, stats, initialTotal, initialTo
                   </div>
                   <div>
                     <div className="text-base sm:text-lg font-black text-slate-900 leading-tight">
-                      {(stats?.total_companies || availableCompanies.length || 17562).toLocaleString()}
+                      {(stats?.total_companies || availableCompanies.length || 17533).toLocaleString()}
                     </div>
                     <div className="text-xs text-slate-500 font-medium">verified portals</div>
                   </div>
@@ -763,68 +763,212 @@ export function InteractiveJobFeed({ initialJobs, stats, initialTotal, initialTo
               </div>
             </div>
 
-            {/* RIGHT COLUMN: Floating Job Cards, Globe/Orbital Wireframe, Orbiting ATS Badges, Handwritten Annotations */}
-            <div className="lg:col-span-5 relative flex flex-col justify-center items-center lg:items-end min-h-[360px] sm:min-h-[400px] select-none">
-              {/* Globe / Orbital Visual Backdrop */}
-              <div className="absolute right-0 top-1/2 -translate-y-1/2 w-[340px] sm:w-[420px] h-[340px] sm:h-[420px] pointer-events-none opacity-40 lg:opacity-60">
-                <svg viewBox="0 0 400 400" className="w-full h-full text-teal-500/40">
-                  {/* Subtle outer orbital ring */}
-                  <circle cx="200" cy="200" r="180" fill="none" stroke="currentColor" strokeWidth="1" strokeDasharray="4 4" />
-                  <circle cx="200" cy="200" r="140" fill="none" stroke="currentColor" strokeWidth="1" opacity="0.6" />
-                  <circle cx="200" cy="200" r="90" fill="none" stroke="currentColor" strokeWidth="1" strokeDasharray="3 3" opacity="0.4" />
-                  {/* Longitude and Latitude curves */}
-                  <ellipse cx="200" cy="200" rx="140" ry="60" fill="none" stroke="currentColor" strokeWidth="0.8" opacity="0.5" />
-                  <ellipse cx="200" cy="200" rx="140" ry="110" fill="none" stroke="currentColor" strokeWidth="0.8" opacity="0.5" />
-                  <line x1="200" y1="60" x2="200" y2="340" stroke="currentColor" strokeWidth="0.8" opacity="0.5" />
-                  <line x1="60" y1="200" x2="340" y2="200" stroke="currentColor" strokeWidth="0.8" opacity="0.5" />
-                  {/* Glowing center aura */}
-                  <circle cx="200" cy="200" r="120" fill="url(#globeGlow)" opacity="0.25" />
-                  <defs>
-                    <radialGradient id="globeGlow" cx="50%" cy="50%" r="50%">
-                      <stop offset="0%" stopColor="#0d9488" stopOpacity="0.8" />
-                      <stop offset="100%" stopColor="#0d9488" stopOpacity="0" />
-                    </radialGradient>
-                  </defs>
-                </svg>
+            {/* RIGHT COLUMN: 42% width - Art-Directed Visual Composition */}
+            <div className="order-3 lg:order-2 lg:col-span-5 relative w-full flex items-center justify-center lg:justify-end select-none">
+              {/* DESKTOP ART-DIRECTED CANVAS: Exactly 560px × 500px, all elements in dedicated coordinate space */}
+              <div className="hidden lg:block relative w-[560px] h-[500px] origin-top-right lg:scale-[0.92] xl:scale-100 transition-transform">
+                {/* 1. Globe / Orbital Backdrop (Behind, centered at x:330, y:230) */}
+                <div className="absolute right-[0px] top-[40px] w-[340px] h-[340px] pointer-events-none opacity-45">
+                  <svg viewBox="0 0 340 340" className="w-full h-full text-teal-500/40">
+                    <circle cx="170" cy="170" r="160" fill="none" stroke="currentColor" strokeWidth="1" strokeDasharray="4 4" />
+                    <circle cx="170" cy="170" r="120" fill="none" stroke="currentColor" strokeWidth="1" opacity="0.6" />
+                    <circle cx="170" cy="170" r="80" fill="none" stroke="currentColor" strokeWidth="1" strokeDasharray="3 3" opacity="0.4" />
+                    <ellipse cx="170" cy="170" rx="120" ry="50" fill="none" stroke="currentColor" strokeWidth="0.8" opacity="0.5" />
+                    <ellipse cx="170" cy="170" rx="120" ry="90" fill="none" stroke="currentColor" strokeWidth="0.8" opacity="0.5" />
+                    <line x1="170" y1="50" x2="170" y2="290" stroke="currentColor" strokeWidth="0.8" opacity="0.5" />
+                    <line x1="50" y1="170" x2="290" y2="170" stroke="currentColor" strokeWidth="0.8" opacity="0.5" />
+                    <circle cx="170" cy="170" r="110" fill="url(#heroGlobeGlow)" opacity="0.3" />
+                    <defs>
+                      <radialGradient id="heroGlobeGlow" cx="50%" cy="50%" r="50%">
+                        <stop offset="0%" stopColor="#0d9488" stopOpacity="0.8" />
+                        <stop offset="100%" stopColor="#0d9488" stopOpacity="0" />
+                      </radialGradient>
+                    </defs>
+                  </svg>
+                </div>
+
+                {/* 2. ATS Source Labels along the right orbital boundary (completely unclipped, never behind cards) */}
+                <div className="absolute top-[14px] right-[75px] z-10 flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/95 border border-teal-200/80 shadow-2xs text-[11px] font-semibold text-slate-700">
+                  <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                  <span>Greenhouse</span>
+                </div>
+                <div className="absolute top-[96px] right-[0px] z-10 flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/95 border border-teal-200/80 shadow-2xs text-[11px] font-semibold text-slate-700">
+                  <span className="w-2 h-2 rounded-full bg-teal-500"></span>
+                  <span>Lever</span>
+                </div>
+                <div className="absolute top-[215px] -right-[10px] z-10 flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/95 border border-teal-200/80 shadow-2xs text-[11px] font-semibold text-slate-700">
+                  <span className="w-2 h-2 rounded-full bg-cyan-500"></span>
+                  <span>Ashby</span>
+                </div>
+                <div className="absolute top-[350px] right-[4px] z-10 flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/95 border border-teal-200/80 shadow-2xs text-[11px] font-semibold text-slate-700">
+                  <span className="w-2 h-2 rounded-full bg-blue-500"></span>
+                  <span>Workday</span>
+                </div>
+
+                {/* 3. Annotation 1 (Top Left, dedicated whitespace above Card 1) */}
+                <div className="absolute top-[8px] left-[55px] z-30 pointer-events-none flex items-center gap-1.5">
+                  <span className="font-serif italic font-semibold text-slate-700 text-xs sm:text-sm tracking-wide">
+                    New jobs as soon as they&apos;re live!
+                  </span>
+                  <svg width="44" height="28" viewBox="0 0 50 30" fill="none" className="text-slate-600">
+                    <path d="M4 10 C18 4, 34 6, 44 22" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
+                    <path d="M38 23 L46 23 L45 15" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+                  </svg>
+                </div>
+
+                {/* 4. CARD 1: Upper-Right (Google / Software Engineer) */}
+                <div className="absolute top-[48px] right-[24px] w-[335px] bg-white border border-slate-200/90 rounded-2xl p-4 shadow-md shadow-slate-200/50 hover:shadow-lg transition-all z-20">
+                  <div className="flex items-start justify-between gap-3 mb-2">
+                    <div className="flex items-center gap-3 min-w-0">
+                      <div className="w-9 h-9 rounded-xl bg-white border border-slate-100 p-1.5 flex items-center justify-center shadow-2xs shrink-0">
+                        <svg viewBox="0 0 24 24" className="w-5 h-5">
+                          <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+                          <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+                          <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"/>
+                          <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"/>
+                        </svg>
+                      </div>
+                      <div className="min-w-0">
+                        <h4 className="font-bold text-sm text-slate-900 leading-tight truncate">Software Engineer</h4>
+                        <p className="text-xs text-slate-500 font-medium">Google</p>
+                      </div>
+                    </div>
+                    <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200 shrink-0">
+                      NEW
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-3 text-xs text-slate-500 mb-2">
+                    <span className="flex items-center gap-1">
+                      <MapPin className="w-3.5 h-3.5 text-slate-400 shrink-0" />
+                      <span>Bengaluru, India</span>
+                    </span>
+                    <span className="flex items-center gap-1">
+                      <Briefcase className="w-3.5 h-3.5 text-slate-400 shrink-0" />
+                      <span>Hybrid</span>
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-1.5 text-[11px] text-emerald-600 font-medium">
+                    <span className="relative flex h-2 w-2">
+                      <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                      <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+                    </span>
+                    <span>12 minutes ago</span>
+                  </div>
+                </div>
+
+                {/* 5. CARD 2: Middle-Left (Microsoft / Product Manager) */}
+                <div className="absolute top-[172px] left-[16px] w-[335px] bg-white border border-slate-200/90 rounded-2xl p-4 shadow-md shadow-slate-200/50 hover:shadow-lg transition-all z-20">
+                  <div className="flex items-start justify-between gap-3 mb-2">
+                    <div className="flex items-center gap-3 min-w-0">
+                      <div className="w-9 h-9 rounded-xl bg-white border border-slate-100 p-2 flex items-center justify-center shadow-2xs shrink-0">
+                        <div className="grid grid-cols-2 gap-0.5 w-4 h-4">
+                          <div className="bg-[#f25022] w-2 h-2"></div>
+                          <div className="bg-[#7fba00] w-2 h-2"></div>
+                          <div className="bg-[#00a4ef] w-2 h-2"></div>
+                          <div className="bg-[#ffb900] w-2 h-2"></div>
+                        </div>
+                      </div>
+                      <div className="min-w-0">
+                        <h4 className="font-bold text-sm text-slate-900 leading-tight truncate">Product Manager</h4>
+                        <p className="text-xs text-slate-500 font-medium">Microsoft</p>
+                      </div>
+                    </div>
+                    <Bookmark className="w-4 h-4 text-slate-300 hover:text-slate-600 cursor-pointer shrink-0" />
+                  </div>
+                  <div className="flex items-center gap-3 text-xs text-slate-500 mb-2">
+                    <span className="flex items-center gap-1">
+                      <MapPin className="w-3.5 h-3.5 text-slate-400 shrink-0" />
+                      <span>Hyderabad, India</span>
+                    </span>
+                    <span className="flex items-center gap-1">
+                      <Briefcase className="w-3.5 h-3.5 text-slate-400 shrink-0" />
+                      <span>On-site</span>
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-1.5 text-[11px] text-emerald-600 font-medium">
+                    <span className="w-2 h-2 rounded-full bg-emerald-500"></span>
+                    <span>28 minutes ago</span>
+                  </div>
+                </div>
+
+                {/* 6. Annotation 2 (Mid-Right, open space between cards and Ashby/Workday labels) */}
+                <div className="absolute top-[260px] right-[38px] z-30 pointer-events-none flex items-center gap-2">
+                  <svg width="42" height="28" viewBox="0 0 45 30" fill="none" className="text-slate-600">
+                    <path d="M40 24 C28 26, 14 18, 6 6" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
+                    <path d="M5 13 L5 5 L13 6" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+                  </svg>
+                  <span className="font-serif italic font-semibold text-slate-700 text-xs sm:text-sm tracking-wide max-w-[130px] leading-tight">
+                    Real opportunities from official sources
+                  </span>
+                </div>
+
+                {/* 7. CARD 3: Lower-Left (Airbnb / Data Analyst) */}
+                <div className="absolute top-[296px] left-[52px] w-[320px] bg-white border border-slate-200/90 rounded-2xl p-4 shadow-md shadow-slate-200/50 hover:shadow-lg transition-all z-20">
+                  <div className="flex items-start justify-between gap-3 mb-2">
+                    <div className="flex items-center gap-3 min-w-0">
+                      <div className="w-9 h-9 rounded-xl bg-white border border-slate-100 p-1.5 flex items-center justify-center shadow-2xs shrink-0">
+                        <svg viewBox="0 0 32 32" className="w-5 h-5 text-[#FF5A5F] fill-current">
+                          <path d="M16 1c2.008 0 3.463.963 4.751 3.269l.533 1.025c1.954 3.83 6.18 12.607 6.18 16.592 0 5.568-4.524 9.114-10.464 9.114-5.94 0-11.464-3.546-11.464-9.114 0-3.985 4.226-12.762 6.18-16.592l.533-1.025C8.537 1.963 10.992 1 16 1zm0 2c-4.148 0-6.223.771-7.818 3.619l-.533 1.025C5.787 11.298 2 19.68 2 21.886c0 4.394 4.542 7.114 9.464 7.114 4.922 0 8.464-2.72 8.464-7.114 0-2.206-3.787-10.588-5.649-14.242l-.533-1.025C12.223 3.771 10.148 3 16 3zm0 10c2.761 0 5 2.239 5 5 0 2.253-1.492 4.156-3.542 4.767l-.458.118-.458-.118C14.492 22.156 13 20.253 13 18c0-2.761 2.239-5 5-5zm0 2c-1.657 0-3 1.343-3 3 0 1.258.775 2.335 1.874 2.769l.126.046.126-.046C16.225 20.335 17 19.258 17 18c0-1.657-1.343-3-3-3z"/>
+                        </svg>
+                      </div>
+                      <div className="min-w-0">
+                        <h4 className="font-bold text-sm text-slate-900 leading-tight truncate">Data Analyst</h4>
+                        <p className="text-xs text-slate-500 font-medium">Airbnb</p>
+                      </div>
+                    </div>
+                    <Bookmark className="w-4 h-4 text-slate-300 hover:text-slate-600 cursor-pointer shrink-0" />
+                  </div>
+                  <div className="flex items-center gap-3 text-xs text-slate-500 mb-2">
+                    <span className="flex items-center gap-1">
+                      <MapPin className="w-3.5 h-3.5 text-slate-400 shrink-0" />
+                      <span>Remote</span>
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-1.5 text-[11px] text-emerald-600 font-medium">
+                    <span className="w-2 h-2 rounded-full bg-emerald-500"></span>
+                    <span>1 hour ago</span>
+                  </div>
+                </div>
+
+                {/* 8. Worldwide Opportunities Card (Bottom-Right, isolated below all cards & annotations) */}
+                <div className="absolute top-[416px] right-[12px] w-[275px] bg-white border border-slate-200/90 rounded-2xl px-4 py-3 shadow-md shadow-slate-200/50 flex items-center justify-between gap-3 hover:border-teal-300 transition-colors z-20">
+                  <div className="flex items-center gap-3 min-w-0">
+                    <div className="w-9 h-9 rounded-full bg-teal-50 border border-teal-200/80 text-teal-600 flex items-center justify-center shrink-0">
+                      <Globe className="w-4 h-4" />
+                    </div>
+                    <div className="min-w-0">
+                      <h5 className="font-bold text-xs text-slate-900 leading-tight truncate">Worldwide Opportunities</h5>
+                      <p className="text-[10px] text-slate-500 truncate">From {(stats?.total_companies || availableCompanies.length || 17533).toLocaleString()}+ official career portals</p>
+                    </div>
+                  </div>
+                  <ChevronRight className="w-4 h-4 text-slate-400 shrink-0" />
+                </div>
               </div>
 
-              {/* Orbiting ATS Source Labels */}
-              <div className="absolute -top-2 right-6 sm:right-12 z-20 flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-white/90 backdrop-blur-xs border border-teal-200/80 shadow-2xs text-[11px] font-semibold text-slate-700">
-                <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-                <span>Greenhouse</span>
-              </div>
-              <div className="absolute top-20 -right-2 sm:right-2 z-20 flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-white/90 backdrop-blur-xs border border-teal-200/80 shadow-2xs text-[11px] font-semibold text-slate-700">
-                <span className="w-2 h-2 rounded-full bg-teal-500"></span>
-                <span>Lever</span>
-              </div>
-              <div className="absolute top-44 -right-1 sm:right-0 z-20 flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-white/90 backdrop-blur-xs border border-teal-200/80 shadow-2xs text-[11px] font-semibold text-slate-700">
-                <span className="w-2 h-2 rounded-full bg-cyan-500"></span>
-                <span>Ashby</span>
-              </div>
-              <div className="absolute bottom-14 -right-1 sm:right-4 z-20 flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-white/90 backdrop-blur-xs border border-teal-200/80 shadow-2xs text-[11px] font-semibold text-slate-700">
-                <span className="w-2 h-2 rounded-full bg-blue-500"></span>
-                <span>Workday</span>
-              </div>
+              {/* MOBILE / TABLET CONTROLLED VERTICAL STACK (< 1024px): No overlaps, zero clipping, zero horizontal scroll */}
+              <div className="lg:hidden w-full max-w-md mx-auto flex flex-col space-y-3.5 pt-4">
+                {/* ATS Source Tags */}
+                <div className="flex items-center justify-center gap-2 flex-wrap text-[11px] pb-1">
+                  <span className="px-2.5 py-1 rounded-full bg-white border border-slate-200 text-slate-700 font-semibold shadow-2xs flex items-center gap-1.5">
+                    <span className="w-2 h-2 rounded-full bg-emerald-500"></span> Greenhouse
+                  </span>
+                  <span className="px-2.5 py-1 rounded-full bg-white border border-slate-200 text-slate-700 font-semibold shadow-2xs flex items-center gap-1.5">
+                    <span className="w-2 h-2 rounded-full bg-teal-500"></span> Lever
+                  </span>
+                  <span className="px-2.5 py-1 rounded-full bg-white border border-slate-200 text-slate-700 font-semibold shadow-2xs flex items-center gap-1.5">
+                    <span className="w-2 h-2 rounded-full bg-cyan-500"></span> Ashby
+                  </span>
+                  <span className="px-2.5 py-1 rounded-full bg-white border border-slate-200 text-slate-700 font-semibold shadow-2xs flex items-center gap-1.5">
+                    <span className="w-2 h-2 rounded-full bg-blue-500"></span> Workday
+                  </span>
+                </div>
 
-              {/* Handwritten Sketch Annotation 1 (Top) */}
-              <div className="absolute -top-6 left-0 sm:left-4 z-30 pointer-events-none flex items-center gap-1.5 rotate-[-3deg]">
-                <span className="font-serif italic font-semibold text-slate-700 text-xs sm:text-sm tracking-wide">
-                  New jobs as soon as they&apos;re live!
-                </span>
-                <svg width="42" height="28" viewBox="0 0 50 30" fill="none" className="text-slate-600">
-                  <path d="M4 12 C18 4, 34 8, 44 22" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
-                  <path d="M40 23 L46 23 L45 17" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
-                </svg>
-              </div>
-
-              {/* Cascading Floating Job Cards */}
-              <div className="w-full max-w-[340px] sm:max-w-[360px] relative z-20 flex flex-col space-y-[-14px]">
-                {/* Floating Card 1: Google (Software Engineer) */}
-                <div className="bg-white/95 backdrop-blur-md border border-slate-200/90 rounded-2xl p-4 shadow-lg shadow-teal-900/5 hover:shadow-xl transition-all duration-300 ml-auto mr-0 sm:mr-4 w-[92%] sm:w-[95%]">
-                  <div className="flex items-start justify-between gap-3">
+                {/* Mobile Card 1 */}
+                <div className="bg-white border border-slate-200/90 rounded-2xl p-4 shadow-sm">
+                  <div className="flex items-start justify-between gap-3 mb-2">
                     <div className="flex items-center gap-2.5">
                       <div className="w-8 h-8 rounded-lg bg-white border border-slate-100 p-1 flex items-center justify-center shadow-2xs shrink-0">
-                        <svg viewBox="0 0 24 24" className="w-5 h-5">
+                        <svg viewBox="0 0 24 24" className="w-4 h-4">
                           <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
                           <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
                           <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"/>
@@ -840,32 +984,22 @@ export function InteractiveJobFeed({ initialJobs, stats, initialTotal, initialTo
                       NEW
                     </span>
                   </div>
-                  <div className="flex items-center gap-3 text-[11px] text-slate-500 mt-2.5">
-                    <span className="flex items-center gap-1">
-                      <MapPin className="w-3 h-3 text-slate-400" />
-                      Bengaluru, India
-                    </span>
-                    <span className="flex items-center gap-1">
-                      <Briefcase className="w-3 h-3 text-slate-400" />
-                      Hybrid
-                    </span>
+                  <div className="flex items-center gap-3 text-[11px] text-slate-500 mb-2">
+                    <span>Bengaluru, India · Hybrid</span>
                   </div>
-                  <div className="flex items-center gap-1.5 text-[10px] text-emerald-600 font-medium mt-2">
-                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-ping"></span>
-                    <span>12 minutes ago</span>
-                  </div>
+                  <div className="text-[10px] text-emerald-600 font-medium">● 12 minutes ago</div>
                 </div>
 
-                {/* Floating Card 2: Microsoft (Product Manager) */}
-                <div className="bg-white/95 backdrop-blur-md border border-slate-200/90 rounded-2xl p-4 shadow-lg shadow-teal-900/5 hover:shadow-xl transition-all duration-300 mr-auto ml-0 sm:ml-2 w-[92%] sm:w-[95%]">
-                  <div className="flex items-start justify-between gap-3">
+                {/* Mobile Card 2 */}
+                <div className="bg-white border border-slate-200/90 rounded-2xl p-4 shadow-sm">
+                  <div className="flex items-start justify-between gap-3 mb-2">
                     <div className="flex items-center gap-2.5">
-                      <div className="w-8 h-8 rounded-lg bg-white border border-slate-100 p-1.5 flex items-center justify-center shadow-2xs shrink-0">
-                        <div className="grid grid-cols-2 gap-0.5 w-4 h-4">
-                          <div className="bg-[#f25022] w-2 h-2"></div>
-                          <div className="bg-[#7fba00] w-2 h-2"></div>
-                          <div className="bg-[#00a4ef] w-2 h-2"></div>
-                          <div className="bg-[#ffb900] w-2 h-2"></div>
+                      <div className="w-8 h-8 rounded-lg bg-white border border-slate-100 p-1 flex items-center justify-center shadow-2xs shrink-0">
+                        <div className="grid grid-cols-2 gap-0.5 w-3.5 h-3.5">
+                          <div className="bg-[#f25022]"></div>
+                          <div className="bg-[#7fba00]"></div>
+                          <div className="bg-[#00a4ef]"></div>
+                          <div className="bg-[#ffb900]"></div>
                         </div>
                       </div>
                       <div>
@@ -873,30 +1007,20 @@ export function InteractiveJobFeed({ initialJobs, stats, initialTotal, initialTo
                         <p className="text-[11px] text-slate-500">Microsoft</p>
                       </div>
                     </div>
-                    <Bookmark className="w-4 h-4 text-slate-400 hover:text-slate-700 cursor-pointer" />
+                    <Bookmark className="w-4 h-4 text-slate-300" />
                   </div>
-                  <div className="flex items-center gap-3 text-[11px] text-slate-500 mt-2.5">
-                    <span className="flex items-center gap-1">
-                      <MapPin className="w-3 h-3 text-slate-400" />
-                      Hyderabad, India
-                    </span>
-                    <span className="flex items-center gap-1">
-                      <Briefcase className="w-3 h-3 text-slate-400" />
-                      On-site
-                    </span>
+                  <div className="flex items-center gap-3 text-[11px] text-slate-500 mb-2">
+                    <span>Hyderabad, India · On-site</span>
                   </div>
-                  <div className="flex items-center gap-1.5 text-[10px] text-emerald-600 font-medium mt-2">
-                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
-                    <span>28 minutes ago</span>
-                  </div>
+                  <div className="text-[10px] text-emerald-600 font-medium">● 28 minutes ago</div>
                 </div>
 
-                {/* Floating Card 3: Airbnb (Data Analyst) */}
-                <div className="bg-white/95 backdrop-blur-md border border-slate-200/90 rounded-2xl p-4 shadow-lg shadow-teal-900/5 hover:shadow-xl transition-all duration-300 ml-4 sm:ml-8 w-[92%] sm:w-[95%]">
-                  <div className="flex items-start justify-between gap-3">
+                {/* Mobile Card 3 */}
+                <div className="bg-white border border-slate-200/90 rounded-2xl p-4 shadow-sm">
+                  <div className="flex items-start justify-between gap-3 mb-2">
                     <div className="flex items-center gap-2.5">
                       <div className="w-8 h-8 rounded-lg bg-white border border-slate-100 p-1 flex items-center justify-center shadow-2xs shrink-0">
-                        <svg viewBox="0 0 32 32" className="w-5 h-5 text-[#FF5A5F] fill-current">
+                        <svg viewBox="0 0 32 32" className="w-4 h-4 text-[#FF5A5F] fill-current">
                           <path d="M16 1c2.008 0 3.463.963 4.751 3.269l.533 1.025c1.954 3.83 6.18 12.607 6.18 16.592 0 5.568-4.524 9.114-10.464 9.114-5.94 0-11.464-3.546-11.464-9.114 0-3.985 4.226-12.762 6.18-16.592l.533-1.025C8.537 1.963 10.992 1 16 1zm0 2c-4.148 0-6.223.771-7.818 3.619l-.533 1.025C5.787 11.298 2 19.68 2 21.886c0 4.394 4.542 7.114 9.464 7.114 4.922 0 8.464-2.72 8.464-7.114 0-2.206-3.787-10.588-5.649-14.242l-.533-1.025C12.223 3.771 10.148 3 16 3zm0 10c2.761 0 5 2.239 5 5 0 2.253-1.492 4.156-3.542 4.767l-.458.118-.458-.118C14.492 22.156 13 20.253 13 18c0-2.761 2.239-5 5-5zm0 2c-1.657 0-3 1.343-3 3 0 1.258.775 2.335 1.874 2.769l.126.046.126-.046C16.225 20.335 17 19.258 17 18c0-1.657-1.343-3-3-3z"/>
                         </svg>
                       </div>
@@ -905,114 +1029,100 @@ export function InteractiveJobFeed({ initialJobs, stats, initialTotal, initialTo
                         <p className="text-[11px] text-slate-500">Airbnb</p>
                       </div>
                     </div>
-                    <Bookmark className="w-4 h-4 text-slate-400 hover:text-slate-700 cursor-pointer" />
+                    <Bookmark className="w-4 h-4 text-slate-300" />
                   </div>
-                  <div className="flex items-center gap-3 text-[11px] text-slate-500 mt-2.5">
-                    <span className="flex items-center gap-1">
-                      <MapPin className="w-3 h-3 text-slate-400" />
-                      Remote
-                    </span>
+                  <div className="flex items-center gap-3 text-[11px] text-slate-500 mb-2">
+                    <span>Remote</span>
                   </div>
-                  <div className="flex items-center gap-1.5 text-[10px] text-emerald-600 font-medium mt-2">
-                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
-                    <span>1 hour ago</span>
-                  </div>
+                  <div className="text-[10px] text-emerald-600 font-medium">● 1 hour ago</div>
                 </div>
-              </div>
 
-              {/* Handwritten Sketch Annotation 2 (Bottom Right) */}
-              <div className="absolute -bottom-6 right-2 sm:right-6 z-30 pointer-events-none flex items-center gap-2 rotate-[2deg]">
-                <svg width="45" height="30" viewBox="0 0 50 30" fill="none" className="text-slate-600">
-                  <path d="M44 24 C30 28, 14 20, 6 6" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
-                  <path d="M5 12 L5 5 L12 6" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
-                </svg>
-                <span className="font-serif italic font-semibold text-slate-700 text-xs sm:text-sm tracking-wide max-w-[140px] leading-tight">
-                  Real opportunities from official sources
-                </span>
-              </div>
-
-              {/* Floating Worldwide Opportunities Pill Badge (Bottom) */}
-              <div className="relative z-20 mt-4 ml-auto mr-0 sm:mr-2 bg-white/95 backdrop-blur-md border border-slate-200/90 rounded-2xl px-4 py-2.5 shadow-md shadow-slate-200/60 flex items-center justify-between gap-3 max-w-[290px] hover:border-teal-300 transition-colors">
-                <div className="flex items-center gap-2.5">
-                  <div className="w-8 h-8 rounded-full bg-teal-50 border border-teal-200/80 text-teal-600 flex items-center justify-center shrink-0">
-                    <Globe className="w-4 h-4" />
+                {/* Mobile Worldwide Opportunities */}
+                <div className="bg-white border border-slate-200/90 rounded-2xl px-4 py-3 shadow-sm flex items-center justify-between gap-3">
+                  <div className="flex items-center gap-3">
+                    <div className="w-8 h-8 rounded-full bg-teal-50 border border-teal-200/80 text-teal-600 flex items-center justify-center shrink-0">
+                      <Globe className="w-4 h-4" />
+                    </div>
+                    <div>
+                      <h5 className="font-bold text-xs text-slate-900 leading-tight">Worldwide Opportunities</h5>
+                      <p className="text-[10px] text-slate-500">From {(stats?.total_companies || availableCompanies.length || 17533).toLocaleString()}+ official career portals</p>
+                    </div>
                   </div>
-                  <div>
-                    <h5 className="font-bold text-xs text-slate-900 leading-tight">Worldwide Opportunities</h5>
-                    <p className="text-[10px] text-slate-500">From {(stats?.total_companies || availableCompanies.length || 17562).toLocaleString()}+ official career portals</p>
-                  </div>
+                  <ChevronRight className="w-4 h-4 text-slate-400 shrink-0" />
                 </div>
-                <ChevronRight className="w-4 h-4 text-slate-400 shrink-0" />
               </div>
             </div>
-          </div>
 
-          {/* Canonical Search Bar with Prominent Search Button */}
-          <div className="relative flex items-center gap-2 w-full max-w-4xl mx-auto mt-8 sm:mt-10">
-            <div className="relative flex-1">
-              <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-teal-600 w-5 h-5 pointer-events-none" />
-              <input
-                type="text"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                onKeyDown={(e) => {
-                  if (e.key === "Enter") {
-                    document.getElementById("job-results-section")?.scrollIntoView({ behavior: "smooth" });
-                  }
-                }}
-                placeholder="Search by role (e.g. Software Engineer), company, tech stack, or city..."
-                className="w-full pl-12 pr-10 py-3.5 sm:py-4 rounded-2xl bg-white shadow-xs border border-slate-200/90 text-slate-900 placeholder-slate-400 focus:ring-2 focus:ring-teal-500 focus:border-teal-500 outline-none text-sm transition-all"
-              />
-              {searchQuery && (
+            {/* Canonical Search Bar + Trending Row (order-2 on mobile, order-3 on desktop spanning col-span-12) */}
+            <div className="order-2 lg:order-3 lg:col-span-12 w-full max-w-3xl lg:max-w-4xl mx-auto mt-2 lg:mt-6">
+              {/* Canonical Search Bar with Prominent Search Button */}
+              <div className="relative flex items-center gap-2 w-full">
+                <div className="relative flex-1">
+                  <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-teal-600 w-5 h-5 pointer-events-none" />
+                  <input
+                    type="text"
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter") {
+                        document.getElementById("job-results-section")?.scrollIntoView({ behavior: "smooth" });
+                      }
+                    }}
+                    placeholder="Search by role (e.g. Software Engineer), company, tech stack, or city..."
+                    className="w-full pl-12 pr-10 py-3.5 sm:py-4 rounded-2xl bg-white shadow-xs border border-slate-200/90 text-slate-900 placeholder-slate-400 focus:ring-2 focus:ring-teal-500 focus:border-teal-500 outline-none text-sm transition-all"
+                  />
+                  {searchQuery && (
+                    <button
+                      onClick={() => setSearchQuery("")}
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition-colors p-1 cursor-pointer"
+                      title="Clear search"
+                    >
+                      <X className="w-4 h-4" />
+                    </button>
+                  )}
+                </div>
                 <button
-                  onClick={() => setSearchQuery("")}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition-colors p-1 cursor-pointer"
-                  title="Clear search"
+                  onClick={() => {
+                    document.getElementById("job-results-section")?.scrollIntoView({ behavior: "smooth" });
+                  }}
+                  className="px-6 sm:px-8 py-3.5 sm:py-4 bg-teal-600 hover:bg-teal-700 active:bg-teal-800 text-white font-semibold text-sm rounded-2xl transition-all shadow-sm hover:shadow flex items-center gap-2 shrink-0 cursor-pointer"
                 >
-                  <X className="w-4 h-4" />
+                  <Search className="w-4 h-4" />
+                  <span>Search</span>
                 </button>
-              )}
-            </div>
-            <button
-              onClick={() => {
-                document.getElementById("job-results-section")?.scrollIntoView({ behavior: "smooth" });
-              }}
-              className="px-6 sm:px-8 py-3.5 sm:py-4 bg-teal-600 hover:bg-teal-700 active:bg-teal-800 text-white font-semibold text-sm rounded-2xl transition-all shadow-sm hover:shadow flex items-center gap-2 shrink-0 cursor-pointer"
-            >
-              <Search className="w-4 h-4" />
-              <span>Search</span>
-            </button>
-          </div>
+              </div>
 
-          {/* 🔥 Trending Searches Row */}
-          <div className="flex flex-wrap items-center gap-2 max-w-4xl mx-auto mt-3.5 text-xs text-slate-600 px-1">
-            <span className="flex items-center gap-1 font-bold text-slate-800 mr-1">
-              <span>🔥</span>
-              <span>Trending:</span>
-            </span>
-            {[
-              "Software Engineer",
-              "Data Analyst",
-              "Product Manager",
-              "Customer Service",
-              "DevOps",
-              "Designer"
-            ].map((term) => (
-              <button
-                key={term}
-                onClick={() => {
-                  setSearchQuery(term);
-                  document.getElementById("job-results-section")?.scrollIntoView({ behavior: "smooth" });
-                }}
-                className={`px-3 py-1 rounded-full text-xs font-medium transition-all cursor-pointer border ${
-                  searchQuery.toLowerCase() === term.toLowerCase()
-                    ? "bg-teal-600 text-white border-teal-600 shadow-2xs"
-                    : "bg-teal-50/70 hover:bg-teal-100 text-teal-800 border-teal-200/60"
-                }`}
-              >
-                {term}
-              </button>
-            ))}
+              {/* 🔥 Trending Searches Row */}
+              <div className="flex flex-wrap items-center gap-2 max-w-4xl mx-auto mt-3.5 text-xs text-slate-600 px-1">
+                <span className="flex items-center gap-1 font-bold text-slate-800 mr-1">
+                  <span>🔥</span>
+                  <span>Trending:</span>
+                </span>
+                {[
+                  "Software Engineer",
+                  "Data Analyst",
+                  "Product Manager",
+                  "Customer Service",
+                  "DevOps",
+                  "Designer"
+                ].map((term) => (
+                  <button
+                    key={term}
+                    onClick={() => {
+                      setSearchQuery(term);
+                      document.getElementById("job-results-section")?.scrollIntoView({ behavior: "smooth" });
+                    }}
+                    className={`px-3 py-1 rounded-full text-xs font-medium transition-all cursor-pointer border ${
+                      searchQuery.toLowerCase() === term.toLowerCase()
+                        ? "bg-teal-600 text-white border-teal-600 shadow-2xs"
+                        : "bg-teal-50/70 hover:bg-teal-100 text-teal-800 border-teal-200/60"
+                    }`}
+                  >
+                    {term}
+                  </button>
+                ))}
+              </div>
+            </div>
           </div>
         </div>
       </section>
