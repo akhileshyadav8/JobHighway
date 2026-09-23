@@ -1,0 +1,19 @@
+<svg id="Netflix_Symbol_RGB" viewBox="0 0 551.11109 1000" version="1.1" width="100%" height="100%" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="linearGradient35887">
+      <stop style="stop-color:#b1060f;stop-opacity:1;" offset="0" />
+      <stop style="stop-color:#7b010c;stop-opacity:1" offset="0.62500739" />
+      <stop style="stop-color:#b1060f;stop-opacity:0;" offset="1" />
+    </linearGradient>
+    <linearGradient id="linearGradient19332">
+      <stop style="stop-color:#b1060f;stop-opacity:1" offset="0" />
+      <stop style="stop-color:#7b010c;stop-opacity:1" offset="0.54607224" />
+      <stop style="stop-color:#e50914;stop-opacity:0;" offset="1" />
+    </linearGradient>
+    <linearGradient xlink:href="#linearGradient19332" id="linearGradient13368" x1="78.23394" y1="423.76712" x2="221.66281" y2="365.09167" gradientUnits="userSpaceOnUse" />
+    <linearGradient xlink:href="#linearGradient35887" id="linearGradient35889" x1="456.36462" y1="521.55957" x2="309.67599" y2="583.49475" gradientUnits="userSpaceOnUse" />
+  </defs>
+  <path style="fill:url(#linearGradient13368);stroke:none;" d="M -1.1524947,-1.1524946 2.3049893,1002.6704 C 75.577724,988.55904 133.19716,990.10098 198.22908,984.23044 V 0 Z" />
+  <path style="fill:url(#linearGradient35889);stroke:none;" d="m 353.81586,0 h 199.38158 l 2.30498,1000.3654 -202.83905,-33.42238 z" />
+  <path style="fill:#e50914;fill-opacity:1;stroke:none;" d="M 1.1524964,-3.6590427e-7 C 5.7624764,11.524946 346.90086,981.92546 346.90086,981.92546 c 56.0558,-0.40033 131.2191,8.75315 205.1441,17.28745 L 197.07656,-3.6590427e-7 Z" />
+</svg>

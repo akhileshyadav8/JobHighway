@@ -202,6 +202,16 @@ export function getCleanDomain(rawDomainOrUrl?: string | null, slug?: string | n
   }
 }
 
+const LOCAL_PUBLIC_LOGOS: Record<string, string> = {
+  google: "/logos/google.svg",
+  microsoft: "/logos/microsoft.svg",
+  amazon: "/logos/amazon.svg",
+  apple: "/logos/apple.svg",
+  meta: "/logos/meta.svg",
+  facebook: "/logos/meta.svg",
+  netflix: "/logos/netflix.svg",
+};
+
 export function CompanyLogo({
   name,
   website,
@@ -231,21 +241,9 @@ export function CompanyLogo({
     lg: "text-base font-black",
   }[size];
 
-  // If a known official vector logo exists, use it directly for crisp presentation
-  if (VECTOR_LOGOS[lookupKey]) {
-    return (
-      <div
-        className={`shrink-0 bg-white border border-slate-200/90 shadow-2xs flex items-center justify-center overflow-hidden transition-all group-hover:border-slate-300 ${sizeClasses} ${className}`}
-        title={name}
-      >
-        <div className="w-full h-full flex items-center justify-center">
-          {VECTOR_LOGOS[lookupKey]}
-        </div>
-      </div>
-    );
-  }
-
-  const logoSrc = (!imgError && logoUrl)
+  const logoSrc = (!imgError && LOCAL_PUBLIC_LOGOS[lookupKey])
+    ? LOCAL_PUBLIC_LOGOS[lookupKey]
+    : (!imgError && logoUrl)
     ? logoUrl
     : (!imgError && cleanDomain)
     ? `https://www.google.com/s2/favicons?domain=${encodeURIComponent(cleanDomain)}&sz=128`
@@ -254,8 +252,10 @@ export function CompanyLogo({
   return (
     <div
       className={`shrink-0 bg-white border border-slate-200/90 shadow-2xs flex items-center justify-center overflow-hidden transition-all group-hover:border-slate-300 ${sizeClasses} ${className}`}
+      title={name}
     >
       {logoSrc ? (
+        // eslint-disable-next-line @next/next/no-img-element
         <img
           src={logoSrc}
           alt={`${name} logo`}
