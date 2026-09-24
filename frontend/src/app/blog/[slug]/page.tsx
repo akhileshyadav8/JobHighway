@@ -83,11 +83,29 @@ export default async function ArticlePage({ params }: Props) {
             {article.summary}
           </p>
 
+          {article.thumbnail && (
+            <div className="mb-6 rounded-2xl overflow-hidden aspect-video max-h-[380px] w-full border border-slate-200 shadow-xs">
+              <img
+                src={article.thumbnail}
+                alt={article.title}
+                className="w-full h-full object-cover"
+              />
+            </div>
+          )}
+
           <div className="flex items-center justify-between pt-6 border-t border-slate-100 flex-wrap gap-4">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-full bg-teal-600 text-white flex items-center justify-center font-bold text-sm shadow-2xs">
-                {article.author.name.charAt(0)}
-              </div>
+              {article.author.avatar ? (
+                <img
+                  src={article.author.avatar}
+                  alt={article.author.name}
+                  className="w-10 h-10 rounded-full object-cover shadow-2xs border border-slate-200"
+                />
+              ) : (
+                <div className="w-10 h-10 rounded-full bg-teal-600 text-white flex items-center justify-center font-bold text-sm shadow-2xs">
+                  {article.author.name.charAt(0)}
+                </div>
+              )}
               <div>
                 <div className="text-sm font-bold text-slate-900 ">
                   {article.author.name}

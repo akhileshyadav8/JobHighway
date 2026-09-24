@@ -9,13 +9,15 @@ export interface BlogArticle {
   id: string;
   slug: string;
   title: string;
-  category: "Career Strategy" | "Interview Prep" | "Tech Guide" | "Coding" | "Resume & ATS";
+  category: "Career Strategy" | "Interview Prep" | "Tech Guide" | "Coding" | "Resume & ATS" | "Company Guides" | "Remote Work";
   readTime: string;
   date: string;
   author: {
     name: string;
     role: string;
+    avatar?: string;
   };
+  thumbnail?: string;
   summary: string;
   tags: string[];
   keyTakeaways: string[];
@@ -38,14 +40,16 @@ export const BLOG_ARTICLES: BlogArticle[] = [
     slug: "crack-off-campus-hiring-2026",
     title: "How to Crack Off-Campus Hiring in 2026: The Ultimate Playbook",
     category: "Career Strategy",
-    readTime: "6 min read",
-    date: "Sep 08, 2026",
+    readTime: "8 min read",
+    date: "Sep 24, 2026",
     author: {
-      name: "JobPulse Career Research",
-      role: "ATS Intelligence Team"
+      name: "Akhilesh Yadav",
+      role: "Career Research Lead",
+      avatar: "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=120&h=120&q=80"
     },
-    summary: "Most candidates apply weeks after a job is published when hundreds of applicants are already in the pipeline. Here is how applying within the first 1 hour via ATS triggers increases shortlisting odds by 5x.",
-    tags: ["Off Campus", "Freshers", "Hiring", "Career Strategy"],
+    thumbnail: "https://images.unsplash.com/photo-1541339907198-e08756dedf3f?auto=format&fit=crop&w=1000&q=80",
+    summary: "Most candidates apply weeks after a job is published when hundreds of applicants are already in the pipeline. Here's how applying within the first 1 hour via ATS triggers higher visibility...",
+    tags: ["Off Campus", "Freshers", "Hiring"],
     relatedJobsQuery: "Software Engineer",
     resources: [
       {
@@ -120,13 +124,15 @@ Best,
     title: "Top 50 SQL Query Questions Asked in Data Analyst & Engineering Rounds",
     category: "Interview Prep",
     readTime: "10 min read",
-    date: "Sep 05, 2026",
+    date: "Sep 22, 2026",
     author: {
-      name: "Akhilesh Yadav",
-      role: "Lead Data Engineer"
+      name: "Priya Sharma",
+      role: "Staff Data Analyst",
+      avatar: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=120&h=120&q=80"
     },
-    summary: "A comprehensive breakdown of CTEs, Window Functions (ROW_NUMBER, DENSE_RANK), joins, and optimization questions commonly tested in technical assessments.",
-    tags: ["SQL", "Data Analyst", "Interview", "PostgreSQL"],
+    thumbnail: "https://images.unsplash.com/photo-1551288049-bebda4e38f71?auto=format&fit=crop&w=1000&q=80",
+    summary: "A comprehensive breakdown of SELECT, WHERE, GROUP BY, JOIN, WINDOW FUNCTIONS, CTEs and real interview scenarios with solutions.",
+    tags: ["SQL", "Data Analyst", "Interview"],
     relatedJobsQuery: "Data Analyst",
     resources: [
       {
@@ -245,14 +251,16 @@ HAVING COUNT(*) >= 3;`
     slug: "demystifying-company-ats-greenhouse-lever",
     title: "Demystifying Company ATS: How Greenhouse, Lever & Ashby Screen Your Resume",
     category: "Tech Guide",
-    readTime: "8 min read",
-    date: "Aug 29, 2026",
+    readTime: "12 min read",
+    date: "Sep 20, 2026",
     author: {
-      name: "JobPulse Engineering",
-      role: "Systems Architecture"
+      name: "Rohit Mehta",
+      role: "ATS Platform Engineer",
+      avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=120&h=120&q=80"
     },
-    summary: "Learn what really happens when your resume enters an Applicant Tracking System. Discover formatting rules, keyword density matching, and common myths.",
-    tags: ["ATS", "Resume", "Tech Jobs", "Career Guide"],
+    thumbnail: "https://images.unsplash.com/photo-1451187580459-43490279c0fa?auto=format&fit=crop&w=1000&q=80",
+    summary: "Learn what really happens when your resume enters an Applicant Tracking System. Discover formatting rules, keyword tricks, and common myths.",
+    tags: ["ATS", "Resume", "Job Search"],
     relatedJobsQuery: "Engineer",
     resources: [
       {
@@ -309,14 +317,16 @@ HAVING COUNT(*) >= 3;`
     slug: "dsa-roadmap-product-companies",
     title: "DSA Roadmap for Product Companies: What Freshers Must Master",
     category: "Coding",
-    readTime: "14 min read",
-    date: "Aug 22, 2026",
+    readTime: "15 min read",
+    date: "Sep 18, 2026",
     author: {
-      name: "JobPulse Tech Mentors",
-      role: "Algorithms & Competitive Programming"
+      name: "Neha Verma",
+      role: "Senior Algorithms Coach",
+      avatar: "https://images.unsplash.com/photo-1580489944761-15a19d654956?auto=format&fit=crop&w=120&h=120&q=80"
     },
-    summary: "A masterclass curriculum for cracking technical rounds at Google, Amazon, Microsoft, and high-paying startups. Master the 12 core algorithmic patterns, the 5-step communication framework, and the curated 75 must-solve problem checklist.",
-    tags: ["DSA", "LeetCode", "SDE", "Freshers", "Algorithms", "Interview Prep"],
+    thumbnail: "https://images.unsplash.com/photo-1516116211227-bbc04f14f1d4?auto=format&fit=crop&w=1000&q=80",
+    summary: "A structured roadmap to master DSA for top product companies like Google, Amazon, Microsoft and more.",
+    tags: ["DSA", "LeetCode", "Placement"],
     relatedJobsQuery: "Software Development Engineer",
     resources: [
       {
@@ -511,14 +521,16 @@ HAVING COUNT(*) >= 3;`
     slug: "resume-formatting-for-modern-ats",
     title: "Resume Formatting Secrets: How to Pass 99% of Tech Screeners in 2026",
     category: "Resume & ATS",
-    readTime: "5 min read",
-    date: "Aug 15, 2026",
+    readTime: "8 min read",
+    date: "Sep 16, 2026",
     author: {
-      name: "JobPulse Career Research",
-      role: "Talent Acquisition"
+      name: "Amit Kumar",
+      role: "ATS & Talent Strategist",
+      avatar: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=120&h=120&q=80"
     },
-    summary: "Discover the exact resume structure used by candidates hired at Google, Stripe, and top unicorns. Bullet formulas, metric verification, and design guidelines.",
-    tags: ["Resume", "Career", "ATS", "Job Search"],
+    thumbnail: "https://images.unsplash.com/photo-1586281380349-632531db7ed4?auto=format&fit=crop&w=1000&q=80",
+    summary: "Discover the exact resume structure used by candidates hired at Google, Stripe and top startups. Real examples, templates and expert guidelines.",
+    tags: ["Resume", "ATS", "Templates"],
     relatedJobsQuery: "Frontend Engineer",
     resources: [
       {
@@ -576,14 +588,16 @@ HAVING COUNT(*) >= 3;`
     slug: "high-paying-tech-roles-without-faang",
     title: "High-Paying Tech Roles Beyond FAANG: The 2026 Compensation Guide",
     category: "Career Strategy",
-    readTime: "8 min read",
-    date: "Aug 02, 2026",
+    readTime: "10 min read",
+    date: "Sep 14, 2026",
     author: {
-      name: "JobPulse Compensation Lab",
-      role: "Salary Benchmark Team"
+      name: "Sneha Patel",
+      role: "Compensation Analyst",
+      avatar: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=120&h=120&q=80"
     },
-    summary: "FAANG is no longer the only path to top-tier compensation. High-growth fintech, AI infrastructure startups, and global remote companies frequently outpay legacy tech giants.",
-    tags: ["High Salary", "Fintech", "Remote Work", "Compensation"],
+    thumbnail: "https://images.unsplash.com/photo-1551836022-d5d88e9218df?auto=format&fit=crop&w=1000&q=80",
+    summary: "FAANG is no longer the only path to top-tier compensation. Explore high-growth startups, AI companies and global remote roles with competitive salaries.",
+    tags: ["High Salary", "Startups", "Remote Work"],
     relatedJobsQuery: "Full Stack Engineer",
     resources: [
       {
@@ -633,9 +647,11 @@ HAVING COUNT(*) >= 3;`
     readTime: "11 min read",
     date: "Aug 10, 2026",
     author: {
-      name: "JobPulse Tech Mentors",
-      role: "Distributed Systems & Architecture"
+      name: "Kunal Shah",
+      role: "Principal Architect",
+      avatar: "https://images.unsplash.com/photo-1522075469751-3a6694fb2f61?auto=format&fit=crop&w=120&h=120&q=80"
     },
+    thumbnail: "https://images.unsplash.com/photo-1558494949-ef010cbdcc31?auto=format&fit=crop&w=1000&q=80",
     summary: "Freshers and junior engineers don't need to design YouTube from scratch. Master the core building blocks: Caching (Redis), Load Balancing, Database Indexing, Rate Limiting, and Low-Level Object-Oriented Design.",
     tags: ["System Design", "LLD", "HLD", "Architecture", "Freshers", "Interview Prep"],
     relatedJobsQuery: "Backend Engineer",
@@ -767,9 +783,11 @@ class CheckoutProcessor {
     readTime: "7 min read",
     date: "Jul 28, 2026",
     author: {
-      name: "JobPulse Career Research",
-      role: "Talent Acquisition & Growth"
+      name: "Pooja Hegde",
+      role: "Talent Acquisition Lead",
+      avatar: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=120&h=120&q=80"
     },
+    thumbnail: "https://images.unsplash.com/photo-1577563908411-5077b6dc7624?auto=format&fit=crop&w=1000&q=80",
     summary: "Stop sending 'Sir please refer me' with an attached resume. Discover word-for-word message scripts that have a 45%+ response rate from Engineering Managers and Senior SDEs.",
     tags: ["Referrals", "Networking", "Cold Email", "LinkedIn", "Job Search"],
     relatedJobsQuery: "Software Engineer",
@@ -870,9 +888,11 @@ Best regards,
     readTime: "12 min read",
     date: "Jul 15, 2026",
     author: {
-      name: "JobPulse Tech Mentors",
-      role: "Systems & Core CS Panel"
+      name: "Ramesh Raman",
+      role: "Core Systems Engineer",
+      avatar: "https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?auto=format&fit=crop&w=120&h=120&q=80"
     },
+    thumbnail: "https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?auto=format&fit=crop&w=1000&q=80",
     summary: "A high-yield interview refresher on Process vs Thread, Virtual Memory & Paging, ACID Transactions, Indexing internals (B+ Tree vs Hash), TCP 3-Way Handshake, and DNS flow.",
     tags: ["OS", "DBMS", "Computer Networks", "Concurrency", "Interview Prep"],
     relatedJobsQuery: "Systems Engineer",
