@@ -88,7 +88,7 @@ const STATUS_CONFIG: Record<ApplicationStatus, { label: string; color: string; b
   }
 };
 
-export default function AdminDashboardPage() {
+export default function MastermindDashboardPage() {
   const router = useRouter();
   const [isAuthChecking, setIsAuthChecking] = useState(true);
   const [user, setUser] = useState<User | null>(() => {
@@ -217,7 +217,7 @@ export default function AdminDashboardPage() {
 
   const handleLogout = () => {
     logoutUser();
-    router.push("/admin/login");
+    router.push("/mastermindak/login");
   };
 
   // Strict check: Only role === 'admin'
@@ -242,16 +242,16 @@ export default function AdminDashboardPage() {
             <Lock className="w-7 h-7" />
           </div>
           <h2 className="text-2xl font-bold text-slate-900 mb-2">
-            Restricted Admin Console
+            Restricted Operator Console
           </h2>
           <p className="text-xs sm:text-sm text-slate-500 mb-6 leading-relaxed">
             Authentication is required. Only authorized administrators with verified credentials can access this panel.
           </p>
 
           <div className="space-y-3">
-            <Link href="/admin/login" className="block w-full">
+            <Link href="/mastermindak/login" className="block w-full">
               <Button className="w-full bg-teal-600 hover:bg-teal-700 text-white font-bold rounded-xl shadow-sm cursor-pointer">
-                Go to Admin Login (/admin/login)
+                Go to Admin Login
               </Button>
             </Link>
             <Link href="/" className="block w-full">

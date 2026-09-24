@@ -3,12 +3,12 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { LogIn, AlertCircle, Globe, ShieldCheck } from "lucide-react";
+import { Shield, AlertCircle, Activity, Lock } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { loginUser, getCurrentUser } from "@/lib/auth";
+import { loginAdmin, getCurrentUser } from "@/lib/auth";
 
-export default function LoginPage() {
+export default function MastermindLoginPage() {
   const router = useRouter();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -17,12 +17,8 @@ export default function LoginPage() {
 
   useEffect(() => {
     const user = getCurrentUser();
-    if (user) {
-      if (user.role === "admin") {
-        router.push("/mastermindak");
-      } else {
-        router.push("/dashboard");
-      }
+    if (user && user.role === "admin") {
+      router.push("/mastermindak");
     }
   }, [router]);
 
@@ -31,35 +27,25 @@ export default function LoginPage() {
     setError("");
     setIsLoading(true);
 
-    if (!email.trim()) {
-      setError("Please enter your registered email address.");
-      setIsLoading(false);
-      return;
-    }
-
-    const res = loginUser(email, password);
-    if (res.user) {
-      if (res.user.role === "admin") {
-        router.push("/mastermindak");
-      } else {
-        router.push("/dashboard");
-      }
+    const res = loginAdmin(email, password);
+    if (res.user && res.user.role === "admin") {
+      router.push("/mastermindak");
     } else {
-      setError(res.error || "Failed to sign in. Please verify your credentials.");
+      setError(res.error || "Access Denied: Only authorized administrators may enter.");
       setIsLoading(false);
     }
   };
 
   return (
     <div className="relative min-h-[calc(100vh-4rem)] bg-gradient-to-b from-[#f0fdfa]/40 via-white to-[#f8fafc] py-10 sm:py-14 md:py-16 px-4 sm:px-6 lg:px-8 flex items-center overflow-hidden">
-      {/* Subtle background mesh matching Blog & Contact heroes */}
+      {/* Subtle background mesh matching login/register */}
       <div className="absolute inset-0 pointer-events-none opacity-30 bg-[radial-gradient(#0d9488_1px,transparent_1px)] [background-size:24px_24px] [mask-image:radial-gradient(ellipse_70%_60%_at_60%_50%,#000_70%,transparent_100%)]" />
 
       <div className="container mx-auto max-w-[1360px] relative z-10 w-full">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 xl:gap-16 items-center">
           
           {/* ========================================================
-              LEFT SIDE: Sign In Content & Card (40–45% of content area)
+              LEFT SIDE: Admin Sign In Card (40–45% of content area)
               ======================================================== */}
           <div className="w-full max-w-[500px] mx-auto lg:mx-0 lg:col-span-5">
             {/* Brand Logo & Header */}
@@ -69,14 +55,14 @@ export default function LoginPage() {
                 <span className="text-2xl font-black tracking-tight text-teal-700">JobPulse</span>
               </Link>
               <h1 className="text-3xl sm:text-4xl font-black text-slate-900 tracking-tight">
-                Sign In
+                Admin Sign In
               </h1>
               <p className="text-xs sm:text-sm text-slate-500 mt-1.5 font-normal">
-                Enter your email and password to access your account.
+                Founder &amp; platform administrator authentication portal.
               </p>
             </div>
 
-            {/* Main Sign In Card (490-520px proportional width) */}
+            {/* Main Sign In Card */}
             <Card className="border border-slate-200/90 shadow-sm bg-white rounded-2xl overflow-hidden">
               <CardContent className="p-7 sm:p-8 space-y-5">
                 {error && (
@@ -89,14 +75,14 @@ export default function LoginPage() {
                 <form onSubmit={handleSubmit} className="space-y-4">
                   <div>
                     <label className="block text-xs font-semibold text-slate-700 mb-1.5">
-                      Email Address
+                      Administrator Email
                     </label>
                     <input
                       type="email"
                       required
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
-                      placeholder="name@example.com"
+                      placeholder="admin@jobpulse.io"
                       className="w-full px-4 py-2.5 rounded-xl border border-slate-200 bg-white text-slate-900 text-sm focus:border-teal-500 focus:ring-1 focus:ring-teal-500 focus:outline-none transition-colors shadow-2xs"
                     />
                   </div>
@@ -104,21 +90,18 @@ export default function LoginPage() {
                   <div>
                     <div className="flex items-center justify-between mb-1.5">
                       <label className="block text-xs font-semibold text-slate-700">
-                        Password
+                        Master Password
                       </label>
-                      <Link
-                        href="/forgot-password"
-                        className="text-xs text-teal-700 hover:text-teal-800 hover:underline font-semibold"
-                      >
-                        Forgot Password?
-                      </Link>
+                      <span className="text-[11px] text-slate-400 font-medium">
+                        256-bit encrypted
+                      </span>
                     </div>
                     <input
                       type="password"
                       required
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
-                      placeholder="Enter your password"
+                      placeholder="Enter administrator password"
                       className="w-full px-4 py-2.5 rounded-xl border border-slate-200 bg-white text-slate-900 text-sm focus:border-teal-500 focus:ring-1 focus:ring-teal-500 focus:outline-none transition-colors shadow-2xs"
                     />
                   </div>
@@ -128,15 +111,15 @@ export default function LoginPage() {
                     disabled={isLoading}
                     className="w-full py-3 rounded-xl bg-teal-600 hover:bg-teal-700 text-white font-bold text-sm shadow-xs transition-colors flex items-center justify-center gap-2 cursor-pointer mt-2"
                   >
-                    <LogIn className="w-4 h-4" />
-                    <span>{isLoading ? "Signing in..." : "Sign In"}</span>
+                    <Shield className="w-4 h-4" />
+                    <span>{isLoading ? "Authenticating..." : "Authenticate as Admin"}</span>
                   </Button>
                 </form>
 
                 <div className="pt-4 border-t border-slate-100 text-center text-xs text-slate-500">
-                  New to JobPulse?{" "}
-                  <Link href="/register" className="font-bold text-teal-700 hover:underline">
-                    Create Free Account
+                  Looking for regular candidate login?{" "}
+                  <Link href="/login" className="font-bold text-teal-700 hover:underline">
+                    Candidate Sign In
                   </Link>
                 </div>
               </CardContent>
@@ -145,7 +128,6 @@ export default function LoginPage() {
 
           {/* ========================================================
               RIGHT SIDE: Large Clearly Visible World Map + Floating Badges
-              Occupies large portion of right half, matching Blog & Contact
               ======================================================== */}
           <div className="lg:col-span-7 relative hidden lg:flex items-center justify-center min-h-[460px] xl:min-h-[520px]">
             <div className="relative w-full max-w-[760px] h-[480px] xl:h-[520px] flex items-center justify-center">
@@ -155,7 +137,7 @@ export default function LoginPage() {
                 {/* Soft radial glow behind the world map */}
                 <div className="absolute w-[560px] h-[360px] bg-gradient-to-tr from-teal-200/50 via-teal-100/30 to-transparent rounded-full blur-3xl pointer-events-none" />
                 
-                {/* Authentic 256-country blank vector world map from /world.svg (crisp white borders, light teal fill) */}
+                {/* Authentic vector world map from /world.svg */}
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
                   src="/world.svg"
@@ -164,32 +146,32 @@ export default function LoginPage() {
                 />
               </div>
 
-              {/* Floating Decorative Badge 1: Official ATS Network */}
+              {/* Floating Decorative Badge 1: Master Admin Console */}
               <div className="absolute top-[65px] right-[40px] bg-white rounded-2xl border border-slate-200/90 shadow-md p-3.5 px-4 flex items-center gap-3 z-20 hover:scale-105 transition-transform cursor-default">
                 <div className="w-9 h-9 rounded-xl bg-teal-50 text-[#0d9488] flex items-center justify-center shrink-0 border border-teal-100">
-                  <Globe className="w-5 h-5" />
+                  <Shield className="w-5 h-5" />
                 </div>
                 <div>
                   <div className="text-xs font-bold text-slate-900 leading-tight">
-                    Official ATS Network
+                    Master Admin Console
                   </div>
                   <div className="text-[11px] text-slate-500 font-medium">
-                    1,000+ career systems synced
+                    Restricted founder session
                   </div>
                 </div>
               </div>
 
-              {/* Floating Decorative Badge 2: Direct Career Links */}
+              {/* Floating Decorative Badge 2: Live Origin Telemetry */}
               <div className="absolute bottom-[65px] left-[35px] bg-white rounded-2xl border border-slate-200/90 shadow-md p-3.5 px-4 flex items-center gap-3 z-20 hover:scale-105 transition-transform cursor-default">
                 <div className="w-9 h-9 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center shrink-0 border border-emerald-100">
-                  <ShieldCheck className="w-5 h-5" />
+                  <Activity className="w-5 h-5" />
                 </div>
                 <div>
                   <div className="text-xs font-bold text-slate-900 leading-tight">
-                    Direct Career Links
+                    Live Origin Telemetry
                   </div>
                   <div className="text-[11px] text-slate-500 font-medium">
-                    100% free official applications
+                    Real-time traffic &amp; job pipeline
                   </div>
                 </div>
               </div>
