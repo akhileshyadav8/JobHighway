@@ -1,398 +1,543 @@
 import Link from "next/link";
-import { ArrowRight, ArrowDown } from "lucide-react";
-import { Metadata } from "next";
+import {
+  ArrowRight,
+  Briefcase,
+  Building2,
+  Globe,
+  Clock,
+  Users,
+  CheckCircle2,
+  Sparkles,
+  Search,
+  ExternalLink,
+  ShieldCheck,
+  Send,
+  FileText,
+} from "lucide-react";
+import type { Metadata } from "next";
 
 export const metadata: Metadata = {
   title: "About | JobPulse",
-  description: "Learn how JobPulse indexes jobs directly from companies' official career systems, delivering fresh opportunities without delayed third-party aggregation.",
+  description:
+    "Learn how JobPulse indexes jobs directly from companies' official career systems, delivering fresh opportunities without delayed third-party aggregation.",
 };
 
 export default function AboutPage() {
   return (
-    <div className="min-h-screen bg-slate-50 pt-10 sm:pt-14 md:pt-18 pb-20 sm:pb-28">
-      <div className="container mx-auto px-4 sm:px-6 max-w-5xl">
-        
-        {/* =======================================================
-            SECTION 1 — INTRO (Asymmetric 2-Column)
-        ======================================================= */}
-        <section className="mb-14 sm:mb-18">
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-12 items-start">
-            <div className="lg:col-span-7">
-              <div className="text-[11px] font-mono font-bold tracking-widest text-teal-700 uppercase mb-3">
-                About JobPulse
+    <div className="min-h-screen bg-[#f8fafc] text-slate-800 antialiased">
+      {/* ========================================================
+          HERO SECTION: Pixel-matched to reference design
+          Eyebrow + Large Headline + Subtitle + CTA
+          Right: Subtle /world.svg with 5 company logo markers & orbit lines
+          ======================================================== */}
+      <section className="relative overflow-hidden bg-gradient-to-b from-[#f0fdfa]/60 via-white to-[#f8fafc] pt-12 pb-14 sm:pt-16 sm:pb-18 border-b border-slate-100">
+        {/* Subtle mesh background */}
+        <div className="absolute inset-0 pointer-events-none opacity-30 bg-[radial-gradient(#0d9488_1px,transparent_1px)] [background-size:24px_24px] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_40%,#000_70%,transparent_100%)]" />
+
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-[1360px] relative z-10">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center">
+            
+            {/* Left Content Column */}
+            <div className="lg:col-span-6 flex flex-col items-start text-left">
+              {/* Eyebrow badge */}
+              <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-teal-50 border border-teal-200/80 text-teal-800 text-xs font-bold uppercase tracking-wider mb-4 shadow-2xs">
+                <span>ABOUT JOBPULSE</span>
               </div>
-              <h1 className="text-3xl sm:text-4xl md:text-5xl font-black text-slate-900 tracking-tight leading-[1.15]">
-                Jobs should reach you while they&apos;re still fresh.
+
+              {/* Large Main Headline */}
+              <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-[46px] font-black text-slate-900 tracking-tight leading-[1.15] mb-4">
+                Jobs should reach you<br />
+                while they&apos;re <span className="text-[#0d9488]">still fresh.</span>
               </h1>
-            </div>
-            <div className="lg:col-span-5 lg:pt-8 flex flex-col items-start">
-              <p className="text-slate-600 text-sm sm:text-base leading-relaxed mb-4">
-                JobPulse helps candidates discover job openings directly from companies&apos; official career systems, so they can find real opportunities without relying entirely on delayed or duplicated third-party listings.
+
+              {/* Paragraph */}
+              <p className="text-sm sm:text-base text-slate-600 max-w-xl leading-relaxed mb-8">
+                JobPulse helps you discover real job openings directly from companies&apos; official career systems, so you can find the right opportunities without relying on delayed or duplicate listings.
               </p>
-              <Link 
-                href="/" 
-                className="inline-flex items-center gap-1.5 text-sm font-semibold text-teal-600 hover:text-teal-700 transition-colors group"
+
+              {/* Primary CTA Button */}
+              <Link
+                href="/jobs"
+                className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-[#0d9488] hover:bg-[#0f766e] text-white text-sm font-semibold transition-all shadow-xs hover:shadow-md cursor-pointer"
               >
-                <span>Explore jobs</span>
-                <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
+                <span>Explore Jobs</span>
+                <ArrowRight className="w-4 h-4" />
               </Link>
             </div>
+
+            {/* Right Column: World Map + Subtle Logo Markers */}
+            <div className="lg:col-span-6 relative hidden lg:flex items-center justify-center min-h-[340px]">
+              <div className="relative w-full max-w-[540px] h-[340px]">
+                
+                {/* World Map Vector Graphic */}
+                <div className="absolute inset-0 flex items-center justify-center pointer-events-none select-none opacity-40">
+                  <img
+                    src="/world.svg"
+                    alt="Global Career Network World Map"
+                    className="w-full h-full object-contain filter drop-shadow-sm"
+                  />
+                </div>
+
+                {/* Subtle Dashed Orbital Lines */}
+                <svg
+                  className="absolute inset-0 w-full h-full pointer-events-none z-10"
+                  viewBox="0 0 540 340"
+                  fill="none"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <circle
+                    cx="270"
+                    cy="170"
+                    r="125"
+                    stroke="#0d9488"
+                    strokeWidth="1.5"
+                    strokeDasharray="4 4"
+                    strokeOpacity="0.35"
+                  />
+                  <path
+                    d="M 120 170 Q 270 40 420 120"
+                    stroke="#0d9488"
+                    strokeWidth="1.5"
+                    strokeDasharray="4 4"
+                    strokeOpacity="0.3"
+                  />
+                  <path
+                    d="M 170 260 Q 320 300 440 220"
+                    stroke="#0d9488"
+                    strokeWidth="1.5"
+                    strokeDasharray="4 4"
+                    strokeOpacity="0.3"
+                  />
+                </svg>
+
+                {/* 1. Google (Top Center) */}
+                <div
+                  className="absolute top-[28px] left-[242px] w-14 h-14 rounded-2xl bg-white shadow-md border border-slate-100 flex items-center justify-center p-2.5 z-20 hover:scale-110 hover:shadow-lg transition-all"
+                  title="Google"
+                >
+                  <img
+                    src="/logos/google.svg"
+                    alt="Google"
+                    className="w-full h-full object-contain pointer-events-none select-none"
+                  />
+                </div>
+
+                {/* 2. Microsoft (Mid Left) */}
+                <div
+                  className="absolute top-[140px] left-[90px] w-13 h-13 rounded-2xl bg-white shadow-md border border-slate-100 flex items-center justify-center p-2.5 z-20 hover:scale-110 hover:shadow-lg transition-all"
+                  title="Microsoft"
+                >
+                  <img
+                    src="/logos/microsoft.svg"
+                    alt="Microsoft"
+                    className="w-full h-full object-contain pointer-events-none select-none"
+                  />
+                </div>
+
+                {/* 3. Meta (Mid Right) */}
+                <div
+                  className="absolute top-[96px] left-[390px] w-14 h-14 rounded-2xl bg-white shadow-md border border-slate-100 flex items-center justify-center p-2.5 z-20 hover:scale-110 hover:shadow-lg transition-all"
+                  title="Meta"
+                >
+                  <img
+                    src="/logos/meta.svg"
+                    alt="Meta"
+                    className="w-full h-full object-contain pointer-events-none select-none"
+                  />
+                </div>
+
+                {/* 4. Apple (Bottom Center/Left) */}
+                <div
+                  className="absolute bottom-[44px] left-[235px] w-13 h-13 rounded-2xl bg-white shadow-md border border-slate-100 flex items-center justify-center p-2.5 z-20 hover:scale-110 hover:shadow-lg transition-all"
+                  title="Apple"
+                >
+                  <img
+                    src="/logos/apple.svg"
+                    alt="Apple"
+                    className="w-full h-full object-contain pointer-events-none select-none"
+                  />
+                </div>
+
+                {/* 5. Netflix (Bottom Right) */}
+                <div
+                  className="absolute bottom-[70px] left-[380px] w-13 h-13 rounded-2xl bg-white shadow-md border border-slate-100 flex items-center justify-center p-2.5 z-20 hover:scale-110 hover:shadow-lg transition-all"
+                  title="Netflix"
+                >
+                  <img
+                    src="/logos/netflix.svg"
+                    alt="Netflix"
+                    className="w-full h-full object-contain pointer-events-none select-none"
+                  />
+                </div>
+              </div>
+            </div>
+
           </div>
-        </section>
 
-        <hr className="border-slate-200 mb-14 sm:mb-18" />
+          {/* 3 Simple Statistics directly below Hero */}
+          <div className="pt-12 sm:pt-14 mt-10 border-t border-slate-200/80">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 sm:gap-8">
+              
+              {/* Stat 1: Active Job Openings */}
+              <div className="flex items-center gap-4">
+                <div className="w-12 h-12 rounded-xl bg-teal-50 border border-teal-100 flex items-center justify-center text-[#0d9488] shrink-0">
+                  <Briefcase className="w-5 h-5" />
+                </div>
+                <div>
+                  <div className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight leading-tight">
+                    61,000+
+                  </div>
+                  <div className="text-xs sm:text-sm text-slate-500 font-medium">
+                    Active Job Openings
+                  </div>
+                </div>
+              </div>
 
-        {/* =======================================================
-            SECTION 1.5 — THE PROBLEM (Timing)
-        ======================================================= */}
-        <section className="mb-14 sm:mb-18">
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-12 items-start">
-            <div className="lg:col-span-5">
-              <div className="text-[11px] font-mono font-bold tracking-widest text-slate-500 uppercase mb-3">
+              {/* Stat 2: Verified Companies */}
+              <div className="flex items-center gap-4">
+                <div className="w-12 h-12 rounded-xl bg-teal-50 border border-teal-100 flex items-center justify-center text-[#0d9488] shrink-0">
+                  <Building2 className="w-5 h-5" />
+                </div>
+                <div>
+                  <div className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight leading-tight">
+                    19,000+
+                  </div>
+                  <div className="text-xs sm:text-sm text-slate-500 font-medium">
+                    Verified Companies
+                  </div>
+                </div>
+              </div>
+
+              {/* Stat 3: Countries */}
+              <div className="flex items-center gap-4">
+                <div className="w-12 h-12 rounded-xl bg-teal-50 border border-teal-100 flex items-center justify-center text-[#0d9488] shrink-0">
+                  <Globe className="w-5 h-5" />
+                </div>
+                <div>
+                  <div className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight leading-tight">
+                    150+
+                  </div>
+                  <div className="text-xs sm:text-sm text-slate-500 font-medium">
+                    Countries
+                  </div>
+                </div>
+              </div>
+
+            </div>
+          </div>
+
+        </div>
+      </section>
+
+      {/* ========================================================
+          PAGE BODY CONTENT CONTAINER
+          ======================================================== */}
+      <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-[1360px] py-14 sm:py-18 space-y-16 sm:space-y-20">
+        
+        {/* ========================================================
+            THE PROBLEM SECTION
+            Two-column layout: Professional Image + Problem Description
+            ======================================================== */}
+        <section>
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-14 items-center">
+            
+            {/* Left Column: Professional Workspace Visual */}
+            <div className="lg:col-span-6">
+              <div className="relative rounded-3xl overflow-hidden border border-slate-200 shadow-sm aspect-[4/3] group">
+                <img
+                  src="https://images.unsplash.com/photo-1497366216548-37526070297c?auto=format&fit=crop&w=1000&q=80"
+                  alt="Modern tech workspace"
+                  className="w-full h-full object-cover group-hover:scale-103 transition-transform duration-500"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-slate-900/30 via-transparent to-transparent pointer-events-none" />
+              </div>
+            </div>
+
+            {/* Right Column: Problem Statement */}
+            <div className="lg:col-span-6 flex flex-col justify-center">
+              <div className="text-xs font-bold text-[#0d9488] uppercase tracking-wider mb-2">
                 The Problem
               </div>
-              <h2 className="text-2xl sm:text-3xl md:text-4xl font-black text-slate-900 tracking-tight leading-tight">
-                Most openings are discovered too late.
+              <h2 className="text-2xl sm:text-3xl lg:text-4xl font-black text-slate-900 tracking-tight leading-tight mb-5">
+                Most opportunities are discovered too late.
               </h2>
+              <div className="space-y-4 text-sm sm:text-base text-slate-600 leading-relaxed font-normal">
+                <p>
+                  Most job seekers find openings after they&apos;re already flooded with applications. By the time a job appears on popular job boards, it may already have hundreds of candidates ahead of you.
+                </p>
+                <p>
+                  JobPulse is built to solve this by connecting directly to companies&apos; official career portals, so you can see new openings as soon as they go live.
+                </p>
+              </div>
             </div>
-            <div className="lg:col-span-7 lg:pt-6 space-y-4 text-slate-600 text-sm sm:text-base leading-relaxed">
-              <p>
-                Most job seekers discover openings after they&apos;ve already accumulated dozens of applications. By the time a job appears on a popular job board, it may already have hundreds of candidates ahead of you.
-              </p>
-              <p>
-                The first 24–48 hours after a job is posted are when you have the highest chance of being noticed. Applications submitted early tend to get more attention from recruiters before the volume picks up.
-              </p>
-              <p>
-                JobPulse is built around this idea — connecting directly to the systems where companies post first, so you can find opportunities before they spread widely.
-              </p>
-            </div>
+
           </div>
         </section>
 
-        {/* =======================================================
-            SECTION 2 — THE IDEA (Start with the Source)
-        ======================================================= */}
-        <section className="mb-14 sm:mb-18">
-          <div className="max-w-3xl mb-8">
-            <h2 className="text-2xl sm:text-3xl md:text-4xl font-black text-slate-900 tracking-tight mb-3">
-              Start with the source.
+        {/* ========================================================
+            OUR MISSION SECTION
+            Container card + 2x2 supporting points
+            ======================================================== */}
+        <section className="bg-gradient-to-r from-teal-50/40 via-white to-teal-50/20 rounded-3xl border border-teal-100/90 p-8 sm:p-12 lg:p-14 shadow-2xs">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center">
+            
+            {/* Left Column: Mission Description */}
+            <div className="lg:col-span-6">
+              <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-teal-50 border border-teal-200/80 text-teal-800 text-xs font-bold tracking-wider mb-3 shadow-2xs">
+                <span>Our Mission</span>
+              </div>
+              <h2 className="text-2xl sm:text-3xl lg:text-[34px] font-black text-slate-900 tracking-tight leading-snug mb-4">
+                A faster, cleaner and more reliable way to discover opportunities.
+              </h2>
+              <p className="text-sm sm:text-base text-slate-600 leading-relaxed">
+                We believe job seekers should have direct access to real opportunities. Our mission is to build a transparent, up-to-date and global job platform that helps talented people find the right roles at the right time.
+              </p>
+            </div>
+
+            {/* Right Column: 2x2 Clean Feature Cards */}
+            <div className="lg:col-span-6 grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-5">
+              
+              {/* Point 1: Real & Official Sources */}
+              <div className="bg-white rounded-2xl p-5 border border-slate-200/80 shadow-2xs flex items-start gap-3.5">
+                <div className="w-10 h-10 rounded-xl bg-teal-50 text-[#0d9488] flex items-center justify-center shrink-0 border border-teal-100/80">
+                  <ShieldCheck className="w-5 h-5" />
+                </div>
+                <div>
+                  <h3 className="text-sm font-bold text-slate-900 leading-snug mb-1">
+                    Real &amp; Official Sources
+                  </h3>
+                  <p className="text-xs text-slate-500 leading-relaxed">
+                    Jobs fetched directly from company career pages
+                  </p>
+                </div>
+              </div>
+
+              {/* Point 2: Updated Frequently */}
+              <div className="bg-white rounded-2xl p-5 border border-slate-200/80 shadow-2xs flex items-start gap-3.5">
+                <div className="w-10 h-10 rounded-xl bg-teal-50 text-[#0d9488] flex items-center justify-center shrink-0 border border-teal-100/80">
+                  <Clock className="w-5 h-5" />
+                </div>
+                <div>
+                  <h3 className="text-sm font-bold text-slate-900 leading-snug mb-1">
+                    Updated Frequently
+                  </h3>
+                  <p className="text-xs text-slate-500 leading-relaxed">
+                    Fresh job listings with hourly sync
+                  </p>
+                </div>
+              </div>
+
+              {/* Point 3: Global Coverage */}
+              <div className="bg-white rounded-2xl p-5 border border-slate-200/80 shadow-2xs flex items-start gap-3.5">
+                <div className="w-10 h-10 rounded-xl bg-teal-50 text-[#0d9488] flex items-center justify-center shrink-0 border border-teal-100/80">
+                  <Globe className="w-5 h-5" />
+                </div>
+                <div>
+                  <h3 className="text-sm font-bold text-slate-900 leading-snug mb-1">
+                    Global Coverage
+                  </h3>
+                  <p className="text-xs text-slate-500 leading-relaxed">
+                    Opportunities from 150+ countries
+                  </p>
+                </div>
+              </div>
+
+              {/* Point 4: Focused on Job Seekers */}
+              <div className="bg-white rounded-2xl p-5 border border-slate-200/80 shadow-2xs flex items-start gap-3.5">
+                <div className="w-10 h-10 rounded-xl bg-teal-50 text-[#0d9488] flex items-center justify-center shrink-0 border border-teal-100/80">
+                  <Users className="w-5 h-5" />
+                </div>
+                <div>
+                  <h3 className="text-sm font-bold text-slate-900 leading-snug mb-1">
+                    Focused on Job Seekers
+                  </h3>
+                  <p className="text-xs text-slate-500 leading-relaxed">
+                    Clean, simple and ad-free experience
+                  </p>
+                </div>
+              </div>
+
+            </div>
+
+          </div>
+        </section>
+
+        {/* ========================================================
+            HOW JOBPULSE WORKS SECTION
+            Horizontal 4-step pipeline: 01, 02, 03, 04 with icons
+            ======================================================== */}
+        <section>
+          <div className="mb-8 sm:mb-10 text-left">
+            <h2 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight mb-2">
+              How JobPulse Works
             </h2>
-            <p className="text-slate-600 text-sm sm:text-base leading-relaxed">
-              Instead of building another directory of job links, JobPulse starts with the places where companies actually publish their openings.
+            <p className="text-xs sm:text-sm text-slate-500 font-medium">
+              From company posting to your screen.
             </p>
           </div>
 
-          {/* Clean typographic flow diagram */}
-          <div className="py-6 px-4 sm:px-6 bg-white border border-slate-200/90 rounded-2xl">
-            <div className="flex flex-col md:flex-row items-stretch md:items-center justify-between gap-3 md:gap-2">
-              <div className="flex-1 text-center md:text-left py-2 px-3">
-                <span className="text-xs font-mono font-semibold uppercase tracking-wider text-slate-400 block mb-0.5">Origin</span>
-                <span className="font-bold text-slate-900 text-sm sm:text-base">Company</span>
-              </div>
-
-              <div className="text-slate-300 flex justify-center items-center">
-                <ArrowRight className="w-4 h-4 hidden md:block" />
-                <ArrowDown className="w-4 h-4 block md:hidden" />
-              </div>
-
-              <div className="flex-1 text-center md:text-left py-2 px-3">
-                <span className="text-xs font-mono font-semibold uppercase tracking-wider text-slate-400 block mb-0.5">Host</span>
-                <span className="font-bold text-slate-900 text-sm sm:text-base">Official Career System</span>
-              </div>
-
-              <div className="text-slate-300 flex justify-center items-center">
-                <ArrowRight className="w-4 h-4 hidden md:block" />
-                <ArrowDown className="w-4 h-4 block md:hidden" />
-              </div>
-
-              <div className="flex-1 text-center md:text-left py-2 px-3">
-                <span className="text-xs font-mono font-semibold uppercase tracking-wider text-teal-600 block mb-0.5">Discovery</span>
-                <span className="font-bold text-teal-700 text-sm sm:text-base">JobPulse</span>
-              </div>
-
-              <div className="text-slate-300 flex justify-center items-center">
-                <ArrowRight className="w-4 h-4 hidden md:block" />
-                <ArrowDown className="w-4 h-4 block md:hidden" />
-              </div>
-
-              <div className="flex-1 text-center md:text-left py-2 px-3">
-                <span className="text-xs font-mono font-semibold uppercase tracking-wider text-slate-400 block mb-0.5">Destination</span>
-                <span className="font-bold text-slate-900 text-sm sm:text-base">Candidate</span>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            
+            {/* Step 01 */}
+            <div className="bg-white rounded-2xl border border-slate-200/90 p-6 shadow-2xs relative flex flex-col justify-between hover:border-teal-300 transition-all">
+              <div>
+                <div className="flex items-center justify-between mb-4">
+                  <div className="w-11 h-11 rounded-xl bg-teal-50 text-[#0d9488] flex items-center justify-center border border-teal-100/80">
+                    <Building2 className="w-5 h-5" />
+                  </div>
+                  <span className="text-xs font-mono font-bold text-slate-400">
+                    01
+                  </span>
+                </div>
+                <h3 className="text-base font-bold text-slate-900 mb-2">
+                  Company Publishes
+                </h3>
+                <p className="text-xs text-slate-500 leading-relaxed">
+                  A company adds a new job on its official career system.
+                </p>
               </div>
             </div>
 
-            <div className="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between flex-wrap gap-2 text-[11px] text-slate-400 font-mono">
-              <span>Supported source ecosystems:</span>
-              <span className="text-slate-500 font-medium">Greenhouse · Lever · Ashby · Workday</span>
+            {/* Step 02 */}
+            <div className="bg-white rounded-2xl border border-slate-200/90 p-6 shadow-2xs relative flex flex-col justify-between hover:border-teal-300 transition-all">
+              <div>
+                <div className="flex items-center justify-between mb-4">
+                  <div className="w-11 h-11 rounded-xl bg-teal-50 text-[#0d9488] flex items-center justify-center border border-teal-100/80">
+                    <Clock className="w-5 h-5" />
+                  </div>
+                  <span className="text-xs font-mono font-bold text-slate-400">
+                    02
+                  </span>
+                </div>
+                <h3 className="text-base font-bold text-slate-900 mb-2">
+                  JobPulse Detects
+                </h3>
+                <p className="text-xs text-slate-500 leading-relaxed">
+                  Our smart system fetches and updates the listing.
+                </p>
+              </div>
             </div>
+
+            {/* Step 03 */}
+            <div className="bg-white rounded-2xl border border-slate-200/90 p-6 shadow-2xs relative flex flex-col justify-between hover:border-teal-300 transition-all">
+              <div>
+                <div className="flex items-center justify-between mb-4">
+                  <div className="w-11 h-11 rounded-xl bg-teal-50 text-[#0d9488] flex items-center justify-center border border-teal-100/80">
+                    <FileText className="w-5 h-5" />
+                  </div>
+                  <span className="text-xs font-mono font-bold text-slate-400">
+                    03
+                  </span>
+                </div>
+                <h3 className="text-base font-bold text-slate-900 mb-2">
+                  We Organize
+                </h3>
+                <p className="text-xs text-slate-500 leading-relaxed">
+                  Clean and structured job information.
+                </p>
+              </div>
+            </div>
+
+            {/* Step 04 */}
+            <div className="bg-white rounded-2xl border border-slate-200/90 p-6 shadow-2xs relative flex flex-col justify-between hover:border-teal-300 transition-all">
+              <div>
+                <div className="flex items-center justify-between mb-4">
+                  <div className="w-11 h-11 rounded-xl bg-teal-50 text-[#0d9488] flex items-center justify-center border border-teal-100/80">
+                    <Send className="w-5 h-5" />
+                  </div>
+                  <span className="text-xs font-mono font-bold text-slate-400">
+                    04
+                  </span>
+                </div>
+                <h3 className="text-base font-bold text-slate-900 mb-2">
+                  You Apply Directly
+                </h3>
+                <p className="text-xs text-slate-500 leading-relaxed">
+                  You apply on the company&apos;s official career page.
+                </p>
+              </div>
+            </div>
+
           </div>
         </section>
 
-        <hr className="border-slate-200 mb-14 sm:mb-18" />
-
-        {/* =======================================================
-            SECTION 3 — HOW IT WORKS (4-Stage Pipeline)
-        ======================================================= */}
-        <section className="mb-14 sm:mb-18">
-          <h2 className="text-2xl sm:text-3xl md:text-4xl font-black text-slate-900 tracking-tight mb-8 sm:mb-10">
-            From company posting to your screen.
-          </h2>
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
-            {/* Step 1 */}
-            <div className="border-t border-slate-200 pt-5">
-              <span className="text-xs font-mono font-bold text-teal-700 block mb-2">01</span>
-              <h3 className="font-bold text-slate-900 text-base mb-2">
-                Company publishes
-              </h3>
+        {/* ========================================================
+            MORE THAN A JOB LINK SECTION
+            Checklist points + search card preview illustration
+            ======================================================== */}
+        <section className="bg-white rounded-3xl border border-slate-200/90 p-8 sm:p-10 lg:p-12 shadow-xs">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
+            
+            {/* Left Column: Heading & Subtitle */}
+            <div className="lg:col-span-5">
+              <h2 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight mb-3">
+                More than a job link.
+              </h2>
               <p className="text-xs sm:text-sm text-slate-600 leading-relaxed">
-                A company publishes an opening on its official career system.
+                We surface complete, reliable and structured information so you can make better decisions.
               </p>
             </div>
 
-            {/* Step 2 */}
-            <div className="border-t border-slate-200 pt-5">
-              <span className="text-xs font-mono font-bold text-teal-700 block mb-2">02</span>
-              <h3 className="font-bold text-slate-900 text-base mb-2">
-                JobPulse detects
-              </h3>
-              <p className="text-xs sm:text-sm text-slate-600 leading-relaxed">
-                Supported sources are checked and new or updated postings are collected.
-              </p>
+            {/* Center Column: Checklist */}
+            <div className="lg:col-span-4 space-y-2.5">
+              <div className="flex items-center gap-2.5 text-xs sm:text-sm text-slate-700 font-medium">
+                <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
+                <span>Official source with direct application</span>
+              </div>
+              <div className="flex items-center gap-2.5 text-xs sm:text-sm text-slate-700 font-medium">
+                <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
+                <span>Detailed role and company information</span>
+              </div>
+              <div className="flex items-center gap-2.5 text-xs sm:text-sm text-slate-700 font-medium">
+                <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
+                <span>Fresh and verified listings</span>
+              </div>
+              <div className="flex items-center gap-2.5 text-xs sm:text-sm text-slate-700 font-medium">
+                <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
+                <span>Global opportunities</span>
+              </div>
+              <div className="flex items-center gap-2.5 text-xs sm:text-sm text-slate-700 font-bold text-slate-900">
+                <CheckCircle2 className="w-4 h-4 text-[#0d9488] shrink-0" />
+                <span>Free for all job seekers</span>
+              </div>
             </div>
 
-            {/* Step 3 */}
-            <div className="border-t border-slate-200 pt-5">
-              <span className="text-xs font-mono font-bold text-teal-700 block mb-2">03</span>
-              <h3 className="font-bold text-slate-900 text-base mb-2">
-                JobPulse structures
-              </h3>
-              <p className="text-xs sm:text-sm text-slate-600 leading-relaxed">
-                Relevant information is organized into a consistent job listing.
-              </p>
+            {/* Right Column: Search Card Preview Illustration */}
+            <div className="lg:col-span-3 flex justify-center lg:justify-end">
+              <div className="w-full max-w-[240px] bg-slate-50 border border-slate-200 rounded-2xl p-4 shadow-2xs">
+                <div className="flex items-center gap-2 mb-3 pb-2 border-b border-slate-200">
+                  <div className="w-7 h-7 rounded-lg bg-[#0d9488] text-white flex items-center justify-center">
+                    <Search className="w-3.5 h-3.5" />
+                  </div>
+                  <div className="space-y-1">
+                    <div className="w-20 h-2 bg-slate-200 rounded" />
+                    <div className="w-12 h-1.5 bg-slate-200 rounded" />
+                  </div>
+                </div>
+                <div className="space-y-2">
+                  <div className="w-full h-2 bg-slate-200 rounded" />
+                  <div className="w-4/5 h-2 bg-slate-200 rounded" />
+                  <div className="w-2/3 h-2 bg-teal-100 rounded" />
+                </div>
+              </div>
             </div>
 
-            {/* Step 4 */}
-            <div className="border-t border-slate-200 pt-5">
-              <span className="text-xs font-mono font-bold text-teal-700 block mb-2">04</span>
-              <h3 className="font-bold text-slate-900 text-base mb-2">
-                You apply directly
-              </h3>
-              <p className="text-xs sm:text-sm text-slate-600 leading-relaxed">
-                The application link takes you to the employer&apos;s official application flow.
-              </p>
-            </div>
           </div>
         </section>
 
-        <hr className="border-slate-200 mb-14 sm:mb-18" />
-
-        {/* =======================================================
-            SECTION 4 — WHAT YOU GET (Clean 2-Column List)
-        ======================================================= */}
-        <section className="mb-14 sm:mb-18">
-          <h2 className="text-2xl sm:text-3xl md:text-4xl font-black text-slate-900 tracking-tight mb-8">
-            More than a job link.
-          </h2>
-
-          <div className="grid grid-cols-1 md:grid-cols-12 gap-8 md:gap-12">
-            {/* Left Column */}
-            <div className="md:col-span-5">
-              <div className="text-xs font-mono font-semibold uppercase tracking-wider text-slate-400 mb-3">
-                Core Listing Context
-              </div>
-              <ul className="divide-y divide-slate-200 border-y border-slate-200 text-sm">
-                <li className="py-3 font-semibold text-slate-900 flex items-center justify-between">
-                  <span>Official source</span>
-                  <span className="text-xs font-normal text-slate-400">Direct ATS domain</span>
-                </li>
-                <li className="py-3 font-semibold text-slate-900 flex items-center justify-between">
-                  <span>Direct application</span>
-                  <span className="text-xs font-normal text-slate-400">No intermediaries</span>
-                </li>
-                <li className="py-3 font-semibold text-slate-900 flex items-center justify-between">
-                  <span>Freshness information</span>
-                  <span className="text-xs font-normal text-slate-400">Published timestamp</span>
-                </li>
-                <li className="py-3 font-semibold text-slate-900 flex items-center justify-between">
-                  <span>Company details</span>
-                  <span className="text-xs font-normal text-slate-400">Verified employer profile</span>
-                </li>
-              </ul>
-            </div>
-
-            {/* Right Column */}
-            <div className="md:col-span-7">
-              <div className="text-xs font-mono font-semibold uppercase tracking-wider text-slate-400 mb-3">
-                Role &amp; Preparation Details (when available)
-              </div>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-8 divide-y sm:divide-y-0 divide-slate-200 border-y sm:border-y-0 border-slate-200 text-sm">
-                <ul className="divide-y divide-slate-200 sm:border-y sm:border-slate-200">
-                  <li className="py-3 text-slate-700">Location</li>
-                  <li className="py-3 text-slate-700">Work mode</li>
-                  <li className="py-3 text-slate-700">Salary when available</li>
-                  <li className="py-3 text-slate-700">Experience requirements</li>
-                </ul>
-                <ul className="divide-y divide-slate-200 sm:border-y sm:border-slate-200">
-                  <li className="py-3 text-slate-700">Interview preparation</li>
-                  <li className="py-3 text-slate-700">Selection rounds</li>
-                  <li className="py-3 text-slate-700">Batch eligibility when available</li>
-                  <li className="py-3 text-slate-700">Study resources</li>
-                </ul>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        <hr className="border-slate-200 mb-14 sm:mb-18" />
-
-        {/* =======================================================
-            SECTION 5 — FRESHNESS (Product Interface Timeline)
-        ======================================================= */}
-        <section className="mb-14 sm:mb-18">
-          <div className="max-w-3xl mb-8">
-            <h2 className="text-2xl sm:text-3xl md:text-4xl font-black text-slate-900 tracking-tight mb-3">
-              Freshness is part of the product.
-            </h2>
-            <p className="text-slate-600 text-sm sm:text-base leading-relaxed">
-              JobPulse is designed around the idea that timing matters. Supported company sources are checked regularly so active openings can reach the discovery feed without depending on long aggregation cycles.
-            </p>
-          </div>
-
-          {/* Minimal Product Timeline Ribbon */}
-          <div className="py-6 px-5 sm:px-8 bg-white border border-slate-200/90 rounded-2xl">
-            <div className="text-[11px] font-mono text-slate-400 uppercase tracking-wider mb-5">
-              Lifecycle Progression
-            </div>
-
-            <div className="grid grid-cols-2 sm:grid-cols-5 gap-4 sm:gap-2 relative">
-              {/* Node 1 */}
-              <div className="flex flex-col items-start">
-                <div className="flex items-center gap-2 mb-2 w-full">
-                  <span className="w-2.5 h-2.5 rounded-full bg-slate-300 shrink-0" />
-                  <span className="h-px bg-slate-200 flex-1 hidden sm:block" />
-                </div>
-                <span className="text-xs font-mono font-bold text-slate-800 uppercase tracking-wide">Posted</span>
-                <span className="text-[11px] text-slate-500 mt-0.5">On employer ATS</span>
-              </div>
-
-              {/* Node 2 */}
-              <div className="flex flex-col items-start">
-                <div className="flex items-center gap-2 mb-2 w-full">
-                  <span className="w-2.5 h-2.5 rounded-full bg-slate-400 shrink-0" />
-                  <span className="h-px bg-slate-200 flex-1 hidden sm:block" />
-                </div>
-                <span className="text-xs font-mono font-bold text-slate-800 uppercase tracking-wide">Detected</span>
-                <span className="text-[11px] text-slate-500 mt-0.5">Feed check</span>
-              </div>
-
-              {/* Node 3 */}
-              <div className="flex flex-col items-start">
-                <div className="flex items-center gap-2 mb-2 w-full">
-                  <span className="w-2.5 h-2.5 rounded-full bg-teal-500 shrink-0" />
-                  <span className="h-px bg-slate-200 flex-1 hidden sm:block" />
-                </div>
-                <span className="text-xs font-mono font-bold text-teal-700 uppercase tracking-wide">Structured</span>
-                <span className="text-[11px] text-slate-500 mt-0.5">Fields organized</span>
-              </div>
-
-              {/* Node 4 */}
-              <div className="flex flex-col items-start">
-                <div className="flex items-center gap-2 mb-2 w-full">
-                  <span className="w-2.5 h-2.5 rounded-full bg-teal-600 shrink-0" />
-                  <span className="h-px bg-slate-200 flex-1 hidden sm:block" />
-                </div>
-                <span className="text-xs font-mono font-bold text-teal-700 uppercase tracking-wide">Discovered</span>
-                <span className="text-[11px] text-slate-500 mt-0.5">Live on JobPulse</span>
-              </div>
-
-              {/* Node 5 */}
-              <div className="flex flex-col items-start col-span-2 sm:col-span-1">
-                <div className="flex items-center gap-2 mb-2 w-full">
-                  <span className="w-2.5 h-2.5 rounded-full bg-emerald-600 shrink-0" />
-                </div>
-                <span className="text-xs font-mono font-bold text-emerald-700 uppercase tracking-wide">Apply</span>
-                <span className="text-[11px] text-slate-500 mt-0.5">Direct to employer</span>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        <hr className="border-slate-200 mb-14 sm:mb-18" />
-
-        {/* =======================================================
-            SECTION 6 — WHY THIS MATTERS (Less searching. More applying.)
-        ======================================================= */}
-        <section className="mb-14 sm:mb-18">
-          <div className="max-w-3xl mb-8">
-            <h2 className="text-2xl sm:text-3xl md:text-4xl font-black text-slate-900 tracking-tight mb-3">
-              Less searching. More applying.
-            </h2>
-            <div className="space-y-3 text-slate-600 text-sm sm:text-base leading-relaxed">
-              <p>
-                Job hunting often means checking company career pages, job boards, search engines and application portals separately.
-              </p>
-              <p>
-                JobPulse brings discovery into one place while keeping the final application connected to the employer.
-              </p>
-            </div>
-          </div>
-
-          {/* Minimal Visual Comparison (No Red/Green cards) */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {/* Before */}
-            <div className="py-5 px-6 bg-white border border-slate-200/90 rounded-2xl">
-              <div className="text-xs font-mono font-semibold uppercase tracking-wider text-slate-400 mb-3">
-                Before
-              </div>
-              <div className="flex flex-wrap items-center gap-2 text-xs sm:text-sm font-medium text-slate-600">
-                <span>Search</span>
-                <ArrowRight className="w-3.5 h-3.5 text-slate-300 shrink-0" />
-                <span>Open multiple sites</span>
-                <ArrowRight className="w-3.5 h-3.5 text-slate-300 shrink-0" />
-                <span>Check whether listing is active</span>
-                <ArrowRight className="w-3.5 h-3.5 text-slate-300 shrink-0" />
-                <span>Find application page</span>
-                <ArrowRight className="w-3.5 h-3.5 text-slate-300 shrink-0" />
-                <span className="text-slate-900 font-semibold">Apply</span>
-              </div>
-            </div>
-
-            {/* With JobPulse */}
-            <div className="py-5 px-6 bg-white border border-teal-200/90 rounded-2xl">
-              <div className="text-xs font-mono font-semibold uppercase tracking-wider text-teal-700 mb-3">
-                With JobPulse
-              </div>
-              <div className="flex flex-wrap items-center gap-2 text-xs sm:text-sm font-medium text-slate-800">
-                <span>Search</span>
-                <ArrowRight className="w-3.5 h-3.5 text-teal-500 shrink-0" />
-                <span>Discover</span>
-                <ArrowRight className="w-3.5 h-3.5 text-teal-500 shrink-0" />
-                <span>Review</span>
-                <ArrowRight className="w-3.5 h-3.5 text-teal-500 shrink-0" />
-                <span className="text-teal-700 font-bold">Apply officially</span>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        <hr className="border-slate-200 mb-14 sm:mb-18" />
-
-        {/* =======================================================
-            SECTION 7 — CLOSING (Editorial Statement & Normal CTA)
-        ======================================================= */}
-        <section className="text-center sm:text-left py-4">
-          <div className="max-w-2xl">
-            <h2 className="text-2xl sm:text-3xl md:text-4xl font-black text-slate-900 tracking-tight mb-3">
-              Find the opening. Understand the role. Apply at the source.
-            </h2>
-            <p className="text-slate-600 text-sm sm:text-base mb-6">
-              Explore the latest jobs on JobPulse.
-            </p>
+        {/* ========================================================
+            FINAL CALL TO ACTION
+            ======================================================== */}
+        <section className="text-center py-6">
+          <div className="max-w-2xl mx-auto space-y-4">
+            <h3 className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight">
+              Find the opening. Understand the role.<br />
+              Apply at the source.
+            </h3>
             <div>
               <Link
-                href="/"
-                className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-teal-600 hover:bg-teal-700 text-white font-semibold text-sm transition-all shadow-xs"
+                href="/jobs"
+                className="inline-flex items-center gap-2 px-7 py-3 rounded-xl bg-[#0d9488] hover:bg-[#0f766e] text-white text-sm font-semibold transition-all shadow-xs hover:shadow-md cursor-pointer"
               >
                 <span>Browse Jobs</span>
                 <ArrowRight className="w-4 h-4" />
