@@ -13,8 +13,12 @@ import {
   ShieldCheck,
   Send,
   FileText,
+  User,
 } from "lucide-react";
 import type { Metadata } from "next";
+import { getOverviewStats } from "@/lib/api";
+
+export const revalidate = 60;
 
 export const metadata: Metadata = {
   title: "About | JobPulse",
@@ -22,7 +26,18 @@ export const metadata: Metadata = {
     "Learn how JobPulse indexes jobs directly from companies' official career systems, delivering fresh opportunities without delayed third-party aggregation.",
 };
 
-export default function AboutPage() {
+export default async function AboutPage() {
+  const stats = await getOverviewStats().catch(() => null);
+
+  const activeJobsDisplay = stats?.total_jobs
+    ? `${Number(stats.total_jobs).toLocaleString()}+`
+    : "61,000+";
+
+  const verifiedCompaniesDisplay = stats?.total_companies
+    ? `${Number(stats.total_companies).toLocaleString()}+`
+    : "19,000+";
+
+  const countriesDisplay = "150+";
   return (
     <div className="min-h-screen bg-[#f8fafc] text-slate-800 antialiased">
       {/* ========================================================
@@ -190,7 +205,7 @@ export default function AboutPage() {
                 </div>
                 <div>
                   <div className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight leading-tight">
-                    61,000+
+                    {activeJobsDisplay}
                   </div>
                   <div className="text-xs sm:text-sm text-slate-500 font-medium">
                     Active Job Openings
@@ -205,7 +220,7 @@ export default function AboutPage() {
                 </div>
                 <div>
                   <div className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight leading-tight">
-                    19,000+
+                    {verifiedCompaniesDisplay}
                   </div>
                   <div className="text-xs sm:text-sm text-slate-500 font-medium">
                     Verified Companies
@@ -220,7 +235,7 @@ export default function AboutPage() {
                 </div>
                 <div>
                   <div className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight leading-tight">
-                    150+
+                    {countriesDisplay}
                   </div>
                   <div className="text-xs sm:text-sm text-slate-500 font-medium">
                     Countries
@@ -507,22 +522,36 @@ export default function AboutPage() {
               </div>
             </div>
 
-            {/* Right Column: Search Card Preview Illustration */}
+            {/* Right Column: Layered Search & Verified Candidate Card Illustration matching reference */}
             <div className="lg:col-span-3 flex justify-center lg:justify-end">
-              <div className="w-full max-w-[240px] bg-slate-50 border border-slate-200 rounded-2xl p-4 shadow-2xs">
-                <div className="flex items-center gap-2 mb-3 pb-2 border-b border-slate-200">
-                  <div className="w-7 h-7 rounded-lg bg-[#0d9488] text-white flex items-center justify-center">
-                    <Search className="w-3.5 h-3.5" />
+              <div className="relative w-full max-w-[240px] sm:max-w-[260px]">
+                {/* Back Layer Card (Offset slightly to top-right) */}
+                <div className="absolute -top-3 -right-3 w-full h-full bg-slate-100/80 rounded-2xl border border-slate-200/60 pointer-events-none shadow-2xs" />
+                
+                {/* Front Main Card */}
+                <div className="relative bg-white border border-slate-200/90 rounded-2xl p-4 shadow-sm space-y-3.5">
+                  {/* Top Item: User Avatar Profile + 2 Text Bars */}
+                  <div className="flex items-center gap-3">
+                    <div className="w-8 h-8 rounded-full bg-emerald-50 text-emerald-600 flex items-center justify-center shrink-0 border border-emerald-100/80">
+                      <User className="w-4 h-4" />
+                    </div>
+                    <div className="space-y-1.5 flex-1 min-w-0">
+                      <div className="w-24 h-2.5 bg-slate-200/90 rounded-full" />
+                      <div className="w-14 h-2 bg-slate-200/70 rounded-full" />
+                    </div>
                   </div>
-                  <div className="space-y-1">
-                    <div className="w-20 h-2 bg-slate-200 rounded" />
-                    <div className="w-12 h-1.5 bg-slate-200 rounded" />
+
+                  {/* Bottom Item: Solid Teal Search Icon + 3 Content Lines */}
+                  <div className="flex items-center gap-3 pt-0.5">
+                    <div className="w-11 h-11 rounded-full bg-[#0d9488] text-white flex items-center justify-center shrink-0 shadow-sm">
+                      <Search className="w-5 h-5 stroke-[2.5]" />
+                    </div>
+                    <div className="space-y-1.5 flex-1 min-w-0">
+                      <div className="w-28 h-2 bg-slate-200 rounded-full" />
+                      <div className="w-32 h-2 bg-slate-200 rounded-full" />
+                      <div className="w-16 h-2 bg-slate-200 rounded-full" />
+                    </div>
                   </div>
-                </div>
-                <div className="space-y-2">
-                  <div className="w-full h-2 bg-slate-200 rounded" />
-                  <div className="w-4/5 h-2 bg-slate-200 rounded" />
-                  <div className="w-2/3 h-2 bg-teal-100 rounded" />
                 </div>
               </div>
             </div>
