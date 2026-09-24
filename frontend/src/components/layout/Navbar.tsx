@@ -140,7 +140,7 @@ export function Navbar() {
             <div className="hidden sm:flex items-center gap-2">
               {user.role === "admin" ? (
                 <>
-                  <Link href="/mastermindak">
+                  <Link href="/admin">
                     <Button
                       variant="outline"
                       size="sm"
@@ -239,7 +239,7 @@ export function Navbar() {
               user.role === "admin" ? (
                 <>
                   <Link
-                    href="/mastermindak"
+                    href="/admin"
                     onClick={() => setMobileMenuOpen(false)}
                     className="flex items-center gap-2.5 px-3 py-2 rounded-md text-sm font-semibold border border-slate-300 text-slate-800"
                   >

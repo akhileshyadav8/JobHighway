@@ -18,7 +18,7 @@ export default function MastermindLoginPage() {
   useEffect(() => {
     const user = getCurrentUser();
     if (user && user.role === "admin") {
-      router.push("/mastermindak");
+      router.push("/admin");
     }
   }, [router]);
 
@@ -29,7 +29,7 @@ export default function MastermindLoginPage() {
 
     const res = loginAdmin(email, password);
     if (res.user && res.user.role === "admin") {
-      router.push("/mastermindak");
+      router.push("/admin");
     } else {
       setError(res.error || "Access Denied: Only authorized administrators may enter.");
       setIsLoading(false);
