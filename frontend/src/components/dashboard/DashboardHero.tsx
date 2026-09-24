@@ -4,28 +4,23 @@ import React from "react";
 import { Zap, Building2, Target, Globe } from "lucide-react";
 
 export interface DashboardHeroProps {
-  userName?: string;
-  userInitials?: string;
-  stats?: {
-    newJobsSinceVisit?: number;
-    newFollowedCompanies?: number;
-    matchingJobs?: number;
-    totalOpportunities?: string | number;
+  userName: string;
+  userInitials: string;
+  stats: {
+    newJobsSinceVisit: number;
+    newFollowedCompanies: number;
+    matchingJobs: number;
+    totalOpportunities: string | number;
   };
 }
 
 export function DashboardHero({
-  userName = "Akhilesh",
-  userInitials = "AK",
-  stats = {
-    newJobsSinceVisit: 17,
-    newFollowedCompanies: 4,
-    matchingJobs: 12,
-    totalOpportunities: "56,847"
-  }
+  userName,
+  userInitials,
+  stats
 }: DashboardHeroProps) {
 
-  // Get dynamic greeting based on hour of the day
+  // Dynamic greeting based on hour of day
   const getGreeting = () => {
     const hour = new Date().getHours();
     if (hour < 12) return "Good morning,";
@@ -35,9 +30,9 @@ export function DashboardHero({
 
   return (
     <div className="relative overflow-hidden rounded-2xl border border-slate-200/90 bg-white p-6 sm:p-7 shadow-xs">
-      {/* Subtle World Map / Global Network Vector Background */}
+      {/* Subtle World Map / Global Geography Pattern */}
       <div 
-        className="pointer-events-none absolute inset-0 opacity-[0.22] overflow-hidden" 
+        className="pointer-events-none absolute inset-0 opacity-[0.15] overflow-hidden" 
         aria-hidden="true"
       >
         <svg
@@ -45,7 +40,6 @@ export function DashboardHero({
           className="w-full h-full object-cover text-teal-600 fill-current"
           preserveAspectRatio="xMidYMid slice"
         >
-          {/* Subtle continent cluster dots simulating world map */}
           <g opacity="0.85">
             {/* North America */}
             <circle cx="160" cy="90" r="1.5" /><circle cx="170" cy="85" r="2" /><circle cx="180" cy="95" r="1.5" />
@@ -93,7 +87,7 @@ export function DashboardHero({
         {/* Left: User Welcome Block */}
         <div className="flex items-center gap-4">
           <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-full bg-emerald-100/90 text-teal-800 font-extrabold text-xl sm:text-2xl flex items-center justify-center shrink-0 border-2 border-white shadow-2xs">
-            {userInitials}
+            {userInitials || "U"}
           </div>
           <div>
             <div className="text-xs sm:text-sm font-medium text-slate-500">
@@ -109,7 +103,7 @@ export function DashboardHero({
           </div>
         </div>
 
-        {/* Right: 4 Stat Tiles */}
+        {/* Right: 4 Real Stat Tiles */}
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4 shrink-0">
           {/* Stat 1: New Jobs */}
           <div className="flex items-center gap-3 p-2 sm:p-2.5 rounded-xl">

@@ -1,32 +1,31 @@
 "use client";
 
 import React from "react";
-import Link from "next/link";
 import { BarChart3, ArrowRight } from "lucide-react";
 
+export interface CountryInsight {
+  country: string;
+  percentage: number;
+}
+
+export interface SkillInsight {
+  skill: string;
+  percentage: number;
+}
+
 export interface MarketInsightsCardProps {
+  topCountries: CountryInsight[];
+  inDemandSkills: SkillInsight[];
   onViewFullInsights?: () => void;
 }
 
-export function MarketInsightsCard({ onViewFullInsights }: MarketInsightsCardProps) {
-  const topCountries = [
-    { country: "United States", percentage: 32 },
-    { country: "India", percentage: 18 },
-    { country: "Germany", percentage: 9 },
-    { country: "United Kingdom", percentage: 8 },
-    { country: "Canada", percentage: 7 },
-  ];
-
-  const inDemandSkills = [
-    { skill: "Python", percentage: 42 },
-    { skill: "SQL", percentage: 36 },
-    { skill: "Machine Learning", percentage: 28 },
-    { skill: "Data Analysis", percentage: 24 },
-    { skill: "AWS", percentage: 22 },
-  ];
-
+export function MarketInsightsCard({
+  topCountries = [],
+  inDemandSkills = [],
+  onViewFullInsights
+}: MarketInsightsCardProps) {
   return (
-    <div className="rounded-2xl border border-slate-200/90 bg-white p-6 shadow-xs flex flex-col justify-between">
+    <div className="rounded-2xl border border-slate-200/90 bg-white p-5 sm:p-6 shadow-xs flex flex-col justify-between">
       {/* Header */}
       <div className="flex items-center justify-between pb-3 border-b border-slate-100">
         <div className="flex items-center gap-2">
@@ -56,22 +55,26 @@ export function MarketInsightsCard({ onViewFullInsights }: MarketInsightsCardPro
             Top Hiring Countries
           </h3>
           <div className="space-y-2">
-            {topCountries.map((item) => (
-              <div key={item.country} className="flex items-center justify-between gap-2 text-xs">
-                <span className="text-slate-500 truncate min-w-[85px]">
-                  {item.country}
-                </span>
-                <div className="flex-1 bg-slate-100 rounded-full h-1.5 overflow-hidden">
-                  <div
-                    className="bg-slate-500 h-full rounded-full transition-all duration-500"
-                    style={{ width: `${item.percentage * 2}%` }}
-                  />
+            {topCountries.length === 0 ? (
+              <p className="text-[11px] text-slate-400">Loading live data...</p>
+            ) : (
+              topCountries.slice(0, 5).map((item) => (
+                <div key={item.country} className="flex items-center justify-between gap-2 text-xs">
+                  <span className="text-slate-500 truncate min-w-[80px]" title={item.country}>
+                    {item.country}
+                  </span>
+                  <div className="flex-1 bg-slate-100 rounded-full h-1.5 overflow-hidden">
+                    <div
+                      className="bg-slate-500 h-full rounded-full transition-all duration-500"
+                      style={{ width: `${Math.min(100, item.percentage * 2)}%` }}
+                    />
+                  </div>
+                  <span className="text-[11px] font-semibold text-slate-700 w-7 text-right">
+                    {item.percentage}%
+                  </span>
                 </div>
-                <span className="text-[11px] font-semibold text-slate-700 w-7 text-right">
-                  {item.percentage}%
-                </span>
-              </div>
-            ))}
+              ))
+            )}
           </div>
         </div>
 
@@ -81,22 +84,26 @@ export function MarketInsightsCard({ onViewFullInsights }: MarketInsightsCardPro
             In-Demand Skills
           </h3>
           <div className="space-y-2">
-            {inDemandSkills.map((item) => (
-              <div key={item.skill} className="flex items-center justify-between gap-2 text-xs">
-                <span className="text-slate-500 truncate min-w-[95px]">
-                  {item.skill}
-                </span>
-                <div className="flex-1 bg-teal-50 rounded-full h-1.5 overflow-hidden">
-                  <div
-                    className="bg-teal-600 h-full rounded-full transition-all duration-500"
-                    style={{ width: `${item.percentage * 1.8}%` }}
-                  />
+            {inDemandSkills.length === 0 ? (
+              <p className="text-[11px] text-slate-400">Loading live skills...</p>
+            ) : (
+              inDemandSkills.slice(0, 5).map((item) => (
+                <div key={item.skill} className="flex items-center justify-between gap-2 text-xs">
+                  <span className="text-slate-500 truncate min-w-[85px]" title={item.skill}>
+                    {item.skill}
+                  </span>
+                  <div className="flex-1 bg-teal-50 rounded-full h-1.5 overflow-hidden">
+                    <div
+                      className="bg-teal-600 h-full rounded-full transition-all duration-500"
+                      style={{ width: `${Math.min(100, item.percentage * 2)}%` }}
+                    />
+                  </div>
+                  <span className="text-[11px] font-semibold text-teal-700 w-7 text-right">
+                    {item.percentage}%
+                  </span>
                 </div>
-                <span className="text-[11px] font-semibold text-teal-700 w-7 text-right">
-                  {item.percentage}%
-                </span>
-              </div>
-            ))}
+              ))
+            )}
           </div>
         </div>
       </div>

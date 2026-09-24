@@ -710,3 +710,123 @@ export function adminDeleteUser(userId: string): void {
 export function getUserApplicationsForAdmin(userId: string): AppliedJob[] {
   return getAppliedJobs(userId);
 }
+
+// ---------------- Followed Companies ----------------
+export interface FollowedCompanyRecord {
+  id: string;
+  name: string;
+  slug: string;
+  followedAt: string;
+}
+
+const FOLLOWED_COMPANIES_PREFIX = "jobpulse_followed_companies_";
+
+export function getFollowedCompanies(userId: string): FollowedCompanyRecord[] {
+  if (!isBrowser() || !userId) return [];
+  try {
+    const raw = localStorage.getItem(FOLLOWED_COMPANIES_PREFIX + userId);
+    return raw ? JSON.parse(raw) : [];
+  } catch {
+    return [];
+  }
+}
+
+export function toggleFollowCompany(
+  userId: string,
+  company: { id: string | number; name: string; slug: string }
+): boolean {
+  if (!isBrowser() || !userId) return false;
+  const current = getFollowedCompanies(userId);
+  const companySlug = company.slug.toLowerCase().trim();
+  const index = current.findIndex(c => c.slug.toLowerCase().trim() === companySlug || c.id === String(company.id));
+  let isFollowing = false;
+
+  if (index >= 0) {
+    current.splice(index, 1);
+    isFollowing = false;
+  } else {
+    current.unshift({
+      id: String(company.id),
+      name: company.name,
+      slug: company.slug,
+      followedAt: new Date().toISOString()
+    });
+    isFollowing = true;
+  }
+
+  localStorage.setItem(FOLLOWED_COMPANIES_PREFIX + userId, JSON.stringify(current));
+  window.dispatchEvent(new Event("jobpulse_following_change"));
+  return isFollowing;
+}
+
+export function isCompanyFollowed(userId: string, companySlugOrId: string): boolean {
+  if (!isBrowser() || !userId) return false;
+  const list = getFollowedCompanies(userId);
+  const target = companySlugOrId.toLowerCase().trim();
+  return list.some(c => c.slug.toLowerCase().trim() === target || c.id === companySlugOrId);
+}
+
+// ---------------- Job Alerts ----------------
+export interface JobAlertRecord {
+  id: string;
+  role: string;
+  location: string;
+  workMode: string;
+  enabled: boolean;
+  createdAt: string;
+  lastUpdated?: string;
+  colorType?: "rose" | "amber" | "purple";
+}
+
+const JOB_ALERTS_PREFIX = "jobpulse_job_alerts_";
+
+export function getJobAlerts(userId: string): JobAlertRecord[] {
+  if (!isBrowser() || !userId) return [];
+  try {
+    const raw = localStorage.getItem(JOB_ALERTS_PREFIX + userId);
+    return raw ? JSON.parse(raw) : [];
+  } catch {
+    return [];
+  }
+}
+
+export function saveJobAlert(userId: string, alert: Omit<JobAlertRecord, "id" | "createdAt"> & { id?: string }): JobAlertRecord[] {
+  if (!isBrowser() || !userId) return [];
+  const current = getJobAlerts(userId);
+  const newAlert: JobAlertRecord = {
+    id: alert.id || "alert_" + Date.now(),
+    role: alert.role,
+    location: alert.location,
+    workMode: alert.workMode || "Remote",
+    enabled: alert.enabled ?? true,
+    createdAt: new Date().toISOString(),
+    lastUpdated: "Just now",
+    colorType: alert.colorType || "rose"
+  };
+
+  current.unshift(newAlert);
+  localStorage.setItem(JOB_ALERTS_PREFIX + userId, JSON.stringify(current));
+  window.dispatchEvent(new Event("jobpulse_alerts_change"));
+  return current;
+}
+
+export function toggleJobAlert(userId: string, alertId: string, enabled: boolean): JobAlertRecord[] {
+  if (!isBrowser() || !userId) return [];
+  const current = getJobAlerts(userId);
+  const item = current.find(a => a.id === alertId);
+  if (item) {
+    item.enabled = enabled;
+    localStorage.setItem(JOB_ALERTS_PREFIX + userId, JSON.stringify(current));
+    window.dispatchEvent(new Event("jobpulse_alerts_change"));
+  }
+  return current;
+}
+
+export function deleteJobAlert(userId: string, alertId: string): JobAlertRecord[] {
+  if (!isBrowser() || !userId) return [];
+  const current = getJobAlerts(userId).filter(a => a.id !== alertId);
+  localStorage.setItem(JOB_ALERTS_PREFIX + userId, JSON.stringify(current));
+  window.dispatchEvent(new Event("jobpulse_alerts_change"));
+  return current;
+}
+

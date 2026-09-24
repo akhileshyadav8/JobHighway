@@ -10,15 +10,13 @@ import {
   Bell, 
   FileText, 
   Users, 
-  Search, 
   Building2, 
   FileCheck2, 
   BarChart3, 
   TrendingUp, 
   Settings, 
   Crown, 
-  ArrowRight,
-  Sparkles
+  ArrowRight
 } from "lucide-react";
 
 export interface DashboardSidebarProps {
@@ -38,21 +36,45 @@ export interface DashboardSidebarProps {
 export function DashboardSidebar({
   activeTab = "dashboard",
   onSelectTab,
-  counts = { saved: 12, alerts: 6, applications: 8, following: 4 },
+  counts = {},
   onOpenUpgrade,
   onOpenProfile,
   className = ""
 }: DashboardSidebarProps) {
 
+  // Real navigation items (Find Jobs removed per request as Browse Jobs serves this purpose)
   const navItems = [
     { id: "dashboard", label: "Dashboard", icon: LayoutDashboard, href: "/dashboard", isDashboard: true },
     { id: "profile", label: "My Profile", icon: User, onClick: onOpenProfile },
     { id: "browse_jobs", label: "Browse Jobs", icon: Briefcase, href: "/jobs" },
-    { id: "saved_jobs", label: "Saved Jobs", icon: Bookmark, badge: counts.saved ?? 12, onClick: () => onSelectTab?.("saved_jobs") },
-    { id: "job_alerts", label: "Job Alerts", icon: Bell, badge: counts.alerts ?? 6, onClick: () => onSelectTab?.("job_alerts") },
-    { id: "applications", label: "Applications", icon: FileText, badge: counts.applications ?? 8, onClick: () => onSelectTab?.("applications") },
-    { id: "following", label: "Following", icon: Users, badge: counts.following ?? 4, onClick: () => onSelectTab?.("following") },
-    { id: "find_jobs", label: "Find Jobs", icon: Search, href: "/jobs" },
+    { 
+      id: "saved_jobs", 
+      label: "Saved Jobs", 
+      icon: Bookmark, 
+      badge: counts.saved && counts.saved > 0 ? counts.saved : undefined, 
+      onClick: () => onSelectTab?.("saved_jobs") 
+    },
+    { 
+      id: "job_alerts", 
+      label: "Job Alerts", 
+      icon: Bell, 
+      badge: counts.alerts && counts.alerts > 0 ? counts.alerts : undefined, 
+      onClick: () => onSelectTab?.("job_alerts") 
+    },
+    { 
+      id: "applications", 
+      label: "Applications", 
+      icon: FileText, 
+      badge: counts.applications && counts.applications > 0 ? counts.applications : undefined, 
+      onClick: () => onSelectTab?.("applications") 
+    },
+    { 
+      id: "following", 
+      label: "Following", 
+      icon: Users, 
+      badge: counts.following && counts.following > 0 ? counts.following : undefined, 
+      onClick: () => onSelectTab?.("following") 
+    },
     { id: "find_companies", label: "Find Companies", icon: Building2, href: "/companies" },
     { id: "resume_analyzer", label: "Resume Analyzer", icon: FileCheck2, onClick: () => onSelectTab?.("resume_analyzer") },
     { id: "skill_gap", label: "Skill Gap Analysis", icon: BarChart3, onClick: () => onSelectTab?.("skill_gap") },
@@ -61,7 +83,7 @@ export function DashboardSidebar({
   ];
 
   return (
-    <aside className={`w-60 xl:w-64 shrink-0 flex flex-col justify-between select-none ${className}`}>
+    <aside className={`w-56 xl:w-60 shrink-0 flex flex-col justify-between select-none ${className}`}>
       {/* Top Nav items */}
       <div className="space-y-1">
         {navItems.map((item) => {

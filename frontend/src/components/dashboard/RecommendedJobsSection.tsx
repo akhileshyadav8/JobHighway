@@ -2,7 +2,7 @@
 
 import React from "react";
 import Link from "next/link";
-import { Sparkles, ArrowRight, MapPin, Bookmark, ExternalLink } from "lucide-react";
+import { Sparkles, ArrowRight, MapPin, Bookmark, ExternalLink, Briefcase } from "lucide-react";
 import { CompanyLogo } from "@/components/ui/CompanyLogo";
 
 export interface RecommendedJobItem {
@@ -22,64 +22,22 @@ export interface RecommendedJobItem {
 }
 
 export interface RecommendedJobsSectionProps {
-  jobs?: RecommendedJobItem[];
+  jobs: RecommendedJobItem[];
+  isLoading?: boolean;
   onToggleBookmark?: (job: RecommendedJobItem) => void;
   onViewDetails?: (job: RecommendedJobItem) => void;
   onApply?: (job: RecommendedJobItem) => void;
 }
 
-const DEFAULT_RECOMMENDED_JOBS: RecommendedJobItem[] = [
-  {
-    id: "rec_google_ds",
-    title: "Data Scientist",
-    company: "Google",
-    companySlug: "google",
-    matchScore: 94,
-    location: "Bengaluru, India",
-    workMode: "Hybrid",
-    skills: ["Python", "Machine Learning", "SQL"],
-    extraSkillsCount: 3,
-    postedTime: "Posted 12 minutes ago",
-    applyUrl: "https://careers.google.com/jobs/results/?q=Data%20Scientist"
-  },
-  {
-    id: "rec_msft_ml",
-    title: "ML Engineer",
-    company: "Microsoft",
-    companySlug: "microsoft",
-    matchScore: 91,
-    location: "Hyderabad, India",
-    workMode: "Remote",
-    skills: ["Python", "Deep Learning", "AWS"],
-    extraSkillsCount: 2,
-    postedTime: "Posted 28 minutes ago",
-    applyUrl: "https://careers.microsoft.com/us/en/search-results?keywords=ML%20Engineer"
-  },
-  {
-    id: "rec_adobe_da",
-    title: "Data Analyst",
-    company: "Adobe",
-    companySlug: "adobe",
-    matchScore: 87,
-    location: "Noida, India",
-    workMode: "On-site",
-    skills: ["SQL", "Power BI", "Analytics"],
-    extraSkillsCount: 2,
-    postedTime: "Posted 1 hour ago",
-    applyUrl: "https://adobe.wd5.myworkdayjobs.com/en-US/external_experienced"
-  }
-];
-
 export function RecommendedJobsSection({
-  jobs = DEFAULT_RECOMMENDED_JOBS,
+  jobs = [],
+  isLoading = false,
   onToggleBookmark,
   onViewDetails,
   onApply
 }: RecommendedJobsSectionProps) {
-  const displayJobs = jobs && jobs.length > 0 ? jobs : DEFAULT_RECOMMENDED_JOBS;
-
   return (
-    <div className="rounded-2xl border border-slate-200/90 bg-white p-6 sm:p-7 shadow-xs">
+    <div className="rounded-2xl border border-slate-200/90 bg-white p-5 sm:p-6 lg:p-7 shadow-xs">
       {/* Header */}
       <div className="flex items-center justify-between pb-4 border-b border-slate-100">
         <div className="flex items-start gap-3">
@@ -105,113 +63,136 @@ export function RecommendedJobsSection({
         </Link>
       </div>
 
-      {/* 3-Column Job Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4.5 mt-5">
-        {displayJobs.map((job) => (
-          <div
-            key={job.id}
-            className="flex flex-col justify-between rounded-xl border border-slate-200/90 bg-white p-4.5 transition-all duration-200 hover:border-teal-400 hover:shadow-sm group"
-          >
-            <div>
-              {/* Top Row: Logo, Title, Match Pill */}
-              <div className="flex items-start justify-between gap-3">
-                <div className="flex items-center gap-3 min-w-0">
-                  <div className="w-9 h-9 rounded-lg bg-slate-50 border border-slate-100 flex items-center justify-center p-1.5 shrink-0 overflow-hidden">
-                    <CompanyLogo
-                      name={job.company}
-                      slug={job.companySlug}
-                      logoUrl={job.companyLogo}
-                      size="sm"
-                      className="w-full h-full object-contain"
-                    />
+      {/* Content: 3-Column Job Cards */}
+      {isLoading ? (
+        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 mt-5">
+          {[1, 2, 3].map((n) => (
+            <div key={n} className="animate-pulse p-4.5 rounded-xl border border-slate-200 bg-slate-50/50 h-52" />
+          ))}
+        </div>
+      ) : jobs.length === 0 ? (
+        <div className="p-8 text-center border-2 border-dashed border-slate-200 rounded-xl mt-5">
+          <Briefcase className="w-8 h-8 text-slate-300 mx-auto mb-2" />
+          <p className="text-sm font-bold text-slate-700">No matching jobs found</p>
+          <p className="text-xs text-slate-400 mt-1 max-w-sm mx-auto">
+            Update your profile skills or target role to receive personalized real-time job recommendations.
+          </p>
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 mt-5">
+          {jobs.slice(0, 3).map((job) => (
+            <div
+              key={job.id}
+              className="flex flex-col justify-between rounded-xl border border-slate-200/90 bg-white p-4.5 transition-all duration-200 hover:border-teal-400 hover:shadow-sm group"
+            >
+              <div>
+                {/* Top Row: Logo, Title, Match Pill */}
+                <div className="flex items-start justify-between gap-2.5">
+                  <div className="flex items-center gap-2.5 min-w-0 flex-1">
+                    <div className="w-9 h-9 rounded-lg bg-slate-50 border border-slate-100 flex items-center justify-center p-1.5 shrink-0 overflow-hidden">
+                      <CompanyLogo
+                        name={job.company}
+                        slug={job.companySlug}
+                        logoUrl={job.companyLogo}
+                        size="sm"
+                        className="w-full h-full object-contain"
+                      />
+                    </div>
+                    <div className="min-w-0 flex-1">
+                      <h3 
+                        className="font-bold text-sm text-slate-900 group-hover:text-teal-700 transition-colors line-clamp-1"
+                        title={job.title}
+                      >
+                        {job.title}
+                      </h3>
+                      <p 
+                        className="text-xs text-slate-500 font-medium truncate mt-0.5"
+                        title={job.company}
+                      >
+                        {job.company}
+                      </p>
+                    </div>
                   </div>
-                  <div className="min-w-0">
-                    <h3 className="font-bold text-sm text-slate-900 truncate group-hover:text-teal-700 transition-colors">
-                      {job.title}
-                    </h3>
-                    <p className="text-xs text-slate-500 font-medium truncate">
-                      {job.company}
-                    </p>
-                  </div>
+
+                  <span className="shrink-0 text-[11px] font-bold px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200/60">
+                    {job.matchScore}% Match
+                  </span>
                 </div>
 
-                <span className="shrink-0 text-[11px] font-bold px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200/60">
-                  {job.matchScore}% Match
-                </span>
+                {/* Location & Workmode */}
+                <div className="flex items-center gap-1.5 text-xs text-slate-500 mt-3 font-medium">
+                  <MapPin className="w-3.5 h-3.5 text-slate-400 shrink-0" />
+                  <span className="line-clamp-1">
+                    {job.location} • {job.workMode}
+                  </span>
+                </div>
+
+                {/* Skill Tags */}
+                <div className="flex flex-wrap gap-1.5 mt-3">
+                  {job.skills.slice(0, 3).map((skill) => (
+                    <span
+                      key={skill}
+                      className="text-[11px] font-medium px-2 py-0.5 rounded-md bg-slate-100 text-slate-600 truncate max-w-[120px]"
+                      title={skill}
+                    >
+                      {skill}
+                    </span>
+                  ))}
+                  {((job.extraSkillsCount && job.extraSkillsCount > 0) || job.skills.length > 3) && (
+                    <span className="text-[11px] font-semibold px-1.5 py-0.5 rounded-md bg-slate-100 text-slate-500">
+                      +{job.extraSkillsCount || (job.skills.length - 3)}
+                    </span>
+                  )}
+                </div>
               </div>
 
-              {/* Location & Workmode */}
-              <div className="flex items-center gap-1.5 text-xs text-slate-500 mt-3 font-medium">
-                <MapPin className="w-3.5 h-3.5 text-slate-400 shrink-0" />
-                <span className="truncate">
-                  {job.location} • {job.workMode}
-                </span>
-              </div>
+              {/* Footer row: posted time and action buttons */}
+              <div className="mt-4 pt-3 border-t border-slate-100 space-y-3">
+                <div className="text-[11px] text-slate-400 font-medium">
+                  {job.postedTime}
+                </div>
 
-              {/* Skill Tags */}
-              <div className="flex flex-wrap gap-1.5 mt-3">
-                {job.skills.map((skill) => (
-                  <span
-                    key={skill}
-                    className="text-[11px] font-medium px-2 py-0.5 rounded-md bg-slate-100 text-slate-600"
+                <div className="flex items-center gap-2">
+                  {/* Bookmark Button */}
+                  <button
+                    type="button"
+                    onClick={() => onToggleBookmark?.(job)}
+                    title={job.isBookmarked ? "Remove Bookmark" : "Save Job"}
+                    className={`p-2 rounded-lg border transition-colors cursor-pointer shrink-0 ${
+                      job.isBookmarked
+                        ? "border-teal-500 bg-teal-50 text-teal-600"
+                        : "border-slate-200 bg-white text-slate-400 hover:text-teal-600 hover:border-slate-300"
+                    }`}
                   >
-                    {skill}
-                  </span>
-                ))}
-                {job.extraSkillsCount && job.extraSkillsCount > 0 && (
-                  <span className="text-[11px] font-semibold px-1.5 py-0.5 rounded-md bg-slate-100 text-slate-500">
-                    +{job.extraSkillsCount}
-                  </span>
-                )}
+                    <Bookmark
+                      className={`w-3.5 h-3.5 ${job.isBookmarked ? "fill-teal-600 text-teal-600" : ""}`}
+                    />
+                  </button>
+
+                  {/* View Details Button */}
+                  <button
+                    type="button"
+                    onClick={() => onViewDetails?.(job)}
+                    className="flex-1 py-1.5 px-2 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 font-semibold text-xs transition-colors cursor-pointer text-center truncate"
+                  >
+                    View Details
+                  </button>
+
+                  {/* Apply Button */}
+                  <button
+                    type="button"
+                    onClick={() => onApply?.(job)}
+                    className="py-1.5 px-3 rounded-lg bg-teal-600 hover:bg-teal-700 text-white font-bold text-xs transition-colors shadow-2xs flex items-center justify-center gap-1 cursor-pointer shrink-0"
+                  >
+                    <span>Apply</span>
+                    <ExternalLink className="w-3 h-3" />
+                  </button>
+                </div>
               </div>
             </div>
-
-            {/* Footer row: posted time and action buttons */}
-            <div className="mt-4 pt-3 border-t border-slate-100 space-y-3">
-              <div className="text-[11px] text-slate-400 font-medium">
-                {job.postedTime}
-              </div>
-
-              <div className="flex items-center gap-2">
-                {/* Bookmark Button */}
-                <button
-                  type="button"
-                  onClick={() => onToggleBookmark?.(job)}
-                  title={job.isBookmarked ? "Remove Bookmark" : "Save Job"}
-                  className={`p-2 rounded-lg border transition-colors cursor-pointer shrink-0 ${
-                    job.isBookmarked
-                      ? "border-teal-500 bg-teal-50 text-teal-600"
-                      : "border-slate-200 bg-white text-slate-400 hover:text-teal-600 hover:border-slate-300"
-                  }`}
-                >
-                  <Bookmark
-                    className={`w-3.5 h-3.5 ${job.isBookmarked ? "fill-teal-600 text-teal-600" : ""}`}
-                  />
-                </button>
-
-                {/* View Details Button */}
-                <button
-                  type="button"
-                  onClick={() => onViewDetails?.(job)}
-                  className="flex-1 py-1.5 px-2.5 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 font-semibold text-xs transition-colors cursor-pointer text-center"
-                >
-                  View Details
-                </button>
-
-                {/* Apply Button */}
-                <button
-                  type="button"
-                  onClick={() => onApply?.(job)}
-                  className="py-1.5 px-3 rounded-lg bg-teal-600 hover:bg-teal-700 text-white font-bold text-xs transition-colors shadow-2xs flex items-center justify-center gap-1 cursor-pointer"
-                >
-                  <span>Apply</span>
-                  <ExternalLink className="w-3 h-3" />
-                </button>
-              </div>
-            </div>
-          </div>
-        ))}
-      </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 }

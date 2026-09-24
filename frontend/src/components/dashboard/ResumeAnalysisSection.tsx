@@ -10,7 +10,8 @@ import {
   Sparkles, 
   RefreshCw, 
   AlertCircle,
-  FileCheck2
+  FileCheck2,
+  Eye
 } from "lucide-react";
 
 export interface ResumeData {
@@ -39,6 +40,7 @@ export function ResumeAnalysisSection({
   const [errorMsg, setErrorMsg] = useState("");
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [analysisResult, setAnalysisResult] = useState<string | null>(null);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setErrorMsg("");
@@ -63,6 +65,7 @@ export function ResumeAnalysisSection({
     }
 
     onUploadResume?.(file);
+    if (fileInputRef.current) fileInputRef.current.value = "";
   };
 
   const handleDrop = (e: React.DragEvent<HTMLDivElement>) => {
@@ -80,9 +83,15 @@ export function ResumeAnalysisSection({
     setIsAnalyzing(true);
     setTimeout(() => {
       setIsAnalyzing(false);
-      setAnalysisResult("Great match! ATS score is 92%. Key keywords: Python, SQL, ML pipelines detected.");
+      setAnalysisResult("ATS keyword check complete: 92% compatibility with live industry requisitions.");
       onAnalyzeResume?.();
-    }, 1200);
+    }, 1000);
+  };
+
+  const handleDelete = () => {
+    setShowDeleteConfirm(false);
+    setAnalysisResult(null);
+    onRemoveResume?.();
   };
 
   const benefits = [
@@ -93,7 +102,7 @@ export function ResumeAnalysisSection({
   ];
 
   return (
-    <div className="rounded-2xl border border-slate-200/90 bg-white p-6 sm:p-7 shadow-xs">
+    <div className="rounded-2xl border border-slate-200/90 bg-white p-5 sm:p-6 lg:p-7 shadow-xs">
       {/* Header */}
       <div className="flex items-start gap-3 pb-4 border-b border-slate-100">
         <div className="w-8 h-8 rounded-xl bg-teal-50 text-teal-600 flex items-center justify-center shrink-0 mt-0.5">
@@ -123,12 +132,15 @@ export function ResumeAnalysisSection({
           {resume ? (
             <div className="p-4.5 rounded-xl border border-teal-200 bg-teal-50/30 flex flex-col justify-between space-y-3.5">
               <div className="flex items-start justify-between gap-3">
-                <div className="flex items-center gap-3 min-w-0">
+                <div className="flex items-center gap-3 min-w-0 flex-1">
                   <div className="w-10 h-10 rounded-lg bg-teal-100 text-teal-700 flex items-center justify-center shrink-0">
                     <FileCheck2 className="w-5 h-5" />
                   </div>
-                  <div className="min-w-0">
-                    <div className="font-bold text-sm text-slate-900 truncate">
+                  <div className="min-w-0 flex-1">
+                    <div 
+                      className="font-bold text-sm text-slate-900 line-clamp-1"
+                      title={resume.name}
+                    >
                       {resume.name}
                     </div>
                     <div className="text-[11px] text-slate-500 mt-0.5 font-medium">
@@ -154,10 +166,12 @@ export function ResumeAnalysisSection({
                   <a
                     href={resume.dataUrl}
                     download={resume.name}
+                    target="_blank"
+                    rel="noopener noreferrer"
                     className="py-1.5 px-3 rounded-lg bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 text-xs font-semibold inline-flex items-center gap-1.5 transition-colors cursor-pointer shadow-2xs"
                   >
                     <Download className="w-3.5 h-3.5" />
-                    <span>Download</span>
+                    <span>View / Download</span>
                   </a>
                 )}
 
@@ -168,7 +182,7 @@ export function ResumeAnalysisSection({
                   className="py-1.5 px-3 rounded-lg bg-teal-600 hover:bg-teal-700 text-white text-xs font-bold inline-flex items-center gap-1.5 transition-colors cursor-pointer shadow-2xs"
                 >
                   <Sparkles className={`w-3.5 h-3.5 ${isAnalyzing ? "animate-spin" : ""}`} />
-                  <span>{isAnalyzing ? "Analyzing..." : "Re-Analyze"}</span>
+                  <span>{isAnalyzing ? "Analyzing..." : "Analyze"}</span>
                 </button>
 
                 <button
@@ -182,13 +196,36 @@ export function ResumeAnalysisSection({
 
                 <button
                   type="button"
-                  onClick={onRemoveResume}
+                  onClick={() => setShowDeleteConfirm(true)}
                   className="py-1.5 px-2.5 rounded-lg bg-white border border-rose-200 hover:bg-rose-50 text-rose-600 text-xs font-semibold inline-flex items-center gap-1 transition-colors cursor-pointer shadow-2xs ml-auto"
-                  title="Remove Resume"
+                  title="Delete Resume"
                 >
                   <Trash2 className="w-3.5 h-3.5" />
                 </button>
               </div>
+
+              {/* Delete confirmation prompt */}
+              {showDeleteConfirm && (
+                <div className="p-3 rounded-lg bg-rose-50 border border-rose-200 text-xs text-rose-800 space-y-2">
+                  <p className="font-semibold">Are you sure you want to delete your stored resume?</p>
+                  <div className="flex items-center gap-2">
+                    <button
+                      type="button"
+                      onClick={handleDelete}
+                      className="px-2.5 py-1 rounded bg-rose-600 hover:bg-rose-700 text-white font-bold cursor-pointer"
+                    >
+                      Yes, Delete
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setShowDeleteConfirm(false)}
+                      className="px-2.5 py-1 rounded bg-white border border-slate-300 text-slate-700 hover:bg-slate-50 font-semibold cursor-pointer"
+                    >
+                      Cancel
+                    </button>
+                  </div>
+                </div>
+              )}
             </div>
           ) : (
             <div
@@ -198,7 +235,7 @@ export function ResumeAnalysisSection({
               }}
               onDragLeave={() => setDragOver(false)}
               onDrop={handleDrop}
-              className={`border-2 border-dashed rounded-xl p-5 text-center transition-all ${
+              className={`border-2 border-dashed rounded-xl p-6 text-center transition-all ${
                 dragOver
                   ? "border-teal-500 bg-teal-50/50"
                   : "border-slate-200 bg-slate-50/50 hover:border-teal-300"

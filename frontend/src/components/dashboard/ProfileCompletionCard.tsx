@@ -1,26 +1,27 @@
 "use client";
 
 import React from "react";
-import { ArrowRight, UserCheck } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 
 export interface ProfileCompletionCardProps {
-  percentage?: number;
+  percentage: number;
   onEditProfile?: () => void;
   onViewProfile?: () => void;
 }
 
 export function ProfileCompletionCard({
-  percentage = 70,
+  percentage = 0,
   onEditProfile,
   onViewProfile
 }: ProfileCompletionCardProps) {
   // SVG Circle Calculations
   const radius = 28;
   const circumference = 2 * Math.PI * radius;
-  const strokeDashoffset = circumference - (percentage / 100) * circumference;
+  const safePercent = Math.min(100, Math.max(0, percentage));
+  const strokeDashoffset = circumference - (safePercent / 100) * circumference;
 
   return (
-    <div className="rounded-2xl border border-slate-200/90 bg-white p-6 shadow-xs flex flex-col justify-between">
+    <div className="rounded-2xl border border-slate-200/90 bg-white p-5 sm:p-6 shadow-xs flex flex-col justify-between">
       {/* Header */}
       <div className="flex items-center justify-between pb-3 border-b border-slate-100">
         <h2 className="text-base font-bold text-slate-900 tracking-tight">
@@ -65,7 +66,7 @@ export function ProfileCompletionCard({
           </svg>
           <div className="absolute inset-0 flex items-center justify-center">
             <span className="text-sm font-extrabold text-slate-900 tracking-tight">
-              {percentage}%
+              {safePercent}%
             </span>
           </div>
         </div>
