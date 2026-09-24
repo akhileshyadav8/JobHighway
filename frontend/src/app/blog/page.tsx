@@ -224,62 +224,98 @@ export default function BlogPage() {
                   />
                 </div>
 
-                {/* SVG Connecting Dashed Curve - continuous intentional route connecting all 4 icons */}
+                {/* SVG Connecting Dashed Network Arcs matching reference design */}
                 <svg
                   className="absolute inset-0 w-full h-full pointer-events-none z-10"
-                  viewBox="0 0 620 370"
+                  viewBox="0 0 100 100"
+                  preserveAspectRatio="none"
                   fill="none"
                   xmlns="http://www.w3.org/2000/svg"
                 >
                   <defs>
-                    <linearGradient id="routeGradient" x1="130" y1="85" x2="505" y2="275" gradientUnits="userSpaceOnUse">
-                      <stop offset="0%" stopColor="#0d9488" stopOpacity="0.4" />
-                      <stop offset="50%" stopColor="#0d9488" stopOpacity="0.75" />
-                      <stop offset="100%" stopColor="#0d9488" stopOpacity="0.4" />
+                    <linearGradient id="networkGradient" x1="0" y1="0" x2="100" y2="100" gradientUnits="userSpaceOnUse">
+                      <stop offset="0%" stopColor="#0d9488" stopOpacity="0.3" />
+                      <stop offset="40%" stopColor="#0d9488" stopOpacity="0.75" />
+                      <stop offset="80%" stopColor="#0d9488" stopOpacity="0.65" />
+                      <stop offset="100%" stopColor="#0d9488" stopOpacity="0.3" />
                     </linearGradient>
                   </defs>
 
-                  {/* Single continuous, smooth global network route linking all 4 nodes */}
+                  {/* Left incoming airway trail */}
                   <path
-                    d="M 130 180 C 130 130, 250 85, 350 85 C 430 85, 505 135, 505 195 C 505 245, 400 275, 310 275 C 220 275, 130 230, 130 180 Z"
-                    stroke="url(#routeGradient)"
-                    strokeWidth="1.75"
-                    strokeDasharray="5 5"
+                    d="M 8 36 Q 14 38, 22 44"
+                    stroke="url(#networkGradient)"
+                    strokeWidth="1.5"
+                    strokeDasharray="4 4"
                     strokeLinecap="round"
-                    strokeLinejoin="round"
+                    vectorEffect="non-scaling-stroke"
+                  />
+
+                  {/* Upper Pathway: Document (22, 44) -> Briefcase (52, 28) -> Graduation Cap (78, 58) */}
+                  <path
+                    d="M 22 44 Q 36 24, 52 28 Q 66 32, 78 58"
+                    stroke="url(#networkGradient)"
+                    strokeWidth="1.75"
+                    strokeDasharray="4 4"
+                    strokeLinecap="round"
+                    vectorEffect="non-scaling-stroke"
+                  />
+
+                  {/* Lower Pathway: Document (22, 44) -> Bar Chart (38, 56) -> Graduation Cap (78, 58) */}
+                  <path
+                    d="M 22 44 Q 28 52, 38 56 Q 58 64, 78 58"
+                    stroke="url(#networkGradient)"
+                    strokeWidth="1.75"
+                    strokeDasharray="4 4"
+                    strokeLinecap="round"
+                    vectorEffect="non-scaling-stroke"
+                  />
+
+                  {/* Right outgoing trail */}
+                  <path
+                    d="M 78 58 Q 86 64, 94 66"
+                    stroke="url(#networkGradient)"
+                    strokeWidth="1.5"
+                    strokeDasharray="4 4"
+                    strokeLinecap="round"
+                    vectorEffect="non-scaling-stroke"
                   />
                 </svg>
 
-                {/* Node 1: Left - White Circle with Emerald Document Icon */}
+                {/* Card 1: Left - Document Badge (Resume & ATS) */}
                 <div
-                  className="absolute top-[180px] left-[130px] -translate-x-1/2 -translate-y-1/2 w-12 h-12 rounded-full bg-white shadow-md border border-slate-100 flex items-center justify-center z-20 hover:scale-110 transition-transform cursor-pointer group"
+                  style={{ left: "22%", top: "44%" }}
+                  className="absolute -translate-x-1/2 -translate-y-1/2 w-12 h-12 sm:w-13 sm:h-13 rounded-2xl bg-white shadow-md border border-slate-100/90 flex items-center justify-center z-20 hover:scale-110 transition-transform cursor-pointer group"
                   title="ATS Resume Guidelines"
                 >
                   <FileText className="w-5 h-5 text-emerald-600 transition-transform group-hover:scale-110" />
                 </div>
 
-                {/* Node 2: Top Center/Right - Teal Circle with White Briefcase */}
+                {/* Card 2: Upper Center - Teal Briefcase Badge (Official Jobs) */}
                 <div
-                  className="absolute top-[85px] left-[350px] -translate-x-1/2 -translate-y-1/2 w-13 h-13 rounded-full bg-[#0d9488] shadow-lg border-2 border-white flex items-center justify-center z-20 hover:scale-110 transition-transform cursor-pointer group"
+                  style={{ left: "52%", top: "28%" }}
+                  className="absolute -translate-x-1/2 -translate-y-1/2 w-12 h-12 sm:w-13 sm:h-13 rounded-2xl bg-[#0d9488] shadow-lg border-2 border-white flex items-center justify-center z-20 hover:scale-110 transition-transform cursor-pointer group"
                   title="Official Career Portals"
                 >
                   <Briefcase className="w-5 h-5 text-white transition-transform group-hover:scale-110" />
                 </div>
 
-                {/* Node 3: Far Right - White Circle with Blue Graduation Cap */}
+                {/* Card 3: Lower Center - Bar Chart Badge (Salary Trends) */}
                 <div
-                  className="absolute top-[195px] left-[505px] -translate-x-1/2 -translate-y-1/2 w-13 h-13 rounded-full bg-white shadow-md border border-slate-100 flex items-center justify-center z-20 hover:scale-110 transition-transform cursor-pointer group"
-                  title="Campus to Corporate Playbook"
-                >
-                  <GraduationCap className="w-6 h-6 text-sky-600 transition-transform group-hover:scale-110" />
-                </div>
-
-                {/* Node 4: Center Bottom - White Circle with Teal Bar Chart */}
-                <div
-                  className="absolute top-[275px] left-[310px] -translate-x-1/2 -translate-y-1/2 w-12 h-12 rounded-full bg-white shadow-md border border-slate-100 flex items-center justify-center z-20 hover:scale-110 transition-transform cursor-pointer group"
+                  style={{ left: "38%", top: "56%" }}
+                  className="absolute -translate-x-1/2 -translate-y-1/2 w-12 h-12 sm:w-13 sm:h-13 rounded-2xl bg-white shadow-md border border-slate-100/90 flex items-center justify-center z-20 hover:scale-110 transition-transform cursor-pointer group"
                   title="Live Tech Salary Trends"
                 >
                   <BarChart3 className="w-5 h-5 text-teal-600 transition-transform group-hover:scale-110" />
+                </div>
+
+                {/* Card 4: Right - Graduation Cap Badge (Campus to Corporate) */}
+                <div
+                  style={{ left: "78%", top: "58%" }}
+                  className="absolute -translate-x-1/2 -translate-y-1/2 w-13 h-13 sm:w-14 sm:h-14 rounded-2xl bg-white shadow-md border border-slate-100/90 flex items-center justify-center z-20 hover:scale-110 transition-transform cursor-pointer group"
+                  title="Campus to Corporate Playbook"
+                >
+                  <GraduationCap className="w-6 h-6 text-sky-600 transition-transform group-hover:scale-110" />
                 </div>
               </div>
             </div>
