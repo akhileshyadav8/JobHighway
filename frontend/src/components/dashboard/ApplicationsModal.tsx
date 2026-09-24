@@ -71,6 +71,12 @@ export function ApplicationsModal({
   const [activeTab, setActiveTab] = useState<"applied" | "saved">(defaultTab);
   const [statusFilter, setStatusFilter] = useState<string>("All");
 
+  React.useEffect(() => {
+    if (isOpen) {
+      setActiveTab(defaultTab);
+    }
+  }, [isOpen, defaultTab]);
+
   if (!isOpen) return null;
 
   const filteredApplied = appliedJobs.filter((job) => {

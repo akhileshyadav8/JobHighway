@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Bell, ArrowRight, MoreVertical, Plus, Trash2, Pencil, CheckCircle2 } from "lucide-react";
 import { JobAlertRecord } from "@/lib/auth";
 
@@ -22,6 +22,26 @@ export function RecentAlertsSection({
   onViewAll
 }: RecentAlertsSectionProps) {
   const [activeMenuId, setActiveMenuId] = useState<string | null>(null);
+
+  // Close menu on click outside or escape
+  useEffect(() => {
+    if (!activeMenuId) return;
+    const handleDown = (e: MouseEvent) => {
+      const target = e.target as HTMLElement;
+      if (!target.closest('[data-alert-menu="true"]')) {
+        setActiveMenuId(null);
+      }
+    };
+    const handleKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setActiveMenuId(null);
+    };
+    window.addEventListener("mousedown", handleDown);
+    window.addEventListener("keydown", handleKey);
+    return () => {
+      window.removeEventListener("mousedown", handleDown);
+      window.removeEventListener("keydown", handleKey);
+    };
+  }, [activeMenuId]);
 
   const getIconContainerStyle = (colorType?: string) => {
     switch (colorType) {
@@ -158,7 +178,7 @@ export function RecentAlertsSection({
                 </button>
 
                 {/* 3-dots menu button */}
-                <div className="relative">
+                <div className="relative" data-alert-menu="true">
                   <button
                     type="button"
                     onClick={() =>
@@ -170,31 +190,39 @@ export function RecentAlertsSection({
                   </button>
 
                   {activeMenuId === alert.id && (
-                    <div className="absolute right-0 top-7 z-20 w-32 bg-white rounded-xl border border-slate-200 shadow-lg p-1 animate-in fade-in-50 duration-150">
-                      <button
-                        type="button"
-                        onClick={() => {
-                          onEditAlert?.(alert);
-                          setActiveMenuId(null);
-                        }}
-                        className="w-full text-left px-2.5 py-1.5 text-xs text-slate-700 hover:bg-slate-50 rounded-lg flex items-center gap-1.5 cursor-pointer font-medium"
-                      >
-                        <Pencil className="w-3.5 h-3.5 text-slate-400" />
-                        <span>Edit Alert</span>
-                      </button>
+                    <>
+                      {/* Transparent backdrop to catch clicks outside immediately */}
+                      <div 
+                        className="fixed inset-0 z-10" 
+                        onClick={() => setActiveMenuId(null)} 
+                      />
 
-                      <button
-                        type="button"
-                        onClick={() => {
-                          onDeleteAlert?.(alert.id);
-                          setActiveMenuId(null);
-                        }}
-                        className="w-full text-left px-2.5 py-1.5 text-xs text-rose-600 hover:bg-rose-50 rounded-lg flex items-center gap-1.5 cursor-pointer font-medium"
-                      >
-                        <Trash2 className="w-3.5 h-3.5" />
-                        <span>Delete Alert</span>
-                      </button>
-                    </div>
+                      <div className="absolute right-0 top-7 z-20 w-32 bg-white rounded-xl border border-slate-200 shadow-lg p-1 animate-in fade-in-50 duration-150">
+                        <button
+                          type="button"
+                          onClick={() => {
+                            onEditAlert?.(alert);
+                            setActiveMenuId(null);
+                          }}
+                          className="w-full text-left px-2.5 py-1.5 text-xs text-slate-700 hover:bg-slate-50 rounded-lg flex items-center gap-1.5 cursor-pointer font-medium"
+                        >
+                          <Pencil className="w-3.5 h-3.5 text-slate-400" />
+                          <span>Edit Alert</span>
+                        </button>
+
+                        <button
+                          type="button"
+                          onClick={() => {
+                            onDeleteAlert?.(alert.id);
+                            setActiveMenuId(null);
+                          }}
+                          className="w-full text-left px-2.5 py-1.5 text-xs text-rose-600 hover:bg-rose-50 rounded-lg flex items-center gap-1.5 cursor-pointer font-medium"
+                        >
+                          <Trash2 className="w-3.5 h-3.5" />
+                          <span>Delete Alert</span>
+                        </button>
+                      </div>
+                    </>
                   )}
                 </div>
               </div>

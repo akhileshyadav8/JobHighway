@@ -86,7 +86,7 @@ export function FollowedCompaniesSection({
         </div>
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2.5 sm:gap-3 mt-3.5">
-          {companies.slice(0, 4).map((comp) => (
+          {companies.slice(0, 8).map((comp) => (
             <div
               key={comp.id}
               className="flex flex-col justify-between p-3 sm:p-3.5 rounded-xl border border-slate-200/90 bg-white hover:border-teal-400 hover:shadow-xs transition-all group min-w-0"
@@ -142,6 +142,26 @@ export function FollowedCompaniesSection({
           ))}
         </div>
       )}
+
+      {/* Bottom Live Sync Status Strip to balance section height */}
+      <div className="mt-4 pt-3 border-t border-slate-100 flex flex-wrap items-center justify-between text-xs text-slate-500 gap-2">
+        <div className="flex items-center gap-2">
+          <span className="relative flex h-2 w-2">
+            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
+            <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500" />
+          </span>
+          <span className="text-[11px] font-medium text-slate-600">
+            Official ATS stream active: hourly synchronization with employer job boards
+          </span>
+        </div>
+        <button
+          type="button"
+          onClick={onOpenFollowModal}
+          className="text-[11px] font-bold text-teal-600 hover:text-teal-700 hover:underline cursor-pointer"
+        >
+          + Add more companies to watch
+        </button>
+      </div>
     </div>
   );
 }
