@@ -45,7 +45,7 @@ export const BLOG_ARTICLES: BlogArticle[] = [
     author: {
       name: "Akhilesh Yadav",
       role: "Career Research Lead",
-      avatar: "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=120&h=120&q=80"
+      avatar: "/akhilesh-yadav.jpg"
     },
     thumbnail: "https://images.unsplash.com/photo-1541339907198-e08756dedf3f?auto=format&fit=crop&w=1000&q=80",
     summary: "Most candidates apply weeks after a job is published when hundreds of applicants are already in the pipeline. Here's how applying within the first 1 hour via ATS triggers higher visibility...",
@@ -324,7 +324,7 @@ HAVING COUNT(*) >= 3;`
       role: "Senior Algorithms Coach",
       avatar: "https://images.unsplash.com/photo-1580489944761-15a19d654956?auto=format&fit=crop&w=120&h=120&q=80"
     },
-    thumbnail: "https://images.unsplash.com/photo-1516116211227-bbc04f14f1d4?auto=format&fit=crop&w=1000&q=80",
+    thumbnail: "/dsa-roadmap.jpg",
     summary: "A structured roadmap to master DSA for top product companies like Google, Amazon, Microsoft and more.",
     tags: ["DSA", "LeetCode", "Placement"],
     relatedJobsQuery: "Software Development Engineer",

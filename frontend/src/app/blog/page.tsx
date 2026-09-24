@@ -110,6 +110,22 @@ export default function BlogPage() {
     }
   };
 
+  // Dynamic pagination numbers based on actual count of pages
+  const getPageNumbers = () => {
+    if (totalPages <= 5) {
+      return Array.from({ length: totalPages }, (_, i) => i + 1);
+    }
+    const pages: (number | string)[] = [];
+    if (currentPage <= 3) {
+      pages.push(1, 2, 3, 4, "...", totalPages);
+    } else if (currentPage >= totalPages - 2) {
+      pages.push(1, "...", totalPages - 3, totalPages - 2, totalPages - 1, totalPages);
+    } else {
+      pages.push(1, "...", currentPage - 1, currentPage, currentPage + 1, "...", totalPages);
+    }
+    return pages;
+  };
+
   const scrollCategoriesRight = () => {
     if (categoriesContainerRef.current) {
       categoriesContainerRef.current.scrollBy({ left: 160, behavior: "smooth" });
@@ -563,11 +579,14 @@ export default function BlogPage() {
                   {/* Thumbnail Image Container */}
                   <div className="relative aspect-[16/10] w-full overflow-hidden bg-slate-100">
                     <img
-                      src={
-                        article.thumbnail ||
-                        "https://images.unsplash.com/photo-1516116211227-bbc04f14f1d4?auto=format&fit=crop&w=1000&q=80"
-                      }
+                      src={article.thumbnail || "/dsa-roadmap.jpg"}
                       alt={article.title}
+                      onError={(e) => {
+                        const target = e.currentTarget;
+                        if (!target.src.endsWith("/dsa-roadmap.jpg")) {
+                          target.src = "/dsa-roadmap.jpg";
+                        }
+                      }}
                       className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                     />
                   </div>
@@ -645,7 +664,7 @@ export default function BlogPage() {
 
           {/* ========================================================
               INTERACTIVE PAGINATION CONTROLS
-              Matches reference screenshot: < 1 2 3 4 5 ... 12 >
+              Dynamic based on actual cards count (no fake numbers)
               ======================================================== */}
           {totalPages > 1 && (
             <div className="flex items-center justify-center gap-2 pt-10 pb-2">
@@ -653,48 +672,42 @@ export default function BlogPage() {
               <button
                 onClick={() => handlePageChange(currentPage - 1)}
                 disabled={currentPage === 1}
-                className="w-8 h-8 rounded-full border border-slate-200 bg-white flex items-center justify-center text-slate-500 hover:text-slate-900 hover:bg-slate-50 disabled:opacity-40 disabled:cursor-not-allowed transition-colors shadow-2xs"
+                className="w-8 h-8 rounded-full border border-slate-200 bg-white flex items-center justify-center text-slate-500 hover:text-slate-900 hover:bg-slate-50 disabled:opacity-40 disabled:cursor-not-allowed transition-colors shadow-2xs cursor-pointer"
                 title="Previous page"
               >
                 <ChevronLeft className="w-4 h-4" />
               </button>
 
-              {/* Page Numbers */}
-              {Array.from({ length: totalPages }, (_, i) => i + 1).map((pageNum) => {
-                const isActive = currentPage === pageNum;
+              {/* Dynamic Page Numbers & Ellipses */}
+              {getPageNumbers().map((item, idx) => {
+                if (typeof item === "string") {
+                  return (
+                    <span key={`ellipsis-${idx}`} className="text-slate-400 text-xs px-1 select-none">
+                      ...
+                    </span>
+                  );
+                }
+                const isActive = currentPage === item;
                 return (
                   <button
-                    key={pageNum}
-                    onClick={() => handlePageChange(pageNum)}
-                    className={`w-8 h-8 rounded-full text-xs font-semibold flex items-center justify-center transition-all ${
+                    key={item}
+                    onClick={() => handlePageChange(item)}
+                    className={`w-8 h-8 rounded-full text-xs font-semibold flex items-center justify-center transition-all cursor-pointer ${
                       isActive
                         ? "bg-[#0d9488] text-white shadow-xs"
                         : "text-slate-600 hover:text-slate-900 hover:bg-slate-100"
                     }`}
                   >
-                    {pageNum}
+                    {item}
                   </button>
                 );
               })}
-
-              {/* Ellipsis and last page indicator if needed */}
-              {totalPages < 12 && (
-                <>
-                  <span className="text-slate-400 text-xs px-1">...</span>
-                  <button
-                    onClick={() => handlePageChange(12)}
-                    className="w-8 h-8 rounded-full text-xs font-semibold text-slate-600 hover:text-slate-900 hover:bg-slate-100"
-                  >
-                    12
-                  </button>
-                </>
-              )}
 
               {/* Next Page Button */}
               <button
                 onClick={() => handlePageChange(currentPage + 1)}
                 disabled={currentPage === totalPages}
-                className="w-8 h-8 rounded-full border border-slate-200 bg-white flex items-center justify-center text-slate-500 hover:text-slate-900 hover:bg-slate-50 disabled:opacity-40 disabled:cursor-not-allowed transition-colors shadow-2xs"
+                className="w-8 h-8 rounded-full border border-slate-200 bg-white flex items-center justify-center text-slate-500 hover:text-slate-900 hover:bg-slate-50 disabled:opacity-40 disabled:cursor-not-allowed transition-colors shadow-2xs cursor-pointer"
                 title="Next page"
               >
                 <ChevronRight className="w-4 h-4" />
