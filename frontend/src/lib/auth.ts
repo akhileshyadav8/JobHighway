@@ -25,7 +25,11 @@ export interface User {
     size: number;
     uploadedAt: string;
     dataUrl?: string;
+    fileType?: string;
+    status?: string;
+    atsScore?: number;
   };
+  resumeExtractedNotice?: boolean;
 }
 
 export interface AppliedJob {

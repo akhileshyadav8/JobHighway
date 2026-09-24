@@ -83,7 +83,7 @@ export function DashboardHero({
         </svg>
       </div>
 
-      <div className="relative z-10 flex flex-col lg:flex-row lg:items-center justify-between gap-6">
+      <div className="relative z-10 flex flex-col xl:flex-row xl:items-center justify-between gap-6">
         {/* Left: User Welcome Block */}
         <div className="flex items-center gap-4">
           <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-full bg-emerald-100/90 text-teal-800 font-extrabold text-xl sm:text-2xl flex items-center justify-center shrink-0 border-2 border-white shadow-2xs">
@@ -104,9 +104,9 @@ export function DashboardHero({
         </div>
 
         {/* Right: 4 Real Stat Tiles */}
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4 shrink-0">
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 lg:gap-4 shrink-0">
           {/* Stat 1: New Jobs */}
-          <div className="flex items-center gap-3 p-2 sm:p-2.5 rounded-xl">
+          <div className="flex items-center gap-3 p-2 sm:p-2.5 rounded-xl whitespace-nowrap">
             <div className="w-10 h-10 rounded-xl bg-emerald-50 text-emerald-600 border border-emerald-100 flex items-center justify-center shrink-0">
               <Zap className="w-5 h-5 fill-emerald-600/20" />
             </div>
@@ -122,7 +122,7 @@ export function DashboardHero({
           </div>
 
           {/* Stat 2: New Companies */}
-          <div className="flex items-center gap-3 p-2 sm:p-2.5 rounded-xl">
+          <div className="flex items-center gap-3 p-2 sm:p-2.5 rounded-xl whitespace-nowrap">
             <div className="w-10 h-10 rounded-xl bg-teal-50 text-teal-600 border border-teal-100 flex items-center justify-center shrink-0">
               <Building2 className="w-5 h-5" />
             </div>
@@ -138,7 +138,7 @@ export function DashboardHero({
           </div>
 
           {/* Stat 3: Matching Jobs */}
-          <div className="flex items-center gap-3 p-2 sm:p-2.5 rounded-xl">
+          <div className="flex items-center gap-3 p-2 sm:p-2.5 rounded-xl whitespace-nowrap">
             <div className="w-10 h-10 rounded-xl bg-rose-50 text-rose-600 border border-rose-100 flex items-center justify-center shrink-0">
               <Target className="w-5 h-5" />
             </div>
@@ -154,7 +154,7 @@ export function DashboardHero({
           </div>
 
           {/* Stat 4: Total Opportunities */}
-          <div className="flex items-center gap-3 p-2 sm:p-2.5 rounded-xl">
+          <div className="flex items-center gap-3 p-2 sm:p-2.5 rounded-xl whitespace-nowrap">
             <div className="w-10 h-10 rounded-xl bg-sky-50 text-sky-600 border border-sky-100 flex items-center justify-center shrink-0">
               <Globe className="w-5 h-5" />
             </div>

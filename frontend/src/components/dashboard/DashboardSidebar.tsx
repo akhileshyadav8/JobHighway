@@ -83,7 +83,7 @@ export function DashboardSidebar({
   ];
 
   return (
-    <aside className={`w-56 xl:w-60 shrink-0 flex flex-col justify-between select-none ${className}`}>
+    <aside className={`w-48 xl:w-52 shrink-0 flex flex-col justify-between select-none ${className}`}>
       {/* Top Nav items */}
       <div className="space-y-1">
         {navItems.map((item) => {

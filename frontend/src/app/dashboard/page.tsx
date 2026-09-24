@@ -33,6 +33,7 @@ import {
 } from "@/lib/auth";
 
 import { Job } from "@/lib/api";
+import { parseResumeFile } from "@/lib/resumeParser";
 
 import { DashboardSidebar } from "@/components/dashboard/DashboardSidebar";
 import { DashboardHero } from "@/components/dashboard/DashboardHero";
@@ -437,29 +438,69 @@ export default function DashboardPage() {
     setBookmarks(getBookmarks(user.id));
   };
 
-  // Resume Upload Handler (Stores in user account persistently)
-  const handleResumeUpload = (file: File) => {
+  // Resume Upload Handler (Parses, extracts data, auto-populates profile & updates skills)
+  const handleResumeUpload = async (file: File) => {
     if (!user) return;
-    const reader = new FileReader();
-    reader.onload = () => {
-      const dataUrl = reader.result as string;
-      const fileData = {
-        name: file.name,
-        size: file.size,
-        uploadedAt: new Date().toISOString(),
-        dataUrl,
-        atsScore: 92
+
+    try {
+      // 1. Intelligent resume text and metadata parsing
+      const extracted = await parseResumeFile(file);
+
+      // 2. Read as data URL for persistence and viewing
+      const reader = new FileReader();
+      reader.onload = () => {
+        const dataUrl = reader.result as string;
+        const fileExt = file.name.substring(file.name.lastIndexOf(".")).replace(".", "").toUpperCase() || "PDF";
+
+        const fileData = {
+          name: file.name,
+          size: file.size,
+          uploadedAt: new Date().toISOString(),
+          dataUrl,
+          fileType: fileExt,
+          status: "Active ATS Resume",
+          atsScore: 94
+        };
+
+        // 3. Intelligently merge skills without duplicates (case-insensitive deduplication)
+        const currentSkills = user.skills || [];
+        const currentLowerSet = new Set(currentSkills.map((s) => s.toLowerCase().trim()));
+        const uniqueNewSkills = (extracted.skills || []).filter(
+          (s) => !currentLowerSet.has(s.toLowerCase().trim())
+        );
+        const mergedSkills = [...currentSkills, ...uniqueNewSkills];
+
+        // 4. Pre-fill profile fields that are missing or enhance them
+        const profileUpdates: Partial<User> = {
+          resumeFile: fileData,
+          skills: mergedSkills,
+          resumeExtractedNotice: true
+        };
+
+        if (!user.name && extracted.name) profileUpdates.name = extracted.name;
+        if (!user.phone && extracted.phone) profileUpdates.phone = extracted.phone;
+        if (!user.targetRole && extracted.targetRole) profileUpdates.targetRole = extracted.targetRole;
+        if (!user.currentRole && extracted.currentRole) profileUpdates.currentRole = extracted.currentRole;
+        if (!user.preferredLocation && extracted.preferredLocation) profileUpdates.preferredLocation = extracted.preferredLocation;
+        if (!user.yearsExperience && extracted.yearsExperience) profileUpdates.yearsExperience = extracted.yearsExperience;
+        if (!user.education && extracted.education) profileUpdates.education = extracted.education;
+        if (!user.graduationYear && extracted.graduationYear) profileUpdates.graduationYear = extracted.graduationYear;
+        if (!user.linkedinUrl && extracted.linkedinUrl) profileUpdates.linkedinUrl = extracted.linkedinUrl;
+        if (!user.githubUrl && extracted.githubUrl) profileUpdates.githubUrl = extracted.githubUrl;
+
+        const updated = updateUserProfile(user.id, profileUpdates);
+        if (updated) setUser(updated);
       };
-      const updated = updateUserProfile(user.id, { resumeFile: fileData });
-      if (updated) setUser(updated);
-    };
-    reader.readAsDataURL(file);
+      reader.readAsDataURL(file);
+    } catch (e) {
+      console.error("Resume parsing error:", e);
+    }
   };
 
   // Resume Remove Handler (Removes reference after user confirms)
   const handleResumeRemove = () => {
     if (!user) return;
-    const updated = updateUserProfile(user.id, { resumeFile: undefined });
+    const updated = updateUserProfile(user.id, { resumeFile: undefined, resumeExtractedNotice: false });
     if (updated) setUser(updated);
   };
 
@@ -567,7 +608,7 @@ export default function DashboardPage() {
       )}
 
       {/* Main Container with generous SaaS desktop width */}
-      <div className="w-full max-w-[1680px] mx-auto px-4 sm:px-6 lg:px-8 xl:px-10 py-6">
+      <div className="w-full max-w-[1720px] mx-auto px-3 sm:px-4 lg:px-6 py-5">
         {/* Mobile Navigation Header */}
         <div className="lg:hidden mb-4 flex items-center justify-between p-3 rounded-xl bg-white border border-slate-200 shadow-2xs">
           <button
@@ -589,10 +630,10 @@ export default function DashboardPage() {
         </div>
 
         {/* Desktop 2-Column Layout */}
-        <div className="flex items-start gap-6 lg:gap-8">
+        <div className="flex items-start gap-4 lg:gap-4 xl:gap-5">
           {/* Left Sidebar: Compact, sticky, no inner scrollbars */}
           <div
-            className={`fixed inset-y-0 left-0 z-50 w-64 bg-white p-6 shadow-2xl transition-transform duration-300 lg:static lg:z-auto lg:w-56 xl:w-60 lg:p-0 lg:shadow-none lg:bg-transparent lg:block lg:sticky lg:top-20 ${
+            className={`fixed inset-y-0 left-0 z-50 w-64 bg-white p-6 shadow-2xl transition-transform duration-300 lg:static lg:z-auto lg:w-48 xl:w-52 lg:p-0 lg:shadow-none lg:bg-transparent lg:block lg:sticky lg:top-20 shrink-0 ${
               mobileSidebarOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"
             }`}
           >
@@ -618,7 +659,7 @@ export default function DashboardPage() {
           </div>
 
           {/* Right Main Content Area: dense, spacious, no clipping */}
-          <main className="flex-1 min-w-0 space-y-6">
+          <main className="flex-1 min-w-0 space-y-5 xl:space-y-6">
             {/* 1. Hero / Greeting Section */}
             <DashboardHero
               userName={user?.name || "Candidate"}
@@ -627,9 +668,9 @@ export default function DashboardPage() {
             />
 
             {/* 2. Middle Section (2 Columns: Left 8 cols, Right 4 cols) */}
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 xl:gap-6">
               {/* Left Column: Recommended Jobs, Alerts, Followed Companies */}
-              <div className="lg:col-span-8 space-y-6">
+              <div className="lg:col-span-8 space-y-5 xl:space-y-6">
                 {/* Recommended Jobs */}
                 <div id="recommended-jobs-section">
                   <RecommendedJobsSection
@@ -665,7 +706,7 @@ export default function DashboardPage() {
               </div>
 
               {/* Right Column: Profile Completion, Skills, Application Tracker, Market Insights */}
-              <div className="lg:col-span-4 space-y-6">
+              <div className="lg:col-span-4 space-y-5 xl:space-y-6">
                 {/* Profile Completion */}
                 <ProfileCompletionCard
                   percentage={profileCompletionPercentage}
@@ -705,9 +746,9 @@ export default function DashboardPage() {
             </div>
 
             {/* 3. Bottom Section: Resume Analysis & Skill Gap Analysis */}
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 pt-2">
-              {/* Left: Resume Analysis (~60% = 7 cols) */}
-              <div id="resume-analysis-section" className="lg:col-span-7">
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 xl:gap-6 pt-1 items-stretch">
+              {/* Left: Resume Analysis (~58% = 7 cols) */}
+              <div id="resume-analysis-section" className="lg:col-span-7 flex flex-col">
                 <ResumeAnalysisSection
                   resume={user?.resumeFile || null}
                   onUploadResume={handleResumeUpload}
@@ -716,8 +757,8 @@ export default function DashboardPage() {
                 />
               </div>
 
-              {/* Right: Skill Gap Analysis (~40% = 5 cols) */}
-              <div id="skill-gap-section" className="lg:col-span-5">
+              {/* Right: Skill Gap Analysis (~42% = 5 cols) */}
+              <div id="skill-gap-section" className="lg:col-span-5 flex flex-col">
                 <SkillGapSection
                   targetRole={user?.targetRole || "Data Scientist"}
                   userSkills={user?.skills || []}

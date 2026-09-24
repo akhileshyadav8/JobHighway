@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { X, Save, User as UserIcon, Phone, Globe, GraduationCap, Briefcase, CheckCircle2 } from "lucide-react";
+import { X, Save, User as UserIcon, Phone, Globe, GraduationCap, Briefcase, CheckCircle2, Sparkles } from "lucide-react";
 import { User, updateUserProfile } from "@/lib/auth";
 
 export interface ProfileEditModalProps {
@@ -122,6 +122,15 @@ export function ProfileEditModal({
           </div>
         )}
 
+        {user?.resumeFile && (
+          <div className="mb-4 p-3 rounded-xl bg-teal-50/80 border border-teal-200 text-teal-800 text-xs flex items-center gap-2.5">
+            <Sparkles className="w-4 h-4 text-teal-600 shrink-0" />
+            <span>
+              Profile information detected from your resume (<strong>{user.resumeFile.name}</strong>). You can review, edit, or customize any field below before saving.
+            </span>
+          </div>
+        )}
+
         <form onSubmit={handleSubmit} className="space-y-5">
           {/* Identity */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -219,7 +228,35 @@ export function ProfileEditModal({
             </div>
           </div>
 
-          {/* Target Role & CTC */}
+          {/* Education & Graduation Year */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <label className="block text-xs font-bold text-slate-700 mb-1">
+                Highest Education
+              </label>
+              <input
+                type="text"
+                value={education}
+                onChange={(e) => setEducation(e.target.value)}
+                placeholder="e.g. M.Sc Data Science, B.Tech Computer Science"
+                className="w-full px-3.5 py-2 rounded-xl border border-slate-200 text-xs text-slate-900 focus:border-teal-500 focus:outline-none"
+              />
+            </div>
+            <div>
+              <label className="block text-xs font-bold text-slate-700 mb-1">
+                Graduation Year
+              </label>
+              <input
+                type="text"
+                value={graduationYear}
+                onChange={(e) => setGraduationYear(e.target.value)}
+                placeholder="e.g. 2024"
+                className="w-full px-3.5 py-2 rounded-xl border border-slate-200 text-xs text-slate-900 focus:border-teal-500 focus:outline-none"
+              />
+            </div>
+          </div>
+
+          {/* Target Role & Preferred Locations */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
               <label className="block text-xs font-bold text-slate-700 mb-1">

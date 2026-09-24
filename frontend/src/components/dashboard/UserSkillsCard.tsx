@@ -1,13 +1,15 @@
 "use client";
 
 import React, { useState } from "react";
-import { Sparkles, Plus, X, Check } from "lucide-react";
+import { Sparkles, Plus, X, Check, ChevronDown, ChevronUp } from "lucide-react";
 
 export interface UserSkillsCardProps {
   skills: string[];
   onAddSkill?: (skill: string) => void;
   onRemoveSkill?: (skill: string) => void;
 }
+
+const MAX_INITIAL_SKILLS = 8;
 
 export function UserSkillsCard({
   skills = [],
@@ -17,6 +19,7 @@ export function UserSkillsCard({
   const [isAdding, setIsAdding] = useState(false);
   const [newSkillText, setNewSkillText] = useState("");
   const [isManaging, setIsManaging] = useState(false);
+  const [isExpanded, setIsExpanded] = useState(false);
 
   const handleAddNew = (e: React.FormEvent) => {
     e.preventDefault();
@@ -28,8 +31,11 @@ export function UserSkillsCard({
     }
   };
 
+  const visibleSkills = isExpanded || isManaging ? skills : skills.slice(0, MAX_INITIAL_SKILLS);
+  const hasMoreSkills = skills.length > MAX_INITIAL_SKILLS;
+
   return (
-    <div className="rounded-2xl border border-slate-200/90 bg-white p-5 sm:p-6 shadow-xs flex flex-col justify-between">
+    <div className="rounded-2xl border border-slate-200/90 bg-white p-5 sm:p-6 shadow-xs flex flex-col justify-between transition-all">
       {/* Header */}
       <div className="flex items-center justify-between pb-3 border-b border-slate-100">
         <div className="flex items-center gap-2">
@@ -51,13 +57,13 @@ export function UserSkillsCard({
       </div>
 
       {/* Skill Pills Flow */}
-      <div className="flex flex-wrap items-center gap-2 py-4">
+      <div className="flex flex-wrap items-center gap-2 py-3.5">
         {skills.length === 0 ? (
           <p className="text-xs text-slate-400 w-full mb-1">
             No skills added yet. Add your core skills to get tailored job matches.
           </p>
         ) : (
-          skills.map((skill) => (
+          visibleSkills.map((skill) => (
             <span
               key={skill}
               className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-sky-50 text-sky-800 border border-sky-100 hover:bg-sky-100/70 transition-colors"
@@ -75,6 +81,27 @@ export function UserSkillsCard({
               )}
             </span>
           ))
+        )}
+
+        {/* Show More / Show Less Toggle Button */}
+        {hasMoreSkills && !isManaging && (
+          <button
+            type="button"
+            onClick={() => setIsExpanded(!isExpanded)}
+            className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-bold bg-slate-100 hover:bg-teal-50 text-slate-600 hover:text-teal-700 border border-slate-200/80 hover:border-teal-200 transition-all cursor-pointer"
+          >
+            {isExpanded ? (
+              <>
+                <ChevronUp className="w-3 h-3" />
+                <span>Show Less</span>
+              </>
+            ) : (
+              <>
+                <ChevronDown className="w-3 h-3" />
+                <span>+ Show More ({skills.length - MAX_INITIAL_SKILLS})</span>
+              </>
+            )}
+          </button>
         )}
 
         {/* Inline Add Skill Input or Button */}
