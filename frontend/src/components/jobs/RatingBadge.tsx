@@ -30,7 +30,7 @@ export function RatingBadge({ rating, reason }: RatingBadgeProps) {
         </div>
         <div>
           <div className="font-bold flex items-center gap-2">
-            <span className={textColor}>JobPulse Rating: {rating}</span>
+            <span className={textColor}>JobHighway Rating: {rating}</span>
           </div>
           {reason && (
             <p className="text-sm text-slate-600 mt-1">

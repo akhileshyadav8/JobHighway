@@ -48,7 +48,7 @@ export function UpgradeProModal({ isOpen, onClose }: UpgradeProModalProps) {
           </div>
           <div>
             <h2 className="text-lg font-bold text-slate-900">
-              JobPulse Pro Membership
+              JobHighway Pro Membership
             </h2>
             <p className="text-xs text-slate-500">
               Supercharge your job search with AI matching &amp; priority speed.
@@ -72,7 +72,7 @@ export function UpgradeProModal({ isOpen, onClose }: UpgradeProModalProps) {
           <button
             type="button"
             onClick={() => {
-              alert("Thank you for your interest! JobPulse Pro upgrade will activate soon.");
+              alert("Thank you for your interest! JobHighway Pro upgrade will activate soon.");
               onClose();
             }}
             className="w-full py-2.5 px-4 rounded-xl bg-teal-600 hover:bg-teal-700 text-white font-bold text-sm shadow-md transition-all flex items-center justify-center gap-2 cursor-pointer"

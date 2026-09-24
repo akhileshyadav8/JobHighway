@@ -87,7 +87,7 @@ export default async function CompanyDetailPage({ params }: { params: Promise<{ 
           <div className="text-center py-16 bg-white rounded-xl border border-slate-200 ">
             <Briefcase className="w-12 h-12 text-slate-300 mx-auto mb-4" />
             <h3 className="text-lg font-medium text-slate-900 mb-2">No active jobs</h3>
-            <p className="text-slate-500">This company currently doesn't have any open positions on JobPulse.</p>
+            <p className="text-slate-500">This company currently doesn't have any open positions on JobHighway.</p>
           </div>
         )}
       </div>

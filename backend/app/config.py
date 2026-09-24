@@ -3,12 +3,12 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 from pydantic import Field
 
 class Settings(BaseSettings):
-    PROJECT_NAME: str = "JobPulse API"
+    PROJECT_NAME: str = "JobHighway API"
     VERSION: str = "1.0.0"
     API_V1_STR: str = "/api/v1"
     
     # Database Settings
-    DATABASE_URL: str = Field(default="postgresql+asyncpg://user:password@localhost:5432/jobpulse", env="DATABASE_URL")
+    DATABASE_URL: str = Field(default="postgresql+asyncpg://user:password@localhost:5432/jobhighway", env="DATABASE_URL")
     
     # Redis & Celery Settings
     REDIS_URL: str = Field(default="redis://localhost:6379/0", env="REDIS_URL")

@@ -24,7 +24,7 @@ export async function POST(request: NextRequest) {
     const res = await fetch(url, {
       method: 'HEAD',
       headers: {
-        'User-Agent': 'JobPulse-Link-Probe/1.0'
+        'User-Agent': 'JobHighway-Link-Probe/1.0'
       },
       signal: controller.signal,
       redirect: 'follow'
@@ -33,7 +33,7 @@ export async function POST(request: NextRequest) {
       return await fetch(url, {
         method: 'GET',
         headers: {
-          'User-Agent': 'JobPulse-Link-Probe/1.0',
+          'User-Agent': 'JobHighway-Link-Probe/1.0',
           'Range': 'bytes=0-100'
         },
         signal: controller.signal

@@ -24,14 +24,14 @@ interface FAQItem {
 
 const FAQ_ITEMS: FAQItem[] = [
   {
-    question: "How does JobPulse get job listings?",
+    question: "How does JobHighway get job listings?",
     answer:
       "We connect directly to companies' official career systems (including Greenhouse, Lever, Workday, Ashby, and Taleo) and index jobs hourly without delayed third-party aggregators or recruiter spam.",
   },
   {
-    question: "Is JobPulse free to use?",
+    question: "Is JobHighway free to use?",
     answer:
-      "Yes, JobPulse is 100% free for job seekers. You can search, filter, track applications, and set custom job alerts with zero paywalls or subscription fees.",
+      "Yes, JobHighway is 100% free for job seekers. You can search, filter, track applications, and set custom job alerts with zero paywalls or subscription fees.",
   },
   {
     question: "How often are job listings updated?",
@@ -39,19 +39,19 @@ const FAQ_ITEMS: FAQItem[] = [
       "Our automated indexing pipelines fetch and synchronize job listings every hour to ensure you see opportunities as soon as they are posted on official career portals.",
   },
   {
-    question: "Can I post a job on JobPulse?",
+    question: "Can I post a job on JobHighway?",
     answer:
-      "Currently, JobPulse indexes official career portals automatically. If your company's career portal is not indexed yet, contact our team using the form and we will verify and connect it.",
+      "Currently, JobHighway indexes official career portals automatically. If your company's career portal is not indexed yet, contact our team using the form and we will verify and connect it.",
   },
   {
     question: "How can I report incorrect job information?",
     answer:
-      "If you notice an expired listing or incorrect salary/location information, please report it via the message form selecting 'Bug Report / Technical Issue' or email support@jobpulse.com.",
+      "If you notice an expired listing or incorrect salary/location information, please report it via the message form selecting 'Bug Report / Technical Issue' or email support@jobhighway.com.",
   },
   {
     question: "Do you have a mobile app?",
     answer:
-      "JobPulse is engineered as a fully responsive Progressive Web App (PWA). You can add it to your mobile home screen directly from your browser for an app-like experience.",
+      "JobHighway is engineered as a fully responsive Progressive Web App (PWA). You can add it to your mobile home screen directly from your browser for an app-like experience.",
   },
   {
     question: "How can I suggest a new feature?",
@@ -61,7 +61,7 @@ const FAQ_ITEMS: FAQItem[] = [
 ];
 
 export default function ContactPage() {
-  const EMAIL = "support@jobpulse.com";
+  const EMAIL = "support@jobhighway.com";
   const [name, setName] = useState("");
   const [senderEmail, setSenderEmail] = useState("");
   const [subject, setSubject] = useState("");
@@ -95,13 +95,13 @@ export default function ContactPage() {
       createdAt: new Date().toISOString(),
     };
 
-    // Store in JobPulse Admin Inquiries store
+    // Store in JobHighway Admin Inquiries store
     try {
       const existing = JSON.parse(
-        localStorage.getItem("jobpulse_contact_inquiries") || "[]"
+        localStorage.getItem("jobhighway_contact_inquiries") || "[]"
       );
       localStorage.setItem(
-        "jobpulse_contact_inquiries",
+        "jobhighway_contact_inquiries",
         JSON.stringify([inquiry, ...existing])
       );
     } catch (err) {
@@ -122,8 +122,8 @@ export default function ContactPage() {
           access_key: accessKey,
           name,
           email: senderEmail,
-          subject: `[JobPulse] ${subject || "New Inquiry"}`,
-          from_name: `JobPulse - ${name}`,
+          subject: `[JobHighway] ${subject || "New Inquiry"}`,
+          from_name: `JobHighway - ${name}`,
           to_email: EMAIL,
           message: `Subject: ${subject}\nSender: ${name} (${senderEmail})\n\nMessage:\n${message}`,
         }),
@@ -180,10 +180,10 @@ export default function ContactPage() {
                       Direct Email
                     </div>
                     <a
-                      href="mailto:support@jobpulse.com"
+                      href="mailto:support@jobhighway.com"
                       className="text-xs font-bold text-slate-800 hover:text-[#0d9488] transition-colors"
                     >
-                      support@jobpulse.com
+                      support@jobhighway.com
                     </a>
                   </div>
                 </div>
@@ -291,10 +291,10 @@ export default function ContactPage() {
                   General Inquiries
                 </h3>
                 <a
-                  href="mailto:support@jobpulse.com"
+                  href="mailto:support@jobhighway.com"
                   className="text-xs font-semibold text-[#0d9488] hover:underline block mb-2"
                 >
-                  support@jobpulse.com
+                  support@jobhighway.com
                 </a>
                 <p className="text-xs text-slate-500 leading-relaxed">
                   For general questions and support.
@@ -312,10 +312,10 @@ export default function ContactPage() {
                   Partnerships
                 </h3>
                 <a
-                  href="mailto:partnerships@jobpulse.com"
+                  href="mailto:partnerships@jobhighway.com"
                   className="text-xs font-semibold text-[#0d9488] hover:underline block mb-2"
                 >
-                  partnerships@jobpulse.com
+                  partnerships@jobhighway.com
                 </a>
                 <p className="text-xs text-slate-500 leading-relaxed">
                   For company partnerships and collaborations.
@@ -333,10 +333,10 @@ export default function ContactPage() {
                   Media &amp; Press
                 </h3>
                 <a
-                  href="mailto:media@jobpulse.com"
+                  href="mailto:media@jobhighway.com"
                   className="text-xs font-semibold text-[#0d9488] hover:underline block mb-2"
                 >
-                  media@jobpulse.com
+                  media@jobhighway.com
                 </a>
                 <p className="text-xs text-slate-500 leading-relaxed">
                   For media, press and interview requests.
@@ -354,13 +354,13 @@ export default function ContactPage() {
                   Career Opportunities
                 </h3>
                 <a
-                  href="mailto:careers@jobpulse.com"
+                  href="mailto:careers@jobhighway.com"
                   className="text-xs font-semibold text-[#0d9488] hover:underline block mb-2"
                 >
-                  careers@jobpulse.com
+                  careers@jobhighway.com
                 </a>
                 <p className="text-xs text-slate-500 leading-relaxed">
-                  For career openings at JobPulse.
+                  For career openings at JobHighway.
                 </p>
               </div>
             </div>

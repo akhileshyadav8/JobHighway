@@ -7,7 +7,7 @@ const resendAttemptCount = new Map<string, number>();
 
 export async function POST(req: NextRequest) {
   try {
-    const token = req.cookies.get('jobpulse_reset_otp_token')?.value;
+    const token = req.cookies.get('jobhighway_reset_otp_token')?.value;
     if (!token) {
       return NextResponse.json(
         { error: 'No active password reset session. Please request a new reset code.' },
@@ -16,7 +16,7 @@ export async function POST(req: NextRequest) {
     }
 
     const secret = new TextEncoder().encode(
-      process.env.NEXTAUTH_SECRET || process.env.OTP_SECRET || 'jobpulse-otp-secret-change-in-production'
+      process.env.NEXTAUTH_SECRET || process.env.OTP_SECRET || 'jobhighway-otp-secret-change-in-production'
     );
 
     let payload: any;
@@ -76,15 +76,15 @@ export async function POST(req: NextRequest) {
       try {
         const { Resend } = await import('resend');
         const resend = new Resend(RESEND_API_KEY);
-        const fromEmail = process.env.RESEND_FROM_EMAIL || 'JobPulse Security <onboarding@resend.dev>';
+        const fromEmail = process.env.RESEND_FROM_EMAIL || 'JobHighway Security <onboarding@resend.dev>';
         const sendResult = await resend.emails.send({
           from: fromEmail,
           to: [email],
-          subject: `${newOtp} — Your New JobPulse Password Reset Code`,
+          subject: `${newOtp} — Your New JobHighway Password Reset Code`,
           html: `
             <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; max-width: 480px; margin: 0 auto; padding: 36px 24px; background: #ffffff; border: 1px solid #e2e8f0; border-radius: 16px;">
               <div style="margin-bottom: 24px;">
-                <span style="font-size: 24px; font-weight: 900; color: #0d9488; letter-spacing: -0.5px;">JobPulse</span>
+                <span style="font-size: 24px; font-weight: 900; color: #0d9488; letter-spacing: -0.5px;">JobHighway</span>
               </div>
               <h1 style="font-size: 20px; font-weight: 800; color: #0f172a; margin: 0 0 8px; letter-spacing: -0.3px;">
                 New Password Reset Code
@@ -128,7 +128,7 @@ export async function POST(req: NextRequest) {
       } : {}),
     });
 
-    response.cookies.set('jobpulse_reset_otp_token', newToken, {
+    response.cookies.set('jobhighway_reset_otp_token', newToken, {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
       sameSite: 'lax',

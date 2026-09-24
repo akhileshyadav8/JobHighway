@@ -61,11 +61,11 @@ export function InteractiveCompanies({ initialCompanies, initialStats }: Interac
       }
     };
 
-    window.addEventListener("jobpulse_following_change", handleSync);
-    window.addEventListener("jobpulse_auth_change", handleSync);
+    window.addEventListener("jobhighway_following_change", handleSync);
+    window.addEventListener("jobhighway_auth_change", handleSync);
     return () => {
-      window.removeEventListener("jobpulse_following_change", handleSync);
-      window.removeEventListener("jobpulse_auth_change", handleSync);
+      window.removeEventListener("jobhighway_following_change", handleSync);
+      window.removeEventListener("jobhighway_auth_change", handleSync);
     };
   }, []);
 

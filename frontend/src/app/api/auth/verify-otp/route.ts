@@ -14,14 +14,14 @@ export async function POST(req: NextRequest) {
     }
 
     // Read the OTP token cookie
-    const token = req.cookies.get('jobpulse_otp_token')?.value;
+    const token = req.cookies.get('jobhighway_otp_token')?.value || req.cookies.get('jobpulse_otp_token')?.value;
     if (!token) {
       return NextResponse.json({ error: 'Verification session expired. Please register again.' }, { status: 401 });
     }
 
     // Verify the JWT
     const secret = new TextEncoder().encode(
-      process.env.NEXTAUTH_SECRET || process.env.OTP_SECRET || 'jobpulse-otp-secret-change-in-production'
+      process.env.NEXTAUTH_SECRET || process.env.OTP_SECRET || 'jobhighway-otp-secret-change-in-production'
     );
 
     let payload: any;
@@ -62,7 +62,7 @@ export async function POST(req: NextRequest) {
         password: payload.password,
       },
     });
-    response.cookies.delete('jobpulse_otp_token');
+    response.cookies.delete('jobhighway_otp_token');
 
     return response;
   } catch (error) {

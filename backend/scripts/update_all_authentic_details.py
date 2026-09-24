@@ -1,5 +1,5 @@
 """
-JobPulse Master Authenticity Migration:
+JobHighway Master Authenticity Migration:
 1. Populates intelligent, authentic 'eligible_batches' across all jobs:
    - Exact graduating batches for campus / explicit postings
    - ["2024", "2025", "2026", "2027"] for freshers / interns / trainees

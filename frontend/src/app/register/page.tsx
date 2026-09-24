@@ -78,8 +78,8 @@ export default function RegisterPage() {
             {/* Brand Logo & Header */}
             <div className="text-left mb-6">
               <Link href="/" className="inline-flex items-center gap-2.5 mb-3.5 group">
-                <img src="/logo.png" alt="JobPulse" className="w-10 h-10 object-contain" />
-                <span className="text-2xl font-black tracking-tight text-teal-700">JobPulse</span>
+                <img src="/logo.png" alt="JobHighway" className="w-10 h-10 object-contain" />
+                <span className="text-2xl font-black tracking-tight text-teal-700">JobHighway</span>
               </Link>
               <h1 className="text-3xl sm:text-4xl font-black text-slate-900 tracking-tight">
                 Create Account

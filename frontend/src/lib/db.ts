@@ -104,7 +104,8 @@ function mapRowToJob(row: any): Job {
     interview_experience: null,
     work_culture_summary: null,
     study_materials: null,
-    jobpulse_rating: row.jobpulse_rating || null,
+    jobhighway_rating: row.jobhighway_rating || row.jobpulse_rating || null,
+    jobpulse_rating: row.jobpulse_rating || row.jobhighway_rating || null,
     rating_reason: row.rating_reason || null,
     view_count: row.view_count || 1,
   };
@@ -314,7 +315,7 @@ export async function getLiveJobsPaginated(params: JobFilterParams = {}): Promis
         j.experience_min, j.experience_max, j.education, j.eligible_batches,
         j.min_cgpa, j.min_percentage, j.backlog_allowed, j.skills_required, j.skills_preferred,
         j.job_url, j.apply_url, j.posted_at, j.deadline, j.first_seen_at, j.last_seen_at,
-        j.status, '' as description_text, j.jobpulse_rating, j.rating_reason, j.view_count,
+        j.status, '' as description_text, j.jobpulse_rating as jobhighway_rating, j.jobpulse_rating, j.rating_reason, j.view_count,
         c.id as comp_id, c.name as comp_name, c.slug as comp_slug, c.logo_url as comp_logo, c.industry as comp_industry
       FROM jobs j
       JOIN companies c ON j.company_id = c.id
@@ -376,6 +377,7 @@ export async function getLiveJobsFromDb(limit?: number): Promise<Job[] | null> {
         j.last_seen_at,
         j.status,
         '' as description_text,
+        j.jobpulse_rating as jobhighway_rating,
         j.jobpulse_rating,
         j.rating_reason,
         j.view_count,
@@ -437,7 +439,8 @@ export async function getLiveJobsFromDb(limit?: number): Promise<Job[] | null> {
       interview_experience: null,
       work_culture_summary: null,
       study_materials: null,
-      jobpulse_rating: row.jobpulse_rating || null,
+      jobhighway_rating: row.jobhighway_rating || row.jobpulse_rating || null,
+      jobpulse_rating: row.jobpulse_rating || row.jobhighway_rating || null,
       rating_reason: row.rating_reason || null,
       view_count: row.view_count || 1,
     }));
@@ -509,6 +512,7 @@ export async function getLiveJobBySlugFromDb(slug: string): Promise<Job | null> 
         j.status,
         j.description_html,
         j.description_text,
+        j.jobpulse_rating as jobhighway_rating,
         j.jobpulse_rating,
         j.rating_reason,
         j.view_count,
@@ -573,7 +577,8 @@ export async function getLiveJobBySlugFromDb(slug: string): Promise<Job | null> 
       interview_experience: null,
       work_culture_summary: null,
       study_materials: null,
-      jobpulse_rating: row.jobpulse_rating || null,
+      jobhighway_rating: row.jobhighway_rating || row.jobpulse_rating || null,
+      jobpulse_rating: row.jobpulse_rating || row.jobhighway_rating || null,
       rating_reason: row.rating_reason || null,
       view_count: row.view_count || 1,
     };
@@ -713,6 +718,7 @@ export async function getLiveCompanyJobsFromDb(slug: string): Promise<Job[] | nu
         j.last_seen_at,
         j.status,
         '' as description_text,
+        j.jobpulse_rating as jobhighway_rating,
         j.jobpulse_rating,
         j.rating_reason,
         j.view_count,
@@ -774,7 +780,8 @@ export async function getLiveCompanyJobsFromDb(slug: string): Promise<Job[] | nu
       interview_experience: null,
       work_culture_summary: null,
       study_materials: null,
-      jobpulse_rating: row.jobpulse_rating || null,
+      jobhighway_rating: row.jobhighway_rating || row.jobpulse_rating || null,
+      jobpulse_rating: row.jobpulse_rating || row.jobhighway_rating || null,
       rating_reason: row.rating_reason || null,
       view_count: row.view_count || 1,
     }));

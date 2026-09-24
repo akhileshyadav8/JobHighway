@@ -39,7 +39,7 @@ export default function AdminActivityLogsPage() {
   const handleClear = () => {
     if (!confirm("Are you sure you want to clear telemetry logs?")) return;
     clearAnalyticsEvents();
-    localStorage.removeItem("jobpulse_admin_activity");
+    localStorage.removeItem("jobhighway_admin_activity");
     refreshLogs();
     setCurrentPage(1);
   };

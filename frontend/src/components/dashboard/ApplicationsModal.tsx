@@ -156,7 +156,7 @@ export function ApplicationsModal({
                   <Briefcase className="w-10 h-10 text-slate-300 mx-auto mb-2" />
                   <p className="text-sm font-bold text-slate-700">No applications found</p>
                   <p className="text-xs text-slate-400 mt-1">
-                    When you apply to jobs on JobPulse, they will be tracked here.
+                    When you apply to jobs on JobHighway, they will be tracked here.
                   </p>
                 </div>
               ) : (

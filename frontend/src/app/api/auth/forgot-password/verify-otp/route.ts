@@ -14,7 +14,7 @@ export async function POST(req: NextRequest) {
     }
 
     // Read the reset OTP cookie
-    const token = req.cookies.get('jobpulse_reset_otp_token')?.value;
+    const token = req.cookies.get('jobhighway_reset_otp_token')?.value || req.cookies.get('jobpulse_reset_otp_token')?.value;
     if (!token) {
       return NextResponse.json(
         { error: 'Reset session expired or not found. Please request a new verification code.' },
@@ -23,7 +23,7 @@ export async function POST(req: NextRequest) {
     }
 
     const secret = new TextEncoder().encode(
-      process.env.NEXTAUTH_SECRET || process.env.OTP_SECRET || 'jobpulse-otp-secret-change-in-production'
+      process.env.NEXTAUTH_SECRET || process.env.OTP_SECRET || 'jobhighway-otp-secret-change-in-production'
     );
 
     let payload: any;
@@ -87,8 +87,8 @@ export async function POST(req: NextRequest) {
     });
 
     // Delete the OTP token cookie, set the verified reset authorization cookie
-    response.cookies.delete('jobpulse_reset_otp_token');
-    response.cookies.set('jobpulse_verified_reset_token', verifiedToken, {
+    response.cookies.delete('jobhighway_reset_otp_token');
+    response.cookies.set('jobhighway_verified_reset_token', verifiedToken, {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
       sameSite: 'lax',

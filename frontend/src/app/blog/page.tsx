@@ -164,7 +164,7 @@ export default function BlogPage() {
 
               {/* Main Heading */}
               <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-[46px] font-black text-slate-900 tracking-tight leading-[1.18] mb-4">
-                JobPulse Playbook &amp;{" "}
+                JobHighway Playbook &amp;{" "}
                 <span className="text-[#0d9488]">Career Blog</span>
               </h1>
 
@@ -549,7 +549,7 @@ export default function BlogPage() {
                   Latest Articles
                 </h2>
                 <p className="text-xs text-slate-500">
-                  Explore the latest tips, guides and insights from the JobPulse team
+                  Explore the latest tips, guides and insights from the JobHighway team
                 </p>
               </div>
             </div>

@@ -25,8 +25,8 @@ export interface AnalyticsSummary {
   recentEvents: AnalyticsEvent[];
 }
 
-const ANALYTICS_KEY = "jobpulse_analytics_events";
-const VISITOR_ID_KEY = "jobpulse_visitor_id";
+const ANALYTICS_KEY = "jobhighway_analytics_events";
+const VISITOR_ID_KEY = "jobhighway_visitor_id";
 
 function isBrowser(): boolean {
   return typeof window !== "undefined";
@@ -183,7 +183,7 @@ export function clearAnalyticsEvents(olderThanMinutes?: number): void {
       });
       localStorage.setItem(ANALYTICS_KEY, JSON.stringify(kept));
     }
-    window.dispatchEvent(new Event("jobpulse_analytics_update"));
+    window.dispatchEvent(new Event("jobhighway_analytics_update"));
   } catch (err) {
     console.debug("Error clearing analytics events:", err);
   }

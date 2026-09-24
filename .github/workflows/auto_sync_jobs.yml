@@ -42,8 +42,8 @@ jobs:
 
       - name: Commit and Push Updated Job Data
         run: |
-          git config --global user.name "JobPulse Bot"
-          git config --global user.email "bot@jobpulse.internal"
+          git config --global user.name "JobHighway Bot"
+          git config --global user.email "bot@jobhighway.internal"
           git add frontend/src/lib/real_jobs.json
           if git diff --staged --quiet; then
             echo "No new JSON file changes to commit."

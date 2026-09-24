@@ -20,8 +20,12 @@ export function Navbar() {
     const handleAuthChange = () => {
       setUser(getCurrentUser());
     };
-    window.addEventListener("jobpulse_auth_change", handleAuthChange);
-    return () => window.removeEventListener("jobpulse_auth_change", handleAuthChange);
+    window.addEventListener("jobhighway_auth_change", handleAuthChange);
+    window.addEventListener("jobhighway_auth_change", handleAuthChange);
+    return () => {
+      window.removeEventListener("jobhighway_auth_change", handleAuthChange);
+      window.removeEventListener("jobhighway_auth_change", handleAuthChange);
+    };
   }, []);
 
   // Close mobile menu whenever route changes
@@ -83,7 +87,7 @@ export function Navbar() {
             <div className="relative w-10 h-10 sm:w-11 sm:h-11 flex items-center justify-center shrink-0">
               <Image
                 src="/logo.png"
-                alt="JobPulse Logo"
+                alt="JobHighway Logo"
                 width={44}
                 height={44}
                 className="w-full h-full object-contain"
@@ -91,11 +95,11 @@ export function Navbar() {
               />
             </div>
             <span className="text-xl sm:text-2xl font-black tracking-tight text-teal-700 group-hover:opacity-90 transition-opacity">
-              JobPulse
+              JobHighway
             </span>
           </Link>
           <span className="hidden md:inline-block text-xs font-medium text-slate-500 border-l border-slate-200 pl-3">
-            Official ATS Stream • Synced Hourly
+            Pathways to Professional Success • Official ATS Stream
           </span>
         </div>
 

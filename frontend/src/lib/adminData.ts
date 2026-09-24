@@ -113,7 +113,7 @@ export function detectAtsPlatform(url: string = ""): string {
 // -------------------------------------------------------------
 // DYNAMIC JOBS STORE
 // -------------------------------------------------------------
-const JOBS_STORAGE_KEY = "jobpulse_admin_jobs_v2";
+const JOBS_STORAGE_KEY = "jobhighway_admin_jobs_v2";
 
 export interface AdminJobItem {
   id: string | number;
@@ -161,12 +161,12 @@ function getInitialMockJobs(): AdminJobItem[] {
       id: j.id || `job_${idx}`,
       title: j.title,
       slug: j.slug || `job-${idx}`,
-      company: j.company?.name || "JobPulse Partner",
+      company: j.company?.name || "JobHighway Partner",
       location: loc,
       ats: detectAtsPlatform(j.apply_url || j.job_url),
       posted: `${(idx % 14) + 1} days ago`,
       status,
-      applyUrl: j.apply_url || j.job_url || "https://jobpulse.io",
+      applyUrl: j.apply_url || j.job_url || "https://jobhighway.io",
       salary: sal,
       hasDescription: Boolean(j.description_text && j.description_text.length > 20)
     };
@@ -186,12 +186,12 @@ export function addAdminJob(newJob: Partial<AdminJobItem>): AdminJobItem {
     id: `custom_${Date.now()}`,
     title: newJob.title || "Software Engineer",
     slug: (newJob.title || "job").toLowerCase().replace(/[^a-z0-9]+/g, "-") + "-" + Date.now().toString().slice(-4),
-    company: newJob.company || "JobPulse Verified Partner",
+    company: newJob.company || "JobHighway Verified Partner",
     location: newJob.location || "Bengaluru, India (Hybrid)",
     ats: detectAtsPlatform(newJob.applyUrl || ""),
     posted: "Just now",
     status: newJob.status || "Active",
-    applyUrl: newJob.applyUrl || "https://jobpulse.io",
+    applyUrl: newJob.applyUrl || "https://jobhighway.io",
     salary: newJob.salary || "Competitive",
     hasDescription: true
   };
@@ -238,7 +238,7 @@ export function getTotalPlatformJobsCount(): number {
 // -------------------------------------------------------------
 // DYNAMIC ATS SOURCES COMPUTED FROM REAL CORPUS & STATE
 // -------------------------------------------------------------
-const ATS_STATE_STORAGE_KEY = "jobpulse_ats_sources_state";
+const ATS_STATE_STORAGE_KEY = "jobhighway_ats_sources_state";
 
 export const BASE_ATS_SOURCES: AtsSourceItem[] = [
   {
@@ -458,7 +458,7 @@ export async function executeLiveAtsSync(sourceId: string, companySlug?: string)
 // -------------------------------------------------------------
 // SYNC LOGS
 // -------------------------------------------------------------
-const SYNC_LOGS_STORAGE_KEY = "jobpulse_sync_logs";
+const SYNC_LOGS_STORAGE_KEY = "jobhighway_sync_logs";
 
 export function getSyncLogs(): SyncLogItem[] {
   if (typeof window === "undefined") return getDefaultSyncLogs();
@@ -529,7 +529,7 @@ export function addSyncLog(log: Omit<SyncLogItem, "id" | "timestamp">) {
 // -------------------------------------------------------------
 // DUPLICATE DETECTION ENGINE
 // -------------------------------------------------------------
-const DUPLICATES_STORAGE_KEY = "jobpulse_admin_duplicates";
+const DUPLICATES_STORAGE_KEY = "jobhighway_admin_duplicates";
 
 export function detectJobDuplicates(): DuplicateCluster[] {
   if (typeof window === "undefined") return getDefaultDuplicates();
@@ -773,7 +773,7 @@ export async function probeUrlHealth(url: string): Promise<{
 // -------------------------------------------------------------
 // REAL SYSTEM ALERTS
 // -------------------------------------------------------------
-const ALERTS_STORAGE_KEY = "jobpulse_admin_alerts";
+const ALERTS_STORAGE_KEY = "jobhighway_admin_alerts";
 
 export function getSystemAlerts(): AdminAlert[] {
   if (typeof window === "undefined") return getDefaultAlerts();
@@ -872,7 +872,7 @@ export function clearAlert(id: string) {
 // -------------------------------------------------------------
 // IMMUTABLE ACTIVITY LOG AUDIT TRAIL
 // -------------------------------------------------------------
-const ACTIVITY_STORAGE_KEY = "jobpulse_admin_activity";
+const ACTIVITY_STORAGE_KEY = "jobhighway_admin_activity";
 
 export function getAdminActivityLogs(): AdminActivityEvent[] {
   if (typeof window === "undefined") return getDefaultActivityLogs();
@@ -891,7 +891,7 @@ function getDefaultActivityLogs(): AdminActivityEvent[] {
     {
       id: "act_1",
       title: "New candidate account created",
-      details: "Candidate profile registered via Google OAuth: candidate@jobpulse.io",
+      details: "Candidate profile registered via Google OAuth: candidate@jobhighway.io",
       user: "System",
       timestamp: "2 min ago",
       category: "user"
@@ -969,7 +969,7 @@ export function getAdminCompanies(): AdminCompanyItem[] {
   const companyJobsCount: Record<string, { count: number; ats: string; slug: string }> = {};
 
   jobs.forEach(j => {
-    const name = j.company || "JobPulse Partner";
+    const name = j.company || "JobHighway Partner";
     if (!companyJobsCount[name]) {
       companyJobsCount[name] = { count: 0, ats: j.ats, slug: name.toLowerCase().replace(/[^a-z0-9]+/g, "-") };
     }
@@ -990,7 +990,7 @@ export function getAdminCompanies(): AdminCompanyItem[] {
       lastSync: `${(i % 5) * 8 + 4} min ago`,
       linkHealth: i === 6 ? "Warning" : "100% Verified",
       status: "Active",
-      careersUrl: c.careers_url || c.website || "https://jobpulse.io"
+      careersUrl: c.careers_url || c.website || "https://jobhighway.io"
     };
   });
 
@@ -1019,7 +1019,7 @@ export function getAdminCompanies(): AdminCompanyItem[] {
 // -------------------------------------------------------------
 // DYNAMIC CANDIDATE APPLICATIONS
 // -------------------------------------------------------------
-const APPLICATIONS_STORAGE_KEY = "jobpulse_admin_applications";
+const APPLICATIONS_STORAGE_KEY = "jobhighway_admin_applications";
 
 export function getAdminApplications(): CandidateApplication[] {
   if (typeof window === "undefined") return getDefaultApplications();

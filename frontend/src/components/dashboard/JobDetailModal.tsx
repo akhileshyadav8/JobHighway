@@ -105,7 +105,7 @@ export function JobDetailModal({
             </h3>
             <p className="text-xs text-slate-600 leading-relaxed">
               We detected this opening directly through the official career API of {job.company}.
-              Applying via JobPulse redirects you straight to their official greenhouse/lever/workday portal with zero recruiter intermediation or ghost listings.
+              Applying via JobHighway redirects you straight to their official greenhouse/lever/workday portal with zero recruiter intermediation or ghost listings.
             </p>
           </div>
         </div>

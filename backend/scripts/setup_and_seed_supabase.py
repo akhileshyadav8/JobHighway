@@ -33,7 +33,7 @@ def test_upstash_rest():
     print("[*] Testing Upstash REST Redis connection...", flush=True)
     import urllib.request
     
-    url = "https://sought-anteater-164279.upstash.io/set/jobpulse_test/connected"
+    url = "https://sought-anteater-164279.upstash.io/set/jobhighway_test/connected"
     token = "gQAAAAAAAoG3AAIgcDI2ODQzYzkyY2E3ZGE0MDAyYTAyZDhjNzc5ZjRlZWEzYw"
     
     req = urllib.request.Request(url, headers={"Authorization": f"Bearer {token}"})
@@ -76,7 +76,7 @@ def test_supabase_connection():
 
 def main():
     print("=" * 60, flush=True)
-    print("JobPulse: Initializing Supabase & Upstash", flush=True)
+    print("JobHighway: Initializing Supabase & Upstash", flush=True)
     print("=" * 60, flush=True)
 
     # 1. Test Upstash
@@ -195,7 +195,7 @@ def main():
                 deadline=parse_dt(item.get("deadline")),
                 first_seen_at=parse_dt(item.get("first_seen_at")) or datetime.utcnow(),
                 status=item.get("status", "active"),
-                jobpulse_rating=item.get("jobpulse_rating"),
+                jobhighway_rating=item.get("jobhighway_rating"),
                 rating_reason=item.get("rating_reason"),
                 view_count=item.get("view_count", 1)
             )

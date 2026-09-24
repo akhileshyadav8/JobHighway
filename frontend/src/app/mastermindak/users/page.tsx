@@ -63,11 +63,11 @@ export default function AdminUsersPage() {
   const handleToggleRole = (u: User) => {
     const newRole = u.role === "admin" ? "candidate" : "admin";
     try {
-      const raw = localStorage.getItem("jobpulse_users");
+      const raw = localStorage.getItem("jobhighway_users");
       if (raw) {
         const list = JSON.parse(raw);
         const updated = list.map((item: any) => item.id === u.id ? { ...item, role: newRole } : item);
-        localStorage.setItem("jobpulse_users", JSON.stringify(updated));
+        localStorage.setItem("jobhighway_users", JSON.stringify(updated));
       }
       refreshUsers();
       logAdminActivity("User Role Updated", `Changed ${u.name}'s role to ${newRole}`, "security");
@@ -116,7 +116,7 @@ export default function AdminUsersPage() {
             const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(users, null, 2));
             const dlAnchor = document.createElement("a");
             dlAnchor.setAttribute("href", dataStr);
-            dlAnchor.setAttribute("download", "jobpulse_users.json");
+            dlAnchor.setAttribute("download", "jobhighway_users.json");
             dlAnchor.click();
           }}
           variant="outline"

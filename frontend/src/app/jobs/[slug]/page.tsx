@@ -234,7 +234,7 @@ export default async function JobDetailPage({ params }: { params: Promise<{ slug
 
             {/* Official Requisition Notice */}
             <div className="bg-slate-100/80 border border-slate-200 rounded-xl p-4 sm:p-5 text-xs text-slate-600 leading-relaxed">
-              <strong>Official Requisition Notice:</strong> JobPulse indexes verified career requisitions directly from employer applicant tracking systems (ATS) and official public career boards. All trademarks and company names are property of their respective owners. JobPulse does not charge any application or recruitment fees. Always apply through the verified official link provided above.
+              <strong>Official Requisition Notice:</strong> JobHighway indexes verified career requisitions directly from employer applicant tracking systems (ATS) and official public career boards. All trademarks and company names are property of their respective owners. JobHighway does not charge any application or recruitment fees. Always apply through the verified official link provided above.
             </div>
 
             {/* Section 7: Related Jobs */}

@@ -16,8 +16,8 @@ export const viewport: Viewport = {
 };
 
 export const metadata: Metadata = {
-  title: "JobPulse | Real-Time Job Discovery",
-  description: "Discover jobs minutes after they're posted. We monitor 1000+ company career pages every 10 minutes. Never miss a fresh opportunity again.",
+  title: "JobHighway | Pathways to Professional Success",
+  description: "JobHighway — Pathways to Professional Success. Discover verified jobs directly from official company ATS career pages minutes after they're posted. Zero recruiter spam.",
   icons: {
     icon: [
       { url: '/favicon.ico' },

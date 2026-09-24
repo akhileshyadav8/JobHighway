@@ -23,7 +23,7 @@ const DEFAULT_INQUIRIES: InquiryItem[] = [
     email: "aman.verma@techcorp.in",
     topic: "Partnership & ATS Integration",
     subject: "Integrating our custom Lever enterprise portal",
-    message: "Hello JobPulse team, we want to ensure our direct engineering openings are indexed directly without third-party scrapers. How can we verify our careers domain?",
+    message: "Hello JobHighway team, we want to ensure our direct engineering openings are indexed directly without third-party scrapers. How can we verify our careers domain?",
     createdAt: new Date(Date.now() - 45 * 60000).toISOString(),
     status: "New"
   },
@@ -33,7 +33,7 @@ const DEFAULT_INQUIRIES: InquiryItem[] = [
     email: "sneha.reddy@gmail.com",
     topic: "Candidate Feedback",
     subject: "Zero-scam guarantee experience was great!",
-    message: "Just wanted to share that applying directly on Greenhouse via JobPulse was seamless and eliminated spam recruiter emails. Thank you!",
+    message: "Just wanted to share that applying directly on Greenhouse via JobHighway was seamless and eliminated spam recruiter emails. Thank you!",
     createdAt: new Date(Date.now() - 3 * 3600000).toISOString(),
     status: "Resolved"
   },
@@ -56,7 +56,7 @@ export default function AdminInquiriesPage() {
 
   useEffect(() => {
     try {
-      const raw = localStorage.getItem("jobpulse_contact_inquiries");
+      const raw = localStorage.getItem("jobhighway_contact_inquiries");
       if (raw) {
         const parsed = JSON.parse(raw);
         if (Array.isArray(parsed) && parsed.length > 0) {
@@ -73,7 +73,7 @@ export default function AdminInquiriesPage() {
   const handleDelete = (id: string) => {
     const next = inquiries.filter(i => i.id !== id);
     setInquiries(next);
-    localStorage.setItem("jobpulse_contact_inquiries", JSON.stringify(next));
+    localStorage.setItem("jobhighway_contact_inquiries", JSON.stringify(next));
     if (selectedInquiry?.id === id) {
       setSelectedInquiry(next[0] || null);
     }
@@ -82,7 +82,7 @@ export default function AdminInquiriesPage() {
   const handleUpdateStatus = (id: string, status: InquiryItem["status"]) => {
     const next = inquiries.map(i => i.id === id ? { ...i, status } : i);
     setInquiries(next);
-    localStorage.setItem("jobpulse_contact_inquiries", JSON.stringify(next));
+    localStorage.setItem("jobhighway_contact_inquiries", JSON.stringify(next));
     if (selectedInquiry?.id === id) {
       setSelectedInquiry(prev => prev ? { ...prev, status } : null);
     }

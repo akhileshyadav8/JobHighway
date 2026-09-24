@@ -20,20 +20,23 @@ export function Footer() {
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8 lg:gap-12 mb-10">
           {/* Col 1: Brand & Tagline */}
           <div className="md:col-span-2">
-            <Link href="/" className="inline-flex items-center gap-2.5 mb-3 group">
+            <Link href="/" className="inline-flex items-center gap-2.5 mb-2 group">
               <div className="relative w-9 h-9 flex items-center justify-center shrink-0">
                 <Image
                   src="/logo.png"
-                  alt="JobPulse Logo"
+                  alt="JobHighway Logo"
                   width={36}
                   height={36}
                   className="w-full h-full object-contain"
                 />
               </div>
               <span className="text-xl sm:text-2xl font-black tracking-tight text-teal-700 group-hover:opacity-90 transition-opacity">
-                JobPulse
+                JobHighway
               </span>
             </Link>
+            <p className="text-xs font-semibold text-teal-800 tracking-wide uppercase mb-2">
+              Pathways to Professional Success
+            </p>
             <p className="text-xs sm:text-sm max-w-sm mb-4 leading-relaxed text-slate-600 font-normal">
               World&apos;s Fastest Official Job Engine. We index official career portals within 1–2 hours of posting — beating standard aggregators by days with zero recruiter spam.
             </p>
@@ -96,7 +99,7 @@ export function Footer() {
         
         {/* Bottom Copyright & Guarantee */}
         <div className="border-t border-slate-100 pt-6 flex flex-col sm:flex-row items-center justify-between text-xs text-slate-400 gap-2 font-normal">
-          <p>© {currentYear} JobPulse. All rights reserved.</p>
+          <p>© {currentYear} JobHighway. All rights reserved.</p>
           <p className="text-slate-500 font-medium">100% Direct Official Links</p>
         </div>
       </div>

@@ -502,7 +502,7 @@ for idx, r in enumerate(RAW_JOBS, start=1):
         "interview_experience": f"Candidates report a structured and transparent technical evaluation at {r['company']}. Prepare thoroughly on core problem-solving, fundamental CS concepts, and clearly explain your thought process during live coding.",
         "work_culture_summary": f"{r['company']} fosters a high-ownership engineering culture with emphasis on continuous learning, mentorship for junior engineers, and competitive compensation.",
         "study_materials": STUDY_RESOURCES,
-        "jobpulse_rating": r['rating'],
+        "jobhighway_rating": r['rating'],
         "rating_reason": f"Official verified listing on {comp_info['domain']} with transparent hiring timeline.",
         "view_count": 1200 + idx * 85
     }

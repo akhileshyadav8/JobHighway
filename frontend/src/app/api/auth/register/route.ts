@@ -64,7 +64,7 @@ export async function POST(req: NextRequest) {
 
     // Sign a JWT containing the OTP + user data (sent back as a cookie)
     const secret = new TextEncoder().encode(
-      process.env.NEXTAUTH_SECRET || process.env.OTP_SECRET || 'jobpulse-otp-secret-change-in-production'
+      process.env.NEXTAUTH_SECRET || process.env.OTP_SECRET || 'jobhighway-otp-secret-change-in-production'
     );
     const token = await new SignJWT({ name: name.trim(), email: email.trim().toLowerCase(), password, otp, expiresAt })
       .setProtectedHeader({ alg: 'HS256' })
@@ -80,19 +80,19 @@ export async function POST(req: NextRequest) {
       try {
         const { Resend } = await import('resend');
         const resend = new Resend(RESEND_API_KEY);
-        const fromEmail = process.env.RESEND_FROM_EMAIL || 'JobPulse <onboarding@resend.dev>';
+        const fromEmail = process.env.RESEND_FROM_EMAIL || 'JobHighway <onboarding@resend.dev>';
         const sendResult = await resend.emails.send({
           from: fromEmail,
           to: [email.trim()],
-          subject: `${otp} — Your JobPulse Verification Code`,
+          subject: `${otp} — Your JobHighway Verification Code`,
           html: `
             <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; max-width: 480px; margin: 0 auto; padding: 32px 24px; background: #ffffff;">
               <div style="margin-bottom: 24px;">
-                <span style="font-size: 24px; font-weight: 900; color: #0d9488; letter-spacing: -0.5px;">JobPulse</span>
+                <span style="font-size: 24px; font-weight: 900; color: #0d9488; letter-spacing: -0.5px;">JobHighway</span>
               </div>
               <h1 style="font-size: 20px; font-weight: 700; color: #0f172a; margin: 0 0 8px;">Verify your email address</h1>
               <p style="color: #64748b; font-size: 14px; margin: 0 0 24px; line-height: 1.6;">
-                Hi ${name.trim()}, use this code to complete your JobPulse account setup.
+                Hi ${name.trim()}, use this code to complete your JobHighway account setup.
               </p>
               <div style="background: #f1f5f9; border-radius: 12px; padding: 24px; text-align: center; margin: 0 0 24px;">
                 <div style="font-size: 40px; font-weight: 900; letter-spacing: 8px; color: #0f172a; font-variant-numeric: tabular-nums;">${otp}</div>
@@ -102,7 +102,7 @@ export async function POST(req: NextRequest) {
                 If you didn't request this, you can safely ignore this email. This code is only valid once.
               </p>
               <hr style="border: none; border-top: 1px solid #e2e8f0; margin: 24px 0;" />
-              <p style="color: #cbd5e1; font-size: 11px; margin: 0;">JobPulse · Official ATS Job Discovery Platform</p>
+              <p style="color: #cbd5e1; font-size: 11px; margin: 0;">JobHighway · Official ATS Job Discovery Platform</p>
             </div>
           `,
         });
@@ -131,7 +131,7 @@ export async function POST(req: NextRequest) {
         emailWarning: emailErrorMessage || 'Email not sent (Resend sandbox only delivers to your registered account email until domain is verified).'
       } : {})
     });
-    response.cookies.set('jobpulse_otp_token', token, {
+    response.cookies.set('jobhighway_otp_token', token, {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
       sameSite: 'lax',

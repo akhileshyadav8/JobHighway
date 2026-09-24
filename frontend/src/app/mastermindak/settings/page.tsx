@@ -19,7 +19,7 @@ export default function AdminSettingsPage() {
   const [activeSection, setActiveSection] = useState<"general" | "pipeline" | "sources" | "notifications" | "security">("general");
 
   // General settings state
-  const [siteName, setSiteName] = useState("JobPulse");
+  const [siteName, setSiteName] = useState("JobHighway");
   const [siteDescription, setSiteDescription] = useState("World's Fastest Official Job Engine • Official ATS Stream Synced Hourly");
   const [adminEmail, setAdminEmail] = useState("yadavakhil766@gmail.com");
   const [timezone, setTimezone] = useState("Asia/Kolkata (UTC+05:30)");
@@ -38,7 +38,7 @@ export default function AdminSettingsPage() {
 
   useEffect(() => {
     try {
-      const raw = localStorage.getItem("jobpulse_admin_settings");
+      const raw = localStorage.getItem("jobhighway_admin_settings");
       if (raw) {
         const s = JSON.parse(raw);
         if (s.siteName) setSiteName(s.siteName);
@@ -67,7 +67,7 @@ export default function AdminSettingsPage() {
       failureThreshold
     };
     try {
-      localStorage.setItem("jobpulse_admin_settings", JSON.stringify(settings));
+      localStorage.setItem("jobhighway_admin_settings", JSON.stringify(settings));
       const { logAdminActivity } = require("@/lib/adminData");
       logAdminActivity("Settings Updated", "Admin updated pipeline cadences and system parameters", "system");
     } catch {}
@@ -219,12 +219,12 @@ export default function AdminSettingsPage() {
                 </div>
 
                 <div className="pt-2">
-                  <label className="font-semibold text-slate-700 block mb-2">JobPulse Logo</label>
+                  <label className="font-semibold text-slate-700 block mb-2">JobHighway Logo</label>
                   <div className="flex items-center gap-3">
                     <div className="w-12 h-12 rounded-xl border border-slate-200 bg-slate-50 flex items-center justify-center p-2">
                       <img src="/logo.png" alt="Logo" className="w-8 h-8 object-contain" />
                     </div>
-                    <span className="text-xs text-slate-500 font-mono">/logo.png (JobPulse High-Res SVG/PNG)</span>
+                    <span className="text-xs text-slate-500 font-mono">/logo.png (JobHighway High-Res SVG/PNG)</span>
                   </div>
                 </div>
               </div>

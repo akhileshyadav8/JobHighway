@@ -148,7 +148,7 @@ export function DashboardSidebar({
         })}
       </div>
 
-      {/* Bottom Promo Card: JobPulse Pro */}
+      {/* Bottom Promo Card: JobHighway Pro */}
       <div className="pt-6 pb-2">
         <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-2xs relative overflow-hidden group">
           <div className="flex items-start gap-3 mb-2.5">
@@ -157,7 +157,7 @@ export function DashboardSidebar({
             </div>
             <div>
               <h4 className="text-xs font-bold text-slate-900 leading-tight">
-                Get More with JobPulse Pro
+                Get More with JobHighway Pro
               </h4>
               <p className="text-[11px] text-slate-500 mt-1 leading-snug">
                 Advanced insights, AI tools and priority alerts.

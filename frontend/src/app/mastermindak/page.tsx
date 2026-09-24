@@ -91,7 +91,7 @@ export default function AdminDashboardOverview() {
             <span className="text-2xl">👋</span>
           </h1>
           <p className="text-xs sm:text-sm text-slate-500 mt-1">
-            Here&apos;s what&apos;s happening across JobPulse operations and ingestion pipelines.
+            Here&apos;s what&apos;s happening across JobHighway operations and ingestion pipelines.
           </p>
         </div>
 

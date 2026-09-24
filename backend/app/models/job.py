@@ -58,7 +58,7 @@ class Job(Base):
     work_culture_summary: Mapped[Optional[str]] = mapped_column(Text)
     study_materials: Mapped[Optional[Any]] = mapped_column(JSON)
     
-    jobpulse_rating: Mapped[Optional[str]] = mapped_column(String(20))
+    jobhighway_rating: Mapped[Optional[str]] = mapped_column("jobpulse_rating", String(20))
     rating_reason: Mapped[Optional[str]] = mapped_column(String(500))
     
     view_count: Mapped[int] = mapped_column(Integer, default=0)

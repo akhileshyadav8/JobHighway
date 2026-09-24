@@ -14,10 +14,10 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
   const article = getArticleBySlug(slug);
   if (!article) {
-    return { title: "Article Not Found | JobPulse" };
+    return { title: "Article Not Found | JobHighway" };
   }
   return {
-    title: `${article.title} | JobPulse Blog`,
+    title: `${article.title} | JobHighway Blog`,
     description: article.summary,
   };
 }

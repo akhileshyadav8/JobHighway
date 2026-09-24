@@ -54,14 +54,14 @@ export function JobDetailSidebar({ job }: JobDetailSidebarProps) {
       }
     };
 
-    window.addEventListener("jobpulse_auth_change", syncState);
-    window.addEventListener("jobpulse_applications_change", syncState);
-    window.addEventListener("jobpulse_bookmarks_change", syncState);
+    window.addEventListener("jobhighway_auth_change", syncState);
+    window.addEventListener("jobhighway_applications_change", syncState);
+    window.addEventListener("jobhighway_bookmarks_change", syncState);
 
     return () => {
-      window.removeEventListener("jobpulse_auth_change", syncState);
-      window.removeEventListener("jobpulse_applications_change", syncState);
-      window.removeEventListener("jobpulse_bookmarks_change", syncState);
+      window.removeEventListener("jobhighway_auth_change", syncState);
+      window.removeEventListener("jobhighway_applications_change", syncState);
+      window.removeEventListener("jobhighway_bookmarks_change", syncState);
     };
   }, [job.id]);
 
@@ -299,7 +299,7 @@ export function JobDetailSidebar({ job }: JobDetailSidebarProps) {
       {/* Report issue link */}
       <div className="text-center px-2">
         <a
-          href={`mailto:jobpulse.report@gmail.com?subject=Report Listing: ${encodeURIComponent(job.title)} at ${encodeURIComponent(job.company.name)}&body=Job Slug: ${encodeURIComponent(job.slug)}`}
+          href={`mailto:jobhighway.report@gmail.com?subject=Report Listing: ${encodeURIComponent(job.title)} at ${encodeURIComponent(job.company.name)}&body=Job Slug: ${encodeURIComponent(job.slug)}`}
           className="text-xs text-slate-400 hover:text-slate-600 transition-colors inline-flex items-center gap-1"
         >
           <AlertCircle className="w-3 h-3" />

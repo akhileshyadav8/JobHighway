@@ -61,7 +61,7 @@ export async function POST(req: NextRequest) {
 
     // Sign JWT token stored in HttpOnly cookie
     const secret = new TextEncoder().encode(
-      process.env.NEXTAUTH_SECRET || process.env.OTP_SECRET || 'jobpulse-otp-secret-change-in-production'
+      process.env.NEXTAUTH_SECRET || process.env.OTP_SECRET || 'jobhighway-otp-secret-change-in-production'
     );
 
     const token = await new SignJWT({
@@ -83,21 +83,21 @@ export async function POST(req: NextRequest) {
       try {
         const { Resend } = await import('resend');
         const resend = new Resend(RESEND_API_KEY);
-        const fromEmail = process.env.RESEND_FROM_EMAIL || 'JobPulse Security <onboarding@resend.dev>';
+        const fromEmail = process.env.RESEND_FROM_EMAIL || 'JobHighway Security <onboarding@resend.dev>';
         const sendResult = await resend.emails.send({
           from: fromEmail,
           to: [cleanEmail],
-          subject: `${otp} — JobPulse Password Reset Code`,
+          subject: `${otp} — JobHighway Password Reset Code`,
           html: `
             <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; max-width: 480px; margin: 0 auto; padding: 36px 24px; background: #ffffff; border: 1px solid #e2e8f0; border-radius: 16px;">
               <div style="margin-bottom: 24px;">
-                <span style="font-size: 24px; font-weight: 900; color: #0d9488; letter-spacing: -0.5px;">JobPulse</span>
+                <span style="font-size: 24px; font-weight: 900; color: #0d9488; letter-spacing: -0.5px;">JobHighway</span>
               </div>
               <h1 style="font-size: 20px; font-weight: 800; color: #0f172a; margin: 0 0 8px; letter-spacing: -0.3px;">
                 Password Reset Verification
               </h1>
               <p style="color: #475569; font-size: 14px; margin: 0 0 24px; line-height: 1.6;">
-                We received a request to reset the password for your JobPulse account. Enter the 6-digit verification code below to proceed:
+                We received a request to reset the password for your JobHighway account. Enter the 6-digit verification code below to proceed:
               </p>
               <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 24px; text-align: center; margin: 0 0 24px;">
                 <div style="font-size: 38px; font-weight: 900; letter-spacing: 8px; color: #0f172a; font-variant-numeric: tabular-nums;">${otp}</div>
@@ -110,7 +110,7 @@ export async function POST(req: NextRequest) {
               </p>
               <hr style="border: none; border-top: 1px solid #e2e8f0; margin: 24px 0;" />
               <p style="color: #94a3b8; font-size: 11px; margin: 0;">
-                JobPulse · Official ATS Job Discovery Platform
+                JobHighway · Official ATS Job Discovery Platform
               </p>
             </div>
           `,
@@ -138,7 +138,7 @@ export async function POST(req: NextRequest) {
       } : {})
     });
 
-    response.cookies.set('jobpulse_reset_otp_token', token, {
+    response.cookies.set('jobhighway_reset_otp_token', token, {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
       sameSite: 'lax',

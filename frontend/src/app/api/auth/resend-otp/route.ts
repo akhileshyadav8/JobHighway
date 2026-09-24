@@ -9,14 +9,14 @@ const resendAttemptCount = new Map<string, number>();
 export async function POST(req: NextRequest) {
   try {
     // Read the existing OTP token cookie
-    const token = req.cookies.get('jobpulse_otp_token')?.value;
+    const token = req.cookies.get('jobhighway_otp_token')?.value;
     if (!token) {
       return NextResponse.json({ error: 'No active verification session. Please register again.' }, { status: 401 });
     }
 
     // Verify the JWT to get user data (allow expired OTP, just not expired JWT)
     const secret = new TextEncoder().encode(
-      process.env.NEXTAUTH_SECRET || process.env.OTP_SECRET || 'jobpulse-otp-secret-change-in-production'
+      process.env.NEXTAUTH_SECRET || process.env.OTP_SECRET || 'jobhighway-otp-secret-change-in-production'
     );
 
     let payload: any;
@@ -65,15 +65,15 @@ export async function POST(req: NextRequest) {
       try {
         const { Resend } = await import('resend');
         const resend = new Resend(RESEND_API_KEY);
-        const fromEmail = process.env.RESEND_FROM_EMAIL || 'JobPulse <onboarding@resend.dev>';
+        const fromEmail = process.env.RESEND_FROM_EMAIL || 'JobHighway <onboarding@resend.dev>';
         const sendResult = await resend.emails.send({
           from: fromEmail,
           to: [email],
-          subject: `${newOtp} — Your new JobPulse Verification Code`,
+          subject: `${newOtp} — Your new JobHighway Verification Code`,
           html: `
             <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; max-width: 480px; margin: 0 auto; padding: 32px 24px; background: #ffffff;">
               <div style="margin-bottom: 24px;">
-                <span style="font-size: 24px; font-weight: 900; color: #0d9488; letter-spacing: -0.5px;">JobPulse</span>
+                <span style="font-size: 24px; font-weight: 900; color: #0d9488; letter-spacing: -0.5px;">JobHighway</span>
               </div>
               <h1 style="font-size: 20px; font-weight: 700; color: #0f172a; margin: 0 0 8px;">New verification code</h1>
               <p style="color: #64748b; font-size: 14px; margin: 0 0 24px;">Your new OTP is:</p>
@@ -109,7 +109,7 @@ export async function POST(req: NextRequest) {
         emailWarning: emailErrorMessage || 'Email not sent (Resend sandbox only delivers to your registered account email until domain is verified).'
       } : {}),
     });
-    response.cookies.set('jobpulse_otp_token', newToken, {
+    response.cookies.set('jobhighway_otp_token', newToken, {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
       sameSite: 'lax',

@@ -6,8 +6,8 @@ import { LegalSection } from "@/components/legal/LegalSection";
 import { InfoNotice } from "@/components/legal/InfoNotice";
 
 export const metadata: Metadata = {
-  title: "Direct ATS & Zero-Scam Policy | JobPulse",
-  description: "Learn about JobPulse's strict Direct ATS and Zero-Scam Verification guarantee.",
+  title: "Direct ATS & Zero-Scam Policy | JobHighway",
+  description: "Learn about JobHighway's strict Direct ATS and Zero-Scam Verification guarantee.",
 };
 
 const ATS_PLATFORMS = [
@@ -95,13 +95,13 @@ export default function AtsPolicyPage() {
         icon={ShieldCheck}
         category="Trust & Transparency"
         title="Direct ATS & Zero-Scam Policy"
-        description="At JobPulse, our mission is to eliminate ghost postings, commission-hungry recruitment middlemen, and fraudulent listings. Every single opportunity featured on JobPulse is directly routed to the hiring company's verified Applicant Tracking System (ATS)."
+        description="At JobHighway, our mission is to eliminate ghost postings, commission-hungry recruitment middlemen, and fraudulent listings. Every single opportunity featured on JobHighway is directly routed to the hiring company's verified Applicant Tracking System (ATS)."
       />
 
       <div className="space-y-2">
         <LegalSection number="01" title="100% Direct Official Application Links">
           <p>
-            When you click &ldquo;Apply Official&rdquo; on any JobPulse listing, you are routed directly to the employer&apos;s genuine ATS portal. We support and integrate with enterprise career engines including:
+            When you click &ldquo;Apply Official&rdquo; on any JobHighway listing, you are routed directly to the employer&apos;s genuine ATS portal. We support and integrate with enterprise career engines including:
           </p>
 
           {/* 8 ATS Platform Cards Grid */}
@@ -150,7 +150,7 @@ export default function AtsPolicyPage() {
 
         <LegalSection number="03" title="Zero Middlemen & No Spam">
           <p>
-            JobPulse does not sell your contact details to recruiters, third-party marketing firms, or shady &ldquo;placement training&rdquo; agencies. We do not place ads or paywalls in front of application links, nor do we require upfront fees. Your resume and candidate information go directly into the employer&apos;s HR pipeline without any intermediate interception.
+            JobHighway does not sell your contact details to recruiters, third-party marketing firms, or shady &ldquo;placement training&rdquo; agencies. We do not place ads or paywalls in front of application links, nor do we require upfront fees. Your resume and candidate information go directly into the employer&apos;s HR pipeline without any intermediate interception.
           </p>
         </LegalSection>
       </div>

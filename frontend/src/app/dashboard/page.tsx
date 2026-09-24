@@ -151,26 +151,26 @@ export default function DashboardPage() {
       loadUserData();
     };
 
-    window.addEventListener("jobpulse_auth_change", handleSync);
-    window.addEventListener("jobpulse_applications_change", handleSync);
-    window.addEventListener("jobpulse_bookmarks_change", handleSync);
-    window.addEventListener("jobpulse_following_change", handleSync);
-    window.addEventListener("jobpulse_alerts_change", handleSync);
+    window.addEventListener("jobhighway_auth_change", handleSync);
+    window.addEventListener("jobhighway_applications_change", handleSync);
+    window.addEventListener("jobhighway_bookmarks_change", handleSync);
+    window.addEventListener("jobhighway_following_change", handleSync);
+    window.addEventListener("jobhighway_alerts_change", handleSync);
 
     return () => {
       isMounted = false;
-      window.removeEventListener("jobpulse_auth_change", handleSync);
-      window.removeEventListener("jobpulse_applications_change", handleSync);
-      window.removeEventListener("jobpulse_bookmarks_change", handleSync);
-      window.removeEventListener("jobpulse_following_change", handleSync);
-      window.removeEventListener("jobpulse_alerts_change", handleSync);
+      window.removeEventListener("jobhighway_auth_change", handleSync);
+      window.removeEventListener("jobhighway_applications_change", handleSync);
+      window.removeEventListener("jobhighway_bookmarks_change", handleSync);
+      window.removeEventListener("jobhighway_following_change", handleSync);
+      window.removeEventListener("jobhighway_alerts_change", handleSync);
     };
   }, []);
 
   // Record visit timestamp in localStorage
   useEffect(() => {
     if (user?.id) {
-      const visitKey = "jobpulse_last_visit_" + user.id;
+      const visitKey = "jobhighway_last_visit_" + user.id;
       // Stash current visit time on unload/mount
       const now = new Date().toISOString();
       const existing = localStorage.getItem(visitKey);
@@ -208,7 +208,7 @@ export default function DashboardPage() {
   // Real Hero Statistics Calculated from Actual Data
   const heroStats = useMemo(() => {
     const currentUserId = user?.id || "guest";
-    const lastVisitStr = typeof window !== "undefined" ? localStorage.getItem("jobpulse_last_visit_" + currentUserId) : null;
+    const lastVisitStr = typeof window !== "undefined" ? localStorage.getItem("jobhighway_last_visit_" + currentUserId) : null;
 
     // 1. New jobs since last visit
     let newJobsCount = 0;

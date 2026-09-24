@@ -1,5 +1,5 @@
 /**
- * Intelligent Client-Side Resume Parsing Utility for JobPulse
+ * Intelligent Client-Side Resume Parsing Utility for JobHighway
  * Extracts contact details, target role, education, experience, and tech skills
  * from uploaded PDF, DOCX, DOC, and text resumes.
  */

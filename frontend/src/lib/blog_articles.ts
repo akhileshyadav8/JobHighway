@@ -83,7 +83,7 @@ export const BLOG_ARTICLES: BlogArticle[] = [
         content: [
           "In 2026, automated Applicant Tracking Systems like Greenhouse and Ashby do not wait until a deadline to review resumes. They deliver applicant profiles into recruiters' queues continuously.",
           "When an employer posts a software engineering role, they typically receive 500+ applications within 48 hours. However, recruiter screeners typically review only the first 75–100 applications before scheduling phone screens.",
-          "By monitoring official company career feeds in real-time with JobPulse, your application arrives at the top of the recruiter's morning dashboard before the floodgates open."
+          "By monitoring official company career feeds in real-time with JobHighway, your application arrives at the top of the recruiter's morning dashboard before the floodgates open."
         ],
         tips: [
           "Set up daily or hourly alerts for your target companies rather than browsing weekly.",
@@ -633,7 +633,7 @@ HAVING COUNT(*) >= 3;`
           "Globally, fully distributed companies like GitLab, Automattic, and Supabase pay benchmarked USD/EUR rates regardless of where you reside."
         ],
         tips: [
-          "Filter by 'High Salary (₹12L+ / $80K+)' on JobPulse to discover these verified postings.",
+          "Filter by 'High Salary (₹12L+ / $80K+)' on JobHighway to discover these verified postings.",
           "Look for roles requiring niche modern tooling like Kubernetes, Golang, PyTorch, and distributed SQL."
         ]
       }
@@ -823,7 +823,7 @@ class CheckoutProcessor {
         content: [
           "Most engineers at tech companies earn referral bonuses ranging from ₹50,000 to ₹2,50,000 ($2,000 to $5,000 USD) if a candidate they refer gets hired.",
           "They WANT to refer qualified candidates. What they hate is low-effort spam where a stranger sends a generic 200-word essay asking them to 'look at my profile and find a suitable role for me'.",
-          "When you do the homework (find the exact opening on JobPulse, verify batch eligibility, and provide the exact Job ID), referring you takes them under 60 seconds."
+          "When you do the homework (find the exact opening on JobHighway, verify batch eligibility, and provide the exact Job ID), referring you takes them under 60 seconds."
         ]
       },
       {
@@ -954,7 +954,7 @@ Best regards,
       {
         heading: "3. Computer Networks: The Journey of a URL in the Browser",
         content: [
-          "When you type 'https://jobpulse.io/jobs' and hit Enter:",
+          "When you type 'https://jobhighway.io/jobs' and hit Enter:",
           "1. DNS Resolution: Browser checks local cache -> OS cache -> ISP resolver -> Root Server (.) -> TLD (.io) -> Authoritative NS returns IP.",
           "2. TCP 3-Way Handshake: Client sends SYN -> Server responds SYN-ACK -> Client sends ACK.",
           "3. TLS 1.3 Handshake: Client Hello -> Server Key Exchange + Certificate -> Symmetric Session Key established (AES-GCM).",

@@ -55,11 +55,11 @@ export interface BookmarkItem {
   savedAt: string;
 }
 
-const USERS_STORAGE_KEY = "jobpulse_registered_users";
-const SESSION_STORAGE_KEY = "jobpulse_current_session";
-const APPLIED_STORAGE_PREFIX = "jobpulse_applied_";
-const BOOKMARKS_STORAGE_PREFIX = "jobpulse_bookmarks_";
-const RESET_TOKENS_STORAGE_KEY = "jobpulse_password_reset_tokens";
+const USERS_STORAGE_KEY = "jobhighway_registered_users";
+const SESSION_STORAGE_KEY = "jobhighway_current_session";
+const APPLIED_STORAGE_PREFIX = "jobhighway_applied_";
+const BOOKMARKS_STORAGE_PREFIX = "jobhighway_bookmarks_";
+const RESET_TOKENS_STORAGE_KEY = "jobhighway_password_reset_tokens";
 
 export interface PasswordResetTokenRecord {
   token: string;
@@ -122,7 +122,14 @@ function isBrowser(): boolean {
 export function getStoredUsers(): (User & { passwordHash?: string })[] {
   if (!isBrowser()) return [];
   try {
-    const raw = localStorage.getItem(USERS_STORAGE_KEY);
+    let raw = localStorage.getItem(USERS_STORAGE_KEY);
+    if (!raw) {
+      const oldRaw = localStorage.getItem("jobhighway_registered_users");
+      if (oldRaw) {
+        raw = oldRaw;
+        localStorage.setItem(USERS_STORAGE_KEY, oldRaw);
+      }
+    }
     if (raw) return JSON.parse(raw);
     
     // Seed initial demo candidate & Akhilesh account
@@ -221,7 +228,14 @@ export function getStoredUsers(): (User & { passwordHash?: string })[] {
 export function getCurrentUser(): User | null {
   if (!isBrowser()) return null;
   try {
-    const raw = localStorage.getItem(SESSION_STORAGE_KEY);
+    let raw = localStorage.getItem(SESSION_STORAGE_KEY);
+    if (!raw) {
+      const oldRaw = localStorage.getItem("jobhighway_current_session");
+      if (oldRaw) {
+        raw = oldRaw;
+        localStorage.setItem(SESSION_STORAGE_KEY, oldRaw);
+      }
+    }
     if (!raw) return null;
     return JSON.parse(raw);
   } catch {
@@ -273,7 +287,7 @@ export function loginAdmin(email: string, password?: string): { user?: User; err
   };
 
   localStorage.setItem(SESSION_STORAGE_KEY, JSON.stringify(safeAdmin));
-  window.dispatchEvent(new Event("jobpulse_auth_change"));
+  window.dispatchEvent(new Event("jobhighway_auth_change"));
   return { user: safeAdmin };
 }
 
@@ -330,7 +344,7 @@ export function loginUser(email: string, password?: string): { user?: User; erro
   };
 
   localStorage.setItem(SESSION_STORAGE_KEY, JSON.stringify(safeUser));
-  window.dispatchEvent(new Event("jobpulse_auth_change"));
+  window.dispatchEvent(new Event("jobhighway_auth_change"));
   return { user: safeUser };
 }
 
@@ -378,7 +392,7 @@ export function registerUser(name: string, email: string, password?: string): { 
   };
 
   localStorage.setItem(SESSION_STORAGE_KEY, JSON.stringify(safeUser));
-  window.dispatchEvent(new Event("jobpulse_auth_change"));
+  window.dispatchEvent(new Event("jobhighway_auth_change"));
   return { user: safeUser };
 }
 
@@ -542,7 +556,7 @@ export function resetUserPassword(email: string, newPassword: string): { success
 export function logoutUser(): void {
   if (!isBrowser()) return;
   localStorage.removeItem(SESSION_STORAGE_KEY);
-  window.dispatchEvent(new Event("jobpulse_auth_change"));
+  window.dispatchEvent(new Event("jobhighway_auth_change"));
 }
 
 export function updateUserProfile(userId: string, updates: Partial<User>): User | null {
@@ -558,7 +572,7 @@ export function updateUserProfile(userId: string, updates: Partial<User>): User 
   const current = getCurrentUser();
   if (current && current.id === userId) {
     localStorage.setItem(SESSION_STORAGE_KEY, JSON.stringify(updated));
-    window.dispatchEvent(new Event("jobpulse_auth_change"));
+    window.dispatchEvent(new Event("jobhighway_auth_change"));
   }
 
   return updated;
@@ -612,7 +626,7 @@ export function markJobApplied(
   }
 
   localStorage.setItem(APPLIED_STORAGE_PREFIX + userId, JSON.stringify(current));
-  window.dispatchEvent(new Event("jobpulse_applications_change"));
+  window.dispatchEvent(new Event("jobhighway_applications_change"));
   return current;
 }
 
@@ -629,7 +643,7 @@ export function updateAppliedStatus(
     item.status = status;
     if (notes !== undefined) item.notes = notes;
     localStorage.setItem(APPLIED_STORAGE_PREFIX + userId, JSON.stringify(current));
-    window.dispatchEvent(new Event("jobpulse_applications_change"));
+    window.dispatchEvent(new Event("jobhighway_applications_change"));
   }
   return current;
 }
@@ -638,7 +652,7 @@ export function removeAppliedJob(userId: string, jobIdOrAppId: string): AppliedJ
   if (!isBrowser() || !userId) return [];
   const current = getAppliedJobs(userId).filter(j => j.id !== jobIdOrAppId && j.jobId !== jobIdOrAppId);
   localStorage.setItem(APPLIED_STORAGE_PREFIX + userId, JSON.stringify(current));
-  window.dispatchEvent(new Event("jobpulse_applications_change"));
+  window.dispatchEvent(new Event("jobhighway_applications_change"));
   return current;
 }
 
@@ -688,7 +702,7 @@ export function toggleBookmark(
   }
 
   localStorage.setItem(BOOKMARKS_STORAGE_PREFIX + userId, JSON.stringify(current));
-  window.dispatchEvent(new Event("jobpulse_bookmarks_change"));
+  window.dispatchEvent(new Event("jobhighway_bookmarks_change"));
   return isSaved;
 }
 
@@ -723,7 +737,7 @@ export interface FollowedCompanyRecord {
   followedAt: string;
 }
 
-const FOLLOWED_COMPANIES_PREFIX = "jobpulse_followed_companies_";
+const FOLLOWED_COMPANIES_PREFIX = "jobhighway_followed_companies_";
 
 export function getFollowedCompanies(userId: string): FollowedCompanyRecord[] {
   if (!isBrowser() || !userId) return [];
@@ -759,7 +773,7 @@ export function toggleFollowCompany(
   }
 
   localStorage.setItem(FOLLOWED_COMPANIES_PREFIX + userId, JSON.stringify(current));
-  window.dispatchEvent(new Event("jobpulse_following_change"));
+  window.dispatchEvent(new Event("jobhighway_following_change"));
   return isFollowing;
 }
 
@@ -782,7 +796,7 @@ export interface JobAlertRecord {
   colorType?: "rose" | "amber" | "purple";
 }
 
-const JOB_ALERTS_PREFIX = "jobpulse_job_alerts_";
+const JOB_ALERTS_PREFIX = "jobhighway_job_alerts_";
 
 export function getJobAlerts(userId: string): JobAlertRecord[] {
   if (!isBrowser() || !userId) return [];
@@ -815,7 +829,7 @@ export function saveJobAlert(
         lastUpdated: "Edited just now"
       };
       localStorage.setItem(JOB_ALERTS_PREFIX + userId, JSON.stringify(current));
-      window.dispatchEvent(new Event("jobpulse_alerts_change"));
+      window.dispatchEvent(new Event("jobhighway_alerts_change"));
       return current;
     }
   }
@@ -834,7 +848,7 @@ export function saveJobAlert(
 
   current.unshift(newAlert);
   localStorage.setItem(JOB_ALERTS_PREFIX + userId, JSON.stringify(current));
-  window.dispatchEvent(new Event("jobpulse_alerts_change"));
+  window.dispatchEvent(new Event("jobhighway_alerts_change"));
   return current;
 }
 
@@ -845,7 +859,7 @@ export function toggleJobAlert(userId: string, alertId: string, enabled: boolean
   if (item) {
     item.enabled = enabled;
     localStorage.setItem(JOB_ALERTS_PREFIX + userId, JSON.stringify(current));
-    window.dispatchEvent(new Event("jobpulse_alerts_change"));
+    window.dispatchEvent(new Event("jobhighway_alerts_change"));
   }
   return current;
 }
@@ -854,7 +868,7 @@ export function deleteJobAlert(userId: string, alertId: string): JobAlertRecord[
   if (!isBrowser() || !userId) return [];
   const current = getJobAlerts(userId).filter(a => a.id !== alertId);
   localStorage.setItem(JOB_ALERTS_PREFIX + userId, JSON.stringify(current));
-  window.dispatchEvent(new Event("jobpulse_alerts_change"));
+  window.dispatchEvent(new Event("jobhighway_alerts_change"));
   return current;
 }
 

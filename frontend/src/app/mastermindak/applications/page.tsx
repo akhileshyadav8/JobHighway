@@ -87,7 +87,7 @@ export default function AdminApplicationsPage() {
             const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(applications, null, 2));
             const dlAnchor = document.createElement("a");
             dlAnchor.setAttribute("href", dataStr);
-            dlAnchor.setAttribute("download", "jobpulse_applications.json");
+            dlAnchor.setAttribute("download", "jobhighway_applications.json");
             dlAnchor.click();
           }}
           variant="outline"

@@ -254,7 +254,7 @@ while len(generated_jobs) < target_total:
         "interview_experience": f"Candidates report that {comp['name']}'s evaluation is structured. Brush up on fundamental concepts in {role['skills'][0]} and {role['skills'][1]}, and clearly explain your thought process during coding.",
         "work_culture_summary": f"{comp['name']} provides a collaborative environment with clear career progression, modern technology stacks, and supportive leadership.",
         "study_materials": STUDY_RESOURCES,
-        "jobpulse_rating": "Excellent" if role['sal_min'] >= 900000 else "Good",
+        "jobhighway_rating": "Excellent" if role['sal_min'] >= 900000 else "Good",
         "rating_reason": f"Direct hiring role on {comp['domain']} with structured interview rounds and competitive compensation.",
         "view_count": random.randint(350, 4800)
     }

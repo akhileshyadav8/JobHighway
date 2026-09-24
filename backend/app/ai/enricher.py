@@ -15,7 +15,7 @@ class EnrichedJobData(BaseModel):
     interview_experience: Dict[str, str]
     work_culture_summary: str
     study_materials: Dict[str, str]
-    jobpulse_rating: str
+    jobhighway_rating: str
     rating_reason: str
 
 async def async_enrich_job(job_id: int):
@@ -57,7 +57,7 @@ async def async_enrich_job(job_id: int):
             job.interview_experience = data.get("interview_experience")
             job.work_culture_summary = data.get("work_culture_summary")
             job.study_materials = data.get("study_materials")
-            job.jobpulse_rating = data.get("jobpulse_rating")
+            job.jobhighway_rating = data.get("jobhighway_rating")
             job.rating_reason = data.get("rating_reason")
             
             await session.commit()

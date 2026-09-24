@@ -3,9 +3,9 @@ requires = ["setuptools>=61.0.0", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "jobpulse-backend"
+name = "jobhighway-backend"
 version = "0.1.0"
-description = "JobPulse Backend - A near real-time job discovery engine"
+description = "JobHighway Backend - A near real-time job discovery engine"
 authors = [
     {name = "Akhilesh"}
 ]

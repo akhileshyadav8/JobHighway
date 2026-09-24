@@ -44,7 +44,7 @@ export async function POST(request: NextRequest) {
         const url = `https://boards-api.greenhouse.io/v1/boards/${encodeURIComponent(slug)}/jobs?content=true`;
         const res = await fetch(url, {
           headers: {
-            'User-Agent': 'JobPulse-Ingestion-Bot/2.0'
+            'User-Agent': 'JobHighway-Ingestion-Bot/2.0'
           },
           signal: AbortSignal.timeout(8000)
         });
@@ -86,7 +86,7 @@ export async function POST(request: NextRequest) {
         const url = `https://api.lever.co/v0/postings/${encodeURIComponent(slug)}?mode=json`;
         const res = await fetch(url, {
           headers: {
-            'User-Agent': 'JobPulse-Ingestion-Bot/2.0'
+            'User-Agent': 'JobHighway-Ingestion-Bot/2.0'
           },
           signal: AbortSignal.timeout(8000)
         });
@@ -128,7 +128,7 @@ export async function POST(request: NextRequest) {
         const url = `https://api.ashbyhq.com/posting-api/job-board/${encodeURIComponent(slug)}`;
         const res = await fetch(url, {
           headers: {
-            'User-Agent': 'JobPulse-Ingestion-Bot/2.0'
+            'User-Agent': 'JobHighway-Ingestion-Bot/2.0'
           },
           signal: AbortSignal.timeout(8000)
         });

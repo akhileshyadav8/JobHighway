@@ -21,9 +21,9 @@ import { getOverviewStats } from "@/lib/api";
 export const revalidate = 60;
 
 export const metadata: Metadata = {
-  title: "About | JobPulse",
+  title: "About | JobHighway",
   description:
-    "Learn how JobPulse indexes jobs directly from companies' official career systems, delivering fresh opportunities without delayed third-party aggregation.",
+    "Learn how JobHighway indexes jobs directly from companies' official career systems, delivering fresh opportunities without delayed third-party aggregation.",
 };
 
 export default async function AboutPage() {
@@ -56,7 +56,7 @@ export default async function AboutPage() {
             <div className="lg:col-span-6 flex flex-col items-start text-left">
               {/* Eyebrow badge */}
               <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-teal-50 border border-teal-200/80 text-teal-800 text-xs font-bold uppercase tracking-wider mb-4 shadow-2xs">
-                <span>ABOUT JOBPULSE</span>
+                <span>ABOUT JOBHIGHWAY</span>
               </div>
 
               {/* Large Main Headline */}
@@ -67,7 +67,7 @@ export default async function AboutPage() {
 
               {/* Paragraph */}
               <p className="text-sm sm:text-base text-slate-600 max-w-xl leading-relaxed mb-8">
-                JobPulse helps you discover real job openings directly from companies&apos; official career systems, so you can find the right opportunities without relying on delayed or duplicate listings.
+                JobHighway helps you discover real job openings directly from companies&apos; official career systems, so you can find the right opportunities without relying on delayed or duplicate listings.
               </p>
 
               {/* Primary CTA Button */}
@@ -286,7 +286,7 @@ export default async function AboutPage() {
                   Most job seekers find openings after they&apos;re already flooded with applications. By the time a job appears on popular job boards, it may already have hundreds of candidates ahead of you.
                 </p>
                 <p>
-                  JobPulse is built to solve this by connecting directly to companies&apos; official career portals, so you can see new openings as soon as they go live.
+                  JobHighway is built to solve this by connecting directly to companies&apos; official career portals, so you can see new openings as soon as they go live.
                 </p>
               </div>
             </div>
@@ -383,13 +383,13 @@ export default async function AboutPage() {
         </section>
 
         {/* ========================================================
-            HOW JOBPULSE WORKS SECTION
+            HOW JOBHIGHWAY WORKS SECTION
             Horizontal 4-step pipeline: 01, 02, 03, 04 with icons
             ======================================================== */}
         <section>
           <div className="mb-8 sm:mb-10 text-left">
             <h2 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight mb-2">
-              How JobPulse Works
+              How JobHighway Works
             </h2>
             <p className="text-xs sm:text-sm text-slate-500 font-medium">
               From company posting to your screen.
@@ -430,7 +430,7 @@ export default async function AboutPage() {
                   </span>
                 </div>
                 <h3 className="text-base font-bold text-slate-900 mb-2">
-                  JobPulse Detects
+                  JobHighway Detects
                 </h3>
                 <p className="text-xs text-slate-500 leading-relaxed">
                   Our smart system fetches and updates the listing.

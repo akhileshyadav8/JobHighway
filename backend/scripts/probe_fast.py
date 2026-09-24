@@ -5,7 +5,7 @@ boards = ['cloudflare', 'stripe', 'gitlab', 'hashicorp', 'elastic', 'mongodb', '
 for b in boards:
     try:
         url = f"https://boards-api.greenhouse.io/v1/boards/{b}/jobs"
-        req = urllib.request.Request(url, headers={'User-Agent': 'JobPulse/1.0'})
+        req = urllib.request.Request(url, headers={'User-Agent': 'JobHighway/1.0'})
         with urllib.request.urlopen(req, timeout=4) as r:
             d = json.loads(r.read().decode())
             jobs = d.get('jobs', [])

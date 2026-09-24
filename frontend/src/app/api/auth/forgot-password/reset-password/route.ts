@@ -28,7 +28,7 @@ export async function POST(req: NextRequest) {
     }
 
     // Look for reset token from cookie or request body
-    const token = req.cookies.get('jobpulse_verified_reset_token')?.value || resetToken;
+    const token = req.cookies.get('jobhighway_verified_reset_token')?.value || resetToken;
     if (!token) {
       return NextResponse.json(
         { error: 'Password reset authorization expired or not found. Please verify your OTP again.' },
@@ -37,7 +37,7 @@ export async function POST(req: NextRequest) {
     }
 
     const secret = new TextEncoder().encode(
-      process.env.NEXTAUTH_SECRET || process.env.OTP_SECRET || 'jobpulse-otp-secret-change-in-production'
+      process.env.NEXTAUTH_SECRET || process.env.OTP_SECRET || 'jobhighway-otp-secret-change-in-production'
     );
 
     let payload: any;
@@ -70,8 +70,8 @@ export async function POST(req: NextRequest) {
     });
 
     // Clear the verified reset authorization cookie
-    response.cookies.delete('jobpulse_verified_reset_token');
-    response.cookies.delete('jobpulse_reset_otp_token');
+    response.cookies.delete('jobhighway_verified_reset_token');
+    response.cookies.delete('jobhighway_reset_otp_token');
 
     return response;
   } catch (error) {

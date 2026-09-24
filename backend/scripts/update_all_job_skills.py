@@ -1,5 +1,5 @@
 """
-JobPulse Skill Extraction Migration
+JobHighway Skill Extraction Migration
 Extracts authentic, posting-specific technical & professional skills from
 job title, description_html, and description_text for every job in Supabase.
 Eliminates repetitive placeholder skills completely.

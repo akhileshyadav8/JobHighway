@@ -75,7 +75,7 @@ export default function AdminJobsPage() {
       title: newJobTitle.trim(),
       company: newJobCompany.trim(),
       location: newJobLocation.trim() || "Remote, India",
-      applyUrl: newJobUrl.trim() || "https://jobpulse.io",
+      applyUrl: newJobUrl.trim() || "https://jobhighway.io",
       salary: newJobSalary.trim() || "Competitive (Benchmark)",
       status: "Active"
     });

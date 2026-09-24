@@ -51,8 +51,8 @@ export default function MastermindLoginPage() {
             {/* Brand Logo & Header */}
             <div className="text-left mb-6">
               <Link href="/" className="inline-flex items-center gap-2.5 mb-3.5 group">
-                <img src="/logo.png" alt="JobPulse" className="w-10 h-10 object-contain" />
-                <span className="text-2xl font-black tracking-tight text-teal-700">JobPulse</span>
+                <img src="/logo.png" alt="JobHighway" className="w-10 h-10 object-contain" />
+                <span className="text-2xl font-black tracking-tight text-teal-700">JobHighway</span>
               </Link>
               <h1 className="text-3xl sm:text-4xl font-black text-slate-900 tracking-tight">
                 Admin Sign In
@@ -82,7 +82,7 @@ export default function MastermindLoginPage() {
                       required
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
-                      placeholder="admin@jobpulse.io"
+                      placeholder="admin@jobhighway.io"
                       className="w-full px-4 py-2.5 rounded-xl border border-slate-200 bg-white text-slate-900 text-sm focus:border-teal-500 focus:ring-1 focus:ring-teal-500 focus:outline-none transition-colors shadow-2xs"
                     />
                   </div>

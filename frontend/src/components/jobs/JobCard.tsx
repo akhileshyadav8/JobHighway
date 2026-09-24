@@ -41,14 +41,14 @@ export function JobCard({ job }: JobCardProps) {
       }
     };
 
-    window.addEventListener("jobpulse_auth_change", syncState);
-    window.addEventListener("jobpulse_applications_change", syncState);
-    window.addEventListener("jobpulse_bookmarks_change", syncState);
+    window.addEventListener("jobhighway_auth_change", syncState);
+    window.addEventListener("jobhighway_applications_change", syncState);
+    window.addEventListener("jobhighway_bookmarks_change", syncState);
 
     return () => {
-      window.removeEventListener("jobpulse_auth_change", syncState);
-      window.removeEventListener("jobpulse_applications_change", syncState);
-      window.removeEventListener("jobpulse_bookmarks_change", syncState);
+      window.removeEventListener("jobhighway_auth_change", syncState);
+      window.removeEventListener("jobhighway_applications_change", syncState);
+      window.removeEventListener("jobhighway_bookmarks_change", syncState);
     };
   }, [job.id]);
 

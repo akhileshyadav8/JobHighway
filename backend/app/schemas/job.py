@@ -35,7 +35,7 @@ class JobBase(BaseModel):
     deadline: Optional[datetime] = None
     status: str = "active"
     
-    jobpulse_rating: Optional[str] = None
+    jobhighway_rating: Optional[str] = None
     rating_reason: Optional[str] = None
 
 class JobCreate(JobBase):

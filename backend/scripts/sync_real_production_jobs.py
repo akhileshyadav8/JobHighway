@@ -949,7 +949,7 @@ def fetch_adzuna_jobs(app_id, app_key):
 
 def main():
     print("=" * 70, flush=True)
-    print("JOBPULSE: Fetching 100% REAL & VERIFIED LIVE Jobs Worldwide", flush=True)
+    print("JOBHIGHWAY: Fetching 100% REAL & VERIFIED LIVE Jobs Worldwide", flush=True)
     print("=" * 70, flush=True)
 
     all_real_jobs = []

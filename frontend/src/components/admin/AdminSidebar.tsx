@@ -128,10 +128,10 @@ export function AdminSidebar({ onCloseMobile }: AdminSidebarProps) {
           onClick={onCloseMobile}
           className="flex items-center gap-2.5 group"
         >
-          <img src="/logo.png" alt="JobPulse" className="w-8 h-8 object-contain" />
+          <img src="/logo.png" alt="JobHighway" className="w-8 h-8 object-contain" />
           <div className="flex flex-col">
             <span className="font-black text-lg text-slate-900 tracking-tight leading-none">
-              JobPulse
+              JobHighway
             </span>
             <span className="text-[10px] font-bold text-teal-700 tracking-wider uppercase mt-0.5">
               Master Admin

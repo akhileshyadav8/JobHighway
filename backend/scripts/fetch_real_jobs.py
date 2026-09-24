@@ -48,7 +48,7 @@ for comp in COMPANIES:
     print(f"Fetching live jobs for {comp['name']}...")
     try:
         url = f"https://boards-api.greenhouse.io/v1/boards/{comp['board']}/jobs"
-        req = urllib.request.Request(url, headers={'User-Agent': 'JobPulse/1.0'})
+        req = urllib.request.Request(url, headers={'User-Agent': 'JobHighway/1.0'})
         with urllib.request.urlopen(req, timeout=8) as r:
             data = json.loads(r.read().decode())
             jobs = data.get("jobs", [])
@@ -163,7 +163,7 @@ for comp in COMPANIES:
                     "interview_experience": f"Candidates interviewing at {comp['name']} report an organized and transparent hiring process. The technical interview emphasizes problem-solving clarity, edge-case analysis, and modular coding standards.",
                     "work_culture_summary": comp['desc'] + " Offers a collaborative engineering environment with structured mentorship, flexible schedules, and competitive compensation.",
                     "study_materials": STUDY_RESOURCES,
-                    "jobpulse_rating": "Excellent" if salary_min >= 1200000 else "Good",
+                    "jobhighway_rating": "Excellent" if salary_min >= 1200000 else "Good",
                     "rating_reason": f"Direct hiring opening on {comp['name']}'s official portal with clear growth trajectory.",
                     "view_count": random.randint(800, 4500)
                 }

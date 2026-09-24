@@ -1,5 +1,5 @@
 """
-JobPulse Master Data Authenticity & Integrity Migration
+JobHighway Master Data Authenticity & Integrity Migration
 Removes all fake, assumed, or predefined data across all jobs in Supabase:
 1. eligible_batches: Set to NULL unless explicitly mentioned in the posting text.
 2. work_mode: Accurately detected (Drivers, warehouse, cooks, nurses, etc. set to In-Office/Onsite; never Hybrid).

@@ -616,7 +616,7 @@ export function InteractiveJobFeed({ initialJobs, stats, initialTotal, initialTo
       }
       window.scrollTo({ top: 0, left: 0, behavior: "instant" });
       try {
-        sessionStorage.removeItem("jobpulse_scroll_pos");
+        sessionStorage.removeItem("jobhighway_scroll_pos");
       } catch (e) {
         // ignore
       }
@@ -642,7 +642,7 @@ export function InteractiveJobFeed({ initialJobs, stats, initialTotal, initialTo
         activeFilters,
         currentPage
       };
-      sessionStorage.setItem("jobpulse_feed_state", JSON.stringify(stateToSave));
+      sessionStorage.setItem("jobhighway_feed_state", JSON.stringify(stateToSave));
 
       const params = new URLSearchParams();
       if (searchQuery.trim()) params.set("q", searchQuery.trim());
@@ -676,8 +676,8 @@ export function InteractiveJobFeed({ initialJobs, stats, initialTotal, initialTo
       "Experience": "All"
     });
     try {
-      sessionStorage.removeItem("jobpulse_feed_state");
-      sessionStorage.removeItem("jobpulse_scroll_pos");
+      sessionStorage.removeItem("jobhighway_feed_state");
+      sessionStorage.removeItem("jobhighway_scroll_pos");
       if (typeof window !== "undefined") {
         window.history.replaceState(null, "", window.location.pathname);
       }
@@ -718,7 +718,7 @@ export function InteractiveJobFeed({ initialJobs, stats, initialTotal, initialTo
               {/* Small live badge */}
               <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-emerald-50/90 text-emerald-800 border border-emerald-200/90 mb-4 tracking-wide shadow-2xs w-fit">
                 <Zap className="w-3.5 h-3.5 text-emerald-600 fill-emerald-500" />
-                <span>LIVE ATS JOB DISCOVERY</span>
+                <span>PATHWAYS TO PROFESSIONAL SUCCESS • LIVE ATS</span>
               </div>
 
               {/* Main Headline */}
@@ -730,7 +730,7 @@ export function InteractiveJobFeed({ initialJobs, stats, initialTotal, initialTo
 
               {/* Concise Description */}
               <p className="text-sm sm:text-base lg:text-lg text-slate-600 max-w-[620px] leading-relaxed mb-6 font-normal">
-                JobPulse continuously discovers job openings directly from official company career systems, so you can find and apply to new opportunities before they get buried on other job boards.
+                JobHighway continuously discovers job openings directly from official company career systems, so you can find and apply to new opportunities before they get buried on other job boards.
               </p>
 
               {/* 3 Compact Live Statistics */}

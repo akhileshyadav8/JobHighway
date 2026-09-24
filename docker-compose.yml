@@ -3,25 +3,25 @@ version: "3.9"
 services:
   db:
     image: postgres:16-alpine
-    container_name: jobpulse-db
+    container_name: jobhighway-db
     restart: unless-stopped
     environment:
-      POSTGRES_DB: ${POSTGRES_DB:-jobpulse}
-      POSTGRES_USER: ${POSTGRES_USER:-jobpulse}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-jobpulse_secret}
+      POSTGRES_DB: ${POSTGRES_DB:-jobhighway}
+      POSTGRES_USER: ${POSTGRES_USER:-jobhighway}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-jobhighway_secret}
     ports:
       - "${POSTGRES_PORT:-5432}:5432"
     volumes:
       - pgdata:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-jobpulse}"]
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-jobhighway}"]
       interval: 5s
       timeout: 5s
       retries: 5
 
   redis:
     image: redis:7-alpine
-    container_name: jobpulse-redis
+    container_name: jobhighway-redis
     restart: unless-stopped
     ports:
       - "${REDIS_PORT:-6379}:6379"
@@ -37,7 +37,7 @@ services:
     build:
       context: ./backend
       dockerfile: Dockerfile
-    container_name: jobpulse-backend
+    container_name: jobhighway-backend
     restart: unless-stopped
     env_file: .env
     ports:
@@ -55,7 +55,7 @@ services:
     build:
       context: ./backend
       dockerfile: Dockerfile
-    container_name: jobpulse-celery-worker
+    container_name: jobhighway-celery-worker
     restart: unless-stopped
     env_file: .env
     volumes:
@@ -71,7 +71,7 @@ services:
     build:
       context: ./backend
       dockerfile: Dockerfile
-    container_name: jobpulse-celery-beat
+    container_name: jobhighway-celery-beat
     restart: unless-stopped
     env_file: .env
     volumes:

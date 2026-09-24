@@ -1,5 +1,5 @@
 ﻿"""
-JobPulse Continuous Zero-Delay Sync Engine
+JobHighway Continuous Zero-Delay Sync Engine
 Runs every 10 minutes continuously to sync genuine 30-day verified job postings
 directly into Supabase PostgreSQL with ZERO delay.
 """
@@ -19,7 +19,7 @@ SYNC_INTERVAL_SECONDS = 600  # 10 minutes
 
 def run_daemon():
     print("=" * 70, flush=True)
-    print("🚀 JOBPULSE ZERO-DELAY REAL-TIME SYNC DAEMON STARTED", flush=True)
+    print("🚀 JOBHIGHWAY ZERO-DELAY REAL-TIME SYNC DAEMON STARTED", flush=True)
     print(f"[*] Interval: Every {SYNC_INTERVAL_SECONDS // 60} minutes", flush=True)
     print(f"[*] Target: Supabase Live Database + Worldwide ATS APIs", flush=True)
     print("=" * 70, flush=True)

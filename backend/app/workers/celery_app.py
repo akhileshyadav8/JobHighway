@@ -4,7 +4,7 @@ from celery.schedules import crontab
 from app.config import settings
 
 celery_app = Celery(
-    "jobpulse_worker",
+    "jobhighway_worker",
     broker=settings.REDIS_URL,
     backend=settings.REDIS_URL,
     include=["app.workers.fetcher", "app.workers.normalizer"]

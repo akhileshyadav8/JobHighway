@@ -39,7 +39,8 @@ export interface Job {
   interview_experience: any | null;
   work_culture_summary: string | null;
   study_materials: any[] | null;
-  jobpulse_rating: string | null;
+  jobhighway_rating: string | null;
+  jobpulse_rating?: string | null;
   rating_reason: string | null;
   view_count: number;
   official_domain?: string | null;

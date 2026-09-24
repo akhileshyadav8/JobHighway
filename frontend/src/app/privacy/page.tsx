@@ -6,8 +6,8 @@ import { LegalSection } from "@/components/legal/LegalSection";
 import { InfoNotice } from "@/components/legal/InfoNotice";
 
 export const metadata: Metadata = {
-  title: "Privacy Policy | JobPulse",
-  description: "Learn how JobPulse handles data and safeguards candidate privacy.",
+  title: "Privacy Policy | JobHighway",
+  description: "Learn how JobHighway handles data and safeguards candidate privacy.",
 };
 
 export default function PrivacyPage() {
@@ -18,13 +18,13 @@ export default function PrivacyPage() {
         category="Legal & Compliance"
         title="Privacy Policy"
         lastUpdated="September 2026"
-        description="This Privacy Policy explains what information we collect, how we use it, and how we protect your data when you use JobPulse."
+        description="This Privacy Policy explains what information we collect, how we use it, and how we protect your data when you use JobHighway."
       />
 
       <div className="space-y-2">
         <LegalSection number="01" title="Information We Collect">
           <p>
-            JobPulse is built with privacy by default. We do not require you to create an account, register your email, or upload sensitive documents just to browse verified job openings.
+            JobHighway is built with privacy by default. We do not require you to create an account, register your email, or upload sensitive documents just to browse verified job openings.
           </p>
 
           {/* Subcards for Local Preferences & Anonymous Analytics */}
@@ -72,13 +72,13 @@ export default function PrivacyPage() {
 
         <LegalSection number="03" title="Third-Party Services">
           <p>
-            When you select &ldquo;Apply Official&rdquo;, you are routed directly to third-party applicant tracking systems (e.g., Workday, Greenhouse, Lever). Any resumes, contact information, or interview responses submitted there are governed by that employer&apos;s privacy notice. JobPulse does not store or process your job application submissions.
+            When you select &ldquo;Apply Official&rdquo;, you are routed directly to third-party applicant tracking systems (e.g., Workday, Greenhouse, Lever). Any resumes, contact information, or interview responses submitted there are governed by that employer&apos;s privacy notice. JobHighway does not store or process your job application submissions.
           </p>
         </LegalSection>
 
         <LegalSection number="04" title="Data Security">
           <p>
-            We enforce modern SSL/TLS encryption across all JobPulse endpoints. Our data aggregation pipelines read only publicly indexed information from official career portals to ensure you get authentic job data without tracking cookies.
+            We enforce modern SSL/TLS encryption across all JobHighway endpoints. Our data aggregation pipelines read only publicly indexed information from official career portals to ensure you get authentic job data without tracking cookies.
           </p>
         </LegalSection>
       </div>

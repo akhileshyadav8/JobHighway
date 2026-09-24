@@ -33,8 +33,8 @@ export default function AdminLayout({
       setIsAdmin(Boolean(u && u.role === "admin"));
     };
 
-    window.addEventListener("jobpulse_auth_change", handleAuthChange);
-    return () => window.removeEventListener("jobpulse_auth_change", handleAuthChange);
+    window.addEventListener("jobhighway_auth_change", handleAuthChange);
+    return () => window.removeEventListener("jobhighway_auth_change", handleAuthChange);
   }, []);
 
   if (isAuthChecking) {

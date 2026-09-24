@@ -66,7 +66,7 @@ export function AccountSettingsModal({
 
   useEffect(() => {
     if (user?.id) {
-      const savedKey = `jobpulse_user_settings_${user.id}`;
+      const savedKey = `jobhighway_user_settings_${user.id}`;
       const saved = localStorage.getItem(savedKey);
       if (saved) {
         try {
@@ -80,7 +80,7 @@ export function AccountSettingsModal({
 
   const handleSave = () => {
     if (user?.id) {
-      const savedKey = `jobpulse_user_settings_${user.id}`;
+      const savedKey = `jobhighway_user_settings_${user.id}`;
       localStorage.setItem(savedKey, JSON.stringify(settings));
     }
     setIsSaved(true);
@@ -387,7 +387,7 @@ export function AccountSettingsModal({
                 <div className="flex items-center gap-2 mt-1">
                   <Mail className="w-4 h-4 text-teal-600" />
                   <span className="text-xs font-bold text-slate-800">
-                    {user?.email || "candidate@jobpulse.ai"}
+                    {user?.email || "candidate@jobhighway.ai"}
                   </span>
                   <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200">
                     Verified

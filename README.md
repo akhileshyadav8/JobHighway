@@ -1,4 +1,4 @@
-# JobPulse — Near Real-Time Official Job Discovery Engine
+# JobHighway — Near Real-Time Official Job Discovery Engine
 
 > A high-performance, official ATS-first job discovery engine that monitors company career portals, detects new job postings within minutes, extracts structured data, and publishes rich listings with salary insights, interview breakdowns, and free study materials.
 
@@ -40,8 +40,8 @@
 
 ### 1. Clone & Configure
 ```bash
-git clone https://github.com/akhileshyadav8/JobPulse.git
-cd JobPulse
+git clone https://github.com/akhileshyadav8/JobHighway.git
+cd JobHighway
 cp .env.example .env
 ```
 
