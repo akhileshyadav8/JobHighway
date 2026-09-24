@@ -1,28 +1,39 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { PieChart, ArrowLeft, Briefcase, MapPin, Radio, Building2 } from "lucide-react";
 import { JobActivityChart } from "@/components/admin/AdminCharts";
+import { getAdminAtsSources, getAdminJobs } from "@/lib/adminData";
 
 export default function AdminJobAnalyticsPage() {
-  const atsBreakdown = [
-    { name: "Greenhouse", count: 18420, percent: 29 },
-    { name: "Lever", count: 12381, percent: 19 },
-    { name: "Workday", count: 8920, percent: 14 },
-    { name: "Official Domains", count: 6590, percent: 10 },
-    { name: "Ashby", count: 6421, percent: 10 },
-    { name: "SmartRecruiters", count: 4221, percent: 7 },
-    { name: "iCIMS", count: 3890, percent: 6 },
-    { name: "Taleo", count: 2814, percent: 5 }
-  ];
+  const [atsBreakdown, setAtsBreakdown] = useState<{ name: string; count: number; percent: number }[]>([]);
+  const [locationBreakdown, setLocationBreakdown] = useState<{ city: string; count: number }[]>([]);
 
-  const locationBreakdown = [
-    { city: "Bengaluru, Karnataka", count: 18940 },
-    { city: "Hyderabad, Telangana", count: 11420 },
-    { city: "Remote (India)", count: 9850 },
-    { city: "Pune, Maharashtra", count: 7210 },
-    { city: "Delhi NCR (Gurugram / Noida)", count: 6940 }
-  ];
+  useEffect(() => {
+    const sources = getAdminAtsSources();
+    const totalJobs = sources.reduce((sum, s) => sum + s.jobsCount, 0) || 1;
+    setAtsBreakdown(sources.map(s => ({
+      name: s.name,
+      count: s.jobsCount,
+      percent: Math.round((s.jobsCount / totalJobs) * 100)
+    })));
+
+    const jobs = getAdminJobs();
+    const cityMap: Record<string, number> = {};
+    jobs.forEach(j => {
+      const loc = j.location || "Remote";
+      const key = loc.includes("Bengaluru") || loc.includes("Bangalore") ? "Bengaluru, Karnataka" :
+                  loc.includes("Hyderabad") ? "Hyderabad, Telangana" :
+                  loc.includes("Pune") ? "Pune, Maharashtra" :
+                  loc.includes("Delhi") || loc.includes("Noida") || loc.includes("Gurugram") ? "Delhi NCR (Gurugram / Noida)" :
+                  loc.includes("Remote") ? "Remote (India / Global)" :
+                  "Other Regional Metros";
+      cityMap[key] = (cityMap[key] || 0) + 1;
+    });
+
+    setLocationBreakdown(Object.entries(cityMap).map(([city, count]) => ({ city, count })).sort((a, b) => b.count - a.count));
+  }, []);
 
   return (
     <div className="space-y-6 pb-12">
@@ -58,12 +69,15 @@ export default function AdminJobAnalyticsPage() {
           <div className="space-y-3">
             {atsBreakdown.map((item) => (
               <div key={item.name} className="space-y-1">
-                <div className="flex items-center justify-between text-xs font-semibold text-slate-700">
-                  <span>{item.name}</span>
+                <div className="flex justify-between text-xs">
+                  <span className="font-bold text-slate-800">{item.name}</span>
                   <span className="font-mono text-slate-500">{item.count.toLocaleString()} ({item.percent}%)</span>
                 </div>
-                <div className="w-full bg-slate-100 h-2 rounded-full overflow-hidden">
-                  <div className="bg-teal-600 h-full rounded-full" style={{ width: `${item.percent}%` }} />
+                <div className="w-full bg-slate-100 rounded-full h-2 overflow-hidden">
+                  <div 
+                    className="bg-teal-600 h-2 rounded-full transition-all duration-500" 
+                    style={{ width: `${Math.max(item.percent, 3)}%` }}
+                  />
                 </div>
               </div>
             ))}
@@ -76,11 +90,11 @@ export default function AdminJobAnalyticsPage() {
             <MapPin className="w-4 h-4 text-indigo-600" />
             <span>Top Geographic Hubs</span>
           </h3>
-          <div className="space-y-2.5 text-xs">
+          <div className="space-y-3">
             {locationBreakdown.map((loc) => (
-              <div key={loc.city} className="flex items-center justify-between p-2.5 rounded-lg bg-slate-50">
+              <div key={loc.city} className="flex items-center justify-between p-3 rounded-xl border border-slate-100 bg-slate-50/50 text-xs">
                 <span className="font-semibold text-slate-800">{loc.city}</span>
-                <span className="font-mono text-teal-700 bg-teal-50 px-2 py-0.5 rounded font-bold">
+                <span className="font-mono font-bold text-teal-700 bg-teal-50 px-2 py-0.5 rounded border border-teal-100">
                   {loc.count.toLocaleString()} jobs
                 </span>
               </div>

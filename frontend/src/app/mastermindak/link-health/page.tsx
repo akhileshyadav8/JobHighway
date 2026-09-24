@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { 
   HeartPulse, 
@@ -12,29 +12,83 @@ import {
   AlertCircle, 
   Clock,
   ChevronLeft,
-  ChevronRight
+  ChevronRight,
+  Check
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { getLinkHealthRecords, LinkHealthItem } from "@/lib/adminData";
+import { getLinkHealthRecords, probeUrlHealth, LinkHealthItem } from "@/lib/adminData";
 
 export default function AdminLinkHealthPage() {
-  const [records, setRecords] = useState<LinkHealthItem[]>(getLinkHealthRecords());
+  const [records, setRecords] = useState<LinkHealthItem[]>([]);
   const [search, setSearch] = useState("");
   const [selectedStatusType, setSelectedStatusType] = useState<string>("");
-  const [selectedHttpStatus, setSelectedHttpStatus] = useState<string>("");
   const [selectedAts, setSelectedAts] = useState<string>("");
+  const [probingId, setProbingId] = useState<string | null>(null);
+  const [isScanningAll, setIsScanningAll] = useState(false);
+  const [toastMessage, setToastMessage] = useState<string | null>(null);
 
   // Pagination
   const [currentPage, setCurrentPage] = useState(1);
   const pageSize = 10;
 
-  const handleRecheck = (id: string) => {
-    setRecords(prev => prev.map(r => r.id === id ? { ...r, lastChecked: "just now", attempts: 1 } : r));
+  useEffect(() => {
+    setRecords(getLinkHealthRecords());
+  }, []);
+
+  const showToast = (msg: string) => {
+    setToastMessage(msg);
+    setTimeout(() => setToastMessage(null), 3500);
+  };
+
+  const handleRecheck = async (id: string, url: string) => {
+    setProbingId(id);
+    const probe = await probeUrlHealth(url);
+    setProbingId(null);
+
+    setRecords(prev => prev.map(r => {
+      if (r.id === id) {
+        return {
+          ...r,
+          httpStatus: probe.httpStatus,
+          statusText: probe.statusText,
+          statusType: probe.statusType,
+          lastChecked: "Just now",
+          attempts: 1
+        };
+      }
+      return r;
+    }));
+
+    showToast(`Probed ${url}: HTTP ${probe.httpStatus} (${probe.statusText}) in ${probe.durationMs}ms`);
   };
 
   const handleDeactivate = (id: string) => {
     setRecords(prev => prev.filter(r => r.id !== id));
+    showToast("De-indexed broken URL listing from search engine.");
   };
+
+  const handleScanAll = async () => {
+    setIsScanningAll(true);
+    const updated = [...records];
+    for (let i = 0; i < Math.min(updated.length, 6); i++) {
+      const p = await probeUrlHealth(updated[i].url);
+      updated[i] = {
+        ...updated[i],
+        httpStatus: p.httpStatus,
+        statusText: p.statusText,
+        statusType: p.statusType,
+        lastChecked: "Just now"
+      };
+    }
+    setRecords(updated);
+    setIsScanningAll(false);
+    showToast("Automated link probe completed across active ATS destinations.");
+  };
+
+  const healthyCount = records.filter(r => r.statusType === "healthy").length;
+  const brokenCount = records.filter(r => r.statusType === "broken").length;
+  const redirectCount = records.filter(r => r.statusType === "redirect").length;
+  const expiredCount = records.filter(r => r.statusType === "expired").length;
 
   const filtered = records.filter(item => {
     if (search.trim()) {
@@ -43,7 +97,6 @@ export default function AdminLinkHealthPage() {
       if (!match) return false;
     }
     if (selectedStatusType && item.statusType !== selectedStatusType) return false;
-    if (selectedHttpStatus && String(item.httpStatus) !== selectedHttpStatus) return false;
     if (selectedAts && item.ats !== selectedAts) return false;
     return true;
   });
@@ -55,25 +108,34 @@ export default function AdminLinkHealthPage() {
 
   return (
     <div className="space-y-6 pb-12">
+      {/* Toast Notification */}
+      {toastMessage && (
+        <div className="fixed bottom-6 right-6 z-50 bg-slate-900 text-white px-4 py-3 rounded-xl shadow-xl text-xs font-semibold flex items-center gap-2 border border-slate-700 animate-in fade-in slide-in-from-bottom-2">
+          <Check className="w-4 h-4 text-emerald-400" />
+          <span>{toastMessage}</span>
+        </div>
+      )}
+
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h1 className="text-2xl font-black text-slate-900 tracking-tight flex items-center gap-2">
-            <HeartPulse className="w-6 h-6 text-teal-600" />
-            <span>Link Health &amp; Verification</span>
+            <HeartPulse className="w-6 h-6 text-rose-500" />
+            <span>Link Health &amp; Endpoint Monitor</span>
           </h1>
           <p className="text-xs text-slate-500 mt-0.5">
-            Monitor job link health, broken URLs, redirects and expired postings.
+            Automated crawler for detecting broken destination links, 404s, and unauthorized redirections.
           </p>
         </div>
 
         <Button
           size="sm"
-          onClick={() => alert("Verification crawler launched across all indexed URLs!")}
+          disabled={isScanningAll}
+          onClick={handleScanAll}
           className="bg-teal-600 hover:bg-teal-700 text-white font-semibold text-xs rounded-xl shadow-2xs gap-1.5 cursor-pointer self-start sm:self-auto"
         >
-          <RefreshCw className="w-3.5 h-3.5" />
-          <span>Verify All Endpoints</span>
+          <RefreshCw className={`w-3.5 h-3.5 ${isScanningAll ? "animate-spin" : ""}`} />
+          <span>{isScanningAll ? "Probing Endpoints..." : "Probe All URLs"}</span>
         </Button>
       </div>
 
@@ -81,203 +143,171 @@ export default function AdminLinkHealthPage() {
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         <div className="bg-white border border-slate-200/90 rounded-xl p-4 shadow-2xs">
           <div className="flex items-center justify-between text-xs text-slate-500 font-semibold mb-1">
-            <span>Healthy Links</span>
+            <span>Healthy (HTTP 200)</span>
             <CheckCircle className="w-4 h-4 text-emerald-500" />
           </div>
-          <div className="text-2xl font-black text-emerald-600">61,420</div>
-          <div className="text-[11px] text-slate-400 mt-0.5">HTTP 200 OK endpoints</div>
+          <div className="text-2xl font-black text-emerald-600">{healthyCount}</div>
+          <div className="text-[11px] text-slate-400 mt-0.5">Direct ATS reachable</div>
         </div>
 
         <div className="bg-white border border-slate-200/90 rounded-xl p-4 shadow-2xs">
           <div className="flex items-center justify-between text-xs text-slate-500 font-semibold mb-1">
-            <span>Broken Links</span>
+            <span>Broken (404 / 500)</span>
             <AlertCircle className="w-4 h-4 text-rose-500" />
           </div>
-          <div className="text-2xl font-black text-rose-600">182</div>
-          <div className="text-[11px] text-rose-500 font-medium mt-0.5">Flagged for remediation</div>
+          <div className="text-2xl font-black text-rose-600">{brokenCount}</div>
+          <div className="text-[11px] text-slate-400 mt-0.5">Scheduled for purge</div>
         </div>
 
         <div className="bg-white border border-slate-200/90 rounded-xl p-4 shadow-2xs">
           <div className="flex items-center justify-between text-xs text-slate-500 font-semibold mb-1">
-            <span>Redirected</span>
+            <span>Redirects (301)</span>
             <AlertTriangle className="w-4 h-4 text-amber-500" />
           </div>
-          <div className="text-2xl font-black text-amber-600">93</div>
-          <div className="text-[11px] text-slate-400 mt-0.5">HTTP 301/302 redirects</div>
+          <div className="text-2xl font-black text-amber-600">{redirectCount}</div>
+          <div className="text-[11px] text-slate-400 mt-0.5">Auto-updated target</div>
         </div>
 
         <div className="bg-white border border-slate-200/90 rounded-xl p-4 shadow-2xs">
           <div className="flex items-center justify-between text-xs text-slate-500 font-semibold mb-1">
-            <span>Expired Jobs</span>
-            <Clock className="w-4 h-4 text-indigo-500" />
+            <span>Expired (410)</span>
+            <Clock className="w-4 h-4 text-slate-400" />
           </div>
-          <div className="text-2xl font-black text-indigo-600">2,055</div>
-          <div className="text-[11px] text-slate-400 mt-0.5">De-indexed automatically</div>
+          <div className="text-2xl font-black text-slate-700">{expiredCount}</div>
+          <div className="text-[11px] text-slate-400 mt-0.5">Unlisted positions</div>
         </div>
       </div>
 
-      {/* Filter Bar */}
-      <div className="bg-white border border-slate-200/90 rounded-xl p-3.5 shadow-2xs space-y-3">
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-2.5">
-          <div className="sm:col-span-2 relative">
-            <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" />
-            <input
-              type="text"
-              value={search}
-              onChange={(e) => { setSearch(e.target.value); setCurrentPage(1); }}
-              placeholder="Search by job title, company, or URL..."
-              className="w-full pl-9 pr-3 py-1.5 bg-slate-50 border border-slate-200 rounded-lg text-xs text-slate-800 outline-none focus:bg-white focus:border-teal-500"
-            />
-          </div>
-
-          <div>
-            <select
-              value={selectedStatusType}
-              onChange={(e) => { setSelectedStatusType(e.target.value); setCurrentPage(1); }}
-              className="w-full px-2.5 py-1.5 bg-slate-50 border border-slate-200 rounded-lg text-xs text-slate-700 outline-none focus:bg-white focus:border-teal-500"
-            >
-              <option value="">All Status Types</option>
-              <option value="healthy">Healthy</option>
-              <option value="broken">Broken (404/403/500)</option>
-              <option value="redirect">Redirect (301)</option>
-              <option value="expired">Expired (410)</option>
-            </select>
-          </div>
-
-          <div>
-            <select
-              value={selectedAts}
-              onChange={(e) => { setSelectedAts(e.target.value); setCurrentPage(1); }}
-              className="w-full px-2.5 py-1.5 bg-slate-50 border border-slate-200 rounded-lg text-xs text-slate-700 outline-none focus:bg-white focus:border-teal-500"
-            >
-              <option value="">ATS Source</option>
-              <option value="Greenhouse">Greenhouse</option>
-              <option value="Lever">Lever</option>
-              <option value="Workday">Workday</option>
-              <option value="Ashby">Ashby</option>
-              <option value="Official Domains">Official Domains</option>
-            </select>
-          </div>
-
-          <div className="flex items-center">
-            <button
-              onClick={() => { setSearch(""); setSelectedStatusType(""); setSelectedAts(""); setCurrentPage(1); }}
-              className="w-full py-1.5 px-3 rounded-lg border border-slate-200 text-xs font-semibold text-slate-600 hover:bg-slate-50 transition-colors cursor-pointer"
-            >
-              Reset Filters
-            </button>
-          </div>
+      {/* Filter Toolbar */}
+      <div className="bg-white border border-slate-200/90 rounded-xl p-3 shadow-2xs flex flex-col md:flex-row items-center gap-3">
+        <div className="relative flex-1 w-full">
+          <Search className="w-3.5 h-3.5 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+          <input
+            type="text"
+            placeholder="Search by job title, company, or target URL..."
+            value={search}
+            onChange={(e) => { setSearch(e.target.value); setCurrentPage(1); }}
+            className="w-full pl-8 pr-3 py-1.5 rounded-lg border border-slate-200 bg-slate-50/50 text-xs text-slate-800 placeholder:text-slate-400 focus:bg-white focus:border-teal-500 focus:outline-none"
+          />
         </div>
+
+        <select
+          value={selectedStatusType}
+          onChange={(e) => { setSelectedStatusType(e.target.value); setCurrentPage(1); }}
+          className="w-full md:w-44 py-1.5 px-2.5 rounded-lg border border-slate-200 bg-slate-50/50 text-xs text-slate-700 font-medium focus:bg-white focus:border-teal-500 focus:outline-none cursor-pointer"
+        >
+          <option value="">All Health Statuses</option>
+          <option value="healthy">Healthy (200 OK)</option>
+          <option value="broken">Broken (404 / Error)</option>
+          <option value="redirect">Redirect (301)</option>
+          <option value="expired">Expired (410)</option>
+        </select>
       </div>
 
-      {/* Main Health Table */}
+      {/* Main Table */}
       <div className="bg-white border border-slate-200/90 rounded-xl shadow-2xs overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full text-left text-xs">
             <thead className="bg-slate-50/80 border-b border-slate-200/90 text-slate-500 font-bold uppercase tracking-wider text-[10px]">
               <tr>
-                <th className="p-3.5">Job Title</th>
-                <th className="p-3.5">Company</th>
-                <th className="p-3.5">URL</th>
-                <th className="p-3.5">HTTP Status</th>
+                <th className="p-3.5">Job Title &amp; Company</th>
+                <th className="p-3.5">Destination URL</th>
+                <th className="p-3.5">HTTP Code</th>
+                <th className="p-3.5">Status</th>
                 <th className="p-3.5">Last Checked</th>
-                <th className="p-3.5">Attempts</th>
                 <th className="p-3.5 text-right">Actions</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100">
-              {pagedItems.length === 0 ? (
-                <tr>
-                  <td colSpan={7} className="p-8 text-center text-slate-400">
-                    No broken or flagged links found. All endpoints responding OK.
-                  </td>
-                </tr>
-              ) : (
-                pagedItems.map((item) => (
+              {pagedItems.map((item) => {
+                const isProbing = probingId === item.id;
+                return (
                   <tr key={item.id} className="hover:bg-slate-50/70 transition-colors">
-                    <td className="p-3.5 font-bold text-slate-900">
-                      {item.jobTitle}
+                    <td className="p-3.5 max-w-[240px]">
+                      <div className="font-bold text-slate-900 truncate">{item.jobTitle}</div>
+                      <div className="text-[11px] text-slate-500">{item.company} • {item.ats}</div>
                     </td>
-                    <td className="p-3.5 font-medium text-slate-700">
-                      {item.company}
-                    </td>
-                    <td className="p-3.5">
+                    <td className="p-3.5 max-w-[260px]">
                       <a
                         href={item.url}
                         target="_blank"
-                        rel="noreferrer"
-                        className="inline-flex items-center gap-1 text-teal-600 hover:underline"
-                        title={item.url}
+                        rel="noopener noreferrer"
+                        className="text-slate-500 hover:text-teal-600 font-mono text-[11px] truncate block"
                       >
-                        <ExternalLink className="w-3.5 h-3.5" />
-                        <span className="font-mono text-[11px] truncate max-w-[120px]">{item.ats}</span>
+                        {item.url}
                       </a>
                     </td>
+                    <td className="p-3.5 font-mono text-[11px] font-bold">
+                      {item.httpStatus}
+                    </td>
                     <td className="p-3.5">
-                      <span className={`inline-flex items-center gap-1 font-mono font-bold px-2 py-0.5 rounded text-[11px] ${
-                        item.httpStatus === 200 ? "bg-emerald-50 text-emerald-700 border border-emerald-200" :
-                        item.httpStatus === 301 ? "bg-amber-50 text-amber-700 border border-amber-200" :
+                      <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${
+                        item.statusType === "healthy" ? "bg-emerald-50 text-emerald-700 border border-emerald-200" :
+                        item.statusType === "redirect" ? "bg-amber-50 text-amber-700 border border-amber-200" :
+                        item.statusType === "expired" ? "bg-slate-100 text-slate-700 border border-slate-200" :
                         "bg-rose-50 text-rose-700 border border-rose-200"
                       }`}>
-                        <span>{item.httpStatus}</span>
-                        <span className="text-[10px] font-sans font-medium text-slate-500">({item.statusText})</span>
+                        {item.statusText.toUpperCase()}
                       </span>
                     </td>
                     <td className="p-3.5 text-slate-400 font-mono text-[11px]">
                       {item.lastChecked}
                     </td>
-                    <td className="p-3.5 text-slate-600 font-mono text-[11px]">
-                      {item.attempts}
-                    </td>
-                    <td className="p-3.5 text-right space-x-1.5">
-                      <button
-                        onClick={() => handleRecheck(item.id)}
-                        className="px-2.5 py-1 rounded-lg border border-teal-200 bg-teal-50 text-teal-700 hover:bg-teal-100 font-semibold text-[11px] transition-colors cursor-pointer"
+                    <td className="p-3.5 text-right space-x-1.5 whitespace-nowrap">
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        disabled={isProbing}
+                        onClick={() => handleRecheck(item.id, item.url)}
+                        className="text-xs h-7 rounded-lg border-teal-200 text-teal-700 hover:bg-teal-50"
                       >
-                        Recheck
-                      </button>
-                      {item.statusType === "broken" && (
-                        <button
-                          onClick={() => handleDeactivate(item.id)}
-                          className="px-2.5 py-1 rounded-lg border border-rose-200 bg-rose-50 text-rose-700 hover:bg-rose-100 font-semibold text-[11px] transition-colors cursor-pointer"
-                        >
-                          Deactivate
-                        </button>
-                      )}
+                        <RefreshCw className={`w-3 h-3 mr-1 ${isProbing ? "animate-spin" : ""}`} />
+                        <span>{isProbing ? "Probing..." : "Recheck"}</span>
+                      </Button>
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        onClick={() => handleDeactivate(item.id)}
+                        className="text-xs h-7 rounded-lg text-rose-600 hover:bg-rose-50"
+                      >
+                        Deactivate
+                      </Button>
                     </td>
                   </tr>
-                ))
-              )}
+                );
+              })}
             </tbody>
           </table>
         </div>
 
         {/* Pagination Footer */}
-        <div className="p-3.5 bg-slate-50/50 border-t border-slate-200/90 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-slate-500">
+        <div className="p-3.5 border-t border-slate-100 flex items-center justify-between text-xs text-slate-500">
           <div>
-            Showing <strong className="text-slate-900">{totalItems === 0 ? 0 : startIndex + 1}</strong> to{" "}
-            <strong className="text-slate-900">{Math.min(startIndex + pageSize, totalItems)}</strong> of{" "}
-            <strong className="text-slate-900">{totalItems}</strong> verified records
+            Showing <span className="font-bold text-slate-800">{startIndex + 1}</span> to{" "}
+            <span className="font-bold text-slate-800">{Math.min(startIndex + pageSize, totalItems)}</span> of{" "}
+            <span className="font-bold text-slate-800">{totalItems}</span> links
           </div>
 
-          <div className="flex items-center gap-1">
-            <button
-              onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+          <div className="flex items-center gap-1.5">
+            <Button
+              variant="outline"
+              size="sm"
               disabled={currentPage <= 1}
-              className="p-1.5 rounded-lg border border-slate-200 hover:bg-slate-100 disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer"
+              onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+              className="text-xs h-8 px-2.5 rounded-lg"
             >
-              <ChevronLeft className="w-4 h-4" />
-            </button>
-            <span className="px-3 py-1 font-semibold text-slate-800">
-              Page {currentPage} of {totalPages}
-            </span>
-            <button
-              onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+              <ChevronLeft className="w-3.5 h-3.5 mr-1" /> Prev
+            </Button>
+            <span className="text-xs px-2 font-medium">Page {currentPage} of {totalPages}</span>
+            <Button
+              variant="outline"
+              size="sm"
               disabled={currentPage >= totalPages}
-              className="p-1.5 rounded-lg border border-slate-200 hover:bg-slate-100 disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer"
+              onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+              className="text-xs h-8 px-2.5 rounded-lg"
             >
-              <ChevronRight className="w-4 h-4" />
-            </button>
+              Next <ChevronRight className="w-3.5 h-3.5 ml-1" />
+            </Button>
           </div>
         </div>
       </div>

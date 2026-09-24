@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { 
   Radio, 
@@ -11,53 +11,84 @@ import {
   AlertCircle, 
   Play, 
   Clock,
-  Activity
+  Activity,
+  Check
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { DEFAULT_ATS_SOURCES, AtsSourceItem } from "@/lib/adminData";
+import { 
+  getAdminAtsSources, 
+  executeLiveAtsSync, 
+  AtsSourceItem,
+  getSyncLogs,
+  SyncLogItem
+} from "@/lib/adminData";
 
 export default function AdminSourcesPage() {
-  const [sources, setSources] = useState<AtsSourceItem[]>(DEFAULT_ATS_SOURCES);
+  const [sources, setSources] = useState<AtsSourceItem[]>([]);
+  const [syncLogs, setSyncLogs] = useState<SyncLogItem[]>([]);
   const [syncingId, setSyncingId] = useState<string | null>(null);
+  const [toastMessage, setToastMessage] = useState<string | null>(null);
+
+  useEffect(() => {
+    setSources(getAdminAtsSources());
+    setSyncLogs(getSyncLogs());
+  }, []);
+
+  const showToast = (msg: string) => {
+    setToastMessage(msg);
+    setTimeout(() => setToastMessage(null), 4000);
+  };
 
   const totalSources = sources.length;
   const healthyCount = sources.filter(s => s.status === "Healthy").length;
   const delayedCount = sources.filter(s => s.status === "Delayed").length;
   const failedCount = sources.filter(s => s.status === "Failed" || s.status === "Warning").length;
 
-  const handleRunSync = (id: string) => {
+  const handleRunSync = async (id: string, name: string) => {
     setSyncingId(id);
-    setTimeout(() => {
-      setSyncingId(null);
-      setSources(prev => prev.map(s => s.id === id ? { ...s, lastSync: "just now", status: "Healthy" } : s));
-    }, 1500);
+    const result = await executeLiveAtsSync(id);
+    setSyncingId(null);
+    setSources(getAdminAtsSources());
+    setSyncLogs(getSyncLogs());
+    showToast(result.message);
   };
 
-  const handleRunAllSyncs = () => {
+  const handleRunAllSyncs = async () => {
     setSyncingId("all");
-    setTimeout(() => {
-      setSyncingId(null);
-      setSources(prev => prev.map(s => ({ ...s, lastSync: "just now", status: "Healthy" })));
-    }, 2000);
+    const result = await executeLiveAtsSync("greenhouse");
+    await executeLiveAtsSync("lever");
+    await executeLiveAtsSync("ashby");
+    setSyncingId(null);
+    setSources(getAdminAtsSources());
+    setSyncLogs(getSyncLogs());
+    showToast("Successfully orchestrated multi-source ingestion across active pipelines.");
   };
 
   return (
     <div className="space-y-6 pb-12">
+      {/* Toast */}
+      {toastMessage && (
+        <div className="fixed bottom-6 right-6 z-50 bg-slate-900 text-white px-4 py-3 rounded-xl shadow-xl text-xs font-semibold flex items-center gap-2 border border-slate-700 animate-in fade-in slide-in-from-bottom-2">
+          <Check className="w-4 h-4 text-emerald-400" />
+          <span>{toastMessage}</span>
+        </div>
+      )}
+
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h1 className="text-2xl font-black text-slate-900 tracking-tight flex items-center gap-2">
             <Radio className="w-6 h-6 text-teal-600" />
-            <span>ATS Sources</span>
+            <span>ATS Sources &amp; Ingestion Engines</span>
           </h1>
           <p className="text-xs text-slate-500 mt-0.5">
-            Monitor the health and performance of all integrated ATS sources and direct ingestion engines.
+            Monitor real-time health, latency, and execute live scraping pipelines across supported ATS endpoints.
           </p>
         </div>
 
         <Button
           onClick={handleRunAllSyncs}
-          disabled={syncingId === "all"}
+          disabled={syncingId !== null}
           className="bg-teal-600 hover:bg-teal-700 text-white font-semibold text-xs rounded-xl shadow-2xs gap-1.5 cursor-pointer self-start sm:self-auto"
         >
           <RefreshCw className={`w-3.5 h-3.5 ${syncingId === "all" ? "animate-spin" : ""}`} />
@@ -73,6 +104,7 @@ export default function AdminSourcesPage() {
             <Radio className="w-4 h-4 text-slate-400" />
           </div>
           <div className="text-2xl font-black text-slate-900">{totalSources}</div>
+          <div className="text-[11px] text-slate-400 mt-0.5">Ingestion protocols</div>
         </div>
 
         <div className="bg-white border border-slate-200/90 rounded-xl p-4 shadow-2xs">
@@ -81,6 +113,7 @@ export default function AdminSourcesPage() {
             <CheckCircle className="w-4 h-4 text-emerald-500" />
           </div>
           <div className="text-2xl font-black text-emerald-600">{healthyCount}</div>
+          <div className="text-[11px] text-emerald-600 font-semibold mt-0.5">99%+ uptime</div>
         </div>
 
         <div className="bg-white border border-slate-200/90 rounded-xl p-4 shadow-2xs">
@@ -89,6 +122,7 @@ export default function AdminSourcesPage() {
             <AlertTriangle className="w-4 h-4 text-amber-500" />
           </div>
           <div className="text-2xl font-black text-amber-600">{delayedCount}</div>
+          <div className="text-[11px] text-amber-600 font-semibold mt-0.5">Rate-limit backoff</div>
         </div>
 
         <div className="bg-white border border-slate-200/90 rounded-xl p-4 shadow-2xs">
@@ -97,6 +131,7 @@ export default function AdminSourcesPage() {
             <AlertCircle className="w-4 h-4 text-rose-500" />
           </div>
           <div className="text-2xl font-black text-rose-600">{failedCount}</div>
+          <div className="text-[11px] text-slate-400 mt-0.5">Needs re-synchronization</div>
         </div>
       </div>
 
@@ -108,9 +143,9 @@ export default function AdminSourcesPage() {
               <tr>
                 <th className="p-3.5">Source</th>
                 <th className="p-3.5">Companies</th>
-                <th className="p-3.5">Jobs</th>
+                <th className="p-3.5">Jobs Ingested</th>
                 <th className="p-3.5">Last Sync</th>
-                <th className="p-3.5">Next Sync</th>
+                <th className="p-3.5">Avg Response</th>
                 <th className="p-3.5">Success Rate</th>
                 <th className="p-3.5">Status</th>
                 <th className="p-3.5 text-right">Actions</th>
@@ -138,8 +173,8 @@ export default function AdminSourcesPage() {
                     <td className="p-3.5 text-slate-500 font-mono text-[11px]">
                       {src.lastSync}
                     </td>
-                    <td className="p-3.5 text-slate-400 font-mono text-[11px]">
-                      {src.nextSync}
+                    <td className="p-3.5 text-slate-500 font-mono text-[11px]">
+                      {src.avgSyncTime}
                     </td>
                     <td className="p-3.5">
                       <span className="font-bold text-slate-800">
@@ -164,7 +199,7 @@ export default function AdminSourcesPage() {
                     </td>
                     <td className="p-3.5 text-right space-x-1.5">
                       <button
-                        onClick={() => handleRunSync(src.id)}
+                        onClick={() => handleRunSync(src.id, src.name)}
                         disabled={isSyncing}
                         className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg border border-teal-200 bg-teal-50 text-teal-700 hover:bg-teal-100 font-semibold text-[11px] transition-colors cursor-pointer disabled:opacity-50"
                       >
@@ -199,49 +234,21 @@ export default function AdminSourcesPage() {
         </div>
 
         <div className="space-y-2.5 text-xs">
-          <div className="p-3 rounded-xl bg-slate-50 border border-slate-100 flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <span className="w-2 h-2 rounded-full bg-emerald-500 shrink-0" />
-              <div>
-                <span className="font-bold text-slate-900">Greenhouse sync completed</span>
-                <span className="text-slate-500 ml-2">1,842 jobs processed</span>
+          {syncLogs.slice(0, 4).map((log) => (
+            <div key={log.id} className="p-3 rounded-xl bg-slate-50 border border-slate-100 flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <span className={`w-2 h-2 rounded-full shrink-0 ${log.status === "completed" ? "bg-emerald-500" : "bg-rose-500"}`} />
+                <div>
+                  <span className="font-bold text-slate-800">{log.source}</span>
+                  <span className="text-slate-500 ml-2">{log.message}</span>
+                </div>
+              </div>
+              <div className="flex items-center gap-4 text-slate-400 text-[11px] font-mono">
+                <span>{log.duration}</span>
+                <span>{log.timestamp}</span>
               </div>
             </div>
-            <span className="text-slate-400 font-mono text-[11px]">4 min ago</span>
-          </div>
-
-          <div className="p-3 rounded-xl bg-slate-50 border border-slate-100 flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <span className="w-2 h-2 rounded-full bg-emerald-500 shrink-0" />
-              <div>
-                <span className="font-bold text-slate-900">Lever sync completed</span>
-                <span className="text-slate-500 ml-2">982 jobs processed</span>
-              </div>
-            </div>
-            <span className="text-slate-400 font-mono text-[11px]">8 min ago</span>
-          </div>
-
-          <div className="p-3 rounded-xl bg-slate-50 border border-slate-100 flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <span className="w-2 h-2 rounded-full bg-amber-500 animate-pulse shrink-0" />
-              <div>
-                <span className="font-bold text-slate-900">Workday sync running</span>
-                <span className="text-slate-500 ml-2">Crawling candidate endpoints...</span>
-              </div>
-            </div>
-            <span className="text-slate-400 font-mono text-[11px]">21 min ago</span>
-          </div>
-
-          <div className="p-3 rounded-xl bg-slate-50 border border-slate-100 flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <span className="w-2 h-2 rounded-full bg-rose-500 shrink-0" />
-              <div>
-                <span className="font-bold text-slate-900">Ashby sync timeout warning</span>
-                <span className="text-slate-500 ml-2">Connection timeout on node ashby-in-01</span>
-              </div>
-            </div>
-            <span className="text-slate-400 font-mono text-[11px]">43 min ago</span>
-          </div>
+          ))}
         </div>
       </div>
     </div>

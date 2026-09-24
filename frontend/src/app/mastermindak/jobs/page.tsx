@@ -15,30 +15,27 @@ import {
   RefreshCw,
   MoreVertical,
   ChevronLeft,
-  ChevronRight
+  ChevronRight,
+  ShieldCheck,
+  Check
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { mockJobs, mockCompanies } from "@/lib/mock-data";
-import { detectAtsPlatform } from "@/lib/adminData";
-
-interface JobRow {
-  id: string | number;
-  title: string;
-  slug: string;
-  company: string;
-  location: string;
-  ats: string;
-  posted: string;
-  status: "Active" | "Expired" | "Broken";
-  applyUrl: string;
-}
+import { 
+  getAdminJobs, 
+  addAdminJob, 
+  updateAdminJobStatus, 
+  deleteAdminJob, 
+  bulkDeleteAdminJobs, 
+  AdminJobItem,
+  detectAtsPlatform
+} from "@/lib/adminData";
 
 export default function AdminJobsPage() {
+  const [jobs, setJobs] = useState<AdminJobItem[]>([]);
   const [activeTab, setActiveTab] = useState<"all" | "active" | "expired" | "broken">("all");
   const [search, setSearch] = useState("");
   const [selectedCompany, setSelectedCompany] = useState("");
   const [selectedAts, setSelectedAts] = useState("");
-  const [selectedWorkMode, setSelectedWorkMode] = useState("");
   const [selectedStatus, setSelectedStatus] = useState("");
   
   // Selection state
@@ -46,7 +43,7 @@ export default function AdminJobsPage() {
 
   // Pagination
   const [currentPage, setCurrentPage] = useState(1);
-  const pageSize = 10;
+  const pageSize = 12;
 
   // Add Job Modal
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
@@ -54,28 +51,81 @@ export default function AdminJobsPage() {
   const [newJobCompany, setNewJobCompany] = useState("");
   const [newJobLocation, setNewJobLocation] = useState("");
   const [newJobUrl, setNewJobUrl] = useState("");
+  const [newJobSalary, setNewJobSalary] = useState("");
+  const [toastMessage, setToastMessage] = useState<string | null>(null);
 
-  // Map mockJobs into unified list
-  const allJobsData: JobRow[] = mockJobs.map((j, idx) => {
-    let status: JobRow["status"] = "Active";
-    if (idx % 15 === 0) status = "Expired";
-    else if (idx % 27 === 0) status = "Broken";
+  useEffect(() => {
+    setJobs(getAdminJobs());
+  }, []);
 
-    return {
-      id: j.id || `job_${idx}`,
-      title: j.title,
-      slug: j.slug,
-      company: j.company?.name || "JobPulse Partner",
-      location: Array.isArray(j.location) ? j.location.join(", ") : (j.location || "Remote"),
-      ats: detectAtsPlatform(j.apply_url || j.job_url),
-      posted: `${(idx % 12) + 1} days ago`,
-      status,
-      applyUrl: j.apply_url || j.job_url || "#"
-    };
-  });
+  const showToast = (msg: string) => {
+    setToastMessage(msg);
+    setTimeout(() => setToastMessage(null), 3500);
+  };
+
+  const handleCreateJob = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newJobTitle.trim() || !newJobCompany.trim()) {
+      alert("Please provide at least a Job Title and Company name.");
+      return;
+    }
+
+    const created = addAdminJob({
+      title: newJobTitle.trim(),
+      company: newJobCompany.trim(),
+      location: newJobLocation.trim() || "Remote, India",
+      applyUrl: newJobUrl.trim() || "https://jobpulse.io",
+      salary: newJobSalary.trim() || "Competitive (Benchmark)",
+      status: "Active"
+    });
+
+    setJobs(getAdminJobs());
+    setIsAddModalOpen(false);
+    setNewJobTitle("");
+    setNewJobCompany("");
+    setNewJobLocation("");
+    setNewJobUrl("");
+    setNewJobSalary("");
+    showToast(`Successfully added "${created.title}" at ${created.company}`);
+  };
+
+  const handleStatusChange = (id: string | number, newStatus: AdminJobItem["status"]) => {
+    updateAdminJobStatus(id, newStatus);
+    setJobs(getAdminJobs());
+    showToast(`Updated status to ${newStatus}`);
+  };
+
+  const handleDelete = (id: string | number) => {
+    if (confirm("Are you sure you want to permanently delete this job listing?")) {
+      deleteAdminJob(id);
+      setSelectedIds(prev => prev.filter(x => x !== String(id)));
+      setJobs(getAdminJobs());
+      showToast("Job removed from catalog.");
+    }
+  };
+
+  const handleBulkDelete = () => {
+    if (selectedIds.length === 0) return;
+    if (confirm(`Are you sure you want to delete ${selectedIds.length} selected job postings?`)) {
+      bulkDeleteAdminJobs(selectedIds);
+      setSelectedIds([]);
+      setJobs(getAdminJobs());
+      showToast(`Purged ${selectedIds.length} job postings.`);
+    }
+  };
+
+  // Dynamic counts
+  const allCount = jobs.length;
+  const activeCount = jobs.filter(j => j.status === "Active").length;
+  const expiredCount = jobs.filter(j => j.status === "Expired").length;
+  const brokenCount = jobs.filter(j => j.status === "Broken").length;
+
+  // Companies & ATS options for dropdown
+  const uniqueCompanies = Array.from(new Set(jobs.map(j => j.company))).slice(0, 30);
+  const uniqueAts = ["Greenhouse", "Lever", "Workday", "Ashby", "SmartRecruiters", "iCIMS", "Taleo", "Official Domains"];
 
   // Filter logic
-  const filtered = allJobsData.filter((job) => {
+  const filtered = jobs.filter((job) => {
     if (activeTab === "active" && job.status !== "Active") return false;
     if (activeTab === "expired" && job.status !== "Expired") return false;
     if (activeTab === "broken" && job.status !== "Broken") return false;
@@ -116,13 +166,20 @@ export default function AdminJobsPage() {
     setSearch("");
     setSelectedCompany("");
     setSelectedAts("");
-    setSelectedWorkMode("");
     setSelectedStatus("");
     setCurrentPage(1);
   };
 
   return (
     <div className="space-y-5 pb-12">
+      {/* Toast Notification */}
+      {toastMessage && (
+        <div className="fixed bottom-6 right-6 z-50 bg-slate-900 text-white px-4 py-3 rounded-xl shadow-xl text-xs font-semibold flex items-center gap-2 border border-slate-700 animate-in fade-in slide-in-from-bottom-2">
+          <Check className="w-4 h-4 text-emerald-400" />
+          <span>{toastMessage}</span>
+        </div>
+      )}
+
       {/* Top Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
@@ -134,13 +191,26 @@ export default function AdminJobsPage() {
           </p>
         </div>
 
-        <Button
-          onClick={() => setIsAddModalOpen(true)}
-          className="bg-teal-600 hover:bg-teal-700 text-white font-semibold text-xs rounded-xl shadow-2xs gap-1.5 cursor-pointer self-start sm:self-auto"
-        >
-          <Plus className="w-4 h-4" />
-          <span>Add Job (Manual)</span>
-        </Button>
+        <div className="flex items-center gap-2">
+          {selectedIds.length > 0 && (
+            <Button
+              onClick={handleBulkDelete}
+              variant="outline"
+              className="border-rose-200 bg-rose-50 text-rose-700 hover:bg-rose-100 text-xs font-semibold rounded-xl gap-1.5 cursor-pointer"
+            >
+              <Trash2 className="w-3.5 h-3.5" />
+              <span>Delete Selected ({selectedIds.length})</span>
+            </Button>
+          )}
+
+          <Button
+            onClick={() => setIsAddModalOpen(true)}
+            className="bg-teal-600 hover:bg-teal-700 text-white font-semibold text-xs rounded-xl shadow-2xs gap-1.5 cursor-pointer self-start sm:self-auto"
+          >
+            <Plus className="w-4 h-4" />
+            <span>Add Job (Manual)</span>
+          </Button>
+        </div>
       </div>
 
       {/* Sub Tabs */}
@@ -154,8 +224,8 @@ export default function AdminJobsPage() {
           }`}
         >
           <span>All Jobs</span>
-          <span className="px-1.5 py-0.5 rounded-full text-[10px] bg-slate-100 text-slate-600">
-            63,657
+          <span className="px-1.5 py-0.5 rounded-full text-[10px] bg-slate-100 text-slate-600 font-bold">
+            {allCount.toLocaleString()}
           </span>
         </button>
 
@@ -168,8 +238,8 @@ export default function AdminJobsPage() {
           }`}
         >
           <span>Active</span>
-          <span className="px-1.5 py-0.5 rounded-full text-[10px] bg-emerald-50 text-emerald-700">
-            58,421
+          <span className="px-1.5 py-0.5 rounded-full text-[10px] bg-emerald-50 text-emerald-700 font-bold">
+            {activeCount.toLocaleString()}
           </span>
         </button>
 
@@ -182,8 +252,8 @@ export default function AdminJobsPage() {
           }`}
         >
           <span>Expired</span>
-          <span className="px-1.5 py-0.5 rounded-full text-[10px] bg-amber-50 text-amber-700">
-            4,892
+          <span className="px-1.5 py-0.5 rounded-full text-[10px] bg-amber-50 text-amber-700 font-bold">
+            {expiredCount.toLocaleString()}
           </span>
         </button>
 
@@ -196,81 +266,70 @@ export default function AdminJobsPage() {
           }`}
         >
           <span>Broken</span>
-          <span className="px-1.5 py-0.5 rounded-full text-[10px] bg-rose-50 text-rose-700">
-            182
+          <span className="px-1.5 py-0.5 rounded-full text-[10px] bg-rose-50 text-rose-700 font-bold">
+            {brokenCount.toLocaleString()}
           </span>
         </button>
       </div>
 
-      {/* Filter Bar */}
-      <div className="bg-white border border-slate-200/90 rounded-xl p-3.5 shadow-2xs space-y-3">
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-2.5">
-          {/* Search */}
-          <div className="sm:col-span-2 relative">
-            <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" />
+      {/* Filter Toolbar */}
+      <div className="bg-white border border-slate-200/90 rounded-xl p-3 shadow-2xs space-y-3">
+        <div className="flex flex-col md:flex-row items-center gap-3">
+          
+          {/* Search Input */}
+          <div className="relative flex-1 w-full">
+            <Search className="w-3.5 h-3.5 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
             <input
               type="text"
+              placeholder="Search by job title, company name, or location..."
               value={search}
               onChange={(e) => { setSearch(e.target.value); setCurrentPage(1); }}
-              placeholder="Search by title, company, or keyword..."
-              className="w-full pl-9 pr-3 py-1.5 bg-slate-50 border border-slate-200 rounded-lg text-xs text-slate-800 outline-none focus:bg-white focus:border-teal-500"
+              className="w-full pl-8 pr-3 py-1.5 rounded-lg border border-slate-200 bg-slate-50/50 text-xs text-slate-800 placeholder:text-slate-400 focus:bg-white focus:border-teal-500 focus:outline-none transition-all"
             />
+            {search && (
+              <button 
+                onClick={() => setSearch("")}
+                className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
+              >
+                <X className="w-3.5 h-3.5" />
+              </button>
+            )}
           </div>
 
-          {/* Company filter */}
-          <div>
-            <select
-              value={selectedCompany}
-              onChange={(e) => { setSelectedCompany(e.target.value); setCurrentPage(1); }}
-              className="w-full px-2.5 py-1.5 bg-slate-50 border border-slate-200 rounded-lg text-xs text-slate-700 outline-none focus:bg-white focus:border-teal-500"
-            >
-              <option value="">All Companies</option>
-              {mockCompanies.map(c => (
-                <option key={c.name} value={c.name}>{c.name}</option>
-              ))}
-            </select>
-          </div>
+          {/* Company Filter Dropdown */}
+          <select
+            value={selectedCompany}
+            onChange={(e) => { setSelectedCompany(e.target.value); setCurrentPage(1); }}
+            className="w-full md:w-44 py-1.5 px-2.5 rounded-lg border border-slate-200 bg-slate-50/50 text-xs text-slate-700 font-medium focus:bg-white focus:border-teal-500 focus:outline-none cursor-pointer"
+          >
+            <option value="">All Companies</option>
+            {uniqueCompanies.map((c) => (
+              <option key={c} value={c}>{c}</option>
+            ))}
+          </select>
 
-          {/* ATS Source filter */}
-          <div>
-            <select
-              value={selectedAts}
-              onChange={(e) => { setSelectedAts(e.target.value); setCurrentPage(1); }}
-              className="w-full px-2.5 py-1.5 bg-slate-50 border border-slate-200 rounded-lg text-xs text-slate-700 outline-none focus:bg-white focus:border-teal-500"
-            >
-              <option value="">ATS Source</option>
-              <option value="Greenhouse">Greenhouse</option>
-              <option value="Lever">Lever</option>
-              <option value="Workday">Workday</option>
-              <option value="Ashby">Ashby</option>
-              <option value="SmartRecruiters">SmartRecruiters</option>
-              <option value="Official Domains">Official Domains</option>
-            </select>
-          </div>
-
-          {/* Status filter */}
-          <div>
-            <select
-              value={selectedStatus}
-              onChange={(e) => { setSelectedStatus(e.target.value); setCurrentPage(1); }}
-              className="w-full px-2.5 py-1.5 bg-slate-50 border border-slate-200 rounded-lg text-xs text-slate-700 outline-none focus:bg-white focus:border-teal-500"
-            >
-              <option value="">Status</option>
-              <option value="Active">Active</option>
-              <option value="Expired">Expired</option>
-              <option value="Broken">Broken</option>
-            </select>
-          </div>
+          {/* ATS Source Dropdown */}
+          <select
+            value={selectedAts}
+            onChange={(e) => { setSelectedAts(e.target.value); setCurrentPage(1); }}
+            className="w-full md:w-40 py-1.5 px-2.5 rounded-lg border border-slate-200 bg-slate-50/50 text-xs text-slate-700 font-medium focus:bg-white focus:border-teal-500 focus:outline-none cursor-pointer"
+          >
+            <option value="">All ATS Sources</option>
+            {uniqueAts.map(ats => (
+              <option key={ats} value={ats}>{ats}</option>
+            ))}
+          </select>
 
           {/* Clear Filters */}
-          <div className="flex items-center">
+          {(search || selectedCompany || selectedAts || selectedStatus) && (
             <button
               onClick={handleClearFilters}
-              className="w-full py-1.5 px-3 rounded-lg border border-slate-200 text-xs font-semibold text-slate-600 hover:bg-slate-50 transition-colors cursor-pointer"
+              className="text-xs font-semibold text-rose-600 hover:text-rose-700 whitespace-nowrap cursor-pointer px-2"
             >
-              Clear Filters
+              Reset
             </button>
-          </div>
+          )}
+
         </div>
       </div>
 
@@ -280,7 +339,7 @@ export default function AdminJobsPage() {
           <table className="w-full text-left text-xs">
             <thead className="bg-slate-50/80 border-b border-slate-200/90 text-slate-500 font-bold uppercase tracking-wider text-[10px]">
               <tr>
-                <th className="p-3.5 w-10 text-center">
+                <th className="p-3 w-8">
                   <input
                     type="checkbox"
                     checked={pagedJobs.length > 0 && selectedIds.length === pagedJobs.length}
@@ -288,28 +347,31 @@ export default function AdminJobsPage() {
                     className="rounded border-slate-300 text-teal-600 focus:ring-teal-500 cursor-pointer"
                   />
                 </th>
-                <th className="p-3.5">Title</th>
-                <th className="p-3.5">Company</th>
-                <th className="p-3.5">Location</th>
-                <th className="p-3.5">ATS</th>
-                <th className="p-3.5">Posted</th>
-                <th className="p-3.5">Status</th>
-                <th className="p-3.5 text-right">Actions</th>
+                <th className="p-3">Job Title &amp; Role</th>
+                <th className="p-3">Company</th>
+                <th className="p-3">Location</th>
+                <th className="p-3">ATS Source</th>
+                <th className="p-3">Posted</th>
+                <th className="p-3">Status</th>
+                <th className="p-3 text-right">Actions</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100">
               {pagedJobs.length === 0 ? (
                 <tr>
                   <td colSpan={8} className="p-8 text-center text-slate-400">
-                    No job postings found matching your filters.
+                    No job postings found matching the selected filters.
                   </td>
                 </tr>
               ) : (
                 pagedJobs.map((job) => {
                   const isSelected = selectedIds.includes(String(job.id));
                   return (
-                    <tr key={job.id} className={`hover:bg-slate-50/70 transition-colors ${isSelected ? "bg-teal-50/30" : ""}`}>
-                      <td className="p-3.5 text-center">
+                    <tr 
+                      key={job.id} 
+                      className={`hover:bg-slate-50/70 transition-colors ${isSelected ? "bg-teal-50/30" : ""}`}
+                    >
+                      <td className="p-3">
                         <input
                           type="checkbox"
                           checked={isSelected}
@@ -317,52 +379,60 @@ export default function AdminJobsPage() {
                           className="rounded border-slate-300 text-teal-600 focus:ring-teal-500 cursor-pointer"
                         />
                       </td>
-                      <td className="p-3.5">
-                        <Link 
-                          href={`/jobs/${job.slug}`}
-                          target="_blank"
-                          className="font-bold text-slate-900 hover:text-teal-600 transition-colors"
-                        >
+                      <td className="p-3 max-w-[260px]">
+                        <div className="font-bold text-slate-900 truncate">
                           {job.title}
-                        </Link>
+                        </div>
+                        <div className="text-[11px] text-slate-400 font-mono truncate">
+                          {job.salary || "Competitive Compensation"}
+                        </div>
                       </td>
-                      <td className="p-3.5 font-medium text-slate-700">
+                      <td className="p-3 font-semibold text-slate-700 whitespace-nowrap">
                         {job.company}
                       </td>
-                      <td className="p-3.5 text-slate-500 truncate max-w-[150px]">
+                      <td className="p-3 text-slate-500 max-w-[160px] truncate">
                         {job.location}
                       </td>
-                      <td className="p-3.5">
-                        <span className="font-semibold text-slate-700 bg-slate-100 px-2 py-0.5 rounded text-[11px]">
+                      <td className="p-3">
+                        <span className="font-mono text-[11px] font-semibold text-teal-700 bg-teal-50 px-2 py-0.5 rounded-md border border-teal-100">
                           {job.ats}
                         </span>
                       </td>
-                      <td className="p-3.5 text-slate-500 font-mono text-[11px]">
+                      <td className="p-3 text-slate-400 font-mono text-[11px] whitespace-nowrap">
                         {job.posted}
                       </td>
-                      <td className="p-3.5">
-                        <span className={`inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[10px] font-bold ${
-                          job.status === "Active" ? "bg-emerald-50 text-emerald-700 border border-emerald-200" :
-                          job.status === "Expired" ? "bg-amber-50 text-amber-700 border border-amber-200" :
-                          "bg-rose-50 text-rose-700 border border-rose-200"
-                        }`}>
-                          <span className={`w-1.5 h-1.5 rounded-full ${
-                            job.status === "Active" ? "bg-emerald-500" :
-                            job.status === "Expired" ? "bg-amber-500" :
-                            "bg-rose-500"
-                          }`} />
-                          <span>{job.status}</span>
-                        </span>
-                      </td>
-                      <td className="p-3.5 text-right space-x-2">
-                        <Link
-                          href={`/jobs/${job.slug}`}
-                          target="_blank"
-                          className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg border border-slate-200 text-slate-700 hover:text-teal-600 hover:border-teal-300 font-semibold text-[11px] transition-colors"
+                      <td className="p-3 whitespace-nowrap">
+                        <select
+                          value={job.status}
+                          onChange={(e) => handleStatusChange(job.id, e.target.value as any)}
+                          className={`text-[10px] font-bold px-2 py-0.5 rounded-full border cursor-pointer outline-none ${
+                            job.status === "Active" ? "bg-emerald-50 text-emerald-700 border-emerald-200" :
+                            job.status === "Expired" ? "bg-amber-50 text-amber-700 border-amber-200" :
+                            "bg-rose-50 text-rose-700 border-rose-200"
+                          }`}
                         >
-                          <span>View</span>
-                          <ExternalLink className="w-3 h-3" />
-                        </Link>
+                          <option value="Active">Active</option>
+                          <option value="Expired">Expired</option>
+                          <option value="Broken">Broken</option>
+                        </select>
+                      </td>
+                      <td className="p-3 text-right whitespace-nowrap space-x-1.5">
+                        <a
+                          href={job.applyUrl}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="inline-flex p-1.5 text-slate-400 hover:text-teal-600 rounded-lg hover:bg-slate-100 transition-colors"
+                          title="View Live ATS Post"
+                        >
+                          <ExternalLink className="w-3.5 h-3.5" />
+                        </a>
+                        <button
+                          onClick={() => handleDelete(job.id)}
+                          className="inline-flex p-1.5 text-slate-400 hover:text-rose-600 rounded-lg hover:bg-rose-50 transition-colors cursor-pointer"
+                          title="Delete Listing"
+                        >
+                          <Trash2 className="w-3.5 h-3.5" />
+                        </button>
                       </td>
                     </tr>
                   );
@@ -373,117 +443,138 @@ export default function AdminJobsPage() {
         </div>
 
         {/* Pagination Footer */}
-        <div className="p-3.5 bg-slate-50/50 border-t border-slate-200/90 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-slate-500">
+        <div className="p-3.5 border-t border-slate-100 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-slate-500">
           <div>
-            Showing <strong className="text-slate-900">{totalItems === 0 ? 0 : startIndex + 1}</strong> to{" "}
-            <strong className="text-slate-900">{Math.min(startIndex + pageSize, totalItems)}</strong> of{" "}
-            <strong className="text-slate-900">{totalItems.toLocaleString()}</strong> jobs
+            Showing <span className="font-bold text-slate-800">{totalItems > 0 ? startIndex + 1 : 0}</span> to{" "}
+            <span className="font-bold text-slate-800">{Math.min(startIndex + pageSize, totalItems)}</span> of{" "}
+            <span className="font-bold text-slate-800">{totalItems.toLocaleString()}</span> jobs
           </div>
 
-          <div className="flex items-center gap-1">
-            <button
-              onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+          <div className="flex items-center gap-1.5">
+            <Button
+              variant="outline"
+              size="sm"
               disabled={currentPage <= 1}
-              className="p-1.5 rounded-lg border border-slate-200 hover:bg-slate-100 disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer"
+              onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+              className="text-xs h-8 px-2.5 rounded-lg"
             >
-              <ChevronLeft className="w-4 h-4" />
-            </button>
-
-            <span className="px-3 py-1 font-semibold text-slate-800">
+              <ChevronLeft className="w-3.5 h-3.5 mr-1" /> Prev
+            </Button>
+            <span className="text-xs px-2 font-medium">
               Page {currentPage} of {totalPages}
             </span>
-
-            <button
-              onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+            <Button
+              variant="outline"
+              size="sm"
               disabled={currentPage >= totalPages}
-              className="p-1.5 rounded-lg border border-slate-200 hover:bg-slate-100 disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer"
+              onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+              className="text-xs h-8 px-2.5 rounded-lg"
             >
-              <ChevronRight className="w-4 h-4" />
-            </button>
+              Next <ChevronRight className="w-3.5 h-3.5 ml-1" />
+            </Button>
           </div>
         </div>
       </div>
 
-      {/* Manual Add Job Modal */}
+      {/* Add Job Modal */}
       {isAddModalOpen && (
-        <div className="fixed inset-0 z-50 bg-black/50 backdrop-blur-xs flex items-center justify-center p-4">
-          <div className="bg-white rounded-2xl border border-slate-200 shadow-xl max-w-lg w-full p-6 space-y-4 animate-in zoom-in-95 duration-100">
-            <div className="flex items-center justify-between pb-3 border-b border-slate-100">
-              <h3 className="font-bold text-base text-slate-900">Add Job (Manual Ingestion)</h3>
-              <button onClick={() => setIsAddModalOpen(false)} className="text-slate-400 hover:text-slate-600">
-                <X className="w-5 h-5" />
+        <div className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4">
+          <div className="bg-white rounded-2xl max-w-lg w-full p-6 shadow-2xl border border-slate-200 animate-in fade-in zoom-in-95">
+            <div className="flex items-center justify-between pb-4 border-b border-slate-100">
+              <h3 className="font-bold text-base text-slate-900 flex items-center gap-2">
+                <Plus className="w-4 h-4 text-teal-600" />
+                <span>Add Job Posting (Direct Ingestion)</span>
+              </h3>
+              <button 
+                onClick={() => setIsAddModalOpen(false)}
+                className="text-slate-400 hover:text-slate-600 p-1 rounded-lg"
+              >
+                <X className="w-4 h-4" />
               </button>
             </div>
 
-            <div className="space-y-3 text-xs">
+            <form onSubmit={handleCreateJob} className="mt-4 space-y-3.5 text-xs">
               <div>
-                <label className="font-semibold text-slate-700 block mb-1">Job Title</label>
+                <label className="block font-semibold text-slate-700 mb-1">Job Title *</label>
                 <input
                   type="text"
+                  required
+                  placeholder="e.g. Senior Backend Engineer (Distributed Systems)"
                   value={newJobTitle}
                   onChange={(e) => setNewJobTitle(e.target.value)}
-                  placeholder="e.g. Senior Backend Engineer"
-                  className="w-full px-3 py-2 border border-slate-200 rounded-lg outline-none focus:border-teal-500"
+                  className="w-full px-3 py-2 rounded-xl border border-slate-200 text-xs focus:border-teal-500 focus:outline-none"
                 />
               </div>
 
-              <div>
-                <label className="font-semibold text-slate-700 block mb-1">Company Name</label>
-                <input
-                  type="text"
-                  value={newJobCompany}
-                  onChange={(e) => setNewJobCompany(e.target.value)}
-                  placeholder="e.g. Postman"
-                  className="w-full px-3 py-2 border border-slate-200 rounded-lg outline-none focus:border-teal-500"
-                />
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block font-semibold text-slate-700 mb-1">Company Name *</label>
+                  <input
+                    type="text"
+                    required
+                    placeholder="e.g. Razorpay"
+                    value={newJobCompany}
+                    onChange={(e) => setNewJobCompany(e.target.value)}
+                    className="w-full px-3 py-2 rounded-xl border border-slate-200 text-xs focus:border-teal-500 focus:outline-none"
+                  />
+                </div>
+                <div>
+                  <label className="block font-semibold text-slate-700 mb-1">Location</label>
+                  <input
+                    type="text"
+                    placeholder="e.g. Bengaluru, India (Hybrid)"
+                    value={newJobLocation}
+                    onChange={(e) => setNewJobLocation(e.target.value)}
+                    className="w-full px-3 py-2 rounded-xl border border-slate-200 text-xs focus:border-teal-500 focus:outline-none"
+                  />
+                </div>
               </div>
 
               <div>
-                <label className="font-semibold text-slate-700 block mb-1">Location</label>
-                <input
-                  type="text"
-                  value={newJobLocation}
-                  onChange={(e) => setNewJobLocation(e.target.value)}
-                  placeholder="e.g. Bengaluru, India / Remote"
-                  className="w-full px-3 py-2 border border-slate-200 rounded-lg outline-none focus:border-teal-500"
-                />
-              </div>
-
-              <div>
-                <label className="font-semibold text-slate-700 block mb-1">Direct Official Apply URL</label>
+                <label className="block font-semibold text-slate-700 mb-1">Direct ATS Apply URL</label>
                 <input
                   type="url"
+                  placeholder="https://boards.greenhouse.io/company/jobs/12345"
                   value={newJobUrl}
                   onChange={(e) => setNewJobUrl(e.target.value)}
-                  placeholder="https://job-boards.greenhouse.io/..."
-                  className="w-full px-3 py-2 border border-slate-200 rounded-lg outline-none focus:border-teal-500 font-mono text-[11px]"
+                  className="w-full px-3 py-2 rounded-xl border border-slate-200 text-xs focus:border-teal-500 focus:outline-none font-mono"
                 />
               </div>
-            </div>
 
-            <div className="pt-3 border-t border-slate-100 flex items-center justify-end gap-2">
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => setIsAddModalOpen(false)}
-                className="text-xs"
-              >
-                Cancel
-              </Button>
-              <Button
-                size="sm"
-                onClick={() => {
-                  alert("Job manually indexed into real-time pipeline!");
-                  setIsAddModalOpen(false);
-                }}
-                className="text-xs bg-teal-600 hover:bg-teal-700 text-white font-semibold"
-              >
-                Save &amp; Index Job
-              </Button>
-            </div>
+              <div>
+                <label className="block font-semibold text-slate-700 mb-1">Salary Range (Optional)</label>
+                <input
+                  type="text"
+                  placeholder="e.g. INR 25.0L - 35.0L"
+                  value={newJobSalary}
+                  onChange={(e) => setNewJobSalary(e.target.value)}
+                  className="w-full px-3 py-2 rounded-xl border border-slate-200 text-xs focus:border-teal-500 focus:outline-none"
+                />
+              </div>
+
+              <div className="pt-3 flex items-center justify-end gap-2 border-t border-slate-100">
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setIsAddModalOpen(false)}
+                  className="text-xs rounded-xl"
+                >
+                  Cancel
+                </Button>
+                <Button
+                  type="submit"
+                  size="sm"
+                  className="bg-teal-600 hover:bg-teal-700 text-white font-semibold text-xs rounded-xl"
+                >
+                  Publish to Catalog
+                </Button>
+              </div>
+            </form>
           </div>
         </div>
       )}
+
     </div>
   );
 }

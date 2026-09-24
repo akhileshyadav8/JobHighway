@@ -11,16 +11,21 @@ import {
   X, 
   ChevronLeft, 
   ChevronRight,
-  FileText
+  FileText,
+  Shield,
+  UserCheck,
+  Check
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { getAllUsersForAdmin, adminDeleteUser, getAppliedJobs, User, AppliedJob } from "@/lib/auth";
+import { logAdminActivity } from "@/lib/adminData";
 
 export default function AdminUsersPage() {
   const [users, setUsers] = useState<User[]>([]);
   const [search, setSearch] = useState("");
-  const [statusFilter, setStatusFilter] = useState("");
+  const [roleFilter, setRoleFilter] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
+  const [toastMessage, setToastMessage] = useState<string | null>(null);
   const pageSize = 10;
 
   // Selected Candidate modal
@@ -35,17 +40,39 @@ export default function AdminUsersPage() {
     refreshUsers();
   }, []);
 
+  const showToast = (msg: string) => {
+    setToastMessage(msg);
+    setTimeout(() => setToastMessage(null), 3500);
+  };
+
   const handleOpenUser = (u: User) => {
     setSelectedUser(u);
     setUserApplications(getAppliedJobs(u.id));
   };
 
-  const handleDeleteUser = (id: string) => {
-    if (confirm("Are you sure you want to remove this user account?")) {
+  const handleDeleteUser = (id: string, name: string) => {
+    if (confirm(`Are you sure you want to permanently remove user account "${name}"?`)) {
       adminDeleteUser(id);
       refreshUsers();
       if (selectedUser?.id === id) setSelectedUser(null);
+      logAdminActivity("User Account Deleted", `Admin removed user: ${name}`, "security");
+      showToast(`User ${name} removed.`);
     }
+  };
+
+  const handleToggleRole = (u: User) => {
+    const newRole = u.role === "admin" ? "candidate" : "admin";
+    try {
+      const raw = localStorage.getItem("jobpulse_users");
+      if (raw) {
+        const list = JSON.parse(raw);
+        const updated = list.map((item: any) => item.id === u.id ? { ...item, role: newRole } : item);
+        localStorage.setItem("jobpulse_users", JSON.stringify(updated));
+      }
+      refreshUsers();
+      logAdminActivity("User Role Updated", `Changed ${u.name}'s role to ${newRole}`, "security");
+      showToast(`Updated ${u.name}'s role to ${newRole}.`);
+    } catch {}
   };
 
   const filtered = users.filter(u => {
@@ -53,6 +80,7 @@ export default function AdminUsersPage() {
       const q = search.toLowerCase();
       if (!u.name.toLowerCase().includes(q) && !u.email.toLowerCase().includes(q)) return false;
     }
+    if (roleFilter && u.role !== roleFilter) return false;
     return true;
   });
 
@@ -63,12 +91,20 @@ export default function AdminUsersPage() {
 
   return (
     <div className="space-y-6 pb-12">
+      {/* Toast Notification */}
+      {toastMessage && (
+        <div className="fixed bottom-6 right-6 z-50 bg-slate-900 text-white px-4 py-3 rounded-xl shadow-xl text-xs font-semibold flex items-center gap-2 border border-slate-700 animate-in fade-in slide-in-from-bottom-2">
+          <Check className="w-4 h-4 text-emerald-400" />
+          <span>{toastMessage}</span>
+        </div>
+      )}
+
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h1 className="text-2xl font-black text-slate-900 tracking-tight flex items-center gap-2">
             <Users className="w-6 h-6 text-teal-600" />
-            <span>Registered Users</span>
+            <span>Registered Users &amp; Roles ({users.length})</span>
           </h1>
           <p className="text-xs text-slate-500 mt-0.5">
             View and manage all registered candidate and operator user accounts.
@@ -108,14 +144,13 @@ export default function AdminUsersPage() {
 
           <div>
             <select
-              value={statusFilter}
-              onChange={(e) => { setStatusFilter(e.target.value); setCurrentPage(1); }}
-              className="w-full px-2.5 py-1.5 bg-slate-50 border border-slate-200 rounded-lg text-xs text-slate-700 outline-none focus:bg-white focus:border-teal-500"
+              value={roleFilter}
+              onChange={(e) => { setRoleFilter(e.target.value); setCurrentPage(1); }}
+              className="w-full px-2.5 py-1.5 bg-slate-50 border border-slate-200 rounded-lg text-xs text-slate-700 outline-none focus:bg-white focus:border-teal-500 cursor-pointer"
             >
-              <option value="">All Statuses</option>
-              <option value="active">Active</option>
-              <option value="inactive">Inactive</option>
-              <option value="suspended">Suspended</option>
+              <option value="">All Roles</option>
+              <option value="admin">Administrators</option>
+              <option value="candidate">Candidates</option>
             </select>
           </div>
         </div>
@@ -132,7 +167,7 @@ export default function AdminUsersPage() {
                 <th className="p-3.5">Joined</th>
                 <th className="p-3.5">Target Role</th>
                 <th className="p-3.5">Applications</th>
-                <th className="p-3.5">Status</th>
+                <th className="p-3.5">Account Role</th>
                 <th className="p-3.5 text-right">Actions</th>
               </tr>
             </thead>
@@ -151,8 +186,8 @@ export default function AdminUsersPage() {
                       <td className="p-3.5 font-bold text-slate-900 flex items-center gap-2">
                         <span>{u.name}</span>
                         {u.role === "admin" && (
-                          <span className="text-[10px] font-bold text-teal-700 bg-teal-50 px-1.5 py-0.2 rounded border border-teal-200">
-                            Founder
+                          <span className="text-[10px] font-bold text-teal-700 bg-teal-50 px-1.5 py-0.5 rounded border border-teal-200">
+                            Admin
                           </span>
                         )}
                       </td>
@@ -171,12 +206,19 @@ export default function AdminUsersPage() {
                         </span>
                       </td>
                       <td className="p-3.5">
-                        <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">
-                          <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
-                          <span>Active</span>
-                        </span>
+                        <button
+                          onClick={() => handleToggleRole(u)}
+                          className={`px-2 py-0.5 rounded-full text-[10px] font-bold border cursor-pointer ${
+                            u.role === "admin" 
+                              ? "bg-teal-50 text-teal-700 border-teal-200" 
+                              : "bg-slate-100 text-slate-700 border-slate-200"
+                          }`}
+                          title="Click to toggle role"
+                        >
+                          {u.role === "admin" ? "ADMIN" : "CANDIDATE"}
+                        </button>
                       </td>
-                      <td className="p-3.5 text-right space-x-1.5">
+                      <td className="p-3.5 text-right space-x-1.5 whitespace-nowrap">
                         <button
                           onClick={() => handleOpenUser(u)}
                           className="px-2.5 py-1 rounded-lg border border-teal-200 bg-teal-50 text-teal-700 hover:bg-teal-100 font-semibold text-[11px] transition-colors cursor-pointer"
@@ -185,7 +227,7 @@ export default function AdminUsersPage() {
                         </button>
                         {u.id !== "admin_founder" && (
                           <button
-                            onClick={() => handleDeleteUser(u.id)}
+                            onClick={() => handleDeleteUser(u.id, u.name)}
                             className="p-1 rounded-lg text-slate-400 hover:text-rose-600 transition-colors cursor-pointer"
                             title="Delete user"
                           >
@@ -202,87 +244,101 @@ export default function AdminUsersPage() {
         </div>
 
         {/* Pagination Footer */}
-        <div className="p-3.5 bg-slate-50/50 border-t border-slate-200/90 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-slate-500">
+        <div className="p-3.5 border-t border-slate-100 flex items-center justify-between text-xs text-slate-500">
           <div>
-            Showing <strong className="text-slate-900">{totalItems === 0 ? 0 : startIndex + 1}</strong> to{" "}
-            <strong className="text-slate-900">{Math.min(startIndex + pageSize, totalItems)}</strong> of{" "}
-            <strong className="text-slate-900">{totalItems}</strong> users
+            Showing <span className="font-bold text-slate-800">{totalItems > 0 ? startIndex + 1 : 0}</span> to{" "}
+            <span className="font-bold text-slate-800">{Math.min(startIndex + pageSize, totalItems)}</span> of{" "}
+            <span className="font-bold text-slate-800">{totalItems}</span> users
           </div>
 
-          <div className="flex items-center gap-1">
-            <button
-              onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+          <div className="flex items-center gap-1.5">
+            <Button
+              variant="outline"
+              size="sm"
               disabled={currentPage <= 1}
-              className="p-1.5 rounded-lg border border-slate-200 hover:bg-slate-100 disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer"
+              onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+              className="text-xs h-8 px-2.5 rounded-lg"
             >
-              <ChevronLeft className="w-4 h-4" />
-            </button>
-            <span className="px-3 py-1 font-semibold text-slate-800">
-              Page {currentPage} of {totalPages}
-            </span>
-            <button
-              onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+              <ChevronLeft className="w-3.5 h-3.5 mr-1" /> Prev
+            </Button>
+            <span className="text-xs px-2 font-medium">Page {currentPage} of {totalPages}</span>
+            <Button
+              variant="outline"
+              size="sm"
               disabled={currentPage >= totalPages}
-              className="p-1.5 rounded-lg border border-slate-200 hover:bg-slate-100 disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer"
+              onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+              className="text-xs h-8 px-2.5 rounded-lg"
             >
-              <ChevronRight className="w-4 h-4" />
-            </button>
+              Next <ChevronRight className="w-3.5 h-3.5 ml-1" />
+            </Button>
           </div>
         </div>
       </div>
 
-      {/* Candidate Inspector Modal */}
+      {/* User Details Drawer Modal */}
       {selectedUser && (
-        <div className="fixed inset-0 z-50 bg-black/50 backdrop-blur-xs flex items-center justify-center p-4">
-          <div className="bg-white rounded-2xl border border-slate-200 shadow-xl max-w-xl w-full p-6 space-y-4 animate-in zoom-in-95 duration-100">
-            <div className="flex items-center justify-between pb-3 border-b border-slate-100">
-              <div>
-                <h3 className="font-bold text-base text-slate-900">{selectedUser.name}</h3>
-                <p className="text-xs text-slate-400">{selectedUser.email}</p>
+        <div className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4">
+          <div className="bg-white rounded-2xl max-w-xl w-full p-6 shadow-2xl border border-slate-200 animate-in fade-in zoom-in-95 max-h-[85vh] overflow-y-auto">
+            <div className="flex items-center justify-between pb-4 border-b border-slate-100">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-full bg-teal-100 text-teal-800 font-extrabold flex items-center justify-center text-sm border border-teal-200">
+                  {selectedUser.name.slice(0, 2).toUpperCase()}
+                </div>
+                <div>
+                  <h3 className="font-bold text-base text-slate-900">{selectedUser.name}</h3>
+                  <div className="text-xs text-slate-500 font-mono">{selectedUser.email}</div>
+                </div>
               </div>
-              <button onClick={() => setSelectedUser(null)} className="text-slate-400 hover:text-slate-600">
-                <X className="w-5 h-5" />
+              <button onClick={() => setSelectedUser(null)} className="text-slate-400 hover:text-slate-600 p-1">
+                <X className="w-4 h-4" />
               </button>
             </div>
 
-            <div className="space-y-3 text-xs">
-              <div className="grid grid-cols-2 gap-3 bg-slate-50 p-3 rounded-xl">
+            <div className="mt-4 space-y-4 text-xs">
+              <div className="grid grid-cols-2 gap-3 bg-slate-50 p-3.5 rounded-xl border border-slate-100">
                 <div>
-                  <span className="text-slate-400 block text-[11px]">Target Role</span>
-                  <span className="font-semibold text-slate-800">{selectedUser.targetRole || "Software Engineer"}</span>
+                  <span className="text-slate-400 block mb-0.5">Role Designation</span>
+                  <span className="font-bold text-slate-800 uppercase">{selectedUser.role}</span>
                 </div>
                 <div>
-                  <span className="text-slate-400 block text-[11px]">Target CTC</span>
-                  <span className="font-semibold text-emerald-600">{selectedUser.targetCtc || "Flexible"}</span>
+                  <span className="text-slate-400 block mb-0.5">Target Work Mode</span>
+                  <span className="font-bold text-slate-800">{selectedUser.preferredLocation || "Any / Remote"}</span>
+                </div>
+                <div>
+                  <span className="text-slate-400 block mb-0.5">Account Created</span>
+                  <span className="font-mono text-slate-700">{new Date(selectedUser.createdAt).toLocaleString()}</span>
+                </div>
+                <div>
+                  <span className="text-slate-400 block mb-0.5">Total Tracked Jobs</span>
+                  <span className="font-bold text-teal-700">{userApplications.length} applied</span>
                 </div>
               </div>
 
               <div>
-                <h4 className="font-bold text-xs text-slate-900 mb-2">Tracked Applications ({userApplications.length})</h4>
+                <h4 className="font-bold text-sm text-slate-900 mb-2 flex items-center gap-1.5">
+                  <FileText className="w-4 h-4 text-teal-600" />
+                  <span>Submitted Applications</span>
+                </h4>
                 {userApplications.length === 0 ? (
-                  <p className="text-slate-400 text-xs py-3 text-center">No applications marked yet.</p>
+                  <div className="p-4 text-center text-slate-400 bg-slate-50 rounded-xl border border-dashed border-slate-200">
+                    No applications submitted yet by this candidate.
+                  </div>
                 ) : (
-                  <div className="space-y-2 max-h-56 overflow-y-auto pr-1">
+                  <div className="space-y-2">
                     {userApplications.map(app => (
-                      <div key={app.id} className="p-2.5 rounded-lg border border-slate-200 flex items-center justify-between text-xs">
+                      <div key={app.id} className="p-3 rounded-xl border border-slate-100 bg-slate-50/70 flex items-center justify-between">
                         <div>
-                          <div className="font-bold text-slate-800">{app.title}</div>
-                          <div className="text-[11px] text-slate-500">{app.company} • {app.location}</div>
+                          <div className="font-bold text-slate-900">{app.title}</div>
+                          <div className="text-slate-500 text-[11px]">{app.company} • Applied on {new Date(app.appliedAt).toLocaleDateString()}</div>
                         </div>
-                        <span className="font-semibold px-2 py-0.5 rounded text-[10px] bg-teal-50 text-teal-700">
-                          {app.status}
+                        <span className="font-bold text-[10px] bg-teal-50 text-teal-700 px-2 py-0.5 rounded border border-teal-200">
+                          {app.status || "APPLIED"}
                         </span>
                       </div>
                     ))}
                   </div>
                 )}
               </div>
-            </div>
-
-            <div className="pt-3 border-t border-slate-100 flex justify-end">
-              <Button size="sm" variant="outline" onClick={() => setSelectedUser(null)} className="text-xs">
-                Close
-              </Button>
             </div>
           </div>
         </div>

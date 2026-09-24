@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { 
   Settings, 
@@ -36,7 +36,41 @@ export default function AdminSettingsPage() {
   // Save state
   const [isSaved, setIsSaved] = useState(false);
 
+  useEffect(() => {
+    try {
+      const raw = localStorage.getItem("jobpulse_admin_settings");
+      if (raw) {
+        const s = JSON.parse(raw);
+        if (s.siteName) setSiteName(s.siteName);
+        if (s.siteDescription) setSiteDescription(s.siteDescription);
+        if (s.adminEmail) setAdminEmail(s.adminEmail);
+        if (s.timezone) setTimezone(s.timezone);
+        if (s.syncInterval) setSyncInterval(s.syncInterval);
+        if (s.autoExpireDays) setAutoExpireDays(s.autoExpireDays);
+        if (s.linkVerificationRate) setLinkVerificationRate(s.linkVerificationRate);
+        if (typeof s.emailAlerts === "boolean") setEmailAlerts(s.emailAlerts);
+        if (s.failureThreshold) setFailureThreshold(s.failureThreshold);
+      }
+    } catch {}
+  }, []);
+
   const handleSave = () => {
+    const settings = {
+      siteName,
+      siteDescription,
+      adminEmail,
+      timezone,
+      syncInterval,
+      autoExpireDays,
+      linkVerificationRate,
+      emailAlerts,
+      failureThreshold
+    };
+    try {
+      localStorage.setItem("jobpulse_admin_settings", JSON.stringify(settings));
+      const { logAdminActivity } = require("@/lib/adminData");
+      logAdminActivity("Settings Updated", "Admin updated pipeline cadences and system parameters", "system");
+    } catch {}
     setIsSaved(true);
     setTimeout(() => setIsSaved(false), 2500);
   };
