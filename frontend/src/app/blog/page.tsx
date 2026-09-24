@@ -224,77 +224,62 @@ export default function BlogPage() {
                   />
                 </div>
 
-                {/* SVG Connecting Dashed Lines scaled to match larger map */}
+                {/* SVG Connecting Dashed Curve - continuous intentional route connecting all 4 icons */}
                 <svg
                   className="absolute inset-0 w-full h-full pointer-events-none z-10"
                   viewBox="0 0 620 370"
                   fill="none"
                   xmlns="http://www.w3.org/2000/svg"
                 >
-                  {/* Path connecting Node 1 (Doc) -> Node 2 (Briefcase) */}
+                  <defs>
+                    <linearGradient id="routeGradient" x1="130" y1="85" x2="505" y2="275" gradientUnits="userSpaceOnUse">
+                      <stop offset="0%" stopColor="#0d9488" stopOpacity="0.4" />
+                      <stop offset="50%" stopColor="#0d9488" stopOpacity="0.75" />
+                      <stop offset="100%" stopColor="#0d9488" stopOpacity="0.4" />
+                    </linearGradient>
+                  </defs>
+
+                  {/* Single continuous, smooth global network route linking all 4 nodes */}
                   <path
-                    d="M 160 165 Q 260 85, 400 95"
-                    stroke="#0d9488"
-                    strokeWidth="1.5"
-                    strokeDasharray="4 4"
-                    strokeOpacity="0.45"
-                  />
-                  {/* Path connecting Node 1 (Doc) -> Node 3 (Chart) */}
-                  <path
-                    d="M 160 165 Q 220 225, 335 215"
-                    stroke="#0d9488"
-                    strokeWidth="1.5"
-                    strokeDasharray="4 4"
-                    strokeOpacity="0.45"
-                  />
-                  {/* Path connecting Node 2 (Briefcase) -> Node 4 (Cap) */}
-                  <path
-                    d="M 400 95 Q 465 145, 510 215"
-                    stroke="#0d9488"
-                    strokeWidth="1.5"
-                    strokeDasharray="4 4"
-                    strokeOpacity="0.45"
-                  />
-                  {/* Path connecting Node 3 (Chart) -> Node 4 (Cap) */}
-                  <path
-                    d="M 335 215 Q 425 240, 510 215"
-                    stroke="#0d9488"
-                    strokeWidth="1.5"
-                    strokeDasharray="4 4"
-                    strokeOpacity="0.45"
+                    d="M 130 180 C 130 130, 250 85, 350 85 C 430 85, 505 135, 505 195 C 505 245, 400 275, 310 275 C 220 275, 130 230, 130 180 Z"
+                    stroke="url(#routeGradient)"
+                    strokeWidth="1.75"
+                    strokeDasharray="5 5"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
                   />
                 </svg>
 
-                {/* Node 1: Left Middle - White Circle with Emerald Document Icon */}
+                {/* Node 1: Left - White Circle with Emerald Document Icon */}
                 <div
-                  className="absolute top-[140px] left-[135px] w-12 h-12 rounded-full bg-white shadow-md border border-slate-100 flex items-center justify-center z-20 hover:scale-110 transition-transform cursor-pointer"
+                  className="absolute top-[180px] left-[130px] -translate-x-1/2 -translate-y-1/2 w-12 h-12 rounded-full bg-white shadow-md border border-slate-100 flex items-center justify-center z-20 hover:scale-110 transition-transform cursor-pointer group"
                   title="ATS Resume Guidelines"
                 >
-                  <FileText className="w-5 h-5 text-emerald-600" />
+                  <FileText className="w-5 h-5 text-emerald-600 transition-transform group-hover:scale-110" />
                 </div>
 
                 {/* Node 2: Top Center/Right - Teal Circle with White Briefcase */}
                 <div
-                  className="absolute top-[68px] left-[375px] w-13 h-13 rounded-full bg-[#0d9488] shadow-lg border-2 border-white flex items-center justify-center z-20 hover:scale-110 transition-transform cursor-pointer"
+                  className="absolute top-[85px] left-[350px] -translate-x-1/2 -translate-y-1/2 w-13 h-13 rounded-full bg-[#0d9488] shadow-lg border-2 border-white flex items-center justify-center z-20 hover:scale-110 transition-transform cursor-pointer group"
                   title="Official Career Portals"
                 >
-                  <Briefcase className="w-5 h-5 text-white" />
+                  <Briefcase className="w-5 h-5 text-white transition-transform group-hover:scale-110" />
                 </div>
 
-                {/* Node 3: Center Bottom - White Circle with Indigo Bar Chart */}
+                {/* Node 3: Far Right - White Circle with Blue Graduation Cap */}
                 <div
-                  className="absolute top-[190px] left-[310px] w-12 h-12 rounded-full bg-white shadow-md border border-slate-100 flex items-center justify-center z-20 hover:scale-110 transition-transform cursor-pointer"
-                  title="Live Tech Salary Trends"
-                >
-                  <BarChart3 className="w-5 h-5 text-teal-600" />
-                </div>
-
-                {/* Node 4: Far Right - White Circle with Blue Graduation Cap */}
-                <div
-                  className="absolute top-[185px] left-[485px] w-13 h-13 rounded-full bg-white shadow-md border border-slate-100 flex items-center justify-center z-20 hover:scale-110 transition-transform cursor-pointer"
+                  className="absolute top-[195px] left-[505px] -translate-x-1/2 -translate-y-1/2 w-13 h-13 rounded-full bg-white shadow-md border border-slate-100 flex items-center justify-center z-20 hover:scale-110 transition-transform cursor-pointer group"
                   title="Campus to Corporate Playbook"
                 >
-                  <GraduationCap className="w-6 h-6 text-sky-600" />
+                  <GraduationCap className="w-6 h-6 text-sky-600 transition-transform group-hover:scale-110" />
+                </div>
+
+                {/* Node 4: Center Bottom - White Circle with Teal Bar Chart */}
+                <div
+                  className="absolute top-[275px] left-[310px] -translate-x-1/2 -translate-y-1/2 w-12 h-12 rounded-full bg-white shadow-md border border-slate-100 flex items-center justify-center z-20 hover:scale-110 transition-transform cursor-pointer group"
+                  title="Live Tech Salary Trends"
+                >
+                  <BarChart3 className="w-5 h-5 text-teal-600 transition-transform group-hover:scale-110" />
                 </div>
               </div>
             </div>

@@ -14,6 +14,7 @@ import {
   Building,
   CheckCircle2,
   Send,
+  Clock,
 } from "lucide-react";
 
 interface FAQItem {
@@ -165,6 +166,63 @@ export default function ContactPage() {
                 Have a question, feedback or just want to say hello?<br />
                 We&apos;d love to hear from you. Our team usually responds within 24 hours.
               </p>
+
+              {/* Quick Contact Touchpoints: Anchors bottom of hero to balance right map */}
+              <div className="mt-8 pt-7 border-t border-slate-200/80 flex flex-wrap items-center gap-y-4 gap-x-6 sm:gap-x-8">
+                {/* 1. Direct Email */}
+                <div className="flex items-center gap-3">
+                  <div className="w-9 h-9 rounded-lg bg-teal-50 text-[#0d9488] flex items-center justify-center shrink-0 border border-teal-100">
+                    <Mail className="w-4 h-4" />
+                  </div>
+                  <div>
+                    <div className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider">
+                      Direct Email
+                    </div>
+                    <a
+                      href="mailto:support@jobpulse.com"
+                      className="text-xs font-bold text-slate-800 hover:text-[#0d9488] transition-colors"
+                    >
+                      support@jobpulse.com
+                    </a>
+                  </div>
+                </div>
+
+                {/* Vertical Divider */}
+                <div className="hidden sm:block w-px h-8 bg-slate-200" />
+
+                {/* 2. Response Time */}
+                <div className="flex items-center gap-3">
+                  <div className="w-9 h-9 rounded-lg bg-teal-50 text-[#0d9488] flex items-center justify-center shrink-0 border border-teal-100">
+                    <Clock className="w-4 h-4" />
+                  </div>
+                  <div>
+                    <div className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider">
+                      Response Window
+                    </div>
+                    <div className="text-xs font-bold text-slate-800">
+                      Usually within 24 hours
+                    </div>
+                  </div>
+                </div>
+
+                {/* Vertical Divider */}
+                <div className="hidden sm:block w-px h-8 bg-slate-200" />
+
+                {/* 3. Office Location */}
+                <div className="flex items-center gap-3">
+                  <div className="w-9 h-9 rounded-lg bg-teal-50 text-[#0d9488] flex items-center justify-center shrink-0 border border-teal-100">
+                    <MapPin className="w-4 h-4" />
+                  </div>
+                  <div>
+                    <div className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider">
+                      Office Location
+                    </div>
+                    <div className="text-xs font-bold text-slate-800">
+                      Surat, Gujarat, India
+                    </div>
+                  </div>
+                </div>
+              </div>
             </div>
 
             {/* Right Column: Large World Map + Global Support Floating Card */}
