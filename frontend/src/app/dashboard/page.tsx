@@ -49,6 +49,7 @@ import { SkillGapSection } from "@/components/dashboard/SkillGapSection";
 import { ProfileEditModal } from "@/components/dashboard/ProfileEditModal";
 import { ApplicationsModal } from "@/components/dashboard/ApplicationsModal";
 import { CreateAlertModal } from "@/components/dashboard/CreateAlertModal";
+import { FollowCompaniesModal } from "@/components/dashboard/FollowCompaniesModal";
 import { UpgradeProModal } from "@/components/dashboard/UpgradeProModal";
 import { JobDetailModal } from "@/components/dashboard/JobDetailModal";
 
@@ -74,6 +75,8 @@ export default function DashboardPage() {
   const [isApplicationsModalOpen, setIsApplicationsModalOpen] = useState(false);
   const [applicationsModalTab, setApplicationsModalTab] = useState<"applied" | "saved">("applied");
   const [isCreateAlertOpen, setIsCreateAlertOpen] = useState(false);
+  const [editingAlert, setEditingAlert] = useState<JobAlertRecord | null>(null);
+  const [isFollowModalOpen, setIsFollowModalOpen] = useState(false);
   const [isUpgradeModalOpen, setIsUpgradeModalOpen] = useState(false);
   const [selectedJobForDetails, setSelectedJobForDetails] = useState<RecommendedJobItem | null>(null);
 
@@ -263,6 +266,23 @@ export default function DashboardPage() {
       following: followedCompanies.length > 0 ? followedCompanies.length : undefined
     };
   }, [bookmarks.length, userAlerts.length, appliedJobs.length, followedCompanies.length]);
+
+  // Real Followed Companies with Live Openings Counts
+  const followedCompaniesWithCounts: FollowedCompanyDisplayItem[] = useMemo(() => {
+    return followedCompanies.map((comp) => {
+      const matchJobs = liveJobs.filter((job) => {
+        const cSlug = (job.company?.slug || "").toLowerCase().trim();
+        const cName = (job.company?.name || "").toLowerCase().trim();
+        const target = comp.slug.toLowerCase().trim();
+        return cSlug === target || cName.includes(target) || target.includes(cName);
+      });
+      return {
+        ...comp,
+        newJobsCount: matchJobs.length > 0 ? matchJobs.length : undefined,
+        isFollowing: true
+      };
+    });
+  }, [followedCompanies, liveJobs]);
 
   // Real Recommended Jobs from Live Dataset
   const recommendedJobs: RecommendedJobItem[] = useMemo(() => {
@@ -553,9 +573,9 @@ export default function DashboardPage() {
     setUserAlerts(updated);
   };
 
-  const handleSaveAlert = (newAlert: Omit<JobAlertRecord, "id" | "createdAt">) => {
+  const handleSaveAlert = (alertData: Omit<JobAlertRecord, "id" | "createdAt"> & { id?: string }) => {
     if (!user) return;
-    const updated = saveJobAlert(user.id, newAlert);
+    const updated = saveJobAlert(user.id, alertData);
     setUserAlerts(updated);
   };
 
@@ -581,6 +601,7 @@ export default function DashboardPage() {
       const alertSection = document.getElementById("recent-alerts-section");
       alertSection?.scrollIntoView({ behavior: "smooth" });
     } else if (tabId === "following") {
+      setIsFollowModalOpen(true);
       const followSection = document.getElementById("followed-companies-section");
       followSection?.scrollIntoView({ behavior: "smooth" });
     } else if (tabId === "resume_analyzer") {
@@ -687,8 +708,15 @@ export default function DashboardPage() {
                   <RecentAlertsSection
                     alerts={userAlerts}
                     onToggleAlert={handleToggleAlert}
+                    onEditAlert={(alert) => {
+                      setEditingAlert(alert);
+                      setIsCreateAlertOpen(true);
+                    }}
                     onDeleteAlert={handleDeleteAlert}
-                    onCreateAlert={() => setIsCreateAlertOpen(true)}
+                    onCreateAlert={() => {
+                      setEditingAlert(null);
+                      setIsCreateAlertOpen(true);
+                    }}
                     onViewAll={() => {
                       const el = document.getElementById("recent-alerts-section");
                       el?.scrollIntoView({ behavior: "smooth" });
@@ -699,8 +727,9 @@ export default function DashboardPage() {
                 {/* Followed Companies */}
                 <div id="followed-companies-section">
                   <FollowedCompaniesSection
-                    companies={followedCompanies}
+                    companies={followedCompaniesWithCounts}
                     onToggleFollow={handleToggleFollow}
+                    onOpenFollowModal={() => setIsFollowModalOpen(true)}
                   />
                 </div>
               </div>
@@ -792,8 +821,21 @@ export default function DashboardPage() {
 
       <CreateAlertModal
         isOpen={isCreateAlertOpen}
-        onClose={() => setIsCreateAlertOpen(false)}
+        onClose={() => {
+          setIsCreateAlertOpen(false);
+          setEditingAlert(null);
+        }}
+        initialAlert={editingAlert}
         onSaveAlert={handleSaveAlert}
+      />
+
+      <FollowCompaniesModal
+        isOpen={isFollowModalOpen}
+        onClose={() => setIsFollowModalOpen(false)}
+        followedSlugs={followedCompanies.map((c) => c.slug)}
+        onToggleFollow={(c) => {
+          handleToggleFollow({ id: c.id, name: c.name, slug: c.slug, isFollowing: true });
+        }}
       />
 
       <UpgradeProModal

@@ -16,10 +16,13 @@ import {
   ChevronDown,
   Search,
   ArrowUpDown,
-  X
+  X,
+  Check,
+  Plus
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { CompanyLogo, getCleanDomain, VECTOR_LOGOS } from "@/components/ui/CompanyLogo";
+import { getCurrentUser, getFollowedCompanies, toggleFollowCompany, User } from "@/lib/auth";
 
 interface InteractiveCompaniesProps {
   initialCompanies: Company[];
@@ -36,6 +39,50 @@ export function InteractiveCompanies({ initialCompanies, initialStats }: Interac
   const [sortBy, setSortBy] = useState("newest"); // "newest", "openings", "name"
   const [currentPage, setCurrentPage] = useState(1);
   const [jumpPageInput, setJumpPageInput] = useState("");
+  const [followedSlugs, setFollowedSlugs] = useState<string[]>([]);
+
+  // Sync followed companies state
+  useEffect(() => {
+    const cur = getCurrentUser();
+    if (cur) {
+      const list = getFollowedCompanies(cur.id);
+      setFollowedSlugs(list.map(c => c.slug.toLowerCase()));
+    } else {
+      setFollowedSlugs([]);
+    }
+
+    const handleSync = () => {
+      const user = getCurrentUser();
+      if (user) {
+        const list = getFollowedCompanies(user.id);
+        setFollowedSlugs(list.map(c => c.slug.toLowerCase()));
+      } else {
+        setFollowedSlugs([]);
+      }
+    };
+
+    window.addEventListener("jobpulse_following_change", handleSync);
+    window.addEventListener("jobpulse_auth_change", handleSync);
+    return () => {
+      window.removeEventListener("jobpulse_following_change", handleSync);
+      window.removeEventListener("jobpulse_auth_change", handleSync);
+    };
+  }, []);
+
+  const handleToggleFollow = (comp: Company) => {
+    const user = getCurrentUser();
+    if (!user) {
+      window.location.href = "/login?redirect=/companies";
+      return;
+    }
+    toggleFollowCompany(user.id, {
+      id: String(comp.id),
+      name: comp.name,
+      slug: comp.slug
+    });
+    const list = getFollowedCompanies(user.id);
+    setFollowedSlugs(list.map(c => c.slug.toLowerCase()));
+  };
 
   const totalCompaniesCount = initialStats?.total_companies || initialCompanies.length || 17578;
 
@@ -520,9 +567,39 @@ export function InteractiveCompanies({ initialCompanies, initialStats }: Interac
                           </div>
                         </div>
 
-                        <span className="bg-emerald-50 text-emerald-700 border border-emerald-100 text-xs font-semibold px-2.5 py-0.5 rounded-full shrink-0">
-                          Featured
-                        </span>
+                        {(() => {
+                          const isFollowed = followedSlugs.includes(company.slug.toLowerCase());
+                          return (
+                            <div className="flex items-center gap-1.5 shrink-0">
+                              <button
+                                type="button"
+                                onClick={() => handleToggleFollow(company)}
+                                className={`text-xs font-bold px-2.5 py-0.5 rounded-full transition-all flex items-center gap-1 cursor-pointer shrink-0 ${
+                                  isFollowed
+                                    ? "bg-teal-50 text-teal-700 border border-teal-200 hover:bg-rose-50 hover:text-rose-600 hover:border-rose-200 group/fbtn"
+                                    : "bg-white border border-slate-200 text-slate-600 hover:border-teal-500 hover:text-teal-600 hover:bg-teal-50/50"
+                                }`}
+                              >
+                                {isFollowed ? (
+                                  <>
+                                    <Check className="w-3 h-3 text-teal-600 group-hover/fbtn:hidden" />
+                                    <span className="group-hover/fbtn:hidden">Following</span>
+                                    <span className="hidden group-hover/fbtn:inline">Unfollow</span>
+                                  </>
+                                ) : (
+                                  <>
+                                    <Plus className="w-3 h-3" />
+                                    <span>Follow</span>
+                                  </>
+                                )}
+                              </button>
+
+                              <span className="bg-emerald-50 text-emerald-700 border border-emerald-100 text-xs font-semibold px-2.5 py-0.5 rounded-full shrink-0">
+                                Featured
+                              </span>
+                            </div>
+                          );
+                        })()}
                       </div>
 
                       {/* Description: 2-line clamp */}

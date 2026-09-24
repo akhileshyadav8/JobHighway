@@ -794,9 +794,33 @@ export function getJobAlerts(userId: string): JobAlertRecord[] {
   }
 }
 
-export function saveJobAlert(userId: string, alert: Omit<JobAlertRecord, "id" | "createdAt"> & { id?: string }): JobAlertRecord[] {
+export function saveJobAlert(
+  userId: string, 
+  alert: Omit<JobAlertRecord, "id" | "createdAt"> & { id?: string; createdAt?: string }
+): JobAlertRecord[] {
   if (!isBrowser() || !userId) return [];
   const current = getJobAlerts(userId);
+
+  // If editing an existing alert
+  if (alert.id) {
+    const index = current.findIndex(a => a.id === alert.id);
+    if (index !== -1) {
+      current[index] = {
+        ...current[index],
+        role: alert.role,
+        location: alert.location,
+        workMode: alert.workMode || current[index].workMode,
+        colorType: alert.colorType || current[index].colorType,
+        enabled: alert.enabled !== undefined ? alert.enabled : current[index].enabled,
+        lastUpdated: "Edited just now"
+      };
+      localStorage.setItem(JOB_ALERTS_PREFIX + userId, JSON.stringify(current));
+      window.dispatchEvent(new Event("jobpulse_alerts_change"));
+      return current;
+    }
+  }
+
+  // Creating a new alert
   const newAlert: JobAlertRecord = {
     id: alert.id || "alert_" + Date.now(),
     role: alert.role,

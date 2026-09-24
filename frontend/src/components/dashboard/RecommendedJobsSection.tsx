@@ -37,18 +37,18 @@ export function RecommendedJobsSection({
   onApply
 }: RecommendedJobsSectionProps) {
   return (
-    <div className="rounded-2xl border border-slate-200/90 bg-white p-5 sm:p-6 lg:p-7 shadow-xs">
+    <div className="rounded-2xl border border-slate-200/90 bg-white p-4 sm:p-4.5 lg:p-5 shadow-xs">
       {/* Header */}
-      <div className="flex items-center justify-between pb-4 border-b border-slate-100 gap-3">
-        <div className="flex items-start gap-3 min-w-0">
-          <div className="w-8 h-8 rounded-xl bg-amber-50 text-amber-500 flex items-center justify-center shrink-0 mt-0.5">
-            <Sparkles className="w-4 h-4 fill-amber-400 text-amber-500" />
+      <div className="flex items-center justify-between pb-3 border-b border-slate-100 gap-3">
+        <div className="flex items-center gap-2.5 min-w-0">
+          <div className="w-7 h-7 rounded-lg bg-amber-50 text-amber-500 flex items-center justify-center shrink-0">
+            <Sparkles className="w-3.5 h-3.5 fill-amber-400 text-amber-500" />
           </div>
           <div className="min-w-0">
-            <h2 className="text-base sm:text-lg font-bold text-slate-900 tracking-tight whitespace-nowrap">
+            <h2 className="text-base font-bold text-slate-900 tracking-tight whitespace-nowrap">
               Recommended Jobs for You
             </h2>
-            <p className="text-xs text-slate-500 mt-0.5 truncate">
+            <p className="text-[11px] sm:text-xs text-slate-500 truncate">
               Based on your profile, skills and preferences
             </p>
           </div>
@@ -65,13 +65,13 @@ export function RecommendedJobsSection({
 
       {/* Content: 3-Column Job Cards */}
       {isLoading ? (
-        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 mt-5">
+        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-2.5 sm:gap-3 mt-3.5">
           {[1, 2, 3].map((n) => (
-            <div key={n} className="animate-pulse p-4.5 rounded-xl border border-slate-200 bg-slate-50/50 h-52" />
+            <div key={n} className="animate-pulse p-3.5 rounded-xl border border-slate-200 bg-slate-50/50 h-48" />
           ))}
         </div>
       ) : jobs.length === 0 ? (
-        <div className="p-8 text-center border-2 border-dashed border-slate-200 rounded-xl mt-5">
+        <div className="p-6 text-center border-2 border-dashed border-slate-200 rounded-xl mt-3.5">
           <Briefcase className="w-8 h-8 text-slate-300 mx-auto mb-2" />
           <p className="text-sm font-bold text-slate-700">No matching jobs found</p>
           <p className="text-xs text-slate-400 mt-1 max-w-sm mx-auto">
@@ -79,34 +79,34 @@ export function RecommendedJobsSection({
           </p>
         </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 mt-5">
+        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-2.5 sm:gap-3 mt-3.5">
           {jobs.slice(0, 3).map((job) => (
             <div
               key={job.id}
-              className="flex flex-col justify-between rounded-xl border border-slate-200/90 bg-white p-4.5 transition-all duration-200 hover:border-teal-400 hover:shadow-sm group min-w-0"
+              className="flex flex-col justify-between rounded-xl border border-slate-200/90 bg-white p-3 sm:p-3.5 transition-all duration-200 hover:border-teal-400 hover:shadow-xs group min-w-0"
             >
               <div>
-                {/* Top Row: Logo, Title, Match Pill */}
-                <div className="flex items-start justify-between gap-2.5">
+                {/* Top Row: Single Clean Logo, Title, Match Pill */}
+                <div className="flex items-start justify-between gap-2">
                   <div className="flex items-start gap-2.5 min-w-0 flex-1">
-                    <div className="w-9 h-9 rounded-lg bg-slate-50 border border-slate-100 flex items-center justify-center p-1.5 shrink-0 overflow-hidden mt-0.5">
-                      <CompanyLogo
-                        name={job.company}
-                        slug={job.companySlug}
-                        logoUrl={job.companyLogo}
-                        size="sm"
-                        className="w-full h-full object-contain"
-                      />
-                    </div>
+                    {/* Single logo container without double rectangle */}
+                    <CompanyLogo
+                      name={job.company}
+                      slug={job.companySlug}
+                      logoUrl={job.companyLogo}
+                      size="md"
+                      className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl shrink-0 p-1.5"
+                    />
+
                     <div className="min-w-0 flex-1">
                       <h3 
-                        className="font-bold text-sm text-slate-900 group-hover:text-teal-700 transition-colors line-clamp-2 leading-snug break-words min-h-[2.5rem]"
+                        className="font-bold text-xs sm:text-sm text-slate-900 group-hover:text-teal-700 transition-colors line-clamp-2 leading-snug break-words"
                         title={job.title}
                       >
                         {job.title}
                       </h3>
                       <p 
-                        className="text-xs text-slate-500 font-medium truncate mt-0.5"
+                        className="text-[11px] sm:text-xs text-slate-500 font-medium truncate mt-0.5"
                         title={job.company}
                       >
                         {job.company}
@@ -114,13 +114,13 @@ export function RecommendedJobsSection({
                     </div>
                   </div>
 
-                  <span className="shrink-0 text-[11px] font-bold px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200/60 whitespace-nowrap">
+                  <span className="shrink-0 text-[10px] sm:text-[11px] font-bold px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200/60 whitespace-nowrap">
                     {job.matchScore}% Match
                   </span>
                 </div>
 
                 {/* Location & Workmode */}
-                <div className="flex items-center gap-1.5 text-xs text-slate-500 mt-2.5 font-medium min-w-0">
+                <div className="flex items-center gap-1.5 text-[11px] sm:text-xs text-slate-500 mt-2 font-medium min-w-0">
                   <MapPin className="w-3.5 h-3.5 text-slate-400 shrink-0" />
                   <span className="truncate">
                     {job.location} • {job.workMode}
@@ -128,18 +128,18 @@ export function RecommendedJobsSection({
                 </div>
 
                 {/* Skill Tags */}
-                <div className="flex flex-wrap gap-1.5 mt-3">
+                <div className="flex flex-wrap gap-1 mt-2">
                   {job.skills.slice(0, 3).map((skill) => (
                     <span
                       key={skill}
-                      className="text-[11px] font-medium px-2 py-0.5 rounded-md bg-slate-100 text-slate-600 truncate max-w-[130px]"
+                      className="text-[10px] sm:text-[11px] font-medium px-2 py-0.5 rounded-md bg-slate-100 text-slate-600 truncate max-w-[110px]"
                       title={skill}
                     >
                       {skill}
                     </span>
                   ))}
                   {((job.extraSkillsCount && job.extraSkillsCount > 0) || job.skills.length > 3) && (
-                    <span className="text-[11px] font-semibold px-1.5 py-0.5 rounded-md bg-slate-100 text-slate-500 shrink-0">
+                    <span className="text-[10px] sm:text-[11px] font-semibold px-1.5 py-0.5 rounded-md bg-slate-100 text-slate-500 shrink-0">
                       +{job.extraSkillsCount || (job.skills.length - 3)}
                     </span>
                   )}
@@ -147,18 +147,18 @@ export function RecommendedJobsSection({
               </div>
 
               {/* Footer row: posted time and action buttons */}
-              <div className="mt-4 pt-3 border-t border-slate-100 space-y-3">
-                <div className="text-[11px] text-slate-400 font-medium truncate">
+              <div className="mt-3 pt-2.5 border-t border-slate-100 space-y-2">
+                <div className="text-[10px] sm:text-[11px] text-slate-400 font-medium truncate">
                   {job.postedTime}
                 </div>
 
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-1.5">
                   {/* Bookmark Button */}
                   <button
                     type="button"
                     onClick={() => onToggleBookmark?.(job)}
                     title={job.isBookmarked ? "Remove Bookmark" : "Save Job"}
-                    className={`p-2 rounded-lg border transition-colors cursor-pointer shrink-0 ${
+                    className={`p-1.5 rounded-lg border transition-colors cursor-pointer shrink-0 ${
                       job.isBookmarked
                         ? "border-teal-500 bg-teal-50 text-teal-600"
                         : "border-slate-200 bg-white text-slate-400 hover:text-teal-600 hover:border-slate-300"
@@ -182,7 +182,7 @@ export function RecommendedJobsSection({
                   <button
                     type="button"
                     onClick={() => onApply?.(job)}
-                    className="py-1.5 px-3 rounded-lg bg-teal-600 hover:bg-teal-700 text-white font-bold text-xs transition-colors shadow-2xs flex items-center justify-center gap-1 cursor-pointer shrink-0 whitespace-nowrap"
+                    className="py-1.5 px-2.5 rounded-lg bg-teal-600 hover:bg-teal-700 text-white font-bold text-xs transition-colors shadow-2xs flex items-center justify-center gap-1 cursor-pointer shrink-0 whitespace-nowrap"
                   >
                     <span>Apply</span>
                     <ExternalLink className="w-3 h-3" />

@@ -1,36 +1,55 @@
 "use client";
 
-import React, { useState } from "react";
-import { X, Bell, Plus, CheckCircle2 } from "lucide-react";
+import React, { useState, useEffect } from "react";
+import { X, Bell, Plus, CheckCircle2, Save } from "lucide-react";
 import { JobAlertRecord } from "@/lib/auth";
 
 export interface CreateAlertModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onSaveAlert: (alert: Omit<JobAlertRecord, "id" | "createdAt">) => void;
+  onSaveAlert: (alert: Omit<JobAlertRecord, "id" | "createdAt"> & { id?: string }) => void;
+  initialAlert?: JobAlertRecord | null;
 }
 
 export function CreateAlertModal({
   isOpen,
   onClose,
-  onSaveAlert
+  onSaveAlert,
+  initialAlert = null
 }: CreateAlertModalProps) {
   const [role, setRole] = useState("");
   const [location, setLocation] = useState("");
   const [workMode, setWorkMode] = useState("Remote");
   const [colorType, setColorType] = useState<"rose" | "amber" | "purple">("rose");
 
+  useEffect(() => {
+    if (initialAlert) {
+      setRole(initialAlert.role || "");
+      setLocation(initialAlert.location || "");
+      setWorkMode(initialAlert.workMode || "Remote");
+      setColorType(initialAlert.colorType || "rose");
+    } else {
+      setRole("");
+      setLocation("");
+      setWorkMode("Remote");
+      setColorType("rose");
+    }
+  }, [initialAlert, isOpen]);
+
   if (!isOpen) return null;
+
+  const isEditing = !!initialAlert?.id;
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!role.trim()) return;
 
     onSaveAlert({
+      id: initialAlert?.id,
       role: role.trim(),
       location: location.trim() || "Worldwide",
       workMode,
-      enabled: true,
+      enabled: initialAlert ? initialAlert.enabled : true,
       colorType
     });
 
@@ -41,7 +60,7 @@ export function CreateAlertModal({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs animate-in fade-in duration-200">
-      <div className="w-full max-w-md bg-white rounded-2xl shadow-2xl border border-slate-200 p-6 relative overflow-hidden">
+      <div className="w-full max-w-md bg-white rounded-2xl shadow-2xl border border-slate-200 p-5 sm:p-6 relative overflow-hidden">
         {/* Close Button */}
         <button
           type="button"
@@ -57,10 +76,12 @@ export function CreateAlertModal({
           </div>
           <div>
             <h2 className="text-base sm:text-lg font-bold text-slate-900">
-              Create Job Alert
+              {isEditing ? "Edit Job Alert" : "Create Job Alert"}
             </h2>
             <p className="text-xs text-slate-500">
-              Receive updates for fresh career portal requisitions.
+              {isEditing 
+                ? "Update your criteria or correct any details." 
+                : "Receive updates for fresh career portal requisitions."}
             </p>
           </div>
         </div>
@@ -107,22 +128,22 @@ export function CreateAlertModal({
                 <option value="Remote">Remote</option>
                 <option value="Hybrid">Hybrid</option>
                 <option value="On-site">On-site</option>
-                <option value="Any">Any</option>
+                <option value="Any">Any Work Mode</option>
               </select>
             </div>
 
             <div>
               <label className="block text-xs font-bold text-slate-700 mb-1">
-                Badge Color
+                Alert Color Tag
               </label>
               <select
                 value={colorType}
                 onChange={(e) => setColorType(e.target.value as any)}
                 className="w-full px-3 py-2 rounded-xl border border-slate-200 text-xs text-slate-900 focus:border-teal-500 focus:outline-none bg-white cursor-pointer"
               >
-                <option value="rose">Red / Urgent</option>
-                <option value="amber">Amber / Normal</option>
-                <option value="purple">Purple / Specialized</option>
+                <option value="rose">Rose Red</option>
+                <option value="amber">Amber Gold</option>
+                <option value="purple">Purple</option>
               </select>
             </div>
           </div>
@@ -139,8 +160,17 @@ export function CreateAlertModal({
               type="submit"
               className="px-5 py-2 rounded-xl bg-teal-600 hover:bg-teal-700 text-white text-xs font-bold flex items-center gap-1.5 shadow-sm transition-all cursor-pointer"
             >
-              <Plus className="w-3.5 h-3.5" />
-              <span>Save Alert</span>
+              {isEditing ? (
+                <>
+                  <Save className="w-3.5 h-3.5" />
+                  <span>Update Alert</span>
+                </>
+              ) : (
+                <>
+                  <Plus className="w-3.5 h-3.5" />
+                  <span>Create Alert</span>
+                </>
+              )}
             </button>
           </div>
         </form>
