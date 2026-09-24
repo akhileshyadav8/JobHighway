@@ -1,98 +1,167 @@
 import { Metadata } from "next";
-import Link from "next/link";
-import { ShieldCheck, CheckCircle2, ArrowLeft, Building2, Zap, AlertCircle } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { ShieldCheck, Check, Globe } from "lucide-react";
+import { LegalPageLayout } from "@/components/legal/LegalPageLayout";
+import { LegalPageHeader } from "@/components/legal/LegalPageHeader";
+import { LegalSection } from "@/components/legal/LegalSection";
+import { InfoNotice } from "@/components/legal/InfoNotice";
 
 export const metadata: Metadata = {
-  title: "Direct ATS Policy | JobPulse",
+  title: "Direct ATS & Zero-Scam Policy | JobPulse",
   description: "Learn about JobPulse's strict Direct ATS and Zero-Scam Verification guarantee.",
 };
 
+const ATS_PLATFORMS = [
+  {
+    name: "Workday",
+    icon: (
+      <div className="w-5 h-5 rounded-full bg-[#0051C6] text-white flex items-center justify-center font-bold text-[10px] shadow-2xs">
+        W
+      </div>
+    ),
+  },
+  {
+    name: "Greenhouse",
+    icon: (
+      <div className="w-5 h-5 rounded-full bg-[#00B259] text-white flex items-center justify-center shadow-2xs">
+        <svg viewBox="0 0 24 24" className="w-3 h-3 fill-current">
+          <circle cx="9" cy="9" r="3.5" />
+          <circle cx="15" cy="15" r="3.5" />
+        </svg>
+      </div>
+    ),
+  },
+  {
+    name: "Lever",
+    icon: (
+      <div className="w-5 h-5 rounded-full bg-[#111827] text-white flex items-center justify-center font-bold text-[10px] shadow-2xs">
+        <svg viewBox="0 0 24 24" className="w-3 h-3 stroke-current stroke-[3] fill-none">
+          <line x1="6" y1="18" x2="18" y2="6" />
+          <circle cx="7" cy="17" r="1.5" fill="currentColor" />
+        </svg>
+      </div>
+    ),
+  },
+  {
+    name: "SmartRecruiters",
+    icon: (
+      <div className="w-5 h-5 rounded-full bg-[#00A368] text-white flex items-center justify-center font-bold text-[10px] shadow-2xs">
+        S
+      </div>
+    ),
+  },
+  {
+    name: "Ashby",
+    icon: (
+      <div className="w-5 h-5 rounded-full bg-[#7C3AED] text-white flex items-center justify-center font-bold text-[10px] shadow-2xs">
+        A
+      </div>
+    ),
+  },
+  {
+    name: "Taleo",
+    icon: (
+      <div className="w-5 h-5 rounded-full bg-[#EA580C] text-white flex items-center justify-center font-bold text-[10px] shadow-2xs">
+        <svg viewBox="0 0 24 24" className="w-3 h-3 stroke-current stroke-[3]">
+          <line x1="12" y1="4" x2="12" y2="20" />
+          <line x1="4" y1="12" x2="20" y2="12" />
+          <line x1="6.34" y1="6.34" x2="17.66" y2="17.66" />
+          <line x1="6.34" y1="17.66" x2="17.66" y2="6.34" />
+        </svg>
+      </div>
+    ),
+  },
+  {
+    name: "iCIMS",
+    icon: (
+      <div className="w-5 h-5 rounded-full bg-[#0284C7] text-white flex items-center justify-center font-bold text-[10px] shadow-2xs">
+        i
+      </div>
+    ),
+  },
+  {
+    name: "Official Domains",
+    icon: (
+      <div className="w-5 h-5 rounded-full bg-[#0D9488] text-white flex items-center justify-center shadow-2xs">
+        <Globe className="w-3 h-3 text-white" />
+      </div>
+    ),
+  },
+];
+
 export default function AtsPolicyPage() {
   return (
-    <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-12 max-w-4xl">
-      <div className="mb-8">
-        <Link href="/">
-          <Button variant="ghost" size="sm" className="gap-2 text-slate-600 hover:text-slate-900 ">
-            <ArrowLeft className="w-4 h-4" /> Back to Jobs
-          </Button>
-        </Link>
-      </div>
+    <LegalPageLayout>
+      <LegalPageHeader
+        icon={ShieldCheck}
+        category="Trust & Transparency"
+        title="Direct ATS & Zero-Scam Policy"
+        description="At JobPulse, our mission is to eliminate ghost postings, commission-hungry recruitment middlemen, and fraudulent listings. Every single opportunity featured on JobPulse is directly routed to the hiring company's verified Applicant Tracking System (ATS)."
+      />
 
-      <div className="flex items-center gap-3 mb-4">
-        <div className="p-3 bg-teal-500/10 text-teal-600 rounded-xl">
-          <ShieldCheck className="w-8 h-8" />
-        </div>
-        <div>
-          <span className="text-xs font-bold uppercase tracking-wider text-teal-600 ">
-            Trust & Transparency
-          </span>
-          <h1 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-black text-slate-900 tracking-tight leading-snug">
-            Direct ATS & Zero-Scam Policy
-          </h1>
-        </div>
-      </div>
-
-      <p className="text-xs sm:text-sm md:text-base text-slate-600 leading-relaxed mb-8">
-        At JobPulse, our mission is to eliminate ghost postings, commission-hungry recruitment middlemen, and fraudulent listings. Every single opportunity featured on JobPulse is directly routed to the hiring company's verified Applicant Tracking System (ATS).
-      </p>
-
-      <div className="space-y-8">
-        <section className="bg-white border border-slate-200 rounded-2xl p-6 sm:p-8 shadow-xs">
-          <h2 className="text-xl font-bold text-slate-900 mb-4 flex items-center gap-2">
-            <CheckCircle2 className="w-5 h-5 text-teal-500" />
-            1. 100% Direct Official Application Links
-          </h2>
-          <p className="text-slate-600 text-sm leading-relaxed mb-4">
-            When you click &ldquo;Apply Official&rdquo; on any JobPulse listing, you are routed directly to the employer's genuine ATS portal. We support and integrate with enterprise career engines including:
+      <div className="space-y-2">
+        <LegalSection number="01" title="100% Direct Official Application Links">
+          <p>
+            When you click &ldquo;Apply Official&rdquo; on any JobPulse listing, you are routed directly to the employer&apos;s genuine ATS portal. We support and integrate with enterprise career engines including:
           </p>
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-center">
-            {["Workday", "Greenhouse", "Lever", "SmartRecruiters", "Ashby", "Taleo", "iCIMS", "Official Domains"].map((ats) => (
-              <div key={ats} className="py-2.5 px-3 bg-slate-50 rounded-lg text-xs font-semibold text-slate-700 border border-slate-200/60 ">
-                {ats}
+
+          {/* 8 ATS Platform Cards Grid */}
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-3">
+            {ATS_PLATFORMS.map((platform) => (
+              <div
+                key={platform.name}
+                className="bg-white border border-slate-200/90 rounded-xl px-3.5 py-2.5 flex items-center gap-2.5 shadow-2xs hover:border-slate-300 transition-colors"
+              >
+                {platform.icon}
+                <span className="font-semibold text-xs text-slate-800 tracking-tight">
+                  {platform.name}
+                </span>
               </div>
             ))}
           </div>
-        </section>
+        </LegalSection>
 
-        <section className="bg-white border border-slate-200 rounded-2xl p-6 sm:p-8 shadow-xs">
-          <h2 className="text-xl font-bold text-slate-900 mb-4 flex items-center gap-2">
-            <Zap className="w-5 h-5 text-teal-500" />
-            2. Continuous Automated Health & Link Verification
-          </h2>
-          <p className="text-slate-600 text-sm leading-relaxed mb-3">
-            Our automated crawlers sync job portals every 10–15 minutes. If a role is closed, unlisted, or expired by the corporate talent team, our verification pipeline automatically de-indexes or marks it inactive to prevent wasted applications.
+        <LegalSection number="02" title="Continuous Automated Health & Link Verification">
+          <p>
+            Our automated crawlers sync job portals every 10–15 minutes. If a role is closed, unlisted, or expired by the employer, our verification pipeline automatically de-indexes or marks it inactive to prevent wasted applications.
           </p>
-          <ul className="space-y-2 text-sm text-slate-600 list-disc list-inside">
-            <li>Zero dead-ends or 404 broken application links.</li>
-            <li>No fake generated roles or synthetic AI-hallucinated job postings.</li>
-            <li>Direct extraction of authentic JD requirements, locations, and hiring criteria.</li>
-          </ul>
-        </section>
 
-        <section className="bg-white border border-slate-200 rounded-2xl p-6 sm:p-8 shadow-xs">
-          <h2 className="text-xl font-bold text-slate-900 mb-4 flex items-center gap-2">
-            <Building2 className="w-5 h-5 text-teal-500" />
-            3. Zero Middlemen & Anti-Spam Guarantee
-          </h2>
-          <p className="text-slate-600 text-sm leading-relaxed mb-3">
-            JobPulse does not sell your contact details to recruiters, third-party marketing firms, or shady &ldquo;placement training&rdquo; agencies. We do not place ad paywalls in front of application links, nor do we require upfront fees.
-          </p>
-          <p className="text-slate-600 text-sm leading-relaxed">
-            Your resume and candidate information go directly into the employer's HR pipeline without any intermediate interception.
-          </p>
-        </section>
-
-        <div className="bg-teal-50 border border-teal-200 rounded-2xl p-6 flex items-start gap-4">
-          <AlertCircle className="w-6 h-6 text-teal-600 shrink-0 mt-0.5" />
-          <div className="text-sm text-slate-700 ">
-            <h3 className="font-semibold text-slate-900 mb-1">Notice a suspicious or dead link?</h3>
-            <p>
-              If you ever find an expired opening or incorrect redirect, our monitoring team reviews automated reports daily. Contact our team or inspect the job slug directly.
-            </p>
+          {/* Checkmark Features */}
+          <div className="space-y-2.5 pt-2">
+            <div className="flex items-center gap-2.5 text-sm text-slate-600 font-normal">
+              <div className="w-4 h-4 rounded-full bg-teal-600 text-white flex items-center justify-center shrink-0">
+                <Check className="w-2.5 h-2.5 stroke-[3]" />
+              </div>
+              <span>Zero dead-ends or 404 broken application links</span>
+            </div>
+            <div className="flex items-center gap-2.5 text-sm text-slate-600 font-normal">
+              <div className="w-4 h-4 rounded-full bg-teal-600 text-white flex items-center justify-center shrink-0">
+                <Check className="w-2.5 h-2.5 stroke-[3]" />
+              </div>
+              <span>No fake generated roles or synthetic AI-hallucinated job postings</span>
+            </div>
+            <div className="flex items-center gap-2.5 text-sm text-slate-600 font-normal">
+              <div className="w-4 h-4 rounded-full bg-teal-600 text-white flex items-center justify-center shrink-0">
+                <Check className="w-2.5 h-2.5 stroke-[3]" />
+              </div>
+              <span>Direct extraction of authentic JD requirements, locations, and hiring criteria</span>
+            </div>
           </div>
-        </div>
+        </LegalSection>
+
+        <LegalSection number="03" title="Zero Middlemen & No Spam">
+          <p>
+            JobPulse does not sell your contact details to recruiters, third-party marketing firms, or shady &ldquo;placement training&rdquo; agencies. We do not place ads or paywalls in front of application links, nor do we require upfront fees. Your resume and candidate information go directly into the employer&apos;s HR pipeline without any intermediate interception.
+          </p>
+        </LegalSection>
       </div>
-    </div>
+
+      <InfoNotice
+        icon={ShieldCheck}
+        title="Found a suspicious or dead link?"
+        description="If you ever find an expired opening or incorrect redirect, our monitoring team reviews automated reports daily. Contact our team or inspect the job slug directly."
+        buttonText="Report Issue"
+        buttonHref="/contact?topic=Suspicious%20or%20Dead%20Link"
+      />
+    </LegalPageLayout>
   );
 }
