@@ -814,11 +814,11 @@ export default function DashboardPage() {
               stats={heroStats}
             />
 
-            {/* 2. Middle Section (2 Columns: Left 8 cols, Right 4 cols) */}
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 xl:gap-6 items-stretch">
-              {/* Left Column: Recommended Jobs, Alerts, Followed Companies */}
-              <div className="lg:col-span-8 flex flex-col justify-between space-y-5 xl:space-y-6">
-                {/* Recommended Jobs */}
+            {/* 2. Unified 2-Column Dashboard Layout matching exact user specifications */}
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 xl:gap-6 items-start">
+              {/* LEFT / MAIN COLUMN (8 cols): Recommended Jobs, Alerts, Followed Companies, Resume Analysis */}
+              <div className="lg:col-span-8 space-y-5 xl:space-y-6">
+                {/* 1. Recommended Jobs */}
                 <div id="recommended-jobs-section" className="scroll-mt-24">
                   <RecommendedJobsSection
                     jobs={recommendedJobs}
@@ -829,7 +829,7 @@ export default function DashboardPage() {
                   />
                 </div>
 
-                {/* Recent Job Alerts */}
+                {/* 2. Recent Job Alerts */}
                 <div id="recent-alerts-section" className="scroll-mt-24">
                   <RecentAlertsSection
                     alerts={userAlerts}
@@ -847,33 +847,43 @@ export default function DashboardPage() {
                   />
                 </div>
 
-                {/* Followed Companies */}
-                <div id="followed-companies-section" className="scroll-mt-24 flex-1 flex flex-col">
+                {/* 3. Followed Companies */}
+                <div id="followed-companies-section" className="scroll-mt-24">
                   <FollowedCompaniesSection
                     companies={followedCompaniesWithCounts}
                     onToggleFollow={handleToggleFollow}
                     onOpenFollowModal={() => setIsFollowModalOpen(true)}
                   />
                 </div>
+
+                {/* 4. Resume Analysis */}
+                <div id="resume-analysis-section" className="scroll-mt-24">
+                  <ResumeAnalysisSection
+                    resume={user?.resumeFile || null}
+                    onUploadResume={handleResumeUpload}
+                    onRemoveResume={handleResumeRemove}
+                    onAnalyzeResume={() => {}}
+                  />
+                </div>
               </div>
 
-              {/* Right Column: Profile Completion, Skills, Application Tracker, Market Insights */}
-              <div className="lg:col-span-4 flex flex-col justify-between space-y-5 xl:space-y-6">
-                {/* Profile Completion */}
+              {/* RIGHT COLUMN (4 cols): Profile Completion, Skills, Application Tracker, Market Insights, Skill Gap */}
+              <div className="lg:col-span-4 space-y-5 xl:space-y-6">
+                {/* 1. Profile Completion */}
                 <ProfileCompletionCard
                   percentage={profileCompletionPercentage}
                   onEditProfile={() => setIsProfileModalOpen(true)}
                   onViewProfile={() => setIsProfileModalOpen(true)}
                 />
 
-                {/* Your Skills */}
+                {/* 2. Your Skills */}
                 <UserSkillsCard
                   skills={user?.skills || []}
                   onAddSkill={handleAddSkill}
                   onRemoveSkill={handleRemoveSkill}
                 />
 
-                {/* Application Tracker */}
+                {/* 3. Application Tracker */}
                 <ApplicationTrackerCard
                   metrics={trackerMetrics}
                   onViewAll={() => {
@@ -886,7 +896,7 @@ export default function DashboardPage() {
                   }}
                 />
 
-                {/* Job Market Insights */}
+                {/* 4. Job Market Insights */}
                 <div id="job-market-insights-section" className="scroll-mt-24">
                   <MarketInsightsCard
                     topCountries={topCountries}
@@ -894,29 +904,16 @@ export default function DashboardPage() {
                     onViewFullInsights={() => router.push("/jobs")}
                   />
                 </div>
-              </div>
-            </div>
 
-            {/* 3. Bottom Section: Resume Analysis & Skill Gap Analysis */}
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 xl:gap-6 pt-1 items-stretch">
-              {/* Left: Resume Analysis (~58% = 7 cols) */}
-              <div id="resume-analysis-section" className="lg:col-span-7 flex flex-col scroll-mt-24">
-                <ResumeAnalysisSection
-                  resume={user?.resumeFile || null}
-                  onUploadResume={handleResumeUpload}
-                  onRemoveResume={handleResumeRemove}
-                  onAnalyzeResume={() => {}}
-                />
-              </div>
-
-              {/* Right: Skill Gap Analysis (~42% = 5 cols) */}
-              <div id="skill-gap-section" className="lg:col-span-5 flex flex-col scroll-mt-24">
-                <SkillGapSection
-                  targetRole={user?.targetRole || "Data Scientist"}
-                  userSkills={user?.skills || []}
-                  onTargetRoleChange={handleTargetRoleChange}
-                  onViewDetailedAnalysis={() => setIsUpgradeModalOpen(true)}
-                />
+                {/* 5. Skill Gap Analysis */}
+                <div id="skill-gap-section" className="scroll-mt-24">
+                  <SkillGapSection
+                    targetRole={user?.targetRole || "Data Scientist"}
+                    userSkills={user?.skills || []}
+                    onTargetRoleChange={handleTargetRoleChange}
+                    onViewDetailedAnalysis={() => setIsUpgradeModalOpen(true)}
+                  />
+                </div>
               </div>
             </div>
           </main>

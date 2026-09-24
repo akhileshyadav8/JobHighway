@@ -1,8 +1,24 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
-import { X, Save, User as UserIcon, Phone, Globe, GraduationCap, Briefcase, CheckCircle2, Sparkles } from "lucide-react";
+import React, { useState, useEffect, useRef } from "react";
+import { 
+  X, 
+  Save, 
+  User as UserIcon, 
+  Phone, 
+  Globe, 
+  GraduationCap, 
+  Briefcase, 
+  CheckCircle2, 
+  Sparkles,
+  Upload,
+  RefreshCw,
+  Trash2,
+  FileCheck2,
+  Loader2
+} from "lucide-react";
 import { User, updateUserProfile } from "@/lib/auth";
+import { parseResumeFile } from "@/lib/resumeParser";
 
 export interface ProfileEditModalProps {
   isOpen: boolean;
@@ -17,6 +33,10 @@ export function ProfileEditModal({
   user,
   onProfileUpdated
 }: ProfileEditModalProps) {
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [isParsingResume, setIsParsingResume] = useState(false);
+  const [resumeNotice, setResumeNotice] = useState("");
+
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
   const [linkedinUrl, setLinkedinUrl] = useState("");
@@ -49,6 +69,85 @@ export function ProfileEditModal({
       setSkillsStr((user.skills || []).join(", "));
     }
   }, [user, isOpen]);
+
+  // Handler for uploading & parsing resume to auto-fill profile fields
+  const handleResumeFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file || !user) return;
+
+    setIsParsingResume(true);
+    setResumeNotice("");
+
+    try {
+      // 1. Parse text & extract structured profile metadata
+      const extracted = await parseResumeFile(file);
+
+      // 2. Pre-fill state text fields immediately
+      if (extracted.name) setName(extracted.name);
+      if (extracted.phone) setPhone(extracted.phone);
+      if (extracted.targetRole) setTargetRole(extracted.targetRole);
+      if (extracted.currentRole) setCurrentRole(extracted.currentRole);
+      if (extracted.preferredLocation) setPreferredLocation(extracted.preferredLocation);
+      if (extracted.yearsExperience) setYearsExperience(extracted.yearsExperience);
+      if (extracted.education) setEducation(extracted.education);
+      if (extracted.graduationYear) setGraduationYear(extracted.graduationYear);
+      if (extracted.linkedinUrl) setLinkedinUrl(extracted.linkedinUrl);
+      if (extracted.githubUrl) setGithubUrl(extracted.githubUrl);
+
+      // 3. Merge skills
+      const existingSkills = skillsStr ? skillsStr.split(",").map((s) => s.trim()).filter(Boolean) : (user.skills || []);
+      const existingLower = new Set(existingSkills.map((s) => s.toLowerCase()));
+      const newSkills = (extracted.skills || []).filter((s) => !existingLower.has(s.toLowerCase()));
+      const combined = [...existingSkills, ...newSkills];
+      setSkillsStr(combined.join(", "));
+
+      // 4. Save file data to localStorage
+      const reader = new FileReader();
+      reader.onload = () => {
+        const dataUrl = reader.result as string;
+        const fileExt = file.name.substring(file.name.lastIndexOf(".")).replace(".", "").toUpperCase() || "PDF";
+        const fileData = {
+          name: file.name,
+          size: file.size,
+          uploadedAt: new Date().toISOString(),
+          dataUrl,
+          fileType: fileExt,
+          status: "Active ATS Resume",
+          atsScore: 94
+        };
+
+        const updated = updateUserProfile(user.id, {
+          resumeFile: fileData,
+          skills: combined,
+          name: extracted.name || name,
+          phone: extracted.phone || phone,
+          targetRole: extracted.targetRole || targetRole,
+          currentRole: extracted.currentRole || currentRole,
+          preferredLocation: extracted.preferredLocation || preferredLocation,
+          yearsExperience: extracted.yearsExperience || yearsExperience,
+          education: extracted.education || education,
+          graduationYear: extracted.graduationYear || graduationYear,
+          linkedinUrl: extracted.linkedinUrl || linkedinUrl,
+          githubUrl: extracted.githubUrl || githubUrl
+        });
+
+        if (updated) onProfileUpdated(updated);
+        setIsParsingResume(false);
+        setResumeNotice(`Resume parsed! Profile fields have been auto-populated from "${file.name}". You can review or edit any fields below.`);
+      };
+      reader.readAsDataURL(file);
+    } catch (err) {
+      console.error("Resume parsing error:", err);
+      setIsParsingResume(false);
+    }
+  };
+
+  const handleRemoveResume = () => {
+    if (!user) return;
+    const updated = updateUserProfile(user.id, { resumeFile: undefined });
+    if (updated) onProfileUpdated(updated);
+    setResumeNotice("");
+  };
 
   if (!isOpen) return null;
 
@@ -122,14 +221,98 @@ export function ProfileEditModal({
           </div>
         )}
 
-        {user?.resumeFile && (
-          <div className="mb-4 p-3 rounded-xl bg-teal-50/80 border border-teal-200 text-teal-800 text-xs flex items-center gap-2.5">
-            <Sparkles className="w-4 h-4 text-teal-600 shrink-0" />
-            <span>
-              Profile information detected from your resume (<strong>{user.resumeFile.name}</strong>). You can review, edit, or customize any field below before saving.
-            </span>
+        {/* Dedicated Resume Upload & Auto-fill Section */}
+        <div className="mb-6 p-4 rounded-2xl border border-teal-200/90 bg-gradient-to-r from-teal-50/60 via-emerald-50/30 to-teal-50/50">
+          <div className="flex items-center justify-between gap-3 mb-2">
+            <div className="flex items-center gap-2">
+              <Sparkles className="w-4 h-4 text-teal-600" />
+              <h3 className="text-xs sm:text-sm font-bold text-slate-900">
+                Resume & Auto-Fill Profile
+              </h3>
+            </div>
+            {user?.resumeFile && (
+              <span className="text-[11px] font-bold px-2.5 py-0.5 rounded-full bg-emerald-100 text-emerald-800 border border-emerald-200">
+                ATS Score: {user.resumeFile.atsScore || 94}%
+              </span>
+            )}
           </div>
-        )}
+
+          <p className="text-xs text-slate-600 mb-3">
+            Upload your resume (.PDF, .DOCX) to automatically parse your skills, experience, and contact details directly into the fields below.
+          </p>
+
+          <input
+            type="file"
+            ref={fileInputRef}
+            onChange={handleResumeFileChange}
+            accept=".pdf,.doc,.docx"
+            className="hidden"
+          />
+
+          {user?.resumeFile ? (
+            <div className="flex flex-wrap items-center justify-between gap-3 p-3 rounded-xl bg-white border border-teal-200 shadow-2xs">
+              <div className="flex items-center gap-2.5 min-w-0">
+                <div className="w-8 h-8 rounded-lg bg-teal-100 text-teal-700 flex items-center justify-center shrink-0">
+                  <FileCheck2 className="w-4 h-4" />
+                </div>
+                <div className="min-w-0">
+                  <div className="font-bold text-xs text-slate-900 truncate" title={user.resumeFile.name}>
+                    {user.resumeFile.name}
+                  </div>
+                  <div className="text-[10px] text-slate-500">
+                    {(user.resumeFile.size / 1024).toFixed(0)} KB · Uploaded {new Date(user.resumeFile.uploadedAt).toLocaleDateString()}
+                  </div>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={() => fileInputRef.current?.click()}
+                  disabled={isParsingResume}
+                  className="px-2.5 py-1.5 rounded-lg border border-slate-200 hover:bg-slate-50 text-slate-700 text-xs font-semibold flex items-center gap-1.5 transition-colors cursor-pointer shadow-2xs"
+                >
+                  <RefreshCw className={`w-3.5 h-3.5 text-slate-400 ${isParsingResume ? "animate-spin" : ""}`} />
+                  <span>{isParsingResume ? "Parsing..." : "Replace"}</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={handleRemoveResume}
+                  className="p-1.5 rounded-lg border border-rose-200 hover:bg-rose-50 text-rose-600 text-xs transition-colors cursor-pointer shadow-2xs"
+                  title="Remove stored resume"
+                >
+                  <Trash2 className="w-3.5 h-3.5" />
+                </button>
+              </div>
+            </div>
+          ) : (
+            <button
+              type="button"
+              onClick={() => fileInputRef.current?.click()}
+              disabled={isParsingResume}
+              className="w-full py-3 px-4 rounded-xl border-2 border-dashed border-teal-300 hover:border-teal-500 bg-white/80 hover:bg-white text-teal-700 text-xs font-bold flex items-center justify-center gap-2 transition-all cursor-pointer shadow-2xs"
+            >
+              {isParsingResume ? (
+                <>
+                  <Loader2 className="w-4 h-4 animate-spin text-teal-600" />
+                  <span>Extracting resume data and auto-filling profile...</span>
+                </>
+              ) : (
+                <>
+                  <Upload className="w-4 h-4 text-teal-600" />
+                  <span>Upload Resume to Auto-Fill Profile Fields</span>
+                </>
+              )}
+            </button>
+          )}
+
+          {resumeNotice && (
+            <div className="mt-3 p-2.5 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs flex items-center gap-2">
+              <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
+              <span>{resumeNotice}</span>
+            </div>
+          )}
+        </div>
 
         <form onSubmit={handleSubmit} className="space-y-5">
           {/* Identity */}
