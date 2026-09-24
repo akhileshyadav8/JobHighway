@@ -207,62 +207,67 @@ export default function BlogPage() {
               </div>
             </div>
 
-            {/* Right Column: World Map + Connected Floating Node Badges */}
-            <div className="lg:col-span-5 relative hidden lg:flex items-center justify-center min-h-[290px]">
-              <div className="relative w-full max-w-[480px] h-[280px]">
-                {/* Vector World Map Background */}
-                <div className="absolute inset-0 flex items-center justify-center pointer-events-none select-none opacity-45">
+            {/* Right Column: Large World Map + Connected Floating Node Badges */}
+            <div className="lg:col-span-5 relative hidden lg:flex items-center justify-center min-h-[380px] xl:min-h-[410px]">
+              <div className="relative w-full max-w-[620px] h-[370px] flex items-center justify-center">
+                
+                {/* Vector World Map Background with ambient glow matching Companies page */}
+                <div className="absolute inset-0 flex items-center justify-center pointer-events-none select-none">
+                  {/* Soft radial glow behind the world map */}
+                  <div className="absolute w-[500px] h-[320px] bg-gradient-to-tr from-teal-200/40 via-teal-100/25 to-transparent rounded-full blur-2xl pointer-events-none" />
+                  
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img
                     src="/world.svg"
                     alt="World Map"
-                    className="w-full h-full object-contain filter drop-shadow-sm"
+                    className="w-full h-full object-contain pointer-events-none select-none relative z-0"
                   />
                 </div>
 
-                {/* SVG Connecting Dashed Lines */}
+                {/* SVG Connecting Dashed Lines scaled to match larger map */}
                 <svg
                   className="absolute inset-0 w-full h-full pointer-events-none z-10"
-                  viewBox="0 0 480 280"
+                  viewBox="0 0 620 370"
                   fill="none"
                   xmlns="http://www.w3.org/2000/svg"
                 >
                   {/* Path connecting Node 1 (Doc) -> Node 2 (Briefcase) */}
                   <path
-                    d="M 125 125 Q 200 70, 310 75"
+                    d="M 160 165 Q 260 85, 400 95"
                     stroke="#0d9488"
                     strokeWidth="1.5"
                     strokeDasharray="4 4"
-                    strokeOpacity="0.4"
+                    strokeOpacity="0.45"
                   />
                   {/* Path connecting Node 1 (Doc) -> Node 3 (Chart) */}
                   <path
-                    d="M 125 125 Q 170 170, 260 160"
+                    d="M 160 165 Q 220 225, 335 215"
                     stroke="#0d9488"
                     strokeWidth="1.5"
                     strokeDasharray="4 4"
-                    strokeOpacity="0.4"
+                    strokeOpacity="0.45"
                   />
                   {/* Path connecting Node 2 (Briefcase) -> Node 4 (Cap) */}
                   <path
-                    d="M 310 75 Q 360 110, 395 165"
+                    d="M 400 95 Q 465 145, 510 215"
                     stroke="#0d9488"
                     strokeWidth="1.5"
                     strokeDasharray="4 4"
-                    strokeOpacity="0.4"
+                    strokeOpacity="0.45"
                   />
                   {/* Path connecting Node 3 (Chart) -> Node 4 (Cap) */}
                   <path
-                    d="M 260 160 Q 330 180, 395 165"
+                    d="M 335 215 Q 425 240, 510 215"
                     stroke="#0d9488"
                     strokeWidth="1.5"
                     strokeDasharray="4 4"
-                    strokeOpacity="0.4"
+                    strokeOpacity="0.45"
                   />
                 </svg>
 
-                {/* Node 1: Left Middle - White Circle with Teal Document Icon */}
+                {/* Node 1: Left Middle - White Circle with Emerald Document Icon */}
                 <div
-                  className="absolute top-[102px] left-[105px] w-11 h-11 rounded-full bg-white shadow-md border border-slate-100 flex items-center justify-center z-20 hover:scale-110 transition-transform cursor-pointer"
+                  className="absolute top-[140px] left-[135px] w-12 h-12 rounded-full bg-white shadow-md border border-slate-100 flex items-center justify-center z-20 hover:scale-110 transition-transform cursor-pointer"
                   title="ATS Resume Guidelines"
                 >
                   <FileText className="w-5 h-5 text-emerald-600" />
@@ -270,7 +275,7 @@ export default function BlogPage() {
 
                 {/* Node 2: Top Center/Right - Teal Circle with White Briefcase */}
                 <div
-                  className="absolute top-[52px] left-[290px] w-12 h-12 rounded-full bg-[#0d9488] shadow-lg border-2 border-white flex items-center justify-center z-20 hover:scale-110 transition-transform cursor-pointer"
+                  className="absolute top-[68px] left-[375px] w-13 h-13 rounded-full bg-[#0d9488] shadow-lg border-2 border-white flex items-center justify-center z-20 hover:scale-110 transition-transform cursor-pointer"
                   title="Official Career Portals"
                 >
                   <Briefcase className="w-5 h-5 text-white" />
@@ -278,7 +283,7 @@ export default function BlogPage() {
 
                 {/* Node 3: Center Bottom - White Circle with Indigo Bar Chart */}
                 <div
-                  className="absolute top-[138px] left-[240px] w-11 h-11 rounded-full bg-white shadow-md border border-slate-100 flex items-center justify-center z-20 hover:scale-110 transition-transform cursor-pointer"
+                  className="absolute top-[190px] left-[310px] w-12 h-12 rounded-full bg-white shadow-md border border-slate-100 flex items-center justify-center z-20 hover:scale-110 transition-transform cursor-pointer"
                   title="Live Tech Salary Trends"
                 >
                   <BarChart3 className="w-5 h-5 text-teal-600" />
@@ -286,7 +291,7 @@ export default function BlogPage() {
 
                 {/* Node 4: Far Right - White Circle with Blue Graduation Cap */}
                 <div
-                  className="absolute top-[142px] left-[375px] w-12 h-12 rounded-full bg-white shadow-md border border-slate-100 flex items-center justify-center z-20 hover:scale-110 transition-transform cursor-pointer"
+                  className="absolute top-[185px] left-[485px] w-13 h-13 rounded-full bg-white shadow-md border border-slate-100 flex items-center justify-center z-20 hover:scale-110 transition-transform cursor-pointer"
                   title="Campus to Corporate Playbook"
                 >
                   <GraduationCap className="w-6 h-6 text-sky-600" />

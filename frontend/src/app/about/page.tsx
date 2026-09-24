@@ -65,54 +65,59 @@ export default function AboutPage() {
               </Link>
             </div>
 
-            {/* Right Column: World Map + Subtle Logo Markers */}
-            <div className="lg:col-span-6 relative hidden lg:flex items-center justify-center min-h-[340px]">
-              <div className="relative w-full max-w-[540px] h-[340px]">
+            {/* Right Column: World Map + Floating Company Logos & Orbit Lines */}
+            <div className="lg:col-span-6 relative hidden sm:flex items-center justify-center min-h-[380px] lg:min-h-[420px]">
+              <div className="relative w-full max-w-[620px] h-[380px] flex items-center justify-center">
                 
-                {/* World Map Vector Graphic */}
-                <div className="absolute inset-0 flex items-center justify-center pointer-events-none select-none opacity-40">
+                {/* World Map Vector Backdrop with soft ambient glow matching Companies page */}
+                <div className="absolute inset-0 pointer-events-none flex items-center justify-center">
+                  {/* Soft radial glow behind the world map */}
+                  <div className="absolute w-[500px] h-[320px] bg-gradient-to-tr from-teal-200/40 via-teal-100/25 to-transparent rounded-full blur-2xl pointer-events-none" />
+                  
+                  {/* Detailed vector world map matching Companies page visibility */}
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img
                     src="/world.svg"
                     alt="Global Career Network World Map"
-                    className="w-full h-full object-contain filter drop-shadow-sm"
+                    className="w-full h-full object-contain pointer-events-none select-none relative z-0"
                   />
                 </div>
 
                 {/* Subtle Dashed Orbital Lines */}
                 <svg
                   className="absolute inset-0 w-full h-full pointer-events-none z-10"
-                  viewBox="0 0 540 340"
+                  viewBox="0 0 620 380"
                   fill="none"
                   xmlns="http://www.w3.org/2000/svg"
                 >
                   <circle
-                    cx="270"
-                    cy="170"
-                    r="125"
+                    cx="310"
+                    cy="190"
+                    r="140"
+                    stroke="#0d9488"
+                    strokeWidth="1.5"
+                    strokeDasharray="4 4"
+                    strokeOpacity="0.4"
+                  />
+                  <path
+                    d="M 130 190 Q 310 40 480 130"
                     stroke="#0d9488"
                     strokeWidth="1.5"
                     strokeDasharray="4 4"
                     strokeOpacity="0.35"
                   />
                   <path
-                    d="M 120 170 Q 270 40 420 120"
+                    d="M 190 290 Q 360 340 500 240"
                     stroke="#0d9488"
                     strokeWidth="1.5"
                     strokeDasharray="4 4"
-                    strokeOpacity="0.3"
-                  />
-                  <path
-                    d="M 170 260 Q 320 300 440 220"
-                    stroke="#0d9488"
-                    strokeWidth="1.5"
-                    strokeDasharray="4 4"
-                    strokeOpacity="0.3"
+                    strokeOpacity="0.35"
                   />
                 </svg>
 
                 {/* 1. Google (Top Center) */}
                 <div
-                  className="absolute top-[28px] left-[242px] w-14 h-14 rounded-2xl bg-white shadow-md border border-slate-100 flex items-center justify-center p-2.5 z-20 hover:scale-110 hover:shadow-lg transition-all"
+                  className="absolute top-[24px] left-[280px] w-14 h-14 rounded-2xl bg-white shadow-md border border-slate-100 flex items-center justify-center p-2.5 z-20 hover:scale-110 hover:shadow-lg transition-all cursor-pointer"
                   title="Google"
                 >
                   <img
@@ -124,7 +129,7 @@ export default function AboutPage() {
 
                 {/* 2. Microsoft (Mid Left) */}
                 <div
-                  className="absolute top-[140px] left-[90px] w-13 h-13 rounded-2xl bg-white shadow-md border border-slate-100 flex items-center justify-center p-2.5 z-20 hover:scale-110 hover:shadow-lg transition-all"
+                  className="absolute top-[160px] left-[100px] w-14 h-14 rounded-2xl bg-white shadow-md border border-slate-100 flex items-center justify-center p-2.5 z-20 hover:scale-110 hover:shadow-lg transition-all cursor-pointer"
                   title="Microsoft"
                 >
                   <img
@@ -136,7 +141,7 @@ export default function AboutPage() {
 
                 {/* 3. Meta (Mid Right) */}
                 <div
-                  className="absolute top-[96px] left-[390px] w-14 h-14 rounded-2xl bg-white shadow-md border border-slate-100 flex items-center justify-center p-2.5 z-20 hover:scale-110 hover:shadow-lg transition-all"
+                  className="absolute top-[108px] left-[450px] w-14 h-14 rounded-2xl bg-white shadow-md border border-slate-100 flex items-center justify-center p-2.5 z-20 hover:scale-110 hover:shadow-lg transition-all cursor-pointer"
                   title="Meta"
                 >
                   <img
@@ -148,7 +153,7 @@ export default function AboutPage() {
 
                 {/* 4. Apple (Bottom Center/Left) */}
                 <div
-                  className="absolute bottom-[44px] left-[235px] w-13 h-13 rounded-2xl bg-white shadow-md border border-slate-100 flex items-center justify-center p-2.5 z-20 hover:scale-110 hover:shadow-lg transition-all"
+                  className="absolute bottom-[44px] left-[270px] w-14 h-14 rounded-2xl bg-white shadow-md border border-slate-100 flex items-center justify-center p-2.5 z-20 hover:scale-110 hover:shadow-lg transition-all cursor-pointer"
                   title="Apple"
                 >
                   <img
@@ -160,7 +165,7 @@ export default function AboutPage() {
 
                 {/* 5. Netflix (Bottom Right) */}
                 <div
-                  className="absolute bottom-[70px] left-[380px] w-13 h-13 rounded-2xl bg-white shadow-md border border-slate-100 flex items-center justify-center p-2.5 z-20 hover:scale-110 hover:shadow-lg transition-all"
+                  className="absolute bottom-[75px] left-[440px] w-14 h-14 rounded-2xl bg-white shadow-md border border-slate-100 flex items-center justify-center p-2.5 z-20 hover:scale-110 hover:shadow-lg transition-all cursor-pointer"
                   title="Netflix"
                 >
                   <img

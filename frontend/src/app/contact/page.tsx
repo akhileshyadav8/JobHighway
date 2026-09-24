@@ -167,21 +167,26 @@ export default function ContactPage() {
               </p>
             </div>
 
-            {/* Right Column: World Map + Global Support Floating Card */}
-            <div className="lg:col-span-5 relative hidden lg:flex items-center justify-center min-h-[260px]">
-              <div className="relative w-full max-w-[480px] h-[260px]">
+            {/* Right Column: Large World Map + Global Support Floating Card */}
+            <div className="lg:col-span-5 relative hidden lg:flex items-center justify-center min-h-[360px] xl:min-h-[390px]">
+              <div className="relative w-full max-w-[580px] h-[350px] flex items-center justify-center">
                 
-                {/* World Map Vector Graphic */}
-                <div className="absolute inset-0 flex items-center justify-center pointer-events-none select-none opacity-40">
+                {/* World Map Vector Graphic with ambient glow matching Companies page */}
+                <div className="absolute inset-0 flex items-center justify-center pointer-events-none select-none">
+                  {/* Soft radial glow behind the world map */}
+                  <div className="absolute w-[460px] h-[280px] bg-gradient-to-tr from-teal-200/40 via-teal-100/25 to-transparent rounded-full blur-2xl pointer-events-none" />
+                  
+                  {/* Detailed vector world map matching Companies page visibility */}
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img
                     src="/world.svg"
                     alt="Global Career Network World Map"
-                    className="w-full h-full object-contain filter drop-shadow-sm"
+                    className="w-full h-full object-contain pointer-events-none select-none relative z-0"
                   />
                 </div>
 
                 {/* Floating "Global Support" Card */}
-                <div className="absolute top-[68px] right-[40px] bg-white rounded-2xl border border-slate-200/90 shadow-md p-3.5 px-4 flex items-center gap-3 z-20 hover:scale-105 transition-transform">
+                <div className="absolute top-[75px] right-[45px] bg-white rounded-2xl border border-slate-200/90 shadow-md p-3.5 px-4 flex items-center gap-3 z-20 hover:scale-105 transition-transform cursor-default">
                   <div className="w-9 h-9 rounded-xl bg-teal-50 text-[#0d9488] flex items-center justify-center shrink-0 border border-teal-100">
                     <MapPin className="w-5 h-5" />
                   </div>
@@ -436,8 +441,8 @@ export default function ContactPage() {
               )}
             </div>
 
-            {/* Right Column: FAQ Accordion + Our Office Card */}
-            <div className="lg:col-span-6 space-y-6">
+            {/* Right Column: FAQ Accordion + Our Office Card in a clean vertical stack */}
+            <div className="lg:col-span-6 flex flex-col gap-6">
               
               {/* FAQ Container */}
               <div className="bg-white rounded-3xl border border-slate-200/90 p-6 sm:p-8 shadow-xs">
@@ -479,7 +484,7 @@ export default function ContactPage() {
               </div>
 
               {/* Our Office Card */}
-              <div className="bg-white rounded-3xl border border-slate-200/90 p-6 shadow-xs flex items-center justify-between gap-4">
+              <div className="bg-white rounded-3xl border border-slate-200/90 p-6 sm:p-8 shadow-xs flex items-center justify-between gap-4">
                 <div className="flex items-start gap-3.5">
                   <div className="w-10 h-10 rounded-xl bg-teal-50 text-[#0d9488] flex items-center justify-center shrink-0 border border-teal-100">
                     <MapPin className="w-5 h-5" />
@@ -489,7 +494,7 @@ export default function ContactPage() {
                       Our Office
                     </h3>
                     <div className="text-xs text-slate-600 font-medium">
-                      Chandigarh, India
+                      Surat, Gujarat, India
                     </div>
                     <div className="text-[11px] text-slate-400 font-normal">
                       (Remote First Team)
