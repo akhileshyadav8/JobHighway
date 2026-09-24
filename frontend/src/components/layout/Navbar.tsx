@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { usePathname, useRouter } from 'next/navigation';
-import { Menu, X, Briefcase, Building2, BookOpen, Info, Mail, User as UserIcon, Shield, LogOut, ChevronDown } from 'lucide-react';
+import { Menu, X, Briefcase, Building2, BookOpen, Info, Mail, User as UserIcon, Shield, LogOut, ChevronDown, LayoutDashboard, Bell, Search } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { getCurrentUser, logoutUser, User } from '@/lib/auth';
 
@@ -48,6 +48,12 @@ export function Navbar() {
       icon: Building2,
       isActive: pathname.startsWith('/companies'),
     },
+    ...(user && user.role !== "admin" ? [{
+      label: 'Dashboard',
+      href: '/dashboard',
+      icon: LayoutDashboard,
+      isActive: pathname.startsWith('/dashboard'),
+    }] : []),
     {
       label: 'Blog',
       href: '/blog',
@@ -113,7 +119,23 @@ export function Navbar() {
         </nav>
 
         {/* Actions */}
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2.5">
+          {/* Quick Search bar in navbar */}
+          <div className="hidden lg:flex items-center relative w-52 xl:w-64">
+            <Search className="w-3.5 h-3.5 text-slate-400 absolute left-3 top-2.5 pointer-events-none" />
+            <input
+              type="text"
+              placeholder="Search jobs, companies, or skills..."
+              onKeyDown={(e) => {
+                if (e.key === "Enter") {
+                  const val = (e.target as HTMLInputElement).value.trim();
+                  if (val) router.push(`/jobs?search=${encodeURIComponent(val)}`);
+                }
+              }}
+              className="w-full pl-8 pr-3 py-1.5 rounded-full border border-slate-200 bg-slate-50 text-xs text-slate-800 placeholder:text-slate-400 focus:bg-white focus:border-teal-500 focus:outline-none transition-all"
+            />
+          </div>
+
           {user ? (
             <div className="hidden sm:flex items-center gap-2">
               {user.role === "admin" ? (
@@ -141,15 +163,28 @@ export function Navbar() {
                 </>
               ) : (
                 <>
+                  {/* Notification Bell */}
+                  <button
+                    type="button"
+                    className="relative p-2 text-slate-500 hover:text-slate-800 hover:bg-slate-100 rounded-full transition-colors cursor-pointer"
+                    title="1 New Notification"
+                  >
+                    <Bell className="w-4 h-4" />
+                    <span className="absolute top-1 right-1 w-3.5 h-3.5 bg-rose-500 text-white text-[9px] font-bold rounded-full flex items-center justify-center">
+                      1
+                    </span>
+                  </button>
+
+                  {/* Candidate Avatar */}
                   <Link href="/dashboard" className="flex items-center gap-1.5 p-1 rounded-full hover:bg-slate-100 transition-colors group cursor-pointer" title="Dashboard">
-                    <div className="w-8 h-8 rounded-full bg-teal-600 group-hover:bg-teal-700 text-white font-bold text-xs flex items-center justify-center shadow-2xs transition-colors">
+                    <div className="w-8 h-8 rounded-full bg-emerald-100 text-teal-800 border border-emerald-200 font-extrabold text-xs flex items-center justify-center shadow-2xs transition-colors">
                       {user.name ? user.name.split(" ").map(n => n[0]).filter(Boolean).slice(0, 2).join("").toUpperCase() : "AK"}
                     </div>
                     <ChevronDown className="w-3.5 h-3.5 text-slate-400 group-hover:text-slate-600 transition-colors" />
                   </Link>
                   <button
                     onClick={handleLogout}
-                    className="p-1.5 text-slate-500 hover:text-slate-900 hover:bg-slate-100 rounded-lg transition-colors cursor-pointer"
+                    className="p-1.5 text-slate-400 hover:text-slate-700 hover:bg-slate-100 rounded-lg transition-colors cursor-pointer"
                     title="Sign Out"
                   >
                     <LogOut className="w-4 h-4" />
