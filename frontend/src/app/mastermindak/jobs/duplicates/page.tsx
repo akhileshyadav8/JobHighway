@@ -65,7 +65,7 @@ export default function AdminDuplicatesPage() {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <div className="flex items-center gap-2 mb-1">
-            <Link href="/admin/jobs" className="text-xs text-slate-400 hover:text-slate-700 flex items-center gap-1 font-medium">
+            <Link href="/mastermindak/jobs" className="text-xs text-slate-400 hover:text-slate-700 flex items-center gap-1 font-medium">
               <ArrowLeft className="w-3.5 h-3.5" /> Back to All Jobs
             </Link>
           </div>

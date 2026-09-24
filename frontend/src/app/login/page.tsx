@@ -19,7 +19,7 @@ export default function LoginPage() {
     const user = getCurrentUser();
     if (user) {
       if (user.role === "admin") {
-        router.push("/admin");
+        router.push("/mastermindak");
       } else {
         router.push("/dashboard");
       }
@@ -40,7 +40,7 @@ export default function LoginPage() {
     const res = loginUser(email, password);
     if (res.user) {
       if (res.user.role === "admin") {
-        router.push("/admin");
+        router.push("/mastermindak");
       } else {
         router.push("/dashboard");
       }

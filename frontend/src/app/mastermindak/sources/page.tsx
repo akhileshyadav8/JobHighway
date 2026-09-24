@@ -123,7 +123,7 @@ export default function AdminSourcesPage() {
                   <tr key={src.id} className="hover:bg-slate-50/70 transition-colors">
                     <td className="p-3.5">
                       <Link 
-                        href={`/admin/sources/${src.slug}`}
+                        href={`/mastermindak/sources/${src.slug}`}
                         className="font-bold text-slate-900 hover:text-teal-600 transition-colors"
                       >
                         {src.name}
@@ -172,7 +172,7 @@ export default function AdminSourcesPage() {
                         <span>{isSyncing ? "Syncing..." : "Run"}</span>
                       </button>
                       <Link
-                        href={`/admin/sources/${src.slug}`}
+                        href={`/mastermindak/sources/${src.slug}`}
                         className="inline-flex items-center gap-1 px-2 py-1 rounded-lg border border-slate-200 text-slate-600 hover:bg-slate-50 font-semibold text-[11px] transition-colors"
                       >
                         <span>Details</span>
@@ -193,7 +193,7 @@ export default function AdminSourcesPage() {
             <Activity className="w-4 h-4 text-teal-600" />
             <span>Sync Activity (Live Execution Feed)</span>
           </h3>
-          <Link href="/admin/activity" className="text-xs font-semibold text-teal-600 hover:underline">
+          <Link href="/mastermindak/activity" className="text-xs font-semibold text-teal-600 hover:underline">
             View All Logs
           </Link>
         </div>

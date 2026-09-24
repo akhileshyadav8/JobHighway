@@ -70,11 +70,11 @@ export function AdminHeader({ onOpenMobileSidebar }: AdminHeaderProps) {
   const getBreadcrumbs = () => {
     const parts = pathname.split("/").filter(Boolean);
     if (parts.length <= 1) {
-      return [{ label: "Overview", href: "/admin" }];
+      return [{ label: "Overview", href: "/mastermindak" }];
     }
 
-    const crumbs = [{ label: "Admin", href: "/admin" }];
-    let currentPath = "/admin";
+    const crumbs = [{ label: "Mastermind", href: "/mastermindak" }];
+    let currentPath = "/mastermindak";
 
     for (let i = 1; i < parts.length; i++) {
       currentPath += `/${parts[i]}`;
@@ -237,7 +237,7 @@ export function AdminHeader({ onOpenMobileSidebar }: AdminHeaderProps) {
                   </span>
                 </div>
                 <Link
-                  href="/admin/alerts"
+                  href="/mastermindak/alerts"
                   onClick={() => setShowNotifications(false)}
                   className="text-xs text-teal-600 hover:underline font-medium"
                 >
@@ -296,7 +296,7 @@ export function AdminHeader({ onOpenMobileSidebar }: AdminHeaderProps) {
               </div>
 
               <Link
-                href="/admin/settings"
+                href="/mastermindak/settings"
                 onClick={() => setShowUserMenu(false)}
                 className="flex items-center gap-2 px-2.5 py-2 rounded-lg text-slate-700 hover:bg-slate-50 transition-colors"
               >

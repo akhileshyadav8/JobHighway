@@ -24,7 +24,7 @@ export default function AdminTrafficAnalyticsPage() {
     <div className="space-y-6 pb-12">
       <div>
         <div className="flex items-center gap-2 mb-1">
-          <Link href="/admin" className="text-xs text-slate-400 hover:text-slate-700 flex items-center gap-1 font-medium">
+          <Link href="/mastermindak" className="text-xs text-slate-400 hover:text-slate-700 flex items-center gap-1 font-medium">
             <ArrowLeft className="w-3.5 h-3.5" /> Back to Dashboard
           </Link>
         </div>

@@ -42,7 +42,7 @@ export default function AdminSourceDetailPage({ params }: PageProps) {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <div className="flex items-center gap-2 mb-1">
-            <Link href="/admin/sources" className="text-xs text-slate-400 hover:text-slate-700 flex items-center gap-1 font-medium">
+            <Link href="/mastermindak/sources" className="text-xs text-slate-400 hover:text-slate-700 flex items-center gap-1 font-medium">
               <ArrowLeft className="w-3.5 h-3.5" /> Back to ATS Sources
             </Link>
           </div>
@@ -64,7 +64,7 @@ export default function AdminSourceDetailPage({ params }: PageProps) {
             <RefreshCw className={`w-3.5 h-3.5 ${isSyncing ? "animate-spin" : ""}`} />
             <span>{isSyncing ? "Ingesting..." : "Run Sync Now"}</span>
           </Button>
-          <Link href="/admin/sync">
+          <Link href="/mastermindak/sync">
             <Button variant="outline" size="sm" className="text-xs rounded-xl">
               View Sync Logs
             </Button>

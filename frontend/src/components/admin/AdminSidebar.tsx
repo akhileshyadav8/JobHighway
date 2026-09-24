@@ -46,65 +46,65 @@ const NAV_SECTIONS: NavSection[] = [
   {
     title: "OVERVIEW",
     items: [
-      { name: "Dashboard", href: "/admin", icon: LayoutDashboard }
+      { name: "Dashboard", href: "/mastermindak", icon: LayoutDashboard }
     ]
   },
   {
     title: "JOBS",
     items: [
-      { name: "All Jobs", href: "/admin/jobs", icon: Briefcase },
-      { name: "Expired Jobs", href: "/admin/jobs/expired", icon: Clock },
-      { name: "Duplicates", href: "/admin/jobs/duplicates", icon: Copy },
-      { name: "Data Quality", href: "/admin/jobs/data-quality", icon: CheckCircle }
+      { name: "All Jobs", href: "/mastermindak/jobs", icon: Briefcase },
+      { name: "Expired Jobs", href: "/mastermindak/jobs/expired", icon: Clock },
+      { name: "Duplicates", href: "/mastermindak/jobs/duplicates", icon: Copy },
+      { name: "Data Quality", href: "/mastermindak/jobs/data-quality", icon: CheckCircle }
     ]
   },
   {
     title: "SOURCES",
     items: [
-      { name: "ATS Sources", href: "/admin/sources", icon: Radio },
-      { name: "Sync Center", href: "/admin/sync", icon: RefreshCw },
-      { name: "Link Health", href: "/admin/link-health", icon: HeartPulse }
+      { name: "ATS Sources", href: "/mastermindak/sources", icon: Radio },
+      { name: "Sync Center", href: "/mastermindak/sync", icon: RefreshCw },
+      { name: "Link Health", href: "/mastermindak/link-health", icon: HeartPulse }
     ]
   },
   {
     title: "COMPANIES",
     items: [
-      { name: "Companies", href: "/admin/companies", icon: Building2 }
+      { name: "Companies", href: "/mastermindak/companies", icon: Building2 }
     ]
   },
   {
     title: "USERS",
     items: [
-      { name: "Registered Users", href: "/admin/users", icon: Users },
-      { name: "Applications", href: "/admin/applications", icon: FileText }
+      { name: "Registered Users", href: "/mastermindak/users", icon: Users },
+      { name: "Applications", href: "/mastermindak/applications", icon: FileText }
     ]
   },
   {
     title: "ANALYTICS",
     items: [
-      { name: "Traffic & Analytics", href: "/admin/analytics/traffic", icon: BarChart3 },
-      { name: "Search Analytics", href: "/admin/analytics/search", icon: Search },
-      { name: "Job Analytics", href: "/admin/analytics/jobs", icon: PieChart }
+      { name: "Traffic & Analytics", href: "/mastermindak/analytics/traffic", icon: BarChart3 },
+      { name: "Search Analytics", href: "/mastermindak/analytics/search", icon: Search },
+      { name: "Job Analytics", href: "/mastermindak/analytics/jobs", icon: PieChart }
     ]
   },
   {
     title: "SYSTEM",
     items: [
-      { name: "Alerts", href: "/admin/alerts", icon: Bell },
-      { name: "Activity Logs", href: "/admin/activity", icon: Activity },
-      { name: "System Health", href: "/admin/system", icon: Cpu }
+      { name: "Alerts", href: "/mastermindak/alerts", icon: Bell },
+      { name: "Activity Logs", href: "/mastermindak/activity", icon: Activity },
+      { name: "System Health", href: "/mastermindak/system", icon: Cpu }
     ]
   },
   {
     title: "SUPPORT",
     items: [
-      { name: "Contact Inquiries", href: "/admin/inquiries", icon: Mail }
+      { name: "Contact Inquiries", href: "/mastermindak/inquiries", icon: Mail }
     ]
   },
   {
     title: "SETTINGS",
     items: [
-      { name: "Settings", href: "/admin/settings", icon: Settings }
+      { name: "Settings", href: "/mastermindak/settings", icon: Settings }
     ]
   }
 ];
@@ -113,8 +113,8 @@ export function AdminSidebar({ onCloseMobile }: AdminSidebarProps) {
   const pathname = usePathname();
 
   const isItemActive = (href: string) => {
-    if (href === "/admin") {
-      return pathname === "/admin";
+    if (href === "/mastermindak") {
+      return pathname === "/mastermindak";
     }
     return pathname.startsWith(href);
   };
@@ -124,7 +124,7 @@ export function AdminSidebar({ onCloseMobile }: AdminSidebarProps) {
       {/* Brand Header */}
       <div className="h-16 px-5 border-b border-slate-200/90 flex items-center justify-between">
         <Link 
-          href="/admin" 
+          href="/mastermindak" 
           onClick={onCloseMobile}
           className="flex items-center gap-2.5 group"
         >
