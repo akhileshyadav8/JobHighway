@@ -136,7 +136,7 @@ export function JobDetailSidebar({ job }: JobDetailSidebarProps) {
   return (
     <aside className="sticky top-20 space-y-5">
       {/* Primary Action Card */}
-      <div className="bg-white border border-slate-200/90 rounded-2xl p-5 shadow-sm">
+      <div className="bg-white border border-slate-200/90 rounded-xl p-5 shadow-xs">
         <h3 className="text-xs font-mono font-bold uppercase tracking-wider text-slate-400 mb-3">
           Direct Application
         </h3>
@@ -147,12 +147,12 @@ export function JobDetailSidebar({ job }: JobDetailSidebarProps) {
             onClick={handleApplyClick}
             target="_blank"
             rel="noopener noreferrer"
-            className="w-full inline-flex items-center justify-center gap-2 px-5 py-3.5 bg-teal-600 hover:bg-teal-700 active:bg-teal-800 text-white font-bold text-sm sm:text-base rounded-xl transition-all shadow-md hover:shadow-teal-600/20 cursor-pointer text-center"
+            className="w-full inline-flex items-center justify-center gap-2 px-5 py-3 bg-teal-600 hover:bg-teal-700 active:bg-teal-800 text-white font-bold text-sm sm:text-base rounded-lg transition-colors shadow-xs cursor-pointer text-center"
           >
             <span>{applyLabel}</span>
           </a>
         ) : (
-          <div className="p-3 text-center text-xs text-slate-500 bg-slate-50 rounded-xl border border-slate-200">
+          <div className="p-3 text-center text-xs text-slate-500 bg-slate-50 rounded-lg border border-slate-200">
             Official application link not provided for this requisition.
           </div>
         )}
@@ -194,7 +194,7 @@ export function JobDetailSidebar({ job }: JobDetailSidebarProps) {
       </div>
 
       {/* Quick Overview Card */}
-      <div className="bg-white border border-slate-200/90 rounded-2xl p-5 shadow-sm">
+      <div className="bg-white border border-slate-200/90 rounded-xl p-5 shadow-xs">
         <h3 className="text-xs font-mono font-bold uppercase tracking-wider text-slate-400 mb-4">
           Quick Overview
         </h3>
@@ -288,7 +288,7 @@ export function JobDetailSidebar({ job }: JobDetailSidebarProps) {
       </div>
 
       {/* Share Card */}
-      <div className="bg-white border border-slate-200/90 rounded-2xl p-5 shadow-sm">
+      <div className="bg-white border border-slate-200/90 rounded-xl p-5 shadow-xs">
         <h3 className="text-xs font-mono font-bold uppercase tracking-wider text-slate-400 mb-3 flex items-center gap-1.5">
           <Share2 className="w-3.5 h-3.5 text-slate-400" />
           <span>Share Requisition</span>

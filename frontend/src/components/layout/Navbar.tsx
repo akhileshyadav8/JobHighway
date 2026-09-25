@@ -125,26 +125,22 @@ export function Navbar() {
             <div className="hidden sm:flex items-center gap-2">
               {user.role === "admin" ? (
                 <>
-                  <Link href="/mastermindak">
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      className="text-xs font-semibold rounded-md border-slate-300 text-slate-800 hover:bg-slate-50 cursor-pointer"
-                    >
-                      <Shield className="w-3.5 h-3.5 mr-1.5 text-teal-600" />
-                      Admin Console
-                    </Button>
+                  <Link
+                    href="/mastermindak"
+                    className="inline-flex items-center gap-1.5 px-2.5 py-1.5 text-xs font-medium text-slate-700 hover:text-teal-700 hover:bg-slate-100/70 rounded-md transition-colors"
+                  >
+                    <Shield className="w-3.5 h-3.5 text-teal-600" />
+                    <span>Admin Console</span>
                   </Link>
-                  <Button
-                    variant="ghost"
-                    size="sm"
+                  <span className="text-slate-300 text-xs select-none">|</span>
+                  <button
                     onClick={handleLogout}
-                    className="text-xs font-medium text-slate-600 hover:text-slate-900 rounded-md cursor-pointer"
+                    className="inline-flex items-center gap-1 px-2 py-1.5 text-xs font-medium text-slate-500 hover:text-slate-800 transition-colors cursor-pointer"
                     title="Sign Out"
                   >
-                    <LogOut className="w-3.5 h-3.5 mr-1 text-slate-400" />
-                    Sign Out
-                  </Button>
+                    <LogOut className="w-3.5 h-3.5 text-slate-400" />
+                    <span>Sign Out</span>
+                  </button>
                 </>
               ) : (
                 <>
@@ -226,7 +222,7 @@ export function Navbar() {
                   <Link
                     href="/mastermindak"
                     onClick={() => setMobileMenuOpen(false)}
-                    className="flex items-center gap-2.5 px-3 py-2 rounded-md text-sm font-semibold border border-slate-300 text-slate-800"
+                    className="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm font-medium text-slate-800 hover:bg-slate-100 transition-colors"
                   >
                     <Shield className="w-4 h-4 text-teal-600" />
                     <span>Admin Console</span>
@@ -236,7 +232,7 @@ export function Navbar() {
                       setMobileMenuOpen(false);
                       handleLogout();
                     }}
-                    className="w-full flex items-center gap-2.5 px-3 py-2 rounded-md text-sm font-medium text-rose-600 hover:bg-rose-50 text-left cursor-pointer"
+                    className="w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm font-medium text-rose-600 hover:bg-rose-50 text-left cursor-pointer transition-colors"
                   >
                     <LogOut className="w-4 h-4" />
                     <span>Sign Out</span>

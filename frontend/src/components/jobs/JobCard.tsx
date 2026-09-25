@@ -170,7 +170,7 @@ export function JobCard({ job }: JobCardProps) {
   const isRecent = Boolean(postDate && (Date.now() - new Date(postDate).getTime() <= 24 * 60 * 60 * 1000) && (Date.now() - new Date(postDate).getTime() >= 0));
 
   return (
-    <div className="bg-white border border-slate-200/90 rounded-2xl p-4 sm:p-5 hover:border-slate-300 hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 flex flex-col h-full group relative">
+    <div className="bg-white border border-slate-200/90 rounded-xl p-4 sm:p-5 hover:border-slate-300 hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 flex flex-col h-full group relative">
       {/* Top Header: Logo + Company + Badges */}
       <div className="flex items-start justify-between gap-3 mb-2.5">
         <div className="flex items-center gap-2.5 min-w-0">
@@ -311,7 +311,7 @@ export function JobCard({ job }: JobCardProps) {
           <Link
             href={`/jobs/${job.slug}`}
             onClick={handleJobClick}
-            className="px-2.5 py-1.5 text-xs font-semibold text-slate-700 bg-white border border-slate-200 rounded-lg hover:bg-slate-50 hover:border-slate-300 transition-colors"
+            className="px-3 py-1.5 text-xs font-medium text-slate-700 bg-white border border-slate-300 rounded-lg hover:bg-slate-50 hover:border-slate-400 hover:text-slate-900 transition-colors"
           >
             Details
           </Link>
@@ -322,9 +322,9 @@ export function JobCard({ job }: JobCardProps) {
               onClick={handleApplyClick}
               target="_blank"
               rel="noopener noreferrer"
-              className="px-3 py-1.5 text-xs font-semibold bg-teal-600 hover:bg-teal-700 active:bg-teal-800 text-white rounded-lg transition-colors cursor-pointer inline-flex items-center gap-1.5 shadow-2xs"
+              className="px-3.5 py-1.5 text-xs font-semibold bg-teal-600 hover:bg-teal-700 active:bg-teal-800 text-white rounded-lg transition-colors cursor-pointer inline-flex items-center gap-1.5 shadow-2xs"
             >
-              Apply
+              <span>Apply Official</span>
               <ExternalLink className="w-3 h-3" />
             </a>
           )}

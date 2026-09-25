@@ -15,7 +15,7 @@ export function SkillBadge({ name, index = 0 }: SkillBadgeProps) {
   const colorClass = COLORS[index % COLORS.length];
   
   return (
-    <span className={`px-3 py-1.5 rounded-full text-sm font-medium border ${colorClass}`}>
+    <span className={`px-2.5 py-1 rounded-md text-xs font-medium border ${colorClass}`}>
       {name}
     </span>
   );

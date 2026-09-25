@@ -82,7 +82,7 @@ export function JobHero({ job }: { job: Job }) {
               href={job.apply_url}
               target="_blank"
               rel="noopener noreferrer"
-              className="w-full sm:w-auto sm:ml-auto inline-flex items-center justify-center gap-2 px-5 py-2.5 text-sm font-bold rounded-xl bg-teal-500 hover:bg-teal-400 text-slate-950 shadow-lg hover:shadow-teal-500/30 transition-all cursor-pointer"
+              className="w-full sm:w-auto sm:ml-auto inline-flex items-center justify-center gap-2 px-5 py-2.5 text-sm font-semibold rounded-lg bg-teal-500 hover:bg-teal-400 text-slate-950 shadow-md hover:shadow-teal-500/20 transition-colors cursor-pointer"
             >
               {applyLabel}
               <ExternalLink className="w-4 h-4" />
@@ -101,7 +101,7 @@ export function JobHero({ job }: { job: Job }) {
           </div>
 
           <div className="flex items-center gap-3">
-            <div className="text-xl bg-white/10 p-2 rounded-full"><MapPin className="w-5 h-5" /></div>
+            <div className="text-xl bg-white/10 p-2 rounded-lg"><MapPin className="w-5 h-5" /></div>
             <div>
               <div className="text-xs text-teal-100/70 uppercase tracking-wider">Location</div>
               <div className="font-semibold line-clamp-1 flex items-center gap-1.5">
@@ -112,7 +112,7 @@ export function JobHero({ job }: { job: Job }) {
           </div>
 
           <div className="flex items-center gap-3">
-            <div className="text-xl bg-white/10 p-2 rounded-full"><Calendar className="w-5 h-5" /></div>
+            <div className="text-xl bg-white/10 p-2 rounded-lg"><Calendar className="w-5 h-5" /></div>
             <div>
               <div className="text-xs text-teal-100/70 uppercase tracking-wider">Deadline</div>
               <div className="font-semibold">

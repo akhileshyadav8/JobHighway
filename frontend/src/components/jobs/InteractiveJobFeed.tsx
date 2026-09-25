@@ -715,10 +715,10 @@ export function InteractiveJobFeed({ initialJobs, stats, initialTotal, initialTo
           <div className="flex flex-col lg:grid lg:grid-cols-12 gap-6 lg:gap-8 items-center">
             {/* LEFT COLUMN: 58% width - Badge, Headline, Paragraph, Live Statistics */}
             <div className="order-1 lg:col-span-7 flex flex-col justify-center">
-              {/* Live USP Badge */}
-              <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full text-xs font-bold bg-teal-50 text-teal-800 border border-teal-200/80 mb-4 tracking-wide shadow-2xs w-fit">
-                <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-                <span>HOURLY LIVE ATS SYNC • 100% DIRECT OFFICIAL CAREER PORTALS</span>
+              {/* Live USP Status */}
+              <div className="flex items-center gap-2 mb-4 text-xs font-semibold tracking-wider uppercase text-teal-700">
+                <span className="w-2 h-2 rounded-full bg-emerald-500 shrink-0 animate-pulse" />
+                <span>Hourly live ATS sync · 100% direct official career portals</span>
               </div>
 
               {/* Main Headline with clear USP */}
@@ -775,19 +775,30 @@ export function InteractiveJobFeed({ initialJobs, stats, initialTotal, initialTo
                 </div>
               </div>
 
-              {/* 3-Pillar USP Badges */}
-              <div className="flex flex-wrap items-center gap-2 sm:gap-3 mt-5 pt-4 border-t border-slate-200/80 text-xs text-slate-700">
-                <div className="flex items-center gap-1.5 bg-white px-2.5 py-1 rounded-lg border border-slate-200/80 shadow-2xs">
-                  <Clock className="w-3.5 h-3.5 text-teal-600 shrink-0" />
-                  <span><strong className="text-slate-900 font-semibold">Hourly Sync:</strong> Indexed within 60 mins</span>
+              {/* Product Facts Information Row */}
+              <div className="flex flex-wrap items-center gap-y-3 gap-x-6 sm:gap-x-7 mt-5 pt-4 border-t border-slate-200/80 text-xs">
+                <div className="flex items-start gap-2">
+                  <Clock className="w-4 h-4 text-teal-600 shrink-0 mt-0.5" />
+                  <div>
+                    <span className="block font-bold text-slate-800">Hourly sync</span>
+                    <span className="text-[11px] text-slate-500 font-normal">Indexed within 60 minutes</span>
+                  </div>
                 </div>
-                <div className="flex items-center gap-1.5 bg-white px-2.5 py-1 rounded-lg border border-slate-200/80 shadow-2xs">
-                  <ShieldCheck className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
-                  <span><strong className="text-slate-900 font-semibold">100% Direct:</strong> Official ATS portals</span>
+                <div className="hidden sm:block w-px h-6 bg-slate-200" />
+                <div className="flex items-start gap-2">
+                  <ShieldCheck className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
+                  <div>
+                    <span className="block font-bold text-slate-800">100% direct</span>
+                    <span className="text-[11px] text-slate-500 font-normal">Official ATS portals</span>
+                  </div>
                 </div>
-                <div className="flex items-center gap-1.5 bg-white px-2.5 py-1 rounded-lg border border-slate-200/80 shadow-2xs">
-                  <Zap className="w-3.5 h-3.5 text-amber-500 fill-amber-500 shrink-0" />
-                  <span><strong className="text-slate-900 font-semibold">Early Advantage:</strong> Beat applicant crowds</span>
+                <div className="hidden sm:block w-px h-6 bg-slate-200" />
+                <div className="flex items-start gap-2">
+                  <Zap className="w-4 h-4 text-amber-500 fill-amber-500 shrink-0 mt-0.5" />
+                  <div>
+                    <span className="block font-bold text-slate-800">Early advantage</span>
+                    <span className="text-[11px] text-slate-500 font-normal">Beat applicant crowds</span>
+                  </div>
                 </div>
               </div>
             </div>
@@ -817,19 +828,19 @@ export function InteractiveJobFeed({ initialJobs, stats, initialTotal, initialTo
                 </div>
 
                 {/* 2. ATS Source Labels along the right orbital boundary (completely unclipped, never behind cards) */}
-                <div className="absolute top-[10px] right-[75px] z-10 flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/95 border border-teal-200/80 shadow-2xs text-[11px] font-semibold text-slate-700">
+                <div className="absolute top-[10px] right-[75px] z-10 flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-white/95 border border-slate-200/90 shadow-2xs text-[11px] font-semibold text-slate-700">
                   <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
                   <span>Greenhouse</span>
                 </div>
-                <div className="absolute top-[86px] right-[0px] z-10 flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/95 border border-teal-200/80 shadow-2xs text-[11px] font-semibold text-slate-700">
+                <div className="absolute top-[86px] right-[0px] z-10 flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-white/95 border border-slate-200/90 shadow-2xs text-[11px] font-semibold text-slate-700">
                   <span className="w-2 h-2 rounded-full bg-teal-500"></span>
                   <span>Lever</span>
                 </div>
-                <div className="absolute top-[198px] -right-[10px] z-10 flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/95 border border-teal-200/80 shadow-2xs text-[11px] font-semibold text-slate-700">
+                <div className="absolute top-[198px] -right-[10px] z-10 flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-white/95 border border-slate-200/90 shadow-2xs text-[11px] font-semibold text-slate-700">
                   <span className="w-2 h-2 rounded-full bg-cyan-500"></span>
                   <span>Ashby</span>
                 </div>
-                <div className="absolute top-[318px] right-[4px] z-10 flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/95 border border-teal-200/80 shadow-2xs text-[11px] font-semibold text-slate-700">
+                <div className="absolute top-[318px] right-[4px] z-10 flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-white/95 border border-slate-200/90 shadow-2xs text-[11px] font-semibold text-slate-700">
                   <span className="w-2 h-2 rounded-full bg-blue-500"></span>
                   <span>Workday</span>
                 </div>
@@ -846,10 +857,10 @@ export function InteractiveJobFeed({ initialJobs, stats, initialTotal, initialTo
                 </div>
 
                 {/* 4. CARD 1: Upper-Right (Google / Software Engineer) */}
-                <div className="absolute top-[38px] right-[24px] w-[335px] bg-white border border-slate-200/90 rounded-2xl p-4 shadow-md shadow-slate-200/50 hover:shadow-lg transition-all z-20">
+                <div className="absolute top-[38px] right-[24px] w-[335px] bg-white border border-slate-200/90 rounded-xl p-4 shadow-md shadow-slate-200/50 hover:shadow-lg transition-all z-20">
                   <div className="flex items-start justify-between gap-3 mb-2">
                     <div className="flex items-center gap-3 min-w-0">
-                      <div className="w-9 h-9 rounded-xl bg-white border border-slate-100 p-1.5 flex items-center justify-center shadow-2xs shrink-0">
+                      <div className="w-9 h-9 rounded-lg bg-white border border-slate-100 p-1.5 flex items-center justify-center shadow-2xs shrink-0">
                         <svg viewBox="0 0 24 24" className="w-5 h-5">
                           <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
                           <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
@@ -862,7 +873,7 @@ export function InteractiveJobFeed({ initialJobs, stats, initialTotal, initialTo
                         <p className="text-xs text-slate-500 font-medium">Google</p>
                       </div>
                     </div>
-                    <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200 shrink-0">
+                    <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-emerald-50 text-emerald-700 border border-emerald-200 shrink-0">
                       NEW
                     </span>
                   </div>
@@ -886,10 +897,10 @@ export function InteractiveJobFeed({ initialJobs, stats, initialTotal, initialTo
                 </div>
 
                 {/* 5. CARD 2: Middle-Left (Microsoft / Product Manager) */}
-                <div className="absolute top-[150px] left-[16px] w-[335px] bg-white border border-slate-200/90 rounded-2xl p-4 shadow-md shadow-slate-200/50 hover:shadow-lg transition-all z-20">
+                <div className="absolute top-[150px] left-[16px] w-[335px] bg-white border border-slate-200/90 rounded-xl p-4 shadow-md shadow-slate-200/50 hover:shadow-lg transition-all z-20">
                   <div className="flex items-start justify-between gap-3 mb-2">
                     <div className="flex items-center gap-3 min-w-0">
-                      <div className="w-9 h-9 rounded-xl bg-white border border-slate-100 p-2 flex items-center justify-center shadow-2xs shrink-0">
+                      <div className="w-9 h-9 rounded-lg bg-white border border-slate-100 p-2 flex items-center justify-center shadow-2xs shrink-0">
                         <div className="grid grid-cols-2 gap-0.5 w-4 h-4">
                           <div className="bg-[#f25022] w-2 h-2"></div>
                           <div className="bg-[#7fba00] w-2 h-2"></div>
@@ -932,10 +943,10 @@ export function InteractiveJobFeed({ initialJobs, stats, initialTotal, initialTo
                 </div>
 
                 {/* 7. CARD 3: Lower-Left (Airbnb / Data Analyst) */}
-                <div className="absolute top-[262px] left-[52px] w-[320px] bg-white border border-slate-200/90 rounded-2xl p-4 shadow-md shadow-slate-200/50 hover:shadow-lg transition-all z-20">
+                <div className="absolute top-[262px] left-[52px] w-[320px] bg-white border border-slate-200/90 rounded-xl p-4 shadow-md shadow-slate-200/50 hover:shadow-lg transition-all z-20">
                   <div className="flex items-start justify-between gap-3 mb-2">
                     <div className="flex items-center gap-3 min-w-0">
-                      <div className="w-9 h-9 rounded-xl bg-white border border-slate-100 p-1.5 flex items-center justify-center shadow-2xs shrink-0">
+                      <div className="w-9 h-9 rounded-lg bg-white border border-slate-100 p-1.5 flex items-center justify-center shadow-2xs shrink-0">
                         <svg viewBox="0 0 32 32" className="w-5 h-5 text-[#FF5A5F] fill-current">
                           <path d="M16 1c2.008 0 3.463.963 4.751 3.269l.533 1.025c1.954 3.83 6.18 12.607 6.18 16.592 0 5.568-4.524 9.114-10.464 9.114-5.94 0-11.464-3.546-11.464-9.114 0-3.985 4.226-12.762 6.18-16.592l.533-1.025C8.537 1.963 10.992 1 16 1zm0 2c-4.148 0-6.223.771-7.818 3.619l-.533 1.025C5.787 11.298 2 19.68 2 21.886c0 4.394 4.542 7.114 9.464 7.114 4.922 0 8.464-2.72 8.464-7.114 0-2.206-3.787-10.588-5.649-14.242l-.533-1.025C12.223 3.771 10.148 3 16 3zm0 10c2.761 0 5 2.239 5 5 0 2.253-1.492 4.156-3.542 4.767l-.458.118-.458-.118C14.492 22.156 13 20.253 13 18c0-2.761 2.239-5 5-5zm0 2c-1.657 0-3 1.343-3 3 0 1.258.775 2.335 1.874 2.769l.126.046.126-.046C16.225 20.335 17 19.258 17 18c0-1.657-1.343-3-3-3z"/>
                         </svg>
@@ -960,7 +971,7 @@ export function InteractiveJobFeed({ initialJobs, stats, initialTotal, initialTo
                 </div>
 
                 {/* 8. Worldwide Opportunities Card (Bottom-Right, isolated below all cards & annotations) */}
-                <div className="absolute top-[372px] right-[12px] w-[275px] bg-white border border-slate-200/90 rounded-2xl px-4 py-3 shadow-md shadow-slate-200/50 flex items-center justify-between gap-3 hover:border-teal-300 transition-colors z-20">
+                <div className="absolute top-[372px] right-[12px] w-[275px] bg-white border border-slate-200/90 rounded-xl px-4 py-3 shadow-md shadow-slate-200/50 flex items-center justify-between gap-3 hover:border-teal-300 transition-colors z-20">
                   <div className="flex items-center gap-3 min-w-0">
                     <div className="w-9 h-9 rounded-full bg-teal-50 border border-teal-200/80 text-teal-600 flex items-center justify-center shrink-0">
                       <Globe className="w-4 h-4" />
@@ -978,22 +989,22 @@ export function InteractiveJobFeed({ initialJobs, stats, initialTotal, initialTo
               <div className="lg:hidden w-full max-w-md mx-auto flex flex-col space-y-3.5 pt-4">
                 {/* ATS Source Tags */}
                 <div className="flex items-center justify-center gap-2 flex-wrap text-[11px] pb-1">
-                  <span className="px-2.5 py-1 rounded-full bg-white border border-slate-200 text-slate-700 font-semibold shadow-2xs flex items-center gap-1.5">
+                  <span className="px-2.5 py-1 rounded-md bg-white border border-slate-200 text-slate-700 font-semibold shadow-2xs flex items-center gap-1.5">
                     <span className="w-2 h-2 rounded-full bg-emerald-500"></span> Greenhouse
                   </span>
-                  <span className="px-2.5 py-1 rounded-full bg-white border border-slate-200 text-slate-700 font-semibold shadow-2xs flex items-center gap-1.5">
+                  <span className="px-2.5 py-1 rounded-md bg-white border border-slate-200 text-slate-700 font-semibold shadow-2xs flex items-center gap-1.5">
                     <span className="w-2 h-2 rounded-full bg-teal-500"></span> Lever
                   </span>
-                  <span className="px-2.5 py-1 rounded-full bg-white border border-slate-200 text-slate-700 font-semibold shadow-2xs flex items-center gap-1.5">
+                  <span className="px-2.5 py-1 rounded-md bg-white border border-slate-200 text-slate-700 font-semibold shadow-2xs flex items-center gap-1.5">
                     <span className="w-2 h-2 rounded-full bg-cyan-500"></span> Ashby
                   </span>
-                  <span className="px-2.5 py-1 rounded-full bg-white border border-slate-200 text-slate-700 font-semibold shadow-2xs flex items-center gap-1.5">
+                  <span className="px-2.5 py-1 rounded-md bg-white border border-slate-200 text-slate-700 font-semibold shadow-2xs flex items-center gap-1.5">
                     <span className="w-2 h-2 rounded-full bg-blue-500"></span> Workday
                   </span>
                 </div>
 
                 {/* Mobile Card 1 */}
-                <div className="bg-white border border-slate-200/90 rounded-2xl p-4 shadow-sm">
+                <div className="bg-white border border-slate-200/90 rounded-xl p-4 shadow-sm">
                   <div className="flex items-start justify-between gap-3 mb-2">
                     <div className="flex items-center gap-2.5">
                       <div className="w-8 h-8 rounded-lg bg-white border border-slate-100 p-1 flex items-center justify-center shadow-2xs shrink-0">
@@ -1009,7 +1020,7 @@ export function InteractiveJobFeed({ initialJobs, stats, initialTotal, initialTo
                         <p className="text-[11px] text-slate-500">Google</p>
                       </div>
                     </div>
-                    <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200">
+                    <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-emerald-50 text-emerald-700 border border-emerald-200">
                       NEW
                     </span>
                   </div>
@@ -1020,7 +1031,7 @@ export function InteractiveJobFeed({ initialJobs, stats, initialTotal, initialTo
                 </div>
 
                 {/* Mobile Card 2 */}
-                <div className="bg-white border border-slate-200/90 rounded-2xl p-4 shadow-sm">
+                <div className="bg-white border border-slate-200/90 rounded-xl p-4 shadow-sm">
                   <div className="flex items-start justify-between gap-3 mb-2">
                     <div className="flex items-center gap-2.5">
                       <div className="w-8 h-8 rounded-lg bg-white border border-slate-100 p-1 flex items-center justify-center shadow-2xs shrink-0">
@@ -1045,7 +1056,7 @@ export function InteractiveJobFeed({ initialJobs, stats, initialTotal, initialTo
                 </div>
 
                 {/* Mobile Card 3 */}
-                <div className="bg-white border border-slate-200/90 rounded-2xl p-4 shadow-sm">
+                <div className="bg-white border border-slate-200/90 rounded-xl p-4 shadow-sm">
                   <div className="flex items-start justify-between gap-3 mb-2">
                     <div className="flex items-center gap-2.5">
                       <div className="w-8 h-8 rounded-lg bg-white border border-slate-100 p-1 flex items-center justify-center shadow-2xs shrink-0">
@@ -1067,7 +1078,7 @@ export function InteractiveJobFeed({ initialJobs, stats, initialTotal, initialTo
                 </div>
 
                 {/* Mobile Worldwide Opportunities */}
-                <div className="bg-white border border-slate-200/90 rounded-2xl px-4 py-3 shadow-sm flex items-center justify-between gap-3">
+                <div className="bg-white border border-slate-200/90 rounded-xl px-4 py-3 shadow-sm flex items-center justify-between gap-3">
                   <div className="flex items-center gap-3">
                     <div className="w-8 h-8 rounded-full bg-teal-50 border border-teal-200/80 text-teal-600 flex items-center justify-center shrink-0">
                       <Globe className="w-4 h-4" />
@@ -1102,7 +1113,7 @@ export function InteractiveJobFeed({ initialJobs, stats, initialTotal, initialTo
                 {searchQuery && (
                   <button
                     onClick={() => setSearchQuery("")}
-                    className="p-1.5 rounded-full text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition-colors mr-2 cursor-pointer"
+                    className="p-1.5 rounded-md text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition-colors mr-1 cursor-pointer"
                     aria-label="Clear search"
                   >
                     <X className="w-4 h-4" />
@@ -1112,19 +1123,16 @@ export function InteractiveJobFeed({ initialJobs, stats, initialTotal, initialTo
                   onClick={() => {
                     document.getElementById("job-results-section")?.scrollIntoView({ behavior: "smooth" });
                   }}
-                  className="bg-teal-600 hover:bg-teal-700 active:bg-teal-800 text-white font-bold px-7 sm:px-8 h-11 sm:h-12 rounded-xl flex items-center gap-2 text-sm sm:text-base shadow-xs transition-all shrink-0 cursor-pointer"
+                  className="bg-teal-600 hover:bg-teal-700 active:bg-teal-800 text-white font-semibold px-6 sm:px-7 h-11 rounded-lg flex items-center gap-2 text-sm sm:text-base shadow-xs transition-colors shrink-0 cursor-pointer"
                 >
-                  <Search className="w-4 h-4 sm:w-5 sm:h-5 stroke-[2.5]" />
+                  <Search className="w-4 h-4 sm:w-4.5 sm:h-4.5" />
                   <span>Search</span>
                 </button>
               </div>
 
-              {/* 🔥 Trending Searches Row */}
-              <div className="flex flex-wrap items-center gap-2 max-w-3xl mx-auto mt-2.5 sm:mt-3 text-xs text-slate-600 px-1 justify-center sm:justify-start">
-                <span className="flex items-center gap-1 font-bold text-slate-800 mr-1">
-                  <span>🔥</span>
-                  <span>Trending:</span>
-                </span>
+              {/* Trending Searches - Editorial Text Links */}
+              <div className="flex flex-wrap items-center gap-x-2 gap-y-1.5 max-w-3xl mt-2.5 sm:mt-3 text-xs text-slate-500 px-1 justify-center sm:justify-start">
+                <span className="font-semibold text-slate-700 mr-0.5">Trending searches:</span>
                 {[
                   "Software Engineer",
                   "Data Analyst",
@@ -1132,21 +1140,26 @@ export function InteractiveJobFeed({ initialJobs, stats, initialTotal, initialTo
                   "Customer Service",
                   "DevOps",
                   "Designer"
-                ].map((term) => (
-                  <button
-                    key={term}
-                    onClick={() => {
-                      setSearchQuery(term);
-                      document.getElementById("job-results-section")?.scrollIntoView({ behavior: "smooth" });
-                    }}
-                    className={`px-3 py-1 rounded-full text-xs font-medium transition-all cursor-pointer border ${
-                      searchQuery.toLowerCase() === term.toLowerCase()
-                        ? "bg-teal-600 text-white border-teal-600 shadow-2xs"
-                        : "bg-teal-50/70 hover:bg-teal-100 text-teal-800 border-teal-200/60"
-                    }`}
-                  >
-                    {term}
-                  </button>
+                ].map((term, idx, arr) => (
+                  <span key={term} className="inline-flex items-center">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setSearchQuery(term);
+                        document.getElementById("job-results-section")?.scrollIntoView({ behavior: "smooth" });
+                      }}
+                      className={`hover:text-teal-700 hover:underline underline-offset-2 transition-colors cursor-pointer ${
+                        searchQuery.toLowerCase() === term.toLowerCase()
+                          ? "text-teal-700 font-semibold underline"
+                          : "text-slate-600 font-medium"
+                      }`}
+                    >
+                      {term}
+                    </button>
+                    {idx < arr.length - 1 && (
+                      <span className="text-slate-300 ml-2 select-none">·</span>
+                    )}
+                  </span>
                 ))}
               </div>
             </div>

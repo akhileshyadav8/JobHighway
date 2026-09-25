@@ -182,12 +182,12 @@ export function SearchableSelect({
         aria-expanded={isOpen}
         disabled={disabled || loading}
         onClick={() => setIsOpen((prev) => !prev)}
-        className={`w-full flex items-center justify-between pl-8 pr-2.5 py-2 sm:py-2.5 text-xs sm:text-sm font-medium border rounded-xl shadow-2xs transition-all text-left outline-none cursor-pointer ${
+        className={`w-full flex items-center justify-between pl-8 pr-2.5 py-2 sm:py-2.5 text-xs sm:text-sm font-medium border rounded-lg shadow-2xs transition-all text-left outline-none cursor-pointer ${
           disabled || loading
             ? "bg-slate-50 border-slate-200 text-slate-400 cursor-not-allowed"
             : isOpen
-            ? "bg-white border-teal-500 ring-2 ring-teal-500/20 text-slate-900"
-            : "bg-white border-slate-200/90 text-slate-800 hover:border-slate-300"
+            ? "bg-white border-teal-600 ring-1 ring-teal-600/30 text-slate-900"
+            : "bg-white border-slate-200 hover:border-slate-300 text-slate-800"
         }`}
       >
         {/* Leading Icon */}

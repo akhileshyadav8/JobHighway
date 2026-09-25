@@ -9,7 +9,7 @@ export function CTABanner({ job }: { job: Job }) {
   const companyDomain = (job as any).official_domain || job.company?.name || "Official Career Portal";
 
   return (
-    <div className="bg-gradient-to-r from-teal-50 via-emerald-50 to-teal-50 border border-teal-200 rounded-2xl p-4 sm:p-6 mb-6 text-center shadow-sm">
+    <div className="bg-gradient-to-r from-teal-50 via-emerald-50 to-teal-50 border border-teal-200 rounded-xl p-4 sm:p-6 mb-6 text-center shadow-xs">
       <div className="text-3xl mb-2">🎯</div>
       <h3 className="text-lg sm:text-xl font-bold text-teal-950 mb-1">
         Don&apos;t miss this opportunity!
@@ -25,7 +25,7 @@ export function CTABanner({ job }: { job: Job }) {
           href={job.apply_url}
           target="_blank"
           rel="noopener noreferrer"
-          className="inline-flex items-center justify-center gap-2 w-full sm:w-auto bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-sm sm:text-base md:text-lg px-4 sm:px-8 py-3 sm:py-3.5 rounded-xl shadow-md transition-all hover:scale-102 text-center break-words"
+          className="inline-flex items-center justify-center gap-2 w-full sm:w-auto bg-teal-600 hover:bg-teal-700 text-white font-bold text-sm sm:text-base px-5 sm:px-8 py-3 rounded-lg shadow-sm transition-colors text-center break-words"
         >
           <span>Apply on Official Website ({companyDomain})</span>
           <ExternalLink className="w-4 h-4 sm:w-5 sm:h-5 shrink-0" />
