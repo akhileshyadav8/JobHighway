@@ -3,11 +3,24 @@ import { InteractiveCompanies } from "@/components/companies/InteractiveCompanie
 
 export const dynamic = 'force-dynamic';
 
-export default async function CompaniesPage() {
+export default async function CompaniesPage({
+  searchParams,
+}: {
+  searchParams?: Promise<{ q?: string; search?: string }>;
+}) {
+  const resolved = searchParams ? await searchParams : {};
+  const initialSearch = (resolved?.q || resolved?.search || "").trim();
+
   const [data, stats] = await Promise.all([
     getCompanies(),
     getOverviewStats().catch(() => null),
   ]);
 
-  return <InteractiveCompanies initialCompanies={data.items} initialStats={stats} />;
+  return (
+    <InteractiveCompanies 
+      initialCompanies={data.items} 
+      initialStats={stats} 
+      initialSearch={initialSearch}
+    />
+  );
 }

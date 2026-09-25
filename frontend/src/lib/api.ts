@@ -142,11 +142,20 @@ export async function getJobs(params?: Record<string, string>): Promise<Paginate
   }
 
   // 3. Fallback to mockJobs (real_jobs.json)
+  let fallbackItems = [...mockJobs];
+  if (params?.search) {
+    const q = params.search.toLowerCase();
+    fallbackItems = fallbackItems.filter(j => 
+      j.title.toLowerCase().includes(q) || 
+      j.company.name.toLowerCase().includes(q) ||
+      (j.description_text && j.description_text.toLowerCase().includes(q))
+    );
+  }
   return {
-    items: mockJobs,
-    total: mockJobs.length,
+    items: fallbackItems,
+    total: fallbackItems.length,
     page: 1,
-    page_size: 10,
+    page_size: fallbackItems.length,
     total_pages: 1
   };
 }

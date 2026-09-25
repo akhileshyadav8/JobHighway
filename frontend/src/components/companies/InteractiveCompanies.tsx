@@ -27,12 +27,13 @@ import { getCurrentUser, getFollowedCompanies, toggleFollowCompany, User } from 
 interface InteractiveCompaniesProps {
   initialCompanies: Company[];
   initialStats?: OverviewStats | null;
+  initialSearch?: string;
 }
 
 const COMPANIES_PER_PAGE = 12;
 
-export function InteractiveCompanies({ initialCompanies, initialStats }: InteractiveCompaniesProps) {
-  const [search, setSearch] = useState("");
+export function InteractiveCompanies({ initialCompanies, initialStats, initialSearch }: InteractiveCompaniesProps) {
+  const [search, setSearch] = useState(initialSearch || "");
   const [selectedIndustry, setSelectedIndustry] = useState("All");
   const [selectedCountry, setSelectedCountry] = useState("All");
   const [selectedSize, setSelectedSize] = useState("All");
@@ -40,6 +41,24 @@ export function InteractiveCompanies({ initialCompanies, initialStats }: Interac
   const [currentPage, setCurrentPage] = useState(1);
   const [jumpPageInput, setJumpPageInput] = useState("");
   const [followedSlugs, setFollowedSlugs] = useState<string[]>([]);
+
+  useEffect(() => {
+    if (initialSearch !== undefined) {
+      setSearch(initialSearch);
+      setCurrentPage(1);
+    }
+  }, [initialSearch]);
+
+  useEffect(() => {
+    const handleOmnisearchCompany = (e: any) => {
+      if (e.detail?.query) {
+        setSearch(e.detail.query);
+        setCurrentPage(1);
+      }
+    };
+    window.addEventListener("jobhighway_omnisearch_company", handleOmnisearchCompany);
+    return () => window.removeEventListener("jobhighway_omnisearch_company", handleOmnisearchCompany);
+  }, []);
 
   // Sync followed companies state
   useEffect(() => {

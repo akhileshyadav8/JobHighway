@@ -190,12 +190,13 @@ interface InteractiveJobFeedProps {
   stats: OverviewStats;
   initialTotal?: number;
   initialTotalPages?: number;
+  initialQuery?: string;
 }
 
-export function InteractiveJobFeed({ initialJobs, stats, initialTotal, initialTotalPages }: InteractiveJobFeedProps) {
+export function InteractiveJobFeed({ initialJobs, stats, initialTotal, initialTotalPages, initialQuery }: InteractiveJobFeedProps) {
   const [jobsList, setJobsList] = useState<Job[]>(initialJobs);
   const [incomingJobs, setIncomingJobs] = useState<Job[]>([]);
-  const [searchQuery, setSearchQuery] = useState("");
+  const [searchQuery, setSearchQuery] = useState(initialQuery || "");
   const [selectedCountry, setSelectedCountry] = useState("All");
   const [selectedState, setSelectedState] = useState("All");
   const [selectedCity, setSelectedCity] = useState("All");
@@ -230,6 +231,33 @@ export function InteractiveJobFeed({ initialJobs, stats, initialTotal, initialTo
     }
     if (initialTotalPages) setTotalPages(initialTotalPages);
   }, [initialJobs, initialTotal, initialTotalPages]);
+
+  // Sync initialQuery prop
+  useEffect(() => {
+    if (initialQuery !== undefined) {
+      setSearchQuery(initialQuery);
+      if (initialQuery.trim()) {
+        setTimeout(() => {
+          document.getElementById("job-results-section")?.scrollIntoView({ behavior: "smooth", block: "start" });
+        }, 150);
+      }
+    }
+  }, [initialQuery]);
+
+  // Omni-search global event listener (reactive across pages or on same page)
+  useEffect(() => {
+    const handleOmnisearchQuery = (e: any) => {
+      const q = (e.detail?.query || "").trim();
+      setSearchQuery(q);
+      setCurrentPage(1);
+      setTimeout(() => {
+        document.getElementById("job-results-section")?.scrollIntoView({ behavior: "smooth", block: "start" });
+      }, 100);
+    };
+
+    window.addEventListener("jobhighway_omnisearch_query", handleOmnisearchQuery);
+    return () => window.removeEventListener("jobhighway_omnisearch_query", handleOmnisearchQuery);
+  }, []);
 
   // Server pagination fetcher
   const fetchPageData = useCallback(async (targetPage: number) => {
@@ -574,8 +602,13 @@ export function InteractiveJobFeed({ initialJobs, stats, initialTotal, initialTo
       // Only restore filter state if URL explicitly contains query parameters
       // This prevents a clean page visit or browser refresh from resurrecting stale search filters
       if (hasUrlParams) {
-        const q = urlParams.get("q");
-        if (q) setSearchQuery(q);
+        const q = urlParams.get("q") || urlParams.get("search");
+        if (q) {
+          setSearchQuery(q);
+          setTimeout(() => {
+            document.getElementById("job-results-section")?.scrollIntoView({ behavior: "smooth", block: "start" });
+          }, 150);
+        }
 
         const country = urlParams.get("country");
         if (country && country !== "All") setSelectedCountry(country);
