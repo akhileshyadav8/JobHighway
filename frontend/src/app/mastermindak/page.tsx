@@ -45,8 +45,15 @@ export default function AdminDashboardOverview() {
   const [duplicatesCount, setDuplicatesCount] = useState<number>(0);
   const [recentActivities, setRecentActivities] = useState<AdminActivityEvent[]>([]);
   const [sources, setSources] = useState<AtsSourceItem[]>([]);
+  const [greeting, setGreeting] = useState("Good morning");
 
   useEffect(() => {
+    // Dynamic greeting based on current local hour
+    const hour = new Date().getHours();
+    if (hour < 12) setGreeting("Good morning");
+    else if (hour < 18) setGreeting("Good afternoon");
+    else setGreeting("Good evening");
+
     setUser(getCurrentUser());
     setTelemetry(getAnalyticsSummary());
 
@@ -87,7 +94,7 @@ export default function AdminDashboardOverview() {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h1 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight flex items-center gap-2">
-            <span>Good morning, {user?.name?.split(" ")[0] || "Akhilesh"}</span>
+            <span>{greeting}, {user?.name?.split(" ")[0] || "Akhilesh"}</span>
             <span className="text-2xl">👋</span>
           </h1>
           <p className="text-xs sm:text-sm text-slate-500 mt-1">
