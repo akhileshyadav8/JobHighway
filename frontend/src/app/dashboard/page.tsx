@@ -210,23 +210,13 @@ export default function DashboardPage() {
     const currentUserId = user?.id || "guest";
     const lastVisitStr = typeof window !== "undefined" ? localStorage.getItem("jobhighway_last_visit_" + currentUserId) : null;
 
-    // 1. New jobs since last visit
+    // 1. New jobs since last visit (genuinely calculated from last visit time, 0 if new user)
     let newJobsCount = 0;
-    if (liveJobs && liveJobs.length > 0) {
-      if (lastVisitStr) {
-        const lastVisitTime = new Date(lastVisitStr).getTime();
-        newJobsCount = liveJobs.filter(
-          (j) => j.posted_at && new Date(j.posted_at).getTime() > lastVisitTime
-        ).length;
-      }
-      if (newJobsCount === 0) {
-        // Real count of jobs posted in the last 24 hours
-        const oneDayAgo = Date.now() - 24 * 60 * 60 * 1000;
-        const recentCount = liveJobs.filter(
-          (j) => j.posted_at && new Date(j.posted_at).getTime() > oneDayAgo
-        ).length;
-        newJobsCount = recentCount;
-      }
+    if (liveJobs && liveJobs.length > 0 && lastVisitStr) {
+      const lastVisitTime = new Date(lastVisitStr).getTime();
+      newJobsCount = liveJobs.filter(
+        (j) => j.posted_at && new Date(j.posted_at).getTime() > lastVisitTime
+      ).length;
     }
 
     // 2. New companies in followed list

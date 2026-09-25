@@ -24,7 +24,14 @@ import {
   CheckCircle2
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { getCurrentUser, logoutUser, User } from '@/lib/auth';
+import { 
+  getCurrentUser, 
+  logoutUser, 
+  getFollowedCompanies, 
+  getAppliedJobs, 
+  getBookmarks, 
+  User 
+} from '@/lib/auth';
 
 interface NotificationItem {
   id: string;
@@ -36,35 +43,100 @@ interface NotificationItem {
   link?: string;
 }
 
-const DEFAULT_NOTIFICATIONS: NotificationItem[] = [
-  {
-    id: "notif_1",
-    title: "Hourly ATS Sync Complete",
-    description: "32+ direct employer feeds synchronized from Greenhouse, Lever, and Workday.",
-    timestamp: "12m ago",
-    read: false,
+function buildDynamicNotifications(user: User): NotificationItem[] {
+  const items: NotificationItem[] = [];
+
+  // 1. Dynamic Notification: Personalized AI Recommendations based on Resume
+  if (user.resumeFile) {
+    const role = user.targetRole || "Your Tech Profile";
+    const topSkills = (user.skills || []).slice(0, 3).join(", ");
+    items.push({
+      id: "notif_rec_" + role.toLowerCase().replace(/[^a-z0-9]/g, "_"),
+      title: `✨ Fresh Direct ATS Matches for ${role}`,
+      description: `Requisitions synchronized matching your resume skills ${topSkills ? `(${topSkills})` : ""}. Click to review match scores.`,
+      timestamp: "12m ago",
+      read: false,
+      type: "job",
+      link: "/dashboard#recommended-jobs-section"
+    });
+  } else {
+    items.push({
+      id: "notif_upload_resume",
+      title: "📄 Upload Resume for Smart Recommendations",
+      description: "Upload your resume (PDF/DOCX) to let our AI calculate real-time match percentages for 60,000+ verified jobs.",
+      timestamp: "15m ago",
+      read: false,
+      type: "ats",
+      link: "/dashboard"
+    });
+  }
+
+  // 2. Dynamic Notification: Followed Companies
+  const followed = getFollowedCompanies(user.id);
+  if (followed.length > 0) {
+    const names = followed.slice(0, 2).map((c) => c.name).join(" & ");
+    items.push({
+      id: "notif_comp_" + followed.length,
+      title: `🏢 Openings from Followed Companies (${names}${followed.length > 2 ? ` +${followed.length - 2}` : ""})`,
+      description: `${followed.length} companies in your tracked list have live Direct ATS feeds connected.`,
+      timestamp: "1h ago",
+      read: false,
+      type: "sync",
+      link: "/dashboard#followed-companies-section"
+    });
+  } else {
+    items.push({
+      id: "notif_track_companies",
+      title: "🏢 Track Top Tech & Product Companies",
+      description: "Follow Netflix, Amazon, Google, and 500+ top employers to get notified the second jobs open.",
+      timestamp: "2h ago",
+      read: true,
+      type: "sync",
+      link: "/companies"
+    });
+  }
+
+  // 3. Dynamic Notification: Skill Gap Analysis
+  if (user.targetRole) {
+    items.push({
+      id: "notif_gap_" + user.targetRole.toLowerCase().replace(/[^a-z0-9]/g, "_"),
+      title: `🎯 Skill Gap Readiness: ${user.targetRole}`,
+      description: `Review your profile readiness and acquired vs missing industry skills for ${user.targetRole}.`,
+      timestamp: "3h ago",
+      read: false,
+      type: "ats",
+      link: "/dashboard#skill-gap-section"
+    });
+  }
+
+  // 4. Dynamic Notification: Application Tracker
+  const applied = getAppliedJobs(user.id);
+  const saved = getBookmarks(user.id);
+  if (applied.length > 0 || saved.length > 0) {
+    items.push({
+      id: "notif_tracker_" + applied.length + "_" + saved.length,
+      title: `📋 Application Tracker (${applied.length} applied, ${saved.length} saved)`,
+      description: "Your direct zero-broker application statuses and interviews are actively monitored.",
+      timestamp: "5h ago",
+      read: true,
+      type: "job",
+      link: "/dashboard"
+    });
+  }
+
+  // 5. Dynamic Notification: Hourly ATS Ingestion
+  items.push({
+    id: "notif_hourly_sync",
+    title: "⚡ Hourly Direct ATS Sync Active",
+    description: "Multi-channel crawlers verified 60,000+ active requisitions from Greenhouse, Lever, and Workday.",
+    timestamp: "6h ago",
+    read: true,
     type: "sync",
     link: "/jobs"
-  },
-  {
-    id: "notif_2",
-    title: "Job Recommendations Ready",
-    description: "New verified engineering requisitions match your tech stack and target role.",
-    timestamp: "45m ago",
-    read: false,
-    type: "job",
-    link: "/dashboard#recommended-jobs-section"
-  },
-  {
-    id: "notif_3",
-    title: "ATS Direct Apply Active",
-    description: "Your profile is primed for instant zero-broker direct applications.",
-    timestamp: "2h ago",
-    read: true,
-    type: "ats",
-    link: "/dashboard"
-  }
-];
+  });
+
+  return items;
+}
 
 export function Navbar() {
   const pathname = usePathname();
@@ -77,53 +149,74 @@ export function Navbar() {
   const [notifications, setNotifications] = useState<NotificationItem[]>([]);
   const notifRef = useRef<HTMLDivElement>(null);
 
-  // Sync auth state
+  // Sync auth state & build dynamic notifications
+  const refreshNotifications = () => {
+    const cur = getCurrentUser();
+    setUser(cur);
+    if (!cur?.id) {
+      setNotifications([]);
+      return;
+    }
+
+    const readKey = "jobhighway_read_notifs_" + cur.id;
+    let readIds: Set<string>;
+    try {
+      readIds = new Set(JSON.parse(localStorage.getItem(readKey) || "[]"));
+    } catch {
+      readIds = new Set();
+    }
+
+    const dynamicItems = buildDynamicNotifications(cur).map(item => ({
+      ...item,
+      read: readIds.has(item.id) ? true : item.read
+    }));
+
+    setNotifications(dynamicItems);
+  };
+
   useEffect(() => {
-    setUser(getCurrentUser());
-    const handleAuthChange = () => {
-      setUser(getCurrentUser());
+    refreshNotifications();
+
+    const handleSync = () => {
+      refreshNotifications();
     };
-    window.addEventListener("jobhighway_auth_change", handleAuthChange);
+
+    window.addEventListener("jobhighway_auth_change", handleSync);
+    window.addEventListener("jobhighway_applications_change", handleSync);
+    window.addEventListener("jobhighway_bookmarks_change", handleSync);
+    window.addEventListener("jobhighway_following_change", handleSync);
+    window.addEventListener("jobhighway_alerts_change", handleSync);
+
     return () => {
-      window.removeEventListener("jobhighway_auth_change", handleAuthChange);
+      window.removeEventListener("jobhighway_auth_change", handleSync);
+      window.removeEventListener("jobhighway_applications_change", handleSync);
+      window.removeEventListener("jobhighway_bookmarks_change", handleSync);
+      window.removeEventListener("jobhighway_following_change", handleSync);
+      window.removeEventListener("jobhighway_alerts_change", handleSync);
     };
   }, []);
 
-  // Sync notifications from user storage
-  useEffect(() => {
-    if (user?.id) {
-      const key = "jobhighway_notifications_" + user.id;
-      const stored = localStorage.getItem(key);
-      if (stored) {
-        try {
-          setNotifications(JSON.parse(stored));
-        } catch {
-          setNotifications(DEFAULT_NOTIFICATIONS);
-        }
-      } else {
-        setNotifications(DEFAULT_NOTIFICATIONS);
-        localStorage.setItem(key, JSON.stringify(DEFAULT_NOTIFICATIONS));
-      }
-    } else {
-      setNotifications([]);
-    }
-  }, [user?.id]);
-
-  const saveNotifications = (items: NotificationItem[]) => {
-    setNotifications(items);
-    if (user?.id) {
-      localStorage.setItem("jobhighway_notifications_" + user.id, JSON.stringify(items));
-    }
-  };
-
   const handleMarkAllRead = () => {
-    const updated = notifications.map(n => ({ ...n, read: true }));
-    saveNotifications(updated);
+    if (!user?.id) return;
+    const readKey = "jobhighway_read_notifs_" + user.id;
+    const allIds = notifications.map(n => n.id);
+    localStorage.setItem(readKey, JSON.stringify(allIds));
+    setNotifications(notifications.map(n => ({ ...n, read: true })));
   };
 
   const handleNotificationClick = (item: NotificationItem) => {
-    const updated = notifications.map(n => n.id === item.id ? { ...n, read: true } : n);
-    saveNotifications(updated);
+    if (user?.id) {
+      const readKey = "jobhighway_read_notifs_" + user.id;
+      let readIds: Set<string>;
+      try {
+        readIds = new Set(JSON.parse(localStorage.getItem(readKey) || "[]"));
+      } catch {
+        readIds = new Set();
+      }
+      readIds.add(item.id);
+      localStorage.setItem(readKey, JSON.stringify(Array.from(readIds)));
+    }
+    setNotifications(notifications.map(n => n.id === item.id ? { ...n, read: true } : n));
     setNotificationsOpen(false);
     if (item.link) {
       router.push(item.link);

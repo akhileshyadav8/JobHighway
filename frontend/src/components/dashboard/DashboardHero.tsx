@@ -123,7 +123,7 @@ export function DashboardHero({
                 {stats.newFollowedCompanies}
               </div>
               <div className="text-[10px] sm:text-[11px] font-semibold text-slate-700 leading-tight truncate">
-                New companies
+                Companies
               </div>
               <div className="text-[9px] sm:text-[10px] text-slate-400 leading-tight truncate">
                 in your followed list
