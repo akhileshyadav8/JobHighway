@@ -16,16 +16,16 @@ export const viewport: Viewport = {
 };
 
 export const metadata: Metadata = {
-  title: "JobHighway | Pathways to Professional Success",
-  description: "JobHighway — Pathways to Professional Success. Discover verified jobs directly from official company ATS career pages minutes after they're posted. Zero recruiter spam.",
+  title: "JobHighway | Pathways to Professional Success — Hourly Official ATS Jobs",
+  description: "JobHighway indexes jobs directly from 19,000+ official company ATS career portals every hour — delivering verified opportunities days before generic job aggregators. Zero recruiter spam.",
   icons: {
     icon: [
-      { url: '/favicon.ico' },
-      { url: '/icon.png', type: 'image/png' },
-      { url: '/logo.png', type: 'image/png' }
+      { url: '/favicon.ico?v=2' },
+      { url: '/icon.png?v=2', type: 'image/png' },
+      { url: '/logo.png?v=2', type: 'image/png' }
     ],
     apple: [
-      { url: '/apple-icon.png' }
+      { url: '/apple-icon.png?v=2' }
     ],
   },
 };

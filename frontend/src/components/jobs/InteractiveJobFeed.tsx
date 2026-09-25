@@ -715,22 +715,22 @@ export function InteractiveJobFeed({ initialJobs, stats, initialTotal, initialTo
           <div className="flex flex-col lg:grid lg:grid-cols-12 gap-6 lg:gap-8 items-center">
             {/* LEFT COLUMN: 58% width - Badge, Headline, Paragraph, Live Statistics */}
             <div className="order-1 lg:col-span-7 flex flex-col justify-center">
-              {/* Small live badge */}
-              <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-emerald-50/90 text-emerald-800 border border-emerald-200/90 mb-4 tracking-wide shadow-2xs w-fit">
-                <Zap className="w-3.5 h-3.5 text-emerald-600 fill-emerald-500" />
-                <span>PATHWAYS TO PROFESSIONAL SUCCESS • LIVE ATS</span>
+              {/* Live USP Badge */}
+              <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full text-xs font-bold bg-teal-50 text-teal-800 border border-teal-200/80 mb-4 tracking-wide shadow-2xs w-fit">
+                <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+                <span>HOURLY LIVE ATS SYNC • 100% DIRECT OFFICIAL CAREER PORTALS</span>
               </div>
 
-              {/* Main Headline */}
-              <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-[56px] xl:text-[62px] font-black text-slate-900 tracking-tight leading-[1.08] mb-4">
-                Fresh jobs today.<br />
-                A head start for your<br />
-                <span className="text-teal-600">tomorrow.</span>
+              {/* Main Headline with clear USP */}
+              <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-[54px] xl:text-[60px] font-black text-slate-900 tracking-tight leading-[1.08] mb-4">
+                Fresh jobs fetched hourly.<br />
+                Direct from official ATS.<br />
+                <span className="text-teal-600">Zero recruiter spam.</span>
               </h1>
 
-              {/* Concise Description */}
+              {/* Concise USP-focused Description */}
               <p className="text-sm sm:text-base lg:text-lg text-slate-600 max-w-[620px] leading-relaxed mb-6 font-normal">
-                JobHighway continuously discovers job openings directly from official company career systems, so you can find and apply to new opportunities before they get buried on other job boards.
+                Unlike standard aggregators with days of delay and fake recruiter spam, <strong className="text-slate-800 font-semibold">JobHighway discovers jobs directly from official ATS systems every hour</strong> (Greenhouse, Lever, Ashby, Workday). Apply directly on verified company career pages days before listings get flooded.
               </p>
 
               {/* 3 Compact Live Statistics */}
@@ -744,7 +744,7 @@ export function InteractiveJobFeed({ initialJobs, stats, initialTotal, initialTo
                     <div className="text-base sm:text-lg font-black text-slate-900 leading-tight">
                       {totalJobs.toLocaleString()}
                     </div>
-                    <div className="text-xs text-slate-500 font-medium">active opportunities</div>
+                    <div className="text-xs text-slate-500 font-medium">active ATS openings</div>
                   </div>
                 </div>
 
@@ -757,7 +757,7 @@ export function InteractiveJobFeed({ initialJobs, stats, initialTotal, initialTo
                     <div className="text-base sm:text-lg font-black text-slate-900 leading-tight">
                       {(stats?.total_companies || availableCompanies.length || 17533).toLocaleString()}
                     </div>
-                    <div className="text-xs text-slate-500 font-medium">verified portals</div>
+                    <div className="text-xs text-slate-500 font-medium">verified career portals</div>
                   </div>
                 </div>
 
@@ -770,8 +770,24 @@ export function InteractiveJobFeed({ initialJobs, stats, initialTotal, initialTo
                     <div className="text-sm sm:text-base font-black text-slate-900 leading-tight">
                       Updated hourly
                     </div>
-                    <div className="text-xs text-slate-500 font-medium">Fresh. Accurate. Official.</div>
+                    <div className="text-xs text-slate-500 font-medium">60-Min Ingestion Cycle</div>
                   </div>
+                </div>
+              </div>
+
+              {/* 3-Pillar USP Badges */}
+              <div className="flex flex-wrap items-center gap-2 sm:gap-3 mt-5 pt-4 border-t border-slate-200/80 text-xs text-slate-700">
+                <div className="flex items-center gap-1.5 bg-white px-2.5 py-1 rounded-lg border border-slate-200/80 shadow-2xs">
+                  <Clock className="w-3.5 h-3.5 text-teal-600 shrink-0" />
+                  <span><strong className="text-slate-900 font-semibold">Hourly Sync:</strong> Indexed within 60 mins</span>
+                </div>
+                <div className="flex items-center gap-1.5 bg-white px-2.5 py-1 rounded-lg border border-slate-200/80 shadow-2xs">
+                  <ShieldCheck className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
+                  <span><strong className="text-slate-900 font-semibold">100% Direct:</strong> Official ATS portals</span>
+                </div>
+                <div className="flex items-center gap-1.5 bg-white px-2.5 py-1 rounded-lg border border-slate-200/80 shadow-2xs">
+                  <Zap className="w-3.5 h-3.5 text-amber-500 fill-amber-500 shrink-0" />
+                  <span><strong className="text-slate-900 font-semibold">Early Advantage:</strong> Beat applicant crowds</span>
                 </div>
               </div>
             </div>
