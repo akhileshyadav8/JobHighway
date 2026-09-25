@@ -2,8 +2,8 @@ name: Automatic Real-Time Job Discovery & Sync
 
 on:
   schedule:
-    # Runs every 6 hours (4 times daily) to keep job database fresh without exhausting Vercel deployment resources
-    - cron: '0 */6 * * *'
+    # Real-Time 15-Minute ATS Ingestion. [skip ci] [skip vercel] prevents Vercel build exhaustion while Supabase DB updates live
+    - cron: '11,26,41,56 * * * *'
   workflow_dispatch: # Allows manual 1-click trigger from GitHub Actions UI anytime
   repository_dispatch: # Allows instant zero-delay trigger via webhook / external pinger
     types: [sync_jobs, zero_delay_sync]
@@ -48,7 +48,7 @@ jobs:
           if git diff --staged --quiet; then
             echo "No new JSON file changes to commit."
           else
-            git commit -m "chore(sync): auto-sync latest 30-day verified job postings [skip ci]"
+            git commit -m "chore(sync): auto-sync latest 30-day verified job postings [skip ci] [skip vercel]"
             git pull --rebase origin main || true
             git push origin main || (git pull --rebase origin main && git push origin main)
           fi
