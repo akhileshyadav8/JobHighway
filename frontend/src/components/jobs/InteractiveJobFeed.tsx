@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useMemo, useEffect, useCallback, useRef } from "react";
-import Image from "next/image";
 import { Job, OverviewStats } from "@/lib/api";
 import { JobCard } from "@/components/jobs/JobCard";
 import { Search, X, RotateCcw, MapPin, Globe, Building2, ArrowUpDown, Navigation, Briefcase, GraduationCap, Laptop, Zap, ShieldCheck, Clock, Bookmark, ChevronRight } from "lucide-react";
@@ -706,20 +705,22 @@ export function InteractiveJobFeed({ initialJobs, stats, initialTotal, initialTo
   return (
     <div className="flex flex-col min-h-screen bg-slate-50">
       {/* Hero Section */}
-      <section className="relative overflow-hidden bg-gradient-to-b from-teal-50/60 via-[#f8fcfb] to-white border-b border-slate-200/90 px-4 sm:px-6 lg:px-8 pt-7 sm:pt-9 pb-7 sm:pb-9">
-        {/* Ambient subtle tech dotted background pattern */}
-        <div className="absolute inset-0 bg-[radial-gradient(#0d9488_1px,transparent_1px)] [background-size:20px_20px] opacity-[0.05] pointer-events-none" />
-        
-        {/* Subtle static vector world map graphic on the right side behind floating job cards */}
-        <div className="absolute right-0 top-0 w-[420px] sm:w-[560px] lg:w-[740px] xl:w-[820px] h-[340px] sm:h-[420px] lg:h-[480px] pointer-events-none select-none opacity-[0.25] z-0 overflow-hidden">
-          <Image
+      <section className="relative overflow-hidden bg-gradient-to-b from-teal-50/70 via-emerald-50/20 to-slate-50 border-b border-slate-200/90 px-4 sm:px-6 lg:px-8 pt-7 sm:pt-9 pb-7 sm:pb-9">
+        {/* Ambient subtle tech background patterns */}
+        <div className="absolute inset-0 bg-[radial-gradient(#0d9488_1px,transparent_1px)] [background-size:24px_24px] opacity-[0.06] pointer-events-none" />
+        <div className="absolute -top-32 right-10 w-96 h-96 bg-teal-200/30 rounded-full blur-3xl pointer-events-none" />
+        <div className="absolute top-1/2 -left-20 w-80 h-80 bg-emerald-100/40 rounded-full blur-3xl pointer-events-none" />
+
+        {/* Authentic Vector World Map Backdrop (matching Companies & other pages with subtle opacity) */}
+        <div className="pointer-events-none absolute right-[-40px] sm:right-[-20px] lg:right-0 xl:right-6 top-1/2 -translate-y-1/2 w-[680px] sm:w-[840px] lg:w-[980px] xl:w-[1120px] h-[92%] max-h-[460px] flex items-center justify-end select-none z-0 overflow-hidden">
+          {/* Soft ambient radial glow behind the world map */}
+          <div className="absolute w-[500px] h-[340px] bg-gradient-to-tr from-teal-200/35 via-teal-100/15 to-transparent rounded-full blur-3xl pointer-events-none" />
+
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
             src="/world.svg"
-            alt=""
-            width={1010}
-            height={666}
-            className="w-full h-full object-contain object-right-top"
-            priority
-            unoptimized
+            alt="Global Career Network World Map"
+            className="w-full h-full object-contain object-right pointer-events-none select-none relative z-0 opacity-40 sm:opacity-45"
           />
         </div>
 
@@ -730,7 +731,7 @@ export function InteractiveJobFeed({ initialJobs, stats, initialTotal, initialTo
               {/* Live USP Status */}
               <div className="flex items-center gap-2 mb-4 text-xs font-semibold tracking-wider uppercase text-teal-700">
                 <span className="w-2 h-2 rounded-full bg-emerald-500 shrink-0 animate-pulse" />
-                <span>HOURLY LIVE ATS SYNC • 100% DIRECT OFFICIAL CAREER PORTALS</span>
+                <span>Hourly live ATS sync · 100% direct official career portals</span>
               </div>
 
               {/* Main Headline with clear USP */}
@@ -817,41 +818,28 @@ export function InteractiveJobFeed({ initialJobs, stats, initialTotal, initialTo
 
             {/* RIGHT COLUMN: 42% width - Art-Directed Visual Composition */}
             <div className="order-3 lg:order-2 lg:col-span-5 relative w-full flex items-center justify-center lg:justify-end select-none">
-              {/* DESKTOP ART-DIRECTED CANVAS: Exactly 560px × 390px, 3 floating cards, vector world map behind */}
-              <div className="hidden lg:block relative w-[560px] h-[390px] origin-top-right lg:scale-[0.92] xl:scale-100 transition-transform">
-                {/* 1. Subtle World Map Overlay for Desktop Canvas */}
-                <div className="absolute right-0 top-0 w-[540px] h-[380px] pointer-events-none select-none opacity-[0.18] z-0 overflow-hidden">
-                  <Image
-                    src="/world.svg"
-                    alt=""
-                    width={1010}
-                    height={666}
-                    className="w-full h-full object-contain object-right-top"
-                    priority
-                    unoptimized
-                  />
-                </div>
-
-                {/* 2. ATS Source Labels along the right boundary */}
-                <div className="absolute top-[4px] right-[125px] z-10 flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-white/95 border border-slate-200/90 shadow-2xs text-[11px] font-semibold text-slate-700">
+              {/* DESKTOP ART-DIRECTED CANVAS: Exactly 560px × 435px, all elements in dedicated coordinate space */}
+              <div className="hidden lg:block relative w-[560px] h-[435px] origin-top-right lg:scale-[0.92] xl:scale-100 transition-transform">
+                {/* ATS Source Labels along the right orbital boundary (completely unclipped, never behind cards) */}
+                <div className="absolute top-[10px] right-[75px] z-10 flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-white/95 border border-slate-200/90 shadow-2xs text-[11px] font-semibold text-slate-700">
                   <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
                   <span>Greenhouse</span>
                 </div>
-                <div className="absolute top-[62px] right-[0px] z-10 flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-white/95 border border-slate-200/90 shadow-2xs text-[11px] font-semibold text-slate-700">
+                <div className="absolute top-[86px] right-[0px] z-10 flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-white/95 border border-slate-200/90 shadow-2xs text-[11px] font-semibold text-slate-700">
                   <span className="w-2 h-2 rounded-full bg-teal-500"></span>
                   <span>Lever</span>
                 </div>
-                <div className="absolute top-[188px] -right-[10px] z-10 flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-white/95 border border-slate-200/90 shadow-2xs text-[11px] font-semibold text-slate-700">
+                <div className="absolute top-[198px] -right-[10px] z-10 flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-white/95 border border-slate-200/90 shadow-2xs text-[11px] font-semibold text-slate-700">
                   <span className="w-2 h-2 rounded-full bg-cyan-500"></span>
                   <span>Ashby</span>
                 </div>
-                <div className="absolute top-[315px] right-[6px] z-10 flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-white/95 border border-slate-200/90 shadow-2xs text-[11px] font-semibold text-slate-700">
+                <div className="absolute top-[318px] right-[4px] z-10 flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-white/95 border border-slate-200/90 shadow-2xs text-[11px] font-semibold text-slate-700">
                   <span className="w-2 h-2 rounded-full bg-blue-500"></span>
                   <span>Workday</span>
                 </div>
 
                 {/* 3. Annotation 1 (Top Left, dedicated whitespace above Card 1) */}
-                <div className="absolute top-[6px] left-[45px] z-30 pointer-events-none flex items-center gap-1.5">
+                <div className="absolute top-[6px] left-[55px] z-30 pointer-events-none flex items-center gap-1.5">
                   <span className="font-serif italic font-semibold text-slate-700 text-xs sm:text-sm tracking-wide">
                     New jobs as soon as they&apos;re live!
                   </span>
@@ -862,7 +850,7 @@ export function InteractiveJobFeed({ initialJobs, stats, initialTotal, initialTo
                 </div>
 
                 {/* 4. CARD 1: Upper-Right (Google / Software Engineer) */}
-                <div className="absolute top-[32px] right-[24px] w-[330px] bg-white border border-slate-200/90 rounded-xl p-4 shadow-md shadow-slate-200/50 hover:shadow-lg transition-all z-20">
+                <div className="absolute top-[38px] right-[24px] w-[335px] bg-white border border-slate-200/90 rounded-xl p-4 shadow-md shadow-slate-200/50 hover:shadow-lg transition-all z-20">
                   <div className="flex items-start justify-between gap-3 mb-2">
                     <div className="flex items-center gap-3 min-w-0">
                       <div className="w-9 h-9 rounded-lg bg-white border border-slate-100 p-1.5 flex items-center justify-center shadow-2xs shrink-0">
@@ -902,7 +890,7 @@ export function InteractiveJobFeed({ initialJobs, stats, initialTotal, initialTo
                 </div>
 
                 {/* 5. CARD 2: Middle-Left (Microsoft / Product Manager) */}
-                <div className="absolute top-[138px] left-[16px] w-[330px] bg-white border border-slate-200/90 rounded-xl p-4 shadow-md shadow-slate-200/50 hover:shadow-lg transition-all z-20">
+                <div className="absolute top-[150px] left-[16px] w-[335px] bg-white border border-slate-200/90 rounded-xl p-4 shadow-md shadow-slate-200/50 hover:shadow-lg transition-all z-20">
                   <div className="flex items-start justify-between gap-3 mb-2">
                     <div className="flex items-center gap-3 min-w-0">
                       <div className="w-9 h-9 rounded-lg bg-white border border-slate-100 p-2 flex items-center justify-center shadow-2xs shrink-0">
@@ -918,6 +906,7 @@ export function InteractiveJobFeed({ initialJobs, stats, initialTotal, initialTo
                         <p className="text-xs text-slate-500 font-medium">Microsoft</p>
                       </div>
                     </div>
+                    <Bookmark className="w-4 h-4 text-slate-300 hover:text-slate-600 cursor-pointer shrink-0" />
                   </div>
                   <div className="flex items-center gap-3 text-xs text-slate-500 mb-2">
                     <span className="flex items-center gap-1">
@@ -936,7 +925,7 @@ export function InteractiveJobFeed({ initialJobs, stats, initialTotal, initialTo
                 </div>
 
                 {/* 6. Annotation 2 (Mid-Right, open space between cards and Ashby/Workday labels) */}
-                <div className="absolute top-[180px] right-[34px] z-30 pointer-events-none flex items-center gap-2">
+                <div className="absolute top-[235px] right-[38px] z-30 pointer-events-none flex items-center gap-2">
                   <svg width="42" height="28" viewBox="0 0 45 30" fill="none" className="text-slate-600">
                     <path d="M40 24 C28 26, 14 18, 6 6" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
                     <path d="M5 13 L5 5 L13 6" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
@@ -947,7 +936,7 @@ export function InteractiveJobFeed({ initialJobs, stats, initialTotal, initialTo
                 </div>
 
                 {/* 7. CARD 3: Lower-Left (Airbnb / Data Analyst) */}
-                <div className="absolute top-[244px] left-[110px] w-[320px] bg-white border border-slate-200/90 rounded-xl p-4 shadow-md shadow-slate-200/50 hover:shadow-lg transition-all z-20">
+                <div className="absolute top-[262px] left-[52px] w-[320px] bg-white border border-slate-200/90 rounded-xl p-4 shadow-md shadow-slate-200/50 hover:shadow-lg transition-all z-20">
                   <div className="flex items-start justify-between gap-3 mb-2">
                     <div className="flex items-center gap-3 min-w-0">
                       <div className="w-9 h-9 rounded-lg bg-white border border-slate-100 p-1.5 flex items-center justify-center shadow-2xs shrink-0">
@@ -960,6 +949,7 @@ export function InteractiveJobFeed({ initialJobs, stats, initialTotal, initialTo
                         <p className="text-xs text-slate-500 font-medium">Airbnb</p>
                       </div>
                     </div>
+                    <Bookmark className="w-4 h-4 text-slate-300 hover:text-slate-600 cursor-pointer shrink-0" />
                   </div>
                   <div className="flex items-center gap-3 text-xs text-slate-500 mb-2">
                     <span className="flex items-center gap-1">
@@ -972,9 +962,23 @@ export function InteractiveJobFeed({ initialJobs, stats, initialTotal, initialTo
                     <span>1 hour ago</span>
                   </div>
                 </div>
+
+                {/* 8. Worldwide Opportunities Card (Bottom-Right, isolated below all cards & annotations) */}
+                <div className="absolute top-[372px] right-[12px] w-[275px] bg-white border border-slate-200/90 rounded-xl px-4 py-3 shadow-md shadow-slate-200/50 flex items-center justify-between gap-3 hover:border-teal-300 transition-colors z-20">
+                  <div className="flex items-center gap-3 min-w-0">
+                    <div className="w-9 h-9 rounded-full bg-teal-50 border border-teal-200/80 text-teal-600 flex items-center justify-center shrink-0">
+                      <Globe className="w-4 h-4" />
+                    </div>
+                    <div className="min-w-0">
+                      <h5 className="font-bold text-xs text-slate-900 leading-tight truncate">Worldwide Opportunities</h5>
+                      <p className="text-[10px] text-slate-500 truncate">From {(stats?.total_companies || availableCompanies.length || 17533).toLocaleString()}+ official career portals</p>
+                    </div>
+                  </div>
+                  <ChevronRight className="w-4 h-4 text-slate-400 shrink-0" />
+                </div>
               </div>
 
-              {/* MOBILE / TABLET CONTROLLED VERTICAL STACK (< 1024px): Exactly 3 cards, no overlaps, zero horizontal scroll */}
+              {/* MOBILE / TABLET CONTROLLED VERTICAL STACK (< 1024px): No overlaps, zero clipping, zero horizontal scroll */}
               <div className="lg:hidden w-full max-w-md mx-auto flex flex-col space-y-3.5 pt-4">
                 {/* ATS Source Tags */}
                 <div className="flex items-center justify-center gap-2 flex-wrap text-[11px] pb-1">
@@ -1036,6 +1040,7 @@ export function InteractiveJobFeed({ initialJobs, stats, initialTotal, initialTo
                         <p className="text-[11px] text-slate-500">Microsoft</p>
                       </div>
                     </div>
+                    <Bookmark className="w-4 h-4 text-slate-300" />
                   </div>
                   <div className="flex items-center gap-3 text-[11px] text-slate-500 mb-2">
                     <span>Hyderabad, India · On-site</span>
@@ -1057,11 +1062,26 @@ export function InteractiveJobFeed({ initialJobs, stats, initialTotal, initialTo
                         <p className="text-[11px] text-slate-500">Airbnb</p>
                       </div>
                     </div>
+                    <Bookmark className="w-4 h-4 text-slate-300" />
                   </div>
                   <div className="flex items-center gap-3 text-[11px] text-slate-500 mb-2">
                     <span>Remote</span>
                   </div>
                   <div className="text-[10px] text-emerald-600 font-medium">● 1 hour ago</div>
+                </div>
+
+                {/* Mobile Worldwide Opportunities */}
+                <div className="bg-white border border-slate-200/90 rounded-xl px-4 py-3 shadow-sm flex items-center justify-between gap-3">
+                  <div className="flex items-center gap-3">
+                    <div className="w-8 h-8 rounded-full bg-teal-50 border border-teal-200/80 text-teal-600 flex items-center justify-center shrink-0">
+                      <Globe className="w-4 h-4" />
+                    </div>
+                    <div>
+                      <h5 className="font-bold text-xs text-slate-900 leading-tight">Worldwide Opportunities</h5>
+                      <p className="text-[10px] text-slate-500">From {(stats?.total_companies || availableCompanies.length || 17533).toLocaleString()}+ official career portals</p>
+                    </div>
+                  </div>
+                  <ChevronRight className="w-4 h-4 text-slate-400 shrink-0" />
                 </div>
               </div>
             </div>
