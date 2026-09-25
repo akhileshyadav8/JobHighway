@@ -784,14 +784,14 @@ export function InteractiveJobFeed({ initialJobs, stats, initialTotal, initialTo
               </div>
 
               {/* Main Headline with clear USP */}
-              <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-[54px] xl:text-[60px] font-black text-slate-900 tracking-tight leading-[1.08] mb-4">
+              <h1 className="text-3xl sm:text-4xl lg:text-[44px] xl:text-[48px] font-black text-slate-900 tracking-tight leading-[1.15] mb-4">
                 Fresh jobs fetched hourly.<br />
                 Direct from official ATS.<br />
                 <span className="text-teal-600">Zero recruiter spam.</span>
               </h1>
 
               {/* Concise USP-focused Description */}
-              <p className="text-sm sm:text-base lg:text-lg text-slate-600 max-w-[620px] leading-relaxed mb-6 font-normal">
+              <p className="text-sm sm:text-base text-slate-600 max-w-xl leading-relaxed mb-6 font-normal">
                 Unlike standard aggregators with days of delay and fake recruiter spam, <strong className="text-slate-800 font-semibold">JobHighway discovers jobs directly from official ATS systems every hour</strong> (Greenhouse, Lever, Ashby, Workday). Apply directly on verified company career pages days before listings get flooded.
               </p>
 
