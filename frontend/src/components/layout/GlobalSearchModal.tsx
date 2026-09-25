@@ -496,8 +496,9 @@ export function GlobalSearchModal({ isOpen, onClose }: GlobalSearchModalProps) {
                 setQuery("");
                 inputRef.current?.focus();
               }}
-              className="p-1 rounded-md text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition-colors cursor-pointer"
+              className="p-1.5 rounded-md text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition-colors cursor-pointer"
               title="Clear search"
+              aria-label="Clear search"
             >
               <X className="w-4 h-4" />
             </button>
@@ -506,6 +507,16 @@ export function GlobalSearchModal({ isOpen, onClose }: GlobalSearchModalProps) {
           <kbd className="hidden sm:inline-block px-1.5 py-0.5 rounded text-[10px] font-mono text-slate-500 bg-slate-100 border border-slate-200 shadow-2xs">
             ESC
           </kbd>
+
+          {/* Dedicated Close Button for Mobile & Touch Devices */}
+          <button
+            onClick={onClose}
+            className="p-1.5 -mr-1 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition-colors cursor-pointer shrink-0"
+            title="Close search (Esc)"
+            aria-label="Close search"
+          >
+            <X className="w-5 h-5" />
+          </button>
         </div>
 
         {/* Category Filter Pills (Visible when typing) */}

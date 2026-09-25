@@ -19,7 +19,9 @@ import {
   ExternalLink,
   RefreshCw,
   Copy,
-  ShieldCheck
+  ShieldCheck,
+  GraduationCap,
+  BookOpen
 } from "lucide-react";
 import { getCurrentUser, getAllUsersForAdmin, getAppliedJobs, User } from "@/lib/auth";
 import { getAnalyticsSummary, AnalyticsSummary } from "@/lib/telemetry";
@@ -387,6 +389,69 @@ export default function AdminDashboardOverview() {
           </div>
         </div>
 
+      </div>
+
+      {/* Career Preparation & Interview Readiness Hub Operations Panel */}
+      <div className="bg-white border border-slate-200/90 rounded-xl p-5 sm:p-6 shadow-2xs">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-slate-100">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-xl bg-teal-50 border border-teal-100 text-teal-700 flex items-center justify-center shrink-0">
+              <GraduationCap className="w-5 h-5" />
+            </div>
+            <div>
+              <h3 className="font-bold text-base text-slate-900 leading-tight">
+                Career Preparation &amp; Readiness Hub
+              </h3>
+              <p className="text-xs text-slate-500 mt-0.5">
+                Curated role roadmaps, Tier-1 company interview guides, and technical round practice questions
+              </p>
+            </div>
+          </div>
+
+          <Link
+            href="/prepare"
+            className="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl bg-teal-600 hover:bg-teal-700 text-white font-semibold text-xs transition-colors shadow-2xs shrink-0"
+          >
+            <BookOpen className="w-4 h-4" />
+            <span>Open Live Preparation Hub</span>
+            <ExternalLink className="w-3.5 h-3.5 ml-0.5" />
+          </Link>
+        </div>
+
+        {/* 4 Hub Metrics Cards */}
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-3.5 mt-4">
+          <div className="p-3.5 rounded-xl bg-slate-50/80 border border-slate-100">
+            <div className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider mb-1">
+              Active Roles
+            </div>
+            <div className="text-xl font-black text-slate-900">5 Disciplines</div>
+            <div className="text-[11px] text-teal-700 font-medium mt-0.5">SWE, DS, DA, DE, PM</div>
+          </div>
+
+          <div className="p-3.5 rounded-xl bg-slate-50/80 border border-slate-100">
+            <div className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider mb-1">
+              Company Guides
+            </div>
+            <div className="text-xl font-black text-slate-900">6 Tier-1 Guides</div>
+            <div className="text-[11px] text-slate-500 mt-0.5">Google, Meta, MSFT, Amazon, Uber, Stripe</div>
+          </div>
+
+          <div className="p-3.5 rounded-xl bg-slate-50/80 border border-slate-100">
+            <div className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider mb-1">
+              Practice Questions
+            </div>
+            <div className="text-xl font-black text-slate-900">40+ Curated</div>
+            <div className="text-[11px] text-slate-500 mt-0.5">DSA, System Design, SQL, Behavioral</div>
+          </div>
+
+          <div className="p-3.5 rounded-xl bg-slate-50/80 border border-slate-100">
+            <div className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider mb-1">
+              Roadmap Tracking
+            </div>
+            <div className="text-xl font-black text-slate-900">100% Client Sync</div>
+            <div className="text-[11px] text-emerald-600 font-medium mt-0.5">Real-time candidate telemetry</div>
+          </div>
+        </div>
       </div>
 
     </div>

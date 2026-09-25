@@ -152,9 +152,10 @@ export default function ContactPage() {
             
             {/* Left Content Column */}
             <div className="lg:col-span-7 flex flex-col items-start text-left">
-              {/* Eyebrow badge */}
-              <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-teal-50 border border-teal-200/80 text-teal-800 text-xs font-bold uppercase tracking-wider mb-4 shadow-2xs">
-                <span>GET IN TOUCH</span>
+              {/* Eyebrow */}
+              <div className="flex items-center gap-2 mb-4 text-xs font-semibold tracking-wider uppercase text-teal-700">
+                <span className="w-2 h-2 rounded-full bg-emerald-500 shrink-0 animate-pulse" />
+                <span>Get In Touch</span>
               </div>
 
               {/* Main Headline */}

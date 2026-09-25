@@ -55,6 +55,7 @@ import { ApplicationTrackerCard, ApplicationTrackerMetrics } from "@/components/
 import { MarketInsightsCard, CountryInsight, SkillInsight } from "@/components/dashboard/MarketInsightsCard";
 import { ResumeAnalysisSection, ResumeData } from "@/components/dashboard/ResumeAnalysisSection";
 import { SkillGapSection } from "@/components/dashboard/SkillGapSection";
+import { CareerPrepWidget } from "@/components/dashboard/CareerPrepWidget";
 import { ProfileEditModal } from "@/components/dashboard/ProfileEditModal";
 import { ApplicationsModal } from "@/components/dashboard/ApplicationsModal";
 import { CreateAlertModal } from "@/components/dashboard/CreateAlertModal";
@@ -946,6 +947,14 @@ export default function DashboardPage() {
                   onAddSkill={handleAddSkill}
                   onRemoveSkill={handleRemoveSkill}
                 />
+
+                {/* 2.5. Career Preparation & Readiness */}
+                <div id="career-prep-section" className="scroll-mt-24">
+                  <CareerPrepWidget
+                    targetRole={user?.targetRole || "Software Engineer"}
+                    userId={user?.id}
+                  />
+                </div>
 
                 {/* 3. Application Tracker */}
                 <ApplicationTrackerCard

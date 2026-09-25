@@ -244,10 +244,11 @@ export function InteractiveCompanies({ initialCompanies, initialStats, initialSe
             
             {/* Left Content Column */}
             <div className="lg:col-span-5 flex flex-col items-start text-left">
-              {/* Eyebrow badge */}
-              <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-50 border border-emerald-200/80 text-emerald-800 text-xs font-bold uppercase tracking-wider mb-4 shadow-2xs">
-                <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" />
-                <span>VERIFIED COMPANIES</span>
+              {/* Eyebrow */}
+              <div className="flex items-center gap-2 mb-4 text-xs font-semibold tracking-wider uppercase text-teal-700">
+                <span className="w-2 h-2 rounded-full bg-emerald-500 shrink-0 animate-pulse" />
+                <ShieldCheck className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
+                <span>Verified Direct ATS Companies</span>
               </div>
 
               {/* Main Heading without underline under 'actually hiring.' */}

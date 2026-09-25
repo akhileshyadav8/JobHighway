@@ -454,6 +454,7 @@ def fetch_greenhouse_jobs(comp):
                 desc_text = re.sub(r'\s+', ' ', desc_text)[:2000].strip()
                 batches = detect_batches(desc_text, title)
                 work_mode = detect_work_mode(title, desc_text, loc_name)
+                s_min, s_max, s_curr, s_per, s_basis = infer_historical_salary(title, name, [loc_name], "Full-time")
 
                 jobs.append({
                     "id": job_id,
@@ -474,7 +475,7 @@ def fetch_greenhouse_jobs(comp):
                     "salary_currency": s_curr,
                     "salary_period": s_per,
                     "salary_basis": s_basis,
-                    "is_salary_estimated": True,
+                    "is_salary_estimated": True if s_min else False,
                     "experience_min": 0 if "intern" in title.lower() else (1 if "junior" in title.lower() or "associate" in title.lower() else 3),
                     "experience_max": 2 if "intern" in title.lower() else (4 if "junior" in title.lower() else 7),
                     "education": "B.Tech/M.Tech/MCA or equivalent experience",
@@ -1003,10 +1004,14 @@ def main():
 
     # 7. Connect to Supabase & Store Real Live Data
     db_pass = quote_plus("MyJobPulse@2026#")
-    urls = [
+    urls = []
+    env_db_url = os.getenv("DATABASE_URL")
+    if env_db_url:
+        urls.append(("Environment DATABASE_URL", env_db_url))
+    urls.extend([
         ("Supabase Pooler (Port 6543 - Transaction)", f"postgresql://postgres.difdvbmniyhlltmdzngg:{db_pass}@aws-0-ap-south-1.pooler.supabase.com:6543/postgres?sslmode=require"),
         ("Supabase Direct (Port 5432)", f"postgresql://postgres:{db_pass}@db.difdvbmniyhlltmdzngg.supabase.co:5432/postgres?sslmode=require")
-    ]
+    ])
     
     engine = None
     for name, conn_str in urls:

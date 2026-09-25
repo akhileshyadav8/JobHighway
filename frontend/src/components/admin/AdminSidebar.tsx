@@ -23,7 +23,8 @@ import {
   Mail, 
   Settings,
   X,
-  ExternalLink
+  ExternalLink,
+  GraduationCap
 } from "lucide-react";
 
 interface AdminSidebarProps {
@@ -77,6 +78,12 @@ const NAV_SECTIONS: NavSection[] = [
     items: [
       { name: "Registered Users", href: "/mastermindak/users", icon: Users },
       { name: "Applications", href: "/mastermindak/applications", icon: FileText }
+    ]
+  },
+  {
+    title: "PREPARATION",
+    items: [
+      { name: "Preparation Hub", href: "/prepare", icon: GraduationCap }
     ]
   },
   {

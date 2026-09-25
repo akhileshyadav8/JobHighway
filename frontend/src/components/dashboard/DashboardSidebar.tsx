@@ -90,7 +90,7 @@ export function DashboardSidebar({
       badge: counts.following && counts.following > 0 ? counts.following : undefined, 
       onClick: () => onSelectTab?.("following") 
     },
-    { id: "interview_prep", label: "Interview Prep", icon: GraduationCap, href: "/prepare" },
+    { id: "career_prep", label: "Career Preparation", icon: GraduationCap, href: "/prepare" },
     { id: "find_companies", label: "Find Companies", icon: Building2, href: "/companies" },
     { id: "resume_analyzer", label: "Resume Analyzer", icon: FileCheck2, onClick: () => onSelectTab?.("resume_analyzer") },
     { id: "skill_gap", label: "Skill Gap Analysis", icon: BarChart3, onClick: () => onSelectTab?.("skill_gap") },

@@ -251,14 +251,25 @@ export function CareerPrepHub({ initialRoleId }: { initialRoleId?: string }) {
     <div className="bg-slate-50 min-h-screen">
       {/* 1. HERO SECTION WITH ROLE SEARCH & QUICK ROLES (Matches Reference Image) */}
       <section className="relative overflow-hidden bg-gradient-to-b from-teal-50/80 via-emerald-50/20 to-slate-50 border-b border-slate-200/90 px-4 sm:px-6 lg:px-8 pt-10 pb-12 sm:pb-16">
+        {/* World map background */}
+        <div className="absolute top-0 right-0 w-full lg:w-3/5 h-full overflow-hidden pointer-events-none z-0">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src="/world.svg"
+            alt="Global Career Network World Map"
+            className="w-full h-full object-contain object-right pointer-events-none select-none relative z-0 opacity-40 sm:opacity-45"
+          />
+        </div>
+
         <div className="container mx-auto max-w-[1360px] relative z-10">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
             
             {/* Left Content Column */}
             <div className="lg:col-span-7 flex flex-col items-start text-left">
-              {/* Badge */}
-              <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-teal-100/80 border border-teal-200 text-teal-800 text-[11px] font-bold uppercase tracking-wider mb-4 shadow-2xs">
-                <GraduationCap className="w-3.5 h-3.5 text-teal-700" />
+              {/* Eyebrow */}
+              <div className="flex items-center gap-2 mb-4 text-xs font-semibold tracking-wider uppercase text-teal-700">
+                <span className="w-2 h-2 rounded-full bg-emerald-500 shrink-0 animate-pulse" />
+                <GraduationCap className="w-3.5 h-3.5 text-teal-700 shrink-0" />
                 <span>JobHighway Career Preparation Hub</span>
               </div>
 

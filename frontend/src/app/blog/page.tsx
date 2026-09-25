@@ -156,10 +156,11 @@ export default function BlogPage() {
             
             {/* Left Column: Hero Content */}
             <div className="lg:col-span-7 flex flex-col items-start text-left">
-              {/* Eyebrow badge */}
-              <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-teal-50 border border-teal-200/80 text-teal-800 text-xs font-bold tracking-wider mb-4 shadow-2xs">
-                <Sparkles className="w-3.5 h-3.5 text-teal-600" />
-                <span>LEARN • GROW • GET HIRED</span>
+              {/* Eyebrow */}
+              <div className="flex items-center gap-2 mb-4 text-xs font-semibold tracking-wider uppercase text-teal-700">
+                <span className="w-2 h-2 rounded-full bg-emerald-500 shrink-0 animate-pulse" />
+                <Sparkles className="w-3.5 h-3.5 text-teal-600 shrink-0" />
+                <span>Learn • Grow • Get Hired</span>
               </div>
 
               {/* Main Heading */}

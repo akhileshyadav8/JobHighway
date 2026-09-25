@@ -57,6 +57,11 @@ export function Footer() {
                 </Link>
               </li>
               <li>
+                <Link href="/prepare" className="text-slate-600 hover:text-teal-700 transition-colors inline-block py-0.5">
+                  Career Preparation
+                </Link>
+              </li>
+              <li>
                 <Link href="/about" className="text-slate-600 hover:text-teal-700 transition-colors inline-block py-0.5">
                   About Us
                 </Link>
