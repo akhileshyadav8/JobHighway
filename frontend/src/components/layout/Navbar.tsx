@@ -1,18 +1,81 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { usePathname, useRouter } from 'next/navigation';
-import { Menu, X, Briefcase, Building2, BookOpen, Info, Mail, User as UserIcon, Shield, LogOut, ChevronDown, LayoutDashboard, Bell } from 'lucide-react';
+import { 
+  Menu, 
+  X, 
+  Briefcase, 
+  Building2, 
+  BookOpen, 
+  Info, 
+  Mail, 
+  User as UserIcon, 
+  Shield, 
+  LogOut, 
+  ChevronDown, 
+  LayoutDashboard, 
+  Bell,
+  CheckCheck,
+  Zap,
+  Sparkles,
+  CheckCircle2
+} from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { getCurrentUser, logoutUser, User } from '@/lib/auth';
+
+interface NotificationItem {
+  id: string;
+  title: string;
+  description: string;
+  timestamp: string;
+  read: boolean;
+  type: "sync" | "job" | "ats";
+  link?: string;
+}
+
+const DEFAULT_NOTIFICATIONS: NotificationItem[] = [
+  {
+    id: "notif_1",
+    title: "Hourly ATS Sync Complete",
+    description: "32+ direct employer feeds synchronized from Greenhouse, Lever, and Workday.",
+    timestamp: "12m ago",
+    read: false,
+    type: "sync",
+    link: "/jobs"
+  },
+  {
+    id: "notif_2",
+    title: "Job Recommendations Ready",
+    description: "New verified engineering requisitions match your tech stack and target role.",
+    timestamp: "45m ago",
+    read: false,
+    type: "job",
+    link: "/dashboard#recommended-jobs-section"
+  },
+  {
+    id: "notif_3",
+    title: "ATS Direct Apply Active",
+    description: "Your profile is primed for instant zero-broker direct applications.",
+    timestamp: "2h ago",
+    read: true,
+    type: "ats",
+    link: "/dashboard"
+  }
+];
 
 export function Navbar() {
   const pathname = usePathname();
   const router = useRouter();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [user, setUser] = useState<User | null>(null);
+
+  // Notifications State
+  const [notificationsOpen, setNotificationsOpen] = useState(false);
+  const [notifications, setNotifications] = useState<NotificationItem[]>([]);
+  const notifRef = useRef<HTMLDivElement>(null);
 
   // Sync auth state
   useEffect(() => {
@@ -21,12 +84,68 @@ export function Navbar() {
       setUser(getCurrentUser());
     };
     window.addEventListener("jobhighway_auth_change", handleAuthChange);
-    window.addEventListener("jobhighway_auth_change", handleAuthChange);
     return () => {
-      window.removeEventListener("jobhighway_auth_change", handleAuthChange);
       window.removeEventListener("jobhighway_auth_change", handleAuthChange);
     };
   }, []);
+
+  // Sync notifications from user storage
+  useEffect(() => {
+    if (user?.id) {
+      const key = "jobhighway_notifications_" + user.id;
+      const stored = localStorage.getItem(key);
+      if (stored) {
+        try {
+          setNotifications(JSON.parse(stored));
+        } catch {
+          setNotifications(DEFAULT_NOTIFICATIONS);
+        }
+      } else {
+        setNotifications(DEFAULT_NOTIFICATIONS);
+        localStorage.setItem(key, JSON.stringify(DEFAULT_NOTIFICATIONS));
+      }
+    } else {
+      setNotifications([]);
+    }
+  }, [user?.id]);
+
+  const saveNotifications = (items: NotificationItem[]) => {
+    setNotifications(items);
+    if (user?.id) {
+      localStorage.setItem("jobhighway_notifications_" + user.id, JSON.stringify(items));
+    }
+  };
+
+  const handleMarkAllRead = () => {
+    const updated = notifications.map(n => ({ ...n, read: true }));
+    saveNotifications(updated);
+  };
+
+  const handleNotificationClick = (item: NotificationItem) => {
+    const updated = notifications.map(n => n.id === item.id ? { ...n, read: true } : n);
+    saveNotifications(updated);
+    setNotificationsOpen(false);
+    if (item.link) {
+      router.push(item.link);
+    }
+  };
+
+  // Close notifications on outside click
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (notifRef.current && !notifRef.current.contains(e.target as Node)) {
+        setNotificationsOpen(false);
+      }
+    };
+    if (notificationsOpen) {
+      document.addEventListener("mousedown", handleClickOutside);
+    }
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [notificationsOpen]);
+
+  const unreadCount = notifications.filter(n => !n.read).length;
 
   // Close mobile menu whenever route changes
   useEffect(() => {
@@ -122,20 +241,20 @@ export function Navbar() {
         {/* Actions */}
         <div className="flex items-center gap-2.5">
           {user ? (
-            <div className="hidden sm:flex items-center gap-2">
+            <div className="flex items-center gap-2">
               {user.role === "admin" ? (
                 <>
                   <Link
                     href="/mastermindak"
-                    className="inline-flex items-center gap-1.5 px-2.5 py-1.5 text-xs font-medium text-slate-700 hover:text-teal-700 hover:bg-slate-100/70 rounded-md transition-colors"
+                    className="hidden sm:inline-flex items-center gap-1.5 px-2.5 py-1.5 text-xs font-medium text-slate-700 hover:text-teal-700 hover:bg-slate-100/70 rounded-md transition-colors"
                   >
                     <Shield className="w-3.5 h-3.5 text-teal-600" />
                     <span>Admin Console</span>
                   </Link>
-                  <span className="text-slate-300 text-xs select-none">|</span>
+                  <span className="hidden sm:inline text-slate-300 text-xs select-none">|</span>
                   <button
                     onClick={handleLogout}
-                    className="inline-flex items-center gap-1 px-2 py-1.5 text-xs font-medium text-slate-500 hover:text-slate-800 transition-colors cursor-pointer"
+                    className="hidden sm:inline-flex items-center gap-1 px-2 py-1.5 text-xs font-medium text-slate-500 hover:text-slate-800 transition-colors cursor-pointer"
                     title="Sign Out"
                   >
                     <LogOut className="w-3.5 h-3.5 text-slate-400" />
@@ -144,17 +263,110 @@ export function Navbar() {
                 </>
               ) : (
                 <>
-                  {/* Notification Bell */}
-                  <button
-                    type="button"
-                    className="relative p-2 text-slate-500 hover:text-slate-800 hover:bg-slate-100 rounded-full transition-colors cursor-pointer"
-                    title="1 New Notification"
-                  >
-                    <Bell className="w-4 h-4" />
-                    <span className="absolute top-1 right-1 w-3.5 h-3.5 bg-rose-500 text-white text-[9px] font-bold rounded-full flex items-center justify-center">
-                      1
-                    </span>
-                  </button>
+                  {/* Notification Bell with Interactive Popover */}
+                  <div ref={notifRef} className="relative">
+                    <button
+                      type="button"
+                      onClick={() => setNotificationsOpen(!notificationsOpen)}
+                      className="relative p-2 text-slate-500 hover:text-slate-800 hover:bg-slate-100 rounded-full transition-colors cursor-pointer"
+                      title={unreadCount > 0 ? `${unreadCount} new notifications` : "Notifications"}
+                      aria-label="View notifications"
+                    >
+                      <Bell className="w-4 h-4" />
+                      {unreadCount > 0 && (
+                        <span className="absolute top-1 right-1 w-3.5 h-3.5 bg-rose-500 text-white text-[9px] font-bold rounded-full flex items-center justify-center animate-pulse">
+                          {unreadCount}
+                        </span>
+                      )}
+                    </button>
+
+                    {/* Notification Dropdown Popover */}
+                    {notificationsOpen && (
+                      <div className="absolute right-0 top-full mt-2 w-80 sm:w-96 rounded-2xl border border-slate-200/90 bg-white shadow-xl z-50 overflow-hidden animate-in fade-in zoom-in-95 duration-150">
+                        {/* Header */}
+                        <div className="flex items-center justify-between p-3.5 border-b border-slate-100 bg-slate-50/70">
+                          <div className="flex items-center gap-2">
+                            <span className="text-xs font-bold text-slate-900">Notifications</span>
+                            {unreadCount > 0 && (
+                              <span className="px-1.5 py-0.5 rounded-full text-[10px] font-bold bg-teal-100 text-teal-800">
+                                {unreadCount} new
+                              </span>
+                            )}
+                          </div>
+                          {unreadCount > 0 && (
+                            <button
+                              type="button"
+                              onClick={handleMarkAllRead}
+                              className="text-[11px] font-semibold text-teal-600 hover:text-teal-700 flex items-center gap-1 cursor-pointer"
+                            >
+                              <CheckCheck className="w-3 h-3" />
+                              <span>Mark all read</span>
+                            </button>
+                          )}
+                        </div>
+
+                        {/* Notifications List */}
+                        <div className="max-h-80 overflow-y-auto divide-y divide-slate-100">
+                          {notifications.length === 0 ? (
+                            <div className="p-6 text-center text-xs text-slate-400">
+                              No notifications yet
+                            </div>
+                          ) : (
+                            notifications.map((item) => (
+                              <div
+                                key={item.id}
+                                onClick={() => handleNotificationClick(item)}
+                                className={`p-3 text-left transition-colors cursor-pointer flex items-start gap-3 ${
+                                  !item.read ? "bg-teal-50/30 hover:bg-teal-50/60" : "hover:bg-slate-50"
+                                }`}
+                              >
+                                <div className="w-7 h-7 rounded-lg bg-teal-100/70 text-teal-700 flex items-center justify-center shrink-0 mt-0.5">
+                                  {item.type === "sync" ? (
+                                    <Zap className="w-3.5 h-3.5 text-teal-600 fill-teal-600/30" />
+                                  ) : item.type === "job" ? (
+                                    <Sparkles className="w-3.5 h-3.5 text-amber-500 fill-amber-400" />
+                                  ) : (
+                                    <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
+                                  )}
+                                </div>
+                                <div className="flex-1 min-w-0">
+                                  <div className="flex items-center justify-between gap-1">
+                                    <h4 className={`text-xs ${!item.read ? "font-bold text-slate-900" : "font-medium text-slate-700"} truncate`}>
+                                      {item.title}
+                                    </h4>
+                                    <span className="text-[10px] text-slate-400 shrink-0 font-normal">
+                                      {item.timestamp}
+                                    </span>
+                                  </div>
+                                  <p className="text-[11px] text-slate-500 line-clamp-2 mt-0.5 leading-snug">
+                                    {item.description}
+                                  </p>
+                                </div>
+                                {!item.read && (
+                                  <div className="w-2 h-2 rounded-full bg-teal-600 shrink-0 mt-2" />
+                                )}
+                              </div>
+                            ))
+                          )}
+                        </div>
+
+                        {/* Footer */}
+                        <div className="p-2.5 bg-slate-50 border-t border-slate-100 flex items-center justify-between text-[11px] text-slate-500">
+                          <span className="flex items-center gap-1.5 text-[10px] text-emerald-700 font-medium">
+                            <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                            Hourly direct ATS sync active
+                          </span>
+                          <Link
+                            href="/dashboard"
+                            onClick={() => setNotificationsOpen(false)}
+                            className="text-[11px] font-bold text-teal-600 hover:text-teal-700 cursor-pointer"
+                          >
+                            View Dashboard
+                          </Link>
+                        </div>
+                      </div>
+                    )}
+                  </div>
 
                   {/* Candidate Avatar */}
                   <Link href="/dashboard" className="flex items-center gap-1.5 p-1 rounded-full hover:bg-slate-100 transition-colors group cursor-pointer" title="Dashboard">

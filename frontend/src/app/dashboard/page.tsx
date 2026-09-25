@@ -220,8 +220,12 @@ export default function DashboardPage() {
         ).length;
       }
       if (newJobsCount === 0) {
-        // Fallback to jobs in last 24h or live count
-        newJobsCount = Math.min(liveJobs.length, 12);
+        // Real count of jobs posted in the last 24 hours
+        const oneDayAgo = Date.now() - 24 * 60 * 60 * 1000;
+        const recentCount = liveJobs.filter(
+          (j) => j.posted_at && new Date(j.posted_at).getTime() > oneDayAgo
+        ).length;
+        newJobsCount = recentCount;
       }
     }
 
@@ -288,8 +292,9 @@ export default function DashboardPage() {
     });
   }, [followedCompanies, liveJobs]);
 
-  // Real Recommended Jobs from Live Dataset
+  // Real Recommended Jobs from Live Dataset (Only when user has uploaded resume)
   const recommendedJobs: RecommendedJobItem[] = useMemo(() => {
+    if (!user?.resumeFile) return [];
     if (!liveJobs || liveJobs.length === 0) return [];
     const userSkillsLower = (user?.skills || []).map((s) => s.toLowerCase().trim());
     const userTargetRoleLower = (user?.targetRole || "").toLowerCase().trim();
@@ -823,6 +828,8 @@ export default function DashboardPage() {
                   <RecommendedJobsSection
                     jobs={recommendedJobs}
                     isLoading={isLoadingJobs}
+                    hasResume={Boolean(user?.resumeFile)}
+                    onUploadResume={() => setIsProfileModalOpen(true)}
                     onToggleBookmark={handleToggleBookmark}
                     onViewDetails={(job) => setSelectedJobForDetails(job)}
                     onApply={handleApplyJob}

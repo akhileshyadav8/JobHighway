@@ -2,7 +2,7 @@
 
 import React from "react";
 import Link from "next/link";
-import { Sparkles, ArrowRight, MapPin, Bookmark, ExternalLink, Briefcase } from "lucide-react";
+import { Sparkles, ArrowRight, MapPin, Bookmark, ExternalLink, Briefcase, FileUp, CheckCircle2 } from "lucide-react";
 import { CompanyLogo } from "@/components/ui/CompanyLogo";
 
 export interface RecommendedJobItem {
@@ -24,6 +24,8 @@ export interface RecommendedJobItem {
 export interface RecommendedJobsSectionProps {
   jobs: RecommendedJobItem[];
   isLoading?: boolean;
+  hasResume?: boolean;
+  onUploadResume?: () => void;
   onToggleBookmark?: (job: RecommendedJobItem) => void;
   onViewDetails?: (job: RecommendedJobItem) => void;
   onApply?: (job: RecommendedJobItem) => void;
@@ -32,6 +34,8 @@ export interface RecommendedJobsSectionProps {
 export function RecommendedJobsSection({
   jobs = [],
   isLoading = false,
+  hasResume = false,
+  onUploadResume,
   onToggleBookmark,
   onViewDetails,
   onApply
@@ -49,7 +53,9 @@ export function RecommendedJobsSection({
               Recommended Jobs for You
             </h2>
             <p className="text-[11px] sm:text-xs text-slate-500 truncate">
-              Based on your profile, skills and preferences
+              {hasResume 
+                ? "Personalized matches calculated from your uploaded resume"
+                : "Upload your resume to activate AI job recommendations"}
             </p>
           </div>
         </div>
@@ -63,8 +69,43 @@ export function RecommendedJobsSection({
         </Link>
       </div>
 
-      {/* Content: 3-Column Job Cards */}
-      {isLoading ? (
+      {/* Content: Resume prompt or 3-Column Job Cards */}
+      {!hasResume ? (
+        <div className="p-6 sm:p-8 text-center border-2 border-dashed border-teal-200/80 bg-teal-50/20 rounded-xl mt-3.5 transition-all">
+          <div className="w-12 h-12 rounded-2xl bg-teal-100/70 text-teal-700 flex items-center justify-center mx-auto mb-3">
+            <FileUp className="w-6 h-6 text-teal-600" />
+          </div>
+          <h3 className="text-base font-bold text-slate-900">
+            Upload Your Resume to Unlock Personalized Recommendations
+          </h3>
+          <p className="text-xs text-slate-500 mt-1 max-w-md mx-auto leading-relaxed">
+            Our AI analyzes your skills, experience, and target roles directly from your resume to match you with top job opportunities.
+          </p>
+
+          <div className="flex flex-wrap items-center justify-center gap-3 sm:gap-4 mt-4 text-[11px] text-slate-600 font-medium">
+            <span className="flex items-center gap-1">
+              <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500" /> Instant Skill Extraction
+            </span>
+            <span className="flex items-center gap-1">
+              <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500" /> Match Percentage
+            </span>
+            <span className="flex items-center gap-1">
+              <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500" /> 1-Click Direct ATS Apply
+            </span>
+          </div>
+
+          <div className="mt-5">
+            <button
+              type="button"
+              onClick={onUploadResume}
+              className="inline-flex items-center gap-2 px-4 py-2 text-xs font-bold text-white bg-teal-600 hover:bg-teal-700 rounded-xl transition-all shadow-xs cursor-pointer"
+            >
+              <FileUp className="w-3.5 h-3.5" />
+              <span>Upload Resume</span>
+            </button>
+          </div>
+        </div>
+      ) : isLoading ? (
         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-2.5 sm:gap-3 mt-3.5">
           {[1, 2, 3].map((n) => (
             <div key={n} className="animate-pulse p-3.5 rounded-xl border border-slate-200 bg-slate-50/50 h-48" />

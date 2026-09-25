@@ -82,17 +82,17 @@ export function ProfileEditModal({
       // 1. Parse text & extract structured profile metadata
       const extracted = await parseResumeFile(file);
 
-      // 2. Pre-fill state text fields immediately
-      if (extracted.name) setName(extracted.name);
-      if (extracted.phone) setPhone(extracted.phone);
-      if (extracted.targetRole) setTargetRole(extracted.targetRole);
-      if (extracted.currentRole) setCurrentRole(extracted.currentRole);
-      if (extracted.preferredLocation) setPreferredLocation(extracted.preferredLocation);
-      if (extracted.yearsExperience) setYearsExperience(extracted.yearsExperience);
-      if (extracted.education) setEducation(extracted.education);
-      if (extracted.graduationYear) setGraduationYear(extracted.graduationYear);
-      if (extracted.linkedinUrl) setLinkedinUrl(extracted.linkedinUrl);
-      if (extracted.githubUrl) setGithubUrl(extracted.githubUrl);
+      // 2. Pre-fill state text fields immediately (protecting user's registered name)
+      if (!user.name && !name && extracted.name) setName(extracted.name);
+      if (extracted.phone && (!phone || phone.length < 10)) setPhone(extracted.phone);
+      if (extracted.targetRole && !targetRole) setTargetRole(extracted.targetRole);
+      if (extracted.currentRole && !currentRole) setCurrentRole(extracted.currentRole);
+      if (extracted.preferredLocation && !preferredLocation) setPreferredLocation(extracted.preferredLocation);
+      if (extracted.yearsExperience && !yearsExperience) setYearsExperience(extracted.yearsExperience);
+      if (extracted.education && !education) setEducation(extracted.education);
+      if (extracted.graduationYear && !graduationYear) setGraduationYear(extracted.graduationYear);
+      if (extracted.linkedinUrl && !linkedinUrl) setLinkedinUrl(extracted.linkedinUrl);
+      if (extracted.githubUrl && !githubUrl) setGithubUrl(extracted.githubUrl);
 
       // 3. Merge skills
       const existingSkills = skillsStr ? skillsStr.split(",").map((s) => s.trim()).filter(Boolean) : (user.skills || []);
@@ -119,16 +119,16 @@ export function ProfileEditModal({
         const updated = updateUserProfile(user.id, {
           resumeFile: fileData,
           skills: combined,
-          name: extracted.name || name,
-          phone: extracted.phone || phone,
-          targetRole: extracted.targetRole || targetRole,
-          currentRole: extracted.currentRole || currentRole,
-          preferredLocation: extracted.preferredLocation || preferredLocation,
-          yearsExperience: extracted.yearsExperience || yearsExperience,
-          education: extracted.education || education,
-          graduationYear: extracted.graduationYear || graduationYear,
-          linkedinUrl: extracted.linkedinUrl || linkedinUrl,
-          githubUrl: extracted.githubUrl || githubUrl
+          name: user.name || name || "Candidate",
+          phone: phone || extracted.phone,
+          targetRole: targetRole || extracted.targetRole,
+          currentRole: currentRole || extracted.currentRole,
+          preferredLocation: preferredLocation || extracted.preferredLocation,
+          yearsExperience: yearsExperience || extracted.yearsExperience,
+          education: education || extracted.education,
+          graduationYear: graduationYear || extracted.graduationYear,
+          linkedinUrl: linkedinUrl || extracted.linkedinUrl,
+          githubUrl: githubUrl || extracted.githubUrl
         });
 
         if (updated) onProfileUpdated(updated);
