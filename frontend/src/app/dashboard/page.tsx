@@ -25,6 +25,13 @@ import {
   saveJobAlert,
   toggleJobAlert,
   deleteJobAlert,
+  updateAppliedJobDetails,
+  getSavedSearches,
+  deleteSavedSearch,
+  SavedSearchRecord,
+  getRecentlyViewedJobs,
+  clearRecentlyViewedJobs,
+  RecentlyViewedJobRecord,
   ApplicationStatus,
   AppliedJob,
   BookmarkItem,
@@ -40,6 +47,8 @@ import { DashboardHero } from "@/components/dashboard/DashboardHero";
 import { RecommendedJobsSection, RecommendedJobItem } from "@/components/dashboard/RecommendedJobsSection";
 import { RecentAlertsSection } from "@/components/dashboard/RecentAlertsSection";
 import { FollowedCompaniesSection, FollowedCompanyDisplayItem } from "@/components/dashboard/FollowedCompaniesSection";
+import { SavedSearchesSection } from "@/components/dashboard/SavedSearchesSection";
+import { RecentlyViewedJobsSection } from "@/components/dashboard/RecentlyViewedJobsSection";
 import { ProfileCompletionCard } from "@/components/dashboard/ProfileCompletionCard";
 import { UserSkillsCard } from "@/components/dashboard/UserSkillsCard";
 import { ApplicationTrackerCard, ApplicationTrackerMetrics } from "@/components/dashboard/ApplicationTrackerCard";
@@ -67,6 +76,10 @@ export default function DashboardPage() {
   const [activeSidebarTab, setActiveSidebarTab] = useState<string>("dashboard");
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
 
+  // Saved Searches (F7) & Recently Viewed Jobs (F11)
+  const [savedSearches, setSavedSearches] = useState<SavedSearchRecord[]>([]);
+  const [recentJobs, setRecentJobs] = useState<RecentlyViewedJobRecord[]>([]);
+
   // Live Jobs & Dataset State
   const [liveJobs, setLiveJobs] = useState<Job[]>([]);
   const [totalJobsCount, setTotalJobsCount] = useState<number>(0);
@@ -92,6 +105,8 @@ export default function DashboardPage() {
       setAppliedJobs(getAppliedJobs(cur.id));
       setBookmarks(getBookmarks(cur.id));
       setUserAlerts(getJobAlerts(cur.id));
+      setSavedSearches(getSavedSearches(cur.id));
+      setRecentJobs(getRecentlyViewedJobs());
 
       const rawFollowed = getFollowedCompanies(cur.id);
       setFollowedCompanies(
@@ -108,6 +123,8 @@ export default function DashboardPage() {
       setBookmarks([]);
       setUserAlerts([]);
       setFollowedCompanies([]);
+      setSavedSearches([]);
+      setRecentJobs(getRecentlyViewedJobs());
     }
   };
 
@@ -156,6 +173,8 @@ export default function DashboardPage() {
     window.addEventListener("jobhighway_bookmarks_change", handleSync);
     window.addEventListener("jobhighway_following_change", handleSync);
     window.addEventListener("jobhighway_alerts_change", handleSync);
+    window.addEventListener("jobhighway_saved_searches_change", handleSync);
+    window.addEventListener("jobhighway_recent_jobs_change", handleSync);
 
     return () => {
       isMounted = false;
@@ -164,6 +183,8 @@ export default function DashboardPage() {
       window.removeEventListener("jobhighway_bookmarks_change", handleSync);
       window.removeEventListener("jobhighway_following_change", handleSync);
       window.removeEventListener("jobhighway_alerts_change", handleSync);
+      window.removeEventListener("jobhighway_saved_searches_change", handleSync);
+      window.removeEventListener("jobhighway_recent_jobs_change", handleSync);
     };
   }, []);
 
@@ -561,10 +582,36 @@ export default function DashboardPage() {
     setAppliedJobs(updated);
   };
 
+  const handleUpdateApplicationDetails = (
+    appId: string,
+    details: {
+      status?: ApplicationStatus;
+      notes?: string;
+      interviewDate?: string;
+      followUpDate?: string;
+      contactEmail?: string;
+    }
+  ) => {
+    if (!user) return;
+    const updated = updateAppliedJobDetails(user.id, appId, details);
+    setAppliedJobs(updated);
+  };
+
   const handleDeleteApplied = (appId: string) => {
     if (!user) return;
     const updated = removeAppliedJob(user.id, appId);
     setAppliedJobs(updated);
+  };
+
+  const handleDeleteSavedSearch = (searchId: string) => {
+    if (!user) return;
+    const updated = deleteSavedSearch(user.id, searchId);
+    setSavedSearches(updated);
+  };
+
+  const handleClearRecentJobs = () => {
+    clearRecentlyViewedJobs();
+    setRecentJobs([]);
   };
 
   const handleRemoveBookmark = (item: BookmarkItem) => {
@@ -724,6 +771,10 @@ export default function DashboardPage() {
       setIsApplicationsModalOpen(true);
     } else if (tabId === "job_alerts") {
       setIsAllAlertsModalOpen(true);
+    } else if (tabId === "saved_searches") {
+      scrollToSection("saved-searches-section");
+    } else if (tabId === "recent_views") {
+      scrollToSection("recently-viewed-jobs-section");
     } else if (tabId === "following") {
       setIsFollowModalOpen(true);
     } else if (tabId === "resume_analyzer") {
@@ -844,6 +895,22 @@ export default function DashboardPage() {
                   />
                 </div>
 
+                {/* 2.5. Saved Searches (F7) */}
+                <div id="saved-searches-section" className="scroll-mt-24">
+                  <SavedSearchesSection
+                    searches={savedSearches}
+                    onDeleteSearch={handleDeleteSavedSearch}
+                  />
+                </div>
+
+                {/* 2.6. Recently Viewed Jobs (F11) */}
+                <div id="recently-viewed-jobs-section" className="scroll-mt-24">
+                  <RecentlyViewedJobsSection
+                    jobs={recentJobs}
+                    onClearHistory={handleClearRecentJobs}
+                  />
+                </div>
+
                 {/* 3. Followed Companies */}
                 <div id="followed-companies-section" className="scroll-mt-24">
                   <FollowedCompaniesSection
@@ -932,6 +999,7 @@ export default function DashboardPage() {
         appliedJobs={appliedJobs}
         bookmarks={bookmarks}
         onStatusChange={handleStatusChange}
+        onUpdateDetails={handleUpdateApplicationDetails}
         onDeleteApplied={handleDeleteApplied}
         onRemoveBookmark={handleRemoveBookmark}
       />

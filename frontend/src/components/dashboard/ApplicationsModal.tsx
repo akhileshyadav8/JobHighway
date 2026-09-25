@@ -10,7 +10,13 @@ import {
   MapPin, 
   Filter, 
   Briefcase,
-  Clock
+  Clock,
+  Calendar,
+  Mail,
+  FileText,
+  ChevronDown,
+  ChevronUp,
+  Check
 } from "lucide-react";
 import { AppliedJob, BookmarkItem, ApplicationStatus } from "@/lib/auth";
 
@@ -21,6 +27,16 @@ export interface ApplicationsModalProps {
   appliedJobs: AppliedJob[];
   bookmarks: BookmarkItem[];
   onStatusChange: (appliedId: string, status: ApplicationStatus) => void;
+  onUpdateDetails?: (
+    appliedId: string,
+    details: {
+      status?: ApplicationStatus;
+      notes?: string;
+      interviewDate?: string;
+      followUpDate?: string;
+      contactEmail?: string;
+    }
+  ) => void;
   onDeleteApplied: (appliedId: string) => void;
   onRemoveBookmark: (bookmark: BookmarkItem) => void;
 }
@@ -65,11 +81,20 @@ export function ApplicationsModal({
   appliedJobs,
   bookmarks,
   onStatusChange,
+  onUpdateDetails,
   onDeleteApplied,
   onRemoveBookmark
 }: ApplicationsModalProps) {
   const [activeTab, setActiveTab] = useState<"applied" | "saved">(defaultTab);
   const [statusFilter, setStatusFilter] = useState<string>("All");
+
+  // Expandable Detail & Scheduling Editor States (F10)
+  const [expandedJobId, setExpandedJobId] = useState<string | null>(null);
+  const [editNotes, setEditNotes] = useState<string>("");
+  const [editInterviewDate, setEditInterviewDate] = useState<string>("");
+  const [editFollowUpDate, setEditFollowUpDate] = useState<string>("");
+  const [editContactEmail, setEditContactEmail] = useState<string>("");
+  const [savedToast, setSavedToast] = useState<string | null>(null);
 
   React.useEffect(() => {
     if (isOpen) {
@@ -161,80 +186,216 @@ export function ApplicationsModal({
                 </div>
               ) : (
                 <div className="space-y-3">
-                  {filteredApplied.map((job) => (
-                    <div
-                      key={job.id}
-                      className="p-4.5 rounded-xl border border-slate-200 bg-white hover:border-slate-300 transition-all flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 shadow-2xs"
-                    >
-                      <div className="min-w-0">
-                        <div className="flex items-center gap-2">
-                          <h4 className="font-bold text-sm text-slate-900 truncate">
-                            {job.title}
-                          </h4>
-                          <span
-                            className={`text-[11px] font-bold px-2.5 py-0.5 rounded-full border ${
-                              STATUS_CONFIG[job.status]?.bg || "bg-slate-100"
-                            } ${STATUS_CONFIG[job.status]?.color || "text-slate-700"} ${
-                              STATUS_CONFIG[job.status]?.border || "border-slate-200"
-                            }`}
-                          >
-                            {STATUS_CONFIG[job.status]?.label || job.status}
-                          </span>
+                  {filteredApplied.map((job) => {
+                    const isExpanded = expandedJobId === job.id;
+
+                    return (
+                      <div
+                        key={job.id}
+                        className="rounded-xl border border-slate-200 bg-white hover:border-slate-300 transition-all shadow-2xs overflow-hidden"
+                      >
+                        <div className="p-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                          <div className="min-w-0 flex-1">
+                            <div className="flex items-center gap-2">
+                              <h4 className="font-bold text-sm text-slate-900 truncate">
+                                {job.title}
+                              </h4>
+                              <span
+                                className={`text-[11px] font-bold px-2.5 py-0.5 rounded-full border ${
+                                  STATUS_CONFIG[job.status]?.bg || "bg-slate-100"
+                                } ${STATUS_CONFIG[job.status]?.color || "text-slate-700"} ${
+                                  STATUS_CONFIG[job.status]?.border || "border-slate-200"
+                                }`}
+                              >
+                                {STATUS_CONFIG[job.status]?.label || job.status}
+                              </span>
+                            </div>
+
+                            <div className="flex items-center gap-2 text-xs text-slate-500 mt-1 flex-wrap">
+                              <span className="font-medium text-slate-700">{job.company}</span>
+                              <span>•</span>
+                              <span className="flex items-center gap-1">
+                                <MapPin className="w-3 h-3 text-slate-400" />
+                                {job.location}
+                              </span>
+                              {job.interviewDate && (
+                                <>
+                                  <span>•</span>
+                                  <span className="flex items-center gap-1 text-purple-700 font-semibold bg-purple-50 px-2 py-0.5 rounded">
+                                    <Calendar className="w-3 h-3" />
+                                    Interview: {job.interviewDate}
+                                  </span>
+                                </>
+                              )}
+                              {job.followUpDate && (
+                                <>
+                                  <span>•</span>
+                                  <span className="flex items-center gap-1 text-amber-700 font-semibold bg-amber-50 px-2 py-0.5 rounded">
+                                    <Clock className="w-3 h-3" />
+                                    Follow-up: {job.followUpDate}
+                                  </span>
+                                </>
+                              )}
+                            </div>
+
+                            {job.notes && (
+                              <p className="text-xs text-slate-600 italic mt-1.5 bg-slate-50 p-2 rounded-lg border border-slate-100 max-w-xl">
+                                &ldquo;{job.notes}&rdquo;
+                              </p>
+                            )}
+                          </div>
+
+                          <div className="flex items-center gap-2 shrink-0 w-full sm:w-auto justify-end">
+                            {/* Status Select */}
+                            <select
+                              value={job.status}
+                              onChange={(e) =>
+                                onStatusChange(job.id, e.target.value as ApplicationStatus)
+                              }
+                              className="px-2.5 py-1.5 rounded-lg border border-slate-200 bg-white text-xs font-semibold text-slate-700 focus:outline-none cursor-pointer"
+                            >
+                              <option value="Applied">Applied</option>
+                              <option value="Under Review">Under Review</option>
+                              <option value="Interview">Interview</option>
+                              <option value="Offer">Offer</option>
+                              <option value="Rejected">Rejected</option>
+                            </select>
+
+                            {/* Expand Notes & Dates Editor Button */}
+                            <button
+                              type="button"
+                              onClick={() => {
+                                if (isExpanded) {
+                                  setExpandedJobId(null);
+                                } else {
+                                  setExpandedJobId(job.id);
+                                  setEditNotes(job.notes || "");
+                                  setEditInterviewDate(job.interviewDate || "");
+                                  setEditFollowUpDate(job.followUpDate || "");
+                                  setEditContactEmail(job.contactEmail || "");
+                                }
+                              }}
+                              className={`p-1.5 rounded-lg border transition-colors cursor-pointer text-xs flex items-center gap-1 ${
+                                isExpanded
+                                  ? "bg-teal-50 border-teal-300 text-teal-700 font-semibold"
+                                  : "border-slate-200 text-slate-600 hover:bg-slate-50"
+                              }`}
+                              title={isExpanded ? "Close notes & schedule" : "Edit notes, interview date & recruiter contact"}
+                            >
+                              <Calendar className="w-3.5 h-3.5" />
+                              <span className="hidden sm:inline">Details</span>
+                              {isExpanded ? <ChevronUp className="w-3 h-3" /> : <ChevronDown className="w-3 h-3" />}
+                            </button>
+
+                            {/* Apply Link */}
+                            <a
+                              href={job.applyUrl}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="p-1.5 rounded-lg border border-slate-200 hover:bg-slate-50 text-slate-600 transition-colors cursor-pointer"
+                              title="Open official ATS requisition"
+                            >
+                              <ExternalLink className="w-4 h-4" />
+                            </a>
+
+                            {/* Delete Application */}
+                            <button
+                              type="button"
+                              onClick={() => onDeleteApplied(job.id)}
+                              className="p-1.5 rounded-lg border border-rose-200 hover:bg-rose-50 text-rose-600 transition-colors cursor-pointer"
+                              title="Remove application"
+                            >
+                              <Trash2 className="w-4 h-4" />
+                            </button>
+                          </div>
                         </div>
-                        <div className="flex items-center gap-2 text-xs text-slate-500 mt-1">
-                          <span className="font-medium text-slate-700">{job.company}</span>
-                          <span>•</span>
-                          <span className="flex items-center gap-1">
-                            <MapPin className="w-3 h-3 text-slate-400" />
-                            {job.location}
-                          </span>
-                        </div>
-                        {job.notes && (
-                          <p className="text-xs text-slate-500 italic mt-1.5">
-                            Note: {job.notes}
-                          </p>
+
+                        {/* Inline Detail & Schedule Editor Drawer (F10) */}
+                        {isExpanded && (
+                          <div className="bg-slate-50/90 border-t border-slate-100 p-4 space-y-3 animate-in fade-in duration-150">
+                            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                              <div>
+                                <label className="block text-[11px] font-bold text-slate-700 uppercase tracking-wider mb-1">
+                                  Interview Date
+                                </label>
+                                <input
+                                  type="date"
+                                  value={editInterviewDate}
+                                  onChange={(e) => setEditInterviewDate(e.target.value)}
+                                  className="w-full text-xs bg-white border border-slate-200 rounded-lg p-2 text-slate-800 outline-none focus:border-teal-500"
+                                />
+                              </div>
+
+                              <div>
+                                <label className="block text-[11px] font-bold text-slate-700 uppercase tracking-wider mb-1">
+                                  Follow-up Reminder Date
+                                </label>
+                                <input
+                                  type="date"
+                                  value={editFollowUpDate}
+                                  onChange={(e) => setEditFollowUpDate(e.target.value)}
+                                  className="w-full text-xs bg-white border border-slate-200 rounded-lg p-2 text-slate-800 outline-none focus:border-teal-500"
+                                />
+                              </div>
+
+                              <div>
+                                <label className="block text-[11px] font-bold text-slate-700 uppercase tracking-wider mb-1">
+                                  Recruiter / Contact Email
+                                </label>
+                                <input
+                                  type="email"
+                                  placeholder="e.g. recruiter@company.com"
+                                  value={editContactEmail}
+                                  onChange={(e) => setEditContactEmail(e.target.value)}
+                                  className="w-full text-xs bg-white border border-slate-200 rounded-lg p-2 text-slate-800 outline-none focus:border-teal-500"
+                                />
+                              </div>
+                            </div>
+
+                            <div>
+                              <label className="block text-[11px] font-bold text-slate-700 uppercase tracking-wider mb-1">
+                                Interview Notes &amp; Preparation Highlights
+                              </label>
+                              <textarea
+                                rows={2}
+                                placeholder="Add notes on questions asked, HR follow-ups, or round expectations..."
+                                value={editNotes}
+                                onChange={(e) => setEditNotes(e.target.value)}
+                                className="w-full text-xs bg-white border border-slate-200 rounded-lg p-2.5 text-slate-800 outline-none focus:border-teal-500 resize-none"
+                              />
+                            </div>
+
+                            <div className="flex items-center justify-between pt-1">
+                              <span className="text-[11px] text-slate-500">
+                                {savedToast === job.id && (
+                                  <span className="text-emerald-700 font-semibold flex items-center gap-1">
+                                    <Check className="w-3.5 h-3.5 text-emerald-600" /> Details saved successfully!
+                                  </span>
+                                )}
+                              </span>
+
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  onUpdateDetails?.(job.id, {
+                                    notes: editNotes,
+                                    interviewDate: editInterviewDate || undefined,
+                                    followUpDate: editFollowUpDate || undefined,
+                                    contactEmail: editContactEmail || undefined
+                                  });
+                                  setSavedToast(job.id);
+                                  setTimeout(() => setSavedToast(null), 2500);
+                                }}
+                                className="px-3.5 py-1.5 rounded-lg bg-teal-600 hover:bg-teal-700 text-white text-xs font-bold transition-colors cursor-pointer"
+                              >
+                                Save Details
+                              </button>
+                            </div>
+                          </div>
                         )}
                       </div>
-
-                      <div className="flex items-center gap-2 shrink-0 w-full sm:w-auto justify-end">
-                        {/* Status Select */}
-                        <select
-                          value={job.status}
-                          onChange={(e) =>
-                            onStatusChange(job.id, e.target.value as ApplicationStatus)
-                          }
-                          className="px-2.5 py-1.5 rounded-lg border border-slate-200 bg-white text-xs font-semibold text-slate-700 focus:outline-none cursor-pointer"
-                        >
-                          <option value="Applied">Applied</option>
-                          <option value="Under Review">Under Review</option>
-                          <option value="Interview">Interview</option>
-                          <option value="Offer">Offer</option>
-                          <option value="Rejected">Rejected</option>
-                        </select>
-
-                        {/* Apply Link */}
-                        <a
-                          href={job.applyUrl}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="p-1.5 rounded-lg border border-slate-200 hover:bg-slate-50 text-slate-600 transition-colors cursor-pointer"
-                          title="Open ATS requisition"
-                        >
-                          <ExternalLink className="w-4 h-4" />
-                        </a>
-
-                        {/* Delete Application */}
-                        <button
-                          type="button"
-                          onClick={() => onDeleteApplied(job.id)}
-                          className="p-1.5 rounded-lg border border-rose-200 hover:bg-rose-50 text-rose-600 transition-colors cursor-pointer"
-                          title="Remove application"
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </button>
-                      </div>
-                    </div>
-                  ))}
+                    );
+                  })}
                 </div>
               )}
             </div>

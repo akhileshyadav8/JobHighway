@@ -16,7 +16,10 @@ import {
   TrendingUp, 
   Settings, 
   Crown, 
-  ArrowRight
+  ArrowRight,
+  Search,
+  History,
+  GraduationCap
 } from "lucide-react";
 
 export interface DashboardSidebarProps {
@@ -55,6 +58,18 @@ export function DashboardSidebar({
       onClick: () => onSelectTab?.("saved_jobs") 
     },
     { 
+      id: "saved_searches", 
+      label: "Saved Searches", 
+      icon: Search, 
+      onClick: () => onSelectTab?.("saved_searches") 
+    },
+    { 
+      id: "recent_views", 
+      label: "Recently Viewed", 
+      icon: History, 
+      onClick: () => onSelectTab?.("recent_views") 
+    },
+    { 
       id: "job_alerts", 
       label: "Job Alerts", 
       icon: Bell, 
@@ -75,6 +90,7 @@ export function DashboardSidebar({
       badge: counts.following && counts.following > 0 ? counts.following : undefined, 
       onClick: () => onSelectTab?.("following") 
     },
+    { id: "interview_prep", label: "Interview Prep", icon: GraduationCap, href: "/prepare" },
     { id: "find_companies", label: "Find Companies", icon: Building2, href: "/companies" },
     { id: "resume_analyzer", label: "Resume Analyzer", icon: FileCheck2, onClick: () => onSelectTab?.("resume_analyzer") },
     { id: "skill_gap", label: "Skill Gap Analysis", icon: BarChart3, onClick: () => onSelectTab?.("skill_gap") },

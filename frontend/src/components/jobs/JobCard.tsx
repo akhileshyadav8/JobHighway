@@ -4,19 +4,21 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-import { MapPin, Clock, Bookmark, CheckCircle2, ExternalLink } from "lucide-react";
+import { MapPin, Clock, Bookmark, CheckCircle2, ExternalLink, ArrowLeftRight } from "lucide-react";
 import { Job } from "@/lib/api";
 import { formatSalary, formatRelativeTime, formatDate, sanitizeJobSkills, inferAtsSource } from "@/lib/utils";
 import { CountryFlag } from "@/components/ui/CountryFlag";
 import { CompanyLogo } from "@/components/ui/CompanyLogo";
-import { getCurrentUser, markJobApplied, isJobApplied, toggleBookmark, isJobBookmarked, User } from "@/lib/auth";
+import { getCurrentUser, markJobApplied, isJobApplied, toggleBookmark, isJobBookmarked, recordRecentlyViewedJob, User } from "@/lib/auth";
 import { trackEvent } from "@/lib/telemetry";
 
 interface JobCardProps {
   job: Job;
+  isCompared?: boolean;
+  onToggleCompare?: (job: Job) => void;
 }
 
-export function JobCard({ job }: JobCardProps) {
+export function JobCard({ job, isCompared, onToggleCompare }: JobCardProps) {
   const router = useRouter();
   const [currentUser, setCurrentUser] = useState<User | null>(null);
   const [applied, setApplied] = useState(false);
@@ -120,7 +122,20 @@ export function JobCard({ job }: JobCardProps) {
   const displaySkills = sanitizeJobSkills(job.skills_required, job.title, job.description_text);
 
   const handleJobClick = () => {
-    // Jobs page always starts cleanly from the top on page load/refresh
+    try {
+      recordRecentlyViewedJob({
+        jobId: String(job.id),
+        title: job.title,
+        company: job.company.name,
+        location: safeLocation.join(", "),
+        salary: salaryText,
+        workMode: job.work_mode,
+        slug: job.slug,
+        applyUrl: job.apply_url || undefined
+      });
+    } catch {
+      // ignore
+    }
   };
 
   // Experience text
@@ -305,6 +320,25 @@ export function JobCard({ job }: JobCardProps) {
               title={applied ? "Tracked as Applied" : "Mark as Applied"}
             >
               <CheckCircle2 className={`w-4 h-4 ${applied ? "fill-emerald-100 text-emerald-600" : ""}`} />
+            </button>
+          )}
+
+          {onToggleCompare && (
+            <button
+              type="button"
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                onToggleCompare(job);
+              }}
+              className={`p-1.5 rounded-lg border text-xs transition-colors cursor-pointer ${
+                isCompared
+                  ? "bg-teal-50 border-teal-300 text-teal-700 font-semibold"
+                  : "border-slate-200 text-slate-400 hover:text-slate-800 hover:bg-slate-50"
+              }`}
+              title={isCompared ? "Remove from comparison" : "Compare this job side-by-side"}
+            >
+              <ArrowLeftRight className="w-3.5 h-3.5" />
             </button>
           )}
 

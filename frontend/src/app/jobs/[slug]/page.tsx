@@ -8,6 +8,10 @@ import { JobDetailSidebar } from "@/components/jobs/JobDetailSidebar";
 import { Card, CardContent } from "@/components/ui/card";
 import { sanitizeJobSkills, formatSalary, cleanHtmlDescription, formatDate } from "@/lib/utils";
 import { CountryFlag } from "@/components/ui/CountryFlag";
+import { WhyThisJobMatch } from "@/components/jobs/WhyThisJobMatch";
+import { SelectionProcess } from "@/components/jobs/SelectionProcess";
+import { StudyMaterials } from "@/components/jobs/StudyMaterials";
+import { RecordRecentlyViewed } from "@/components/jobs/RecordRecentlyViewed";
 import {
   Building2,
   MapPin,
@@ -48,6 +52,27 @@ export default async function JobDetailPage({ params }: { params: Promise<{ slug
           <div className="lg:col-span-8 space-y-6">
             {/* Section 1: Hero */}
             <JobHero job={job} />
+
+            {/* Record Recently Viewed (Client-Side Telemetry) */}
+            <RecordRecentlyViewed
+              jobId={job.id}
+              title={job.title}
+              company={job.company.name}
+              location={safeLocation.join(", ")}
+              salary={formatSalary(job.salary_min, job.salary_max, job.salary_currency, job.salary_period, true)}
+              workMode={job.work_mode}
+              slug={job.slug}
+              applyUrl={job.apply_url || undefined}
+            />
+
+            {/* Section 1.5: Why This Job Matches Your Resume (F5) */}
+            <WhyThisJobMatch
+              jobTitle={job.title}
+              jobSkills={displaySkills}
+              companyName={job.company.name}
+              workMode={job.work_mode}
+              experienceMin={job.experience_min}
+            />
 
             {/* Section 2: Key Job Highlights Grid */}
             <Card className="border-slate-200 shadow-xs overflow-hidden">
@@ -228,6 +253,31 @@ export default async function JobDetailPage({ params }: { params: Promise<{ slug
                 </div>
               </CardContent>
             </Card>
+
+            {/* Section 5.5: Selection Process & Round Breakdown (F16) */}
+            <SelectionProcess
+              process={
+                job.selection_process || {
+                  rounds: [
+                    {
+                      name: "Round 1: Online Assessment (OA) & Aptitude",
+                      description: "Quantitative reasoning, pattern analysis, and 2-3 standard algorithmic coding problems."
+                    },
+                    {
+                      name: "Round 2: Core Technical & DSA Challenge",
+                      description: "Interactive whiteboard coding focusing on optimal time/space complexity and edge cases."
+                    },
+                    {
+                      name: "Round 3: System Design & Culture Alignment",
+                      description: "Architecture trade-offs, modularity, and behavioral STAR leadership scenarios."
+                    }
+                  ]
+                }
+              }
+            />
+
+            {/* Section 5.6: Verified Free Study Materials (F18) */}
+            <StudyMaterials materials={job.study_materials} />
 
             {/* Section 6: CTA Banner */}
             <CTABanner job={job} />

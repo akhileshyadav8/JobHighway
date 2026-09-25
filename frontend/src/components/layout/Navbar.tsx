@@ -21,9 +21,12 @@ import {
   CheckCheck,
   Zap,
   Sparkles,
-  CheckCircle2
+  CheckCircle2,
+  Search,
+  GraduationCap
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { GlobalSearchModal } from '@/components/layout/GlobalSearchModal';
 import { 
   getCurrentUser, 
   logoutUser, 
@@ -149,6 +152,20 @@ export function Navbar() {
   const [notifications, setNotifications] = useState<NotificationItem[]>([]);
   const notifRef = useRef<HTMLDivElement>(null);
 
+  // Global Omni-Search State
+  const [searchModalOpen, setSearchModalOpen] = useState(false);
+
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "k") {
+        e.preventDefault();
+        setSearchModalOpen(prev => !prev);
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, []);
+
   // Sync auth state & build dynamic notifications
   const refreshNotifications = () => {
     const cur = getCurrentUser();
@@ -264,6 +281,12 @@ export function Navbar() {
       icon: Building2,
       isActive: pathname.startsWith('/companies'),
     },
+    {
+      label: 'Prepare',
+      href: '/prepare',
+      icon: GraduationCap,
+      isActive: pathname.startsWith('/prepare'),
+    },
     ...(user && user.role !== "admin" ? [{
       label: 'Dashboard',
       href: '/dashboard',
@@ -332,7 +355,21 @@ export function Navbar() {
         </nav>
 
         {/* Actions */}
-        <div className="flex items-center gap-2.5">
+        <div className="flex items-center gap-2 sm:gap-2.5">
+          {/* Omni Search Button */}
+          <button
+            type="button"
+            onClick={() => setSearchModalOpen(true)}
+            className="flex items-center gap-1.5 sm:gap-2 px-2 sm:px-2.5 py-1.5 rounded-lg border border-slate-200 hover:border-slate-300 text-slate-500 hover:text-slate-800 bg-slate-50 hover:bg-slate-100 transition-colors text-xs font-medium cursor-pointer"
+            title="Search (Ctrl + K)"
+            aria-label="Search JobHighway"
+          >
+            <Search className="w-3.5 h-3.5 text-slate-400" />
+            <span className="hidden sm:inline">Search</span>
+            <kbd className="hidden sm:inline font-mono text-[10px] text-slate-400 bg-white px-1 py-0.5 rounded border border-slate-200">
+              Ctrl K
+            </kbd>
+          </button>
           {user ? (
             <div className="flex items-center gap-2">
               {user.role === "admin" ? (
@@ -586,6 +623,12 @@ export function Navbar() {
           </div>
         </div>
       )}
+
+      {/* Omni-Search Palette (Ctrl+K) */}
+      <GlobalSearchModal
+        isOpen={searchModalOpen}
+        onClose={() => setSearchModalOpen(false)}
+      />
     </header>
   );
 }

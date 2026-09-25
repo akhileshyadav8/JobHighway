@@ -3,9 +3,11 @@
 import { useState, useMemo, useEffect, useCallback, useRef } from "react";
 import { Job, OverviewStats } from "@/lib/api";
 import { JobCard } from "@/components/jobs/JobCard";
-import { Search, X, RotateCcw, MapPin, Globe, Building2, ArrowUpDown, Navigation, Briefcase, GraduationCap, Laptop, Zap, ShieldCheck, Clock, Bookmark, ChevronRight } from "lucide-react";
+import { Search, X, RotateCcw, MapPin, Globe, Building2, ArrowUpDown, Navigation, Briefcase, GraduationCap, Laptop, Zap, ShieldCheck, Clock, Bookmark, ChevronRight, ArrowLeftRight, Check } from "lucide-react";
 import { ALL_WORLD_COUNTRIES, COUNTRY_STATES, STATE_CITIES } from "@/lib/world_locations";
 import { SearchableSelect } from "@/components/ui/SearchableSelect";
+import { JobComparisonModal } from "@/components/jobs/JobComparisonModal";
+import { getCurrentUser, saveSearchConfiguration } from "@/lib/auth";
 
 const FILTER_CONFIG = {
   "Job Type": ["All", "Full Time", "Internship", "Contract"],
@@ -213,6 +215,11 @@ export function InteractiveJobFeed({ initialJobs, stats, initialTotal, initialTo
   const [isFetchingPage, setIsFetchingPage] = useState(false);
   const [jumpPageInput, setJumpPageInput] = useState("");
   const isInitialMount = useRef(true);
+
+  // Job Comparison (F23) & Saved Search (F7) States
+  const [compareJobs, setCompareJobs] = useState<Job[]>([]);
+  const [isCompareModalOpen, setIsCompareModalOpen] = useState(false);
+  const [savedSearchSuccess, setSavedSearchSuccess] = useState(false);
 
   // Sync state if initialJobs changes (e.g. server revalidation)
   useEffect(() => {
@@ -685,6 +692,48 @@ export function InteractiveJobFeed({ initialJobs, stats, initialTotal, initialTo
       // ignore
     }
   };
+
+  const handleToggleCompare = useCallback((job: Job) => {
+    setCompareJobs(prev => {
+      const exists = prev.some(j => j.id === job.id);
+      if (exists) {
+        return prev.filter(j => j.id !== job.id);
+      }
+      if (prev.length >= 2) {
+        return [prev[0], job];
+      }
+      return [...prev, job];
+    });
+  }, []);
+
+  const handleSaveCurrentSearch = useCallback(() => {
+    const user = getCurrentUser();
+    if (!user) {
+      window.location.href = "/login";
+      return;
+    }
+    const parts = [
+      searchQuery.trim() || null,
+      selectedCountry !== "All" ? selectedCountry : null,
+      selectedCity !== "All" ? selectedCity : null,
+      activeFilters["Work Mode"] !== "All" ? activeFilters["Work Mode"] : null
+    ].filter(Boolean);
+
+    const name = parts.join(" · ") || "All Verified Jobs";
+    saveSearchConfiguration(user.id, {
+      name,
+      query: searchQuery.trim(),
+      country: selectedCountry !== "All" ? selectedCountry : undefined,
+      state: selectedState !== "All" ? selectedState : undefined,
+      city: selectedCity !== "All" ? selectedCity : undefined,
+      company: selectedCompany !== "All" ? selectedCompany : undefined,
+      jobType: activeFilters["Job Type"] !== "All" ? activeFilters["Job Type"] : undefined,
+      workMode: activeFilters["Work Mode"] !== "All" ? activeFilters["Work Mode"] : undefined,
+      experience: activeFilters["Experience"] !== "All" ? activeFilters["Experience"] : undefined
+    });
+    setSavedSearchSuccess(true);
+    setTimeout(() => setSavedSearchSuccess(false), 3000);
+  }, [searchQuery, selectedCountry, selectedState, selectedCity, selectedCompany, activeFilters]);
 
   const isFiltered = useMemo(() => {
     return (
@@ -1271,6 +1320,59 @@ export function InteractiveJobFeed({ initialJobs, stats, initialTotal, initialTo
                 searchPlaceholder="Search sort order..."
               />
             </div>
+
+            {/* Quick Freshness & Persona Chips (F33) */}
+            <div className="flex items-center gap-1.5 flex-wrap pt-1">
+              <span className="text-[11px] font-semibold text-slate-500 mr-0.5">Quick Filters:</span>
+              <button
+                type="button"
+                onClick={() => setSortBy(sortBy === "newest" ? "high_salary_newest" : "newest")}
+                className={`px-2.5 py-1 rounded-md text-xs font-semibold flex items-center gap-1.5 transition-colors cursor-pointer ${
+                  sortBy === "newest"
+                    ? "bg-teal-50 text-teal-700 border border-teal-200"
+                    : "bg-white text-slate-600 border border-slate-200 hover:bg-slate-50"
+                }`}
+              >
+                <Zap className="w-3 h-3 text-teal-600" />
+                <span>⚡ Fresh (&lt;24h)</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => toggleFilter("Experience", activeFilters["Experience"] === "0-1" ? "All" : "0-1")}
+                className={`px-2.5 py-1 rounded-md text-xs font-semibold flex items-center gap-1.5 transition-colors cursor-pointer ${
+                  activeFilters["Experience"] === "0-1"
+                    ? "bg-emerald-50 text-emerald-800 border border-emerald-200"
+                    : "bg-white text-slate-600 border border-slate-200 hover:bg-slate-50"
+                }`}
+              >
+                <span>🌱 Fresher Friendly (0–1 Yrs)</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => toggleFilter("Work Mode", activeFilters["Work Mode"] === "Remote" ? "All" : "Remote")}
+                className={`px-2.5 py-1 rounded-md text-xs font-semibold flex items-center gap-1.5 transition-colors cursor-pointer ${
+                  activeFilters["Work Mode"] === "Remote"
+                    ? "bg-sky-50 text-sky-800 border border-sky-200"
+                    : "bg-white text-slate-600 border border-slate-200 hover:bg-slate-50"
+                }`}
+              >
+                <span>💼 Remote Only</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setSortBy(sortBy === "fresher_highest_salary" ? "newest" : "fresher_highest_salary")}
+                className={`px-2.5 py-1 rounded-md text-xs font-semibold flex items-center gap-1.5 transition-colors cursor-pointer ${
+                  sortBy === "fresher_highest_salary"
+                    ? "bg-purple-50 text-purple-800 border border-purple-200"
+                    : "bg-white text-slate-600 border border-slate-200 hover:bg-slate-50"
+                }`}
+              >
+                <span>⭐ Fresher + High Salary</span>
+              </button>
+            </div>
           </div>
 
           {/* Active Filter Summary */}
@@ -1303,13 +1405,34 @@ export function InteractiveJobFeed({ initialJobs, stats, initialTotal, initialTo
                   <span className="text-slate-500">· High Salary + Newest</span>
                 )}
               </div>
-              <button
-                onClick={resetFilters}
-                className="flex items-center gap-1 text-slate-500 hover:text-slate-700 font-medium transition-colors text-xs cursor-pointer"
-              >
-                <RotateCcw className="w-3 h-3" />
-                Reset filters
-              </button>
+              <div className="flex items-center gap-3">
+                {/* Save Search Button (F7) */}
+                <button
+                  type="button"
+                  onClick={handleSaveCurrentSearch}
+                  className="flex items-center gap-1 text-teal-700 hover:text-teal-800 font-semibold transition-colors text-xs cursor-pointer"
+                >
+                  {savedSearchSuccess ? (
+                    <>
+                      <Check className="w-3.5 h-3.5 text-emerald-600" />
+                      <span className="text-emerald-700 font-bold">Search Saved!</span>
+                    </>
+                  ) : (
+                    <>
+                      <Bookmark className="w-3 h-3" />
+                      <span>Save this search</span>
+                    </>
+                  )}
+                </button>
+
+                <button
+                  onClick={resetFilters}
+                  className="flex items-center gap-1 text-slate-500 hover:text-slate-700 font-medium transition-colors text-xs cursor-pointer"
+                >
+                  <RotateCcw className="w-3 h-3" />
+                  Reset filters
+                </button>
+              </div>
             </div>
           )}
         </div>
@@ -1394,7 +1517,12 @@ export function InteractiveJobFeed({ initialJobs, stats, initialTotal, initialTo
           ) : displayedJobs.length > 0 ? (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
               {displayedJobs.map((job) => (
-                <JobCard key={job.id} job={job} />
+                <JobCard
+                  key={job.id}
+                  job={job}
+                  isCompared={compareJobs.some(c => c.id === job.id)}
+                  onToggleCompare={handleToggleCompare}
+                />
               ))}
             </div>
           ) : (
@@ -1486,6 +1614,52 @@ export function InteractiveJobFeed({ initialJobs, stats, initialTotal, initialTo
           )}
         </div>
       </section>
+
+      {/* Floating Comparison Dock (F23) */}
+      {compareJobs.length > 0 && (
+        <div className="fixed bottom-5 left-1/2 -translate-x-1/2 z-40 bg-slate-900 text-white px-4 sm:px-5 py-3 rounded-2xl shadow-2xl flex items-center gap-3 sm:gap-4 border border-slate-700/80 animate-in slide-in-from-bottom duration-200 max-w-[94vw] sm:max-w-xl">
+          <div className="flex items-center gap-2 min-w-0">
+            <span className="w-6 h-6 rounded-full bg-teal-500 text-slate-950 font-black text-xs flex items-center justify-center shrink-0">
+              {compareJobs.length}
+            </span>
+            <div className="min-w-0">
+              <span className="text-xs font-bold block truncate">
+                {compareJobs.map(j => j.company.name).join(" vs ")}
+              </span>
+              <span className="text-[10px] text-slate-400 block truncate">
+                {compareJobs.length === 1 ? "Select 1 more job to compare side-by-side" : "Ready to compare side-by-side"}
+              </span>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-2 shrink-0">
+            <button
+              onClick={() => setIsCompareModalOpen(true)}
+              className="px-3.5 py-1.5 rounded-lg bg-teal-500 hover:bg-teal-400 text-slate-950 text-xs font-bold transition-colors cursor-pointer"
+            >
+              Compare Now
+            </button>
+            <button
+              onClick={() => setCompareJobs([])}
+              className="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition-colors cursor-pointer"
+              title="Clear selection"
+            >
+              <X className="w-4 h-4" />
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Side-by-Side Comparison Modal */}
+      <JobComparisonModal
+        isOpen={isCompareModalOpen}
+        onClose={() => setIsCompareModalOpen(false)}
+        jobs={compareJobs}
+        onRemoveJob={(jobId) => {
+          setCompareJobs(prev => prev.filter(j => j.id !== jobId));
+          if (compareJobs.length <= 1) setIsCompareModalOpen(false);
+        }}
+      />
     </div>
   );
 }

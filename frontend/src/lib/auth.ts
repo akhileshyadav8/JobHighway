@@ -43,6 +43,9 @@ export interface AppliedJob {
   status: ApplicationStatus;
   appliedAt: string;
   notes?: string;
+  interviewDate?: string;
+  followUpDate?: string;
+  contactEmail?: string;
 }
 
 export interface BookmarkItem {
@@ -648,6 +651,32 @@ export function updateAppliedStatus(
   return current;
 }
 
+export function updateAppliedJobDetails(
+  userId: string,
+  jobIdOrAppId: string,
+  details: {
+    status?: ApplicationStatus;
+    notes?: string;
+    interviewDate?: string;
+    followUpDate?: string;
+    contactEmail?: string;
+  }
+): AppliedJob[] {
+  if (!isBrowser() || !userId) return [];
+  const current = getAppliedJobs(userId);
+  const item = current.find(j => j.id === jobIdOrAppId || j.jobId === jobIdOrAppId);
+  if (item) {
+    if (details.status !== undefined) item.status = details.status;
+    if (details.notes !== undefined) item.notes = details.notes;
+    if (details.interviewDate !== undefined) item.interviewDate = details.interviewDate;
+    if (details.followUpDate !== undefined) item.followUpDate = details.followUpDate;
+    if (details.contactEmail !== undefined) item.contactEmail = details.contactEmail;
+    localStorage.setItem(APPLIED_STORAGE_PREFIX + userId, JSON.stringify(current));
+    window.dispatchEvent(new Event("jobhighway_applications_change"));
+  }
+  return current;
+}
+
 export function removeAppliedJob(userId: string, jobIdOrAppId: string): AppliedJob[] {
   if (!isBrowser() || !userId) return [];
   const current = getAppliedJobs(userId).filter(j => j.id !== jobIdOrAppId && j.jobId !== jobIdOrAppId);
@@ -871,4 +900,109 @@ export function deleteJobAlert(userId: string, alertId: string): JobAlertRecord[
   window.dispatchEvent(new Event("jobhighway_alerts_change"));
   return current;
 }
+
+// ---------------- Saved Searches ----------------
+export interface SavedSearchRecord {
+  id: string;
+  name: string;
+  query: string;
+  country?: string;
+  state?: string;
+  city?: string;
+  company?: string;
+  jobType?: string;
+  workMode?: string;
+  experience?: string;
+  createdAt: string;
+}
+
+const SAVED_SEARCHES_PREFIX = "jobhighway_saved_searches_";
+
+export function getSavedSearches(userId: string): SavedSearchRecord[] {
+  if (!isBrowser() || !userId) return [];
+  try {
+    const raw = localStorage.getItem(SAVED_SEARCHES_PREFIX + userId);
+    return raw ? JSON.parse(raw) : [];
+  } catch {
+    return [];
+  }
+}
+
+export function saveSearchConfiguration(
+  userId: string,
+  search: Omit<SavedSearchRecord, "id" | "createdAt">
+): SavedSearchRecord[] {
+  if (!isBrowser() || !userId) return [];
+  const current = getSavedSearches(userId);
+  const newRecord: SavedSearchRecord = {
+    ...search,
+    id: "search_" + Date.now(),
+    createdAt: new Date().toISOString()
+  };
+  current.unshift(newRecord);
+  if (current.length > 30) current.length = 30;
+  localStorage.setItem(SAVED_SEARCHES_PREFIX + userId, JSON.stringify(current));
+  window.dispatchEvent(new Event("jobhighway_saved_searches_change"));
+  return current;
+}
+
+export function deleteSavedSearch(userId: string, searchId: string): SavedSearchRecord[] {
+  if (!isBrowser() || !userId) return [];
+  const current = getSavedSearches(userId).filter(s => s.id !== searchId);
+  localStorage.setItem(SAVED_SEARCHES_PREFIX + userId, JSON.stringify(current));
+  window.dispatchEvent(new Event("jobhighway_saved_searches_change"));
+  return current;
+}
+
+// ---------------- Recently Viewed Jobs ----------------
+export interface RecentlyViewedJobRecord {
+  jobId: string;
+  title: string;
+  company: string;
+  location: string;
+  salary?: string;
+  workMode?: string;
+  slug?: string;
+  applyUrl?: string;
+  viewedAt: string;
+}
+
+const RECENTLY_VIEWED_KEY = "jobhighway_recent_jobs";
+
+export function getRecentlyViewedJobs(): RecentlyViewedJobRecord[] {
+  if (!isBrowser()) return [];
+  try {
+    const raw = localStorage.getItem(RECENTLY_VIEWED_KEY);
+    return raw ? JSON.parse(raw) : [];
+  } catch {
+    return [];
+  }
+}
+
+export function recordRecentlyViewedJob(job: Omit<RecentlyViewedJobRecord, "viewedAt">): RecentlyViewedJobRecord[] {
+  if (!isBrowser() || !job.jobId) return [];
+  try {
+    const current = getRecentlyViewedJobs();
+    const filtered = current.filter(j => j.jobId !== String(job.jobId));
+    const newRecord: RecentlyViewedJobRecord = {
+      ...job,
+      jobId: String(job.jobId),
+      viewedAt: new Date().toISOString()
+    };
+    filtered.unshift(newRecord);
+    if (filtered.length > 20) filtered.length = 20;
+    localStorage.setItem(RECENTLY_VIEWED_KEY, JSON.stringify(filtered));
+    window.dispatchEvent(new Event("jobhighway_recent_jobs_change"));
+    return filtered;
+  } catch {
+    return [];
+  }
+}
+
+export function clearRecentlyViewedJobs(): void {
+  if (!isBrowser()) return;
+  localStorage.removeItem(RECENTLY_VIEWED_KEY);
+  window.dispatchEvent(new Event("jobhighway_recent_jobs_change"));
+}
+
 
