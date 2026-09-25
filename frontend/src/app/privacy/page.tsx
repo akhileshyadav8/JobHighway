@@ -6,8 +6,11 @@ import { LegalSection } from "@/components/legal/LegalSection";
 import { InfoNotice } from "@/components/legal/InfoNotice";
 
 export const metadata: Metadata = {
-  title: "Privacy Policy | JobHighway",
+  title: "Privacy Policy",
   description: "Learn how JobHighway handles data and safeguards candidate privacy.",
+  alternates: {
+    canonical: "/privacy",
+  },
 };
 
 export default function PrivacyPage() {

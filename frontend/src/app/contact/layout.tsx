@@ -1,9 +1,11 @@
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Contact | JobHighway",
-  description:
-    "Have a question, feedback or want to partner with JobHighway? Get in touch with our team directly.",
+  title: "Contact Us & ATS Partnership Inquiries",
+  description: "Get in touch with the JobHighway team for questions, partnerships, reporting broken ATS job links, or employer integrations.",
+  alternates: {
+    canonical: "/contact",
+  },
 };
 
 export default function ContactLayout({

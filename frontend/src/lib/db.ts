@@ -4,7 +4,7 @@ import { sanitizeJobSkills } from './utils';
 
 let pool: Pool | null = null;
 
-function getPool(): Pool | null {
+export function getPool(): Pool | null {
   const connStr = process.env.DATABASE_URL || process.env.DATABASE_DIRECT_URL;
   if (!connStr) return null;
 

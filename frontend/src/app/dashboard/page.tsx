@@ -152,10 +152,12 @@ export default function DashboardPage() {
       }
 
       try {
-        const { mockJobs } = await import("@/lib/mock-data");
-        if (isMounted) {
-          setLiveJobs(mockJobs || []);
-          setTotalJobsCount(mockJobs?.length || 2550);
+        const statsRes = await fetch("/api/stats/overview");
+        if (statsRes.ok) {
+          const stats = await statsRes.json();
+          if (stats?.total_jobs && isMounted) {
+            setTotalJobsCount(stats.total_jobs);
+          }
         }
       } catch (e) {}
 

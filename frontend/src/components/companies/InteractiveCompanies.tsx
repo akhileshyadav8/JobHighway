@@ -103,7 +103,7 @@ export function InteractiveCompanies({ initialCompanies, initialStats, initialSe
     setFollowedSlugs(list.map(c => c.slug.toLowerCase()));
   };
 
-  const totalCompaniesCount = initialStats?.total_companies || initialCompanies.length || 17578;
+  const totalCompaniesCount = initialStats?.total_companies || (initialCompanies.length > 50 ? initialCompanies.length : 19990);
 
   // Extract unique industries for filter dropdown
   const industries = useMemo(() => {
@@ -286,7 +286,7 @@ export function InteractiveCompanies({ initialCompanies, initialStats, initialSe
                   </div>
                   <div>
                     <div className="text-base sm:text-lg font-black text-slate-900 leading-tight">
-                      {initialStats?.total_jobs ? `${Number(initialStats.total_jobs).toLocaleString()}+` : "55,484+"}
+                      {initialStats?.total_jobs ? `${Number(initialStats.total_jobs).toLocaleString()}+` : "67,121+"}
                     </div>
                     <div className="text-xs text-slate-500 font-medium">
                       Active Openings

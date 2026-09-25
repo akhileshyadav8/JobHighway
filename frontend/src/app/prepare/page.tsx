@@ -5,8 +5,11 @@ import { CareerPrepHub } from "@/components/prepare/CareerPrepHub";
 export const dynamic = 'force-dynamic';
 
 export const metadata: Metadata = {
-  title: "Career Preparation Hub & Role Roadmaps | JobHighway",
-  description: "Dynamic role-based interview roadmaps, curated study sheets, practice questions, and company guides for Software Engineers, Data Scientists, Data Analysts, Data Engineers, Product Managers, and tech professionals."
+  title: "Career Preparation Hub & Role Roadmaps",
+  description: "Dynamic role-based interview roadmaps, curated study sheets, practice questions, and company guides for Software Engineers, Data Scientists, Data Analysts, Data Engineers, Product Managers, and tech professionals.",
+  alternates: {
+    canonical: "/prepare",
+  },
 };
 
 export default async function PreparePage({

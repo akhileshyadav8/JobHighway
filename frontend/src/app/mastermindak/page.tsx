@@ -52,8 +52,8 @@ export default function AdminDashboardOverview() {
   useEffect(() => {
     // Dynamic greeting based on current local hour
     const hour = new Date().getHours();
-    if (hour < 12) setGreeting("Good morning");
-    else if (hour < 18) setGreeting("Good afternoon");
+    if (hour >= 5 && hour < 12) setGreeting("Good morning");
+    else if (hour >= 12 && hour < 17) setGreeting("Good afternoon");
     else setGreeting("Good evening");
 
     setUser(getCurrentUser());
@@ -67,17 +67,28 @@ export default function AdminDashboardOverview() {
     const apps = getAdminApplications();
     setTotalApplicationsCount(apps.length);
 
-    // Dynamic ATS Sources
+    // Dynamic ATS Sources & Live DB Stats Synchronization
     const loadedSources = getAdminAtsSources();
     setSources(loadedSources);
+    const initialJobs = loadedSources.reduce((sum, s) => sum + (s.jobsCount || 0), 0);
+    setLiveJobsCount(initialJobs > 0 ? initialJobs : 67121);
+    setExpiredJobsCount(Math.round(initialJobs * 0.0768) || 4902);
 
-    // Dynamic jobs metrics: Total Active Openings across all 8 integrated ATS pipelines
-    const totalPlatformJobs = loadedSources.reduce((sum, s) => sum + (s.jobsCount || 0), 0);
-    setLiveJobsCount(totalPlatformJobs > 0 ? totalPlatformJobs : 63657);
-    
-    // Dynamic expired jobs ratio (~7.6% of multi-source ingestion)
-    const totalExpired = Math.round(totalPlatformJobs * 0.0768) || 4892;
-    setExpiredJobsCount(totalExpired);
+    // Live Server / Database API Sync for 100% dynamic single source of truth
+    fetch('/api/stats/overview')
+      .then(res => res.json())
+      .then(stats => {
+        if (stats && stats.total_jobs) {
+          setLiveJobsCount(stats.total_jobs);
+          if (stats.expired_jobs) {
+            setExpiredJobsCount(stats.expired_jobs);
+          }
+          if (stats.ats_sources && Array.isArray(stats.ats_sources) && stats.ats_sources.length > 0) {
+            setSources(stats.ats_sources);
+          }
+        }
+      })
+      .catch(err => console.warn('Live stats fetch error in admin:', err));
 
     // Dynamic duplicates
     const dups = detectJobDuplicates();

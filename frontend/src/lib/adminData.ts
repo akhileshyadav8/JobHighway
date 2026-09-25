@@ -232,13 +232,13 @@ export function bulkDeleteAdminJobs(ids: (string | number)[]) {
 export function getTotalPlatformJobsCount(): number {
   const sources = getAdminAtsSources();
   const total = sources.reduce((sum, s) => sum + (s.jobsCount || 0), 0);
-  return total > 0 ? total : 63657;
+  return total > 0 ? total : 67121;
 }
 
 // -------------------------------------------------------------
 // DYNAMIC ATS SOURCES COMPUTED FROM REAL CORPUS & STATE
 // -------------------------------------------------------------
-const ATS_STATE_STORAGE_KEY = "jobhighway_ats_sources_state";
+const ATS_STATE_STORAGE_KEY = "jobhighway_ats_sources_state_v3";
 
 export const BASE_ATS_SOURCES: AtsSourceItem[] = [
   {
@@ -246,7 +246,7 @@ export const BASE_ATS_SOURCES: AtsSourceItem[] = [
     name: "Greenhouse",
     slug: "greenhouse",
     companiesCount: 423,
-    jobsCount: 18420,
+    jobsCount: 19840,
     lastSync: "4 min ago",
     nextSync: "in 56 min",
     successRate: 99.8,
@@ -260,7 +260,7 @@ export const BASE_ATS_SOURCES: AtsSourceItem[] = [
     name: "Lever",
     slug: "lever",
     companiesCount: 312,
-    jobsCount: 12381,
+    jobsCount: 13420,
     lastSync: "8 min ago",
     nextSync: "in 52 min",
     successRate: 99.6,
@@ -274,7 +274,7 @@ export const BASE_ATS_SOURCES: AtsSourceItem[] = [
     name: "Workday",
     slug: "workday",
     companiesCount: 284,
-    jobsCount: 8920,
+    jobsCount: 9860,
     lastSync: "21 min ago",
     nextSync: "in 39 min",
     successRate: 98.1,
@@ -288,7 +288,7 @@ export const BASE_ATS_SOURCES: AtsSourceItem[] = [
     name: "Ashby",
     slug: "ashby",
     companiesCount: 146,
-    jobsCount: 6421,
+    jobsCount: 6840,
     lastSync: "1 hr ago",
     nextSync: "in 0 min",
     successRate: 97.4,
@@ -302,7 +302,7 @@ export const BASE_ATS_SOURCES: AtsSourceItem[] = [
     name: "SmartRecruiters",
     slug: "smartrecruiters",
     companiesCount: 98,
-    jobsCount: 4221,
+    jobsCount: 4520,
     lastSync: "2 hrs ago",
     nextSync: "in 10 min",
     successRate: 99.1,
@@ -316,7 +316,7 @@ export const BASE_ATS_SOURCES: AtsSourceItem[] = [
     name: "iCIMS",
     slug: "icims",
     companiesCount: 76,
-    jobsCount: 3890,
+    jobsCount: 3980,
     lastSync: "2 hrs ago",
     nextSync: "in 14 min",
     successRate: 99.2,
@@ -330,7 +330,7 @@ export const BASE_ATS_SOURCES: AtsSourceItem[] = [
     name: "Taleo",
     slug: "taleo",
     companiesCount: 62,
-    jobsCount: 2814,
+    jobsCount: 2860,
     lastSync: "3 hrs ago",
     nextSync: "in 6 min",
     successRate: 97.1,
@@ -344,7 +344,7 @@ export const BASE_ATS_SOURCES: AtsSourceItem[] = [
     name: "Official Domains",
     slug: "official_domains",
     companiesCount: 1240,
-    jobsCount: 6590,
+    jobsCount: 5801,
     lastSync: "45 min ago",
     nextSync: "in 15 min",
     successRate: 98.7,

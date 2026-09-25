@@ -6,8 +6,11 @@ import { LegalSection } from "@/components/legal/LegalSection";
 import { InfoNotice } from "@/components/legal/InfoNotice";
 
 export const metadata: Metadata = {
-  title: "Terms of Service | JobHighway",
+  title: "Terms of Service",
   description: "Read JobHighway's Terms of Service, user agreement, and platform policies.",
+  alternates: {
+    canonical: "/terms",
+  },
 };
 
 export default function TermsPage() {

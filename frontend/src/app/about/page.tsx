@@ -19,9 +19,12 @@ import type { Metadata } from "next";
 import { getOverviewStats } from "@/lib/api";
 
 export const metadata: Metadata = {
-  title: "About | JobHighway",
+  title: "About Us — Hourly Direct ATS Job Discovery",
   description:
-    "Learn how JobHighway indexes jobs directly from companies' official career systems, delivering fresh opportunities without delayed third-party aggregation.",
+    "Learn how JobHighway indexes jobs directly from 19,000+ companies' official career ATS portals, delivering fresh opportunities without delayed third-party aggregation.",
+  alternates: {
+    canonical: "/about",
+  },
 };
 
 export default async function AboutPage() {
@@ -29,11 +32,11 @@ export default async function AboutPage() {
 
   const activeJobsDisplay = stats?.total_jobs
     ? `${Number(stats.total_jobs).toLocaleString()}+`
-    : "61,000+";
+    : "67,000+";
 
   const verifiedCompaniesDisplay = stats?.total_companies
     ? `${Number(stats.total_companies).toLocaleString()}+`
-    : "19,000+";
+    : "19,900+";
 
   const countriesDisplay = "150+";
   return (

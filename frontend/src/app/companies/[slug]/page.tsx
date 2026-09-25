@@ -3,8 +3,42 @@ import { getCompanyBySlug, getCompanyJobs } from "@/lib/api";
 import { JobCard } from "@/components/jobs/JobCard";
 import { ExternalLink, MapPin, Users, Building2, Briefcase } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import type { Metadata } from "next";
 
 export const dynamic = 'force-dynamic';
+
+export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
+  const { slug } = await params;
+  try {
+    const company = await getCompanyBySlug(slug);
+    const title = `${company.name} Careers & Direct ATS Job Openings | JobHighway`;
+    const description = `Explore verified direct ATS job openings at ${company.name}. Apply directly through official portals with verified salaries, locations, and hiring requirements.`;
+
+    return {
+      title,
+      description,
+      alternates: {
+        canonical: `/companies/${slug}`,
+      },
+      openGraph: {
+        title,
+        description,
+        url: `https://jobhighway.vercel.app/companies/${slug}`,
+        siteName: "JobHighway",
+      },
+      twitter: {
+        card: "summary_large_image",
+        title,
+        description,
+      },
+    };
+  } catch {
+    return {
+      title: "Company Careers | JobHighway",
+      description: "Direct official ATS job openings by company.",
+    };
+  }
+}
 
 export default async function CompanyDetailPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
@@ -17,8 +51,25 @@ export default async function CompanyDetailPage({ params }: { params: Promise<{ 
     notFound();
   }
 
+  const jsonLdCompany = {
+    "@context": "https://schema.org",
+    "@type": "Organization",
+    "name": company.name,
+    "description": company.description || `${company.name} careers and job openings`,
+    "url": company.website || `https://jobhighway.vercel.app/companies/${company.slug}`,
+    "logo": company.logo_url || undefined,
+    "address": company.headquarters ? {
+      "@type": "PostalAddress",
+      "addressLocality": company.headquarters
+    } : undefined
+  };
+
   return (
     <div className="bg-slate-50 min-h-screen">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLdCompany) }}
+      />
       {/* Company Header */}
       <div className="bg-white border-b border-slate-200 pt-16 pb-12">
         <div className="container mx-auto px-4 max-w-5xl">

@@ -6,8 +6,11 @@ import { LegalSection } from "@/components/legal/LegalSection";
 import { InfoNotice } from "@/components/legal/InfoNotice";
 
 export const metadata: Metadata = {
-  title: "Direct ATS & Zero-Scam Policy | JobHighway",
-  description: "Learn about JobHighway's strict Direct ATS and Zero-Scam Verification guarantee.",
+  title: "Direct ATS & Zero-Scam Verification Policy",
+  description: "Learn about JobHighway's strict Direct ATS and Zero-Scam Verification guarantee — 100% verified employer application portals.",
+  alternates: {
+    canonical: "/ats-policy",
+  },
 };
 
 const ATS_PLATFORMS = [

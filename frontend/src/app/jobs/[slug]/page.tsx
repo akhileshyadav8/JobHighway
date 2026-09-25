@@ -24,8 +24,45 @@ import {
   ShieldCheck,
   FileText
 } from "lucide-react";
+import type { Metadata } from "next";
 
 export const dynamic = 'force-dynamic';
+
+export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
+  const { slug } = await params;
+  try {
+    const job = await getJobBySlug(slug);
+    const locationStr = Array.isArray(job.location) && job.location.length > 0 ? job.location.join(", ") : "Remote / Hybrid";
+    const companyName = job.company?.name || "Company";
+    const title = `${job.title} at ${companyName} (${locationStr}) | Direct Official ATS`;
+    const description = `Apply directly for ${job.title} at ${companyName}. Official ATS opening indexed with direct application link, verified eligibility, skills, and interview prep.`;
+
+    return {
+      title,
+      description,
+      alternates: {
+        canonical: `/jobs/${slug}`,
+      },
+      openGraph: {
+        title,
+        description,
+        url: `https://jobhighway.vercel.app/jobs/${slug}`,
+        siteName: "JobHighway",
+        type: "article",
+      },
+      twitter: {
+        card: "summary_large_image",
+        title,
+        description,
+      },
+    };
+  } catch {
+    return {
+      title: "Job Opening | JobHighway",
+      description: "Direct official ATS verified job opening.",
+    };
+  }
+}
 
 export default async function JobDetailPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
@@ -44,8 +81,62 @@ export default async function JobDetailPage({ params }: { params: Promise<{ slug
     : null;
   const cleanedDescription = cleanHtmlDescription(job.description_html, job.description_text);
 
+  const jsonLdJob = {
+    "@context": "https://schema.org/",
+    "@type": "JobPosting",
+    "title": job.title,
+    "description": cleanedDescription || job.description_text || job.title,
+    "identifier": {
+      "@type": "PropertyValue",
+      "name": job.company?.name || "Company",
+      "value": String(job.id)
+    },
+    "datePosted": job.posted_at || job.first_seen_at || new Date().toISOString(),
+    "validThrough": job.deadline || new Date(Date.now() + 60 * 24 * 60 * 60 * 1000).toISOString(),
+    "employmentType": job.employment_type === "Internship" ? "INTERN" : (job.employment_type === "Contract" ? "CONTRACTOR" : "FULL_TIME"),
+    "hiringOrganization": {
+      "@type": "Organization",
+      "name": job.company?.name || "Company",
+      "sameAs": job.company?.website || undefined,
+      "logo": job.company?.logo_url || undefined
+    },
+    "jobLocation": {
+      "@type": "Place",
+      "address": {
+        "@type": "PostalAddress",
+        "addressLocality": safeLocation.join(", ") || "Global",
+        "addressCountry": "Global"
+      }
+    },
+    ...(job.work_mode?.toLowerCase().includes("remote") ? {
+      "jobLocationType": "TELECOMMUTE",
+      "applicantLocationRequirements": {
+        "@type": "Country",
+        "name": "Worldwide"
+      }
+    } : {}),
+    ...(job.salary_min ? {
+      "baseSalary": {
+        "@type": "MonetaryAmount",
+        "currency": job.salary_currency || "USD",
+        "value": {
+          "@type": "QuantitativeValue",
+          "minValue": job.salary_min,
+          "maxValue": job.salary_max || job.salary_min,
+          "unitText": (job.salary_period || "YEAR").toUpperCase()
+        }
+      }
+    } : {}),
+    "directApply": true,
+    "url": job.apply_url || `https://jobhighway.vercel.app/jobs/${job.slug}`
+  };
+
   return (
     <div className="bg-slate-50 min-h-screen py-6 sm:py-10">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLdJob) }}
+      />
       <div className="container mx-auto px-4 sm:px-6 max-w-7xl">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
           {/* Main Column (Left ~67%) */}

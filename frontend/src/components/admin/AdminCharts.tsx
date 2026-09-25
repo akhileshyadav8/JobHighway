@@ -12,27 +12,28 @@ interface JobActivityDataPoint {
   updated: number;
 }
 
-const DEFAULT_JOB_ACTIVITY: JobActivityDataPoint[] = [
-  { date: "Sep 10", added: 120, expired: 25, updated: 45 },
-  { date: "Sep 11", added: 185, expired: 30, updated: 60 },
-  { date: "Sep 12", added: 240, expired: 40, updated: 70 },
-  { date: "Sep 13", added: 160, expired: 20, updated: 35 },
-  { date: "Sep 14", added: 310, expired: 55, updated: 85 },
-  { date: "Sep 15", added: 280, expired: 45, updated: 90 },
-  { date: "Sep 16", added: 220, expired: 35, updated: 75 },
-  { date: "Sep 17", added: 390, expired: 60, updated: 110 },
-  { date: "Sep 18", added: 420, expired: 70, updated: 130 },
-  { date: "Sep 19", added: 340, expired: 50, updated: 95 },
-  { date: "Sep 20", added: 480, expired: 80, updated: 140 },
-  { date: "Sep 21", added: 510, expired: 90, updated: 160 },
-  { date: "Sep 22", added: 460, expired: 75, updated: 135 },
-  { date: "Sep 23", added: 530, expired: 85, updated: 170 }
-];
+function generateJobActivity(): JobActivityDataPoint[] {
+  const points: JobActivityDataPoint[] = [];
+  const now = new Date();
+  for (let i = 13; i >= 0; i--) {
+    const d = new Date(now.getTime() - i * 24 * 60 * 60 * 1000);
+    const dateStr = d.toLocaleDateString("en-US", { month: "short", day: "numeric" });
+    const factor = 1 + (13 - i) * 0.05;
+    points.push({
+      date: dateStr,
+      added: Math.round(280 * factor + ((i * 17) % 75)),
+      expired: Math.round(45 * factor + ((i * 7) % 25)),
+      updated: Math.round(80 * factor + ((i * 11) % 40)),
+    });
+  }
+  return points;
+}
 
-export function JobActivityChart({ data = DEFAULT_JOB_ACTIVITY }: { data?: JobActivityDataPoint[] }) {
+export function JobActivityChart({ data }: { data?: JobActivityDataPoint[] }) {
+  const chartData = React.useMemo(() => data || generateJobActivity(), [data]);
   const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
 
-  const maxTotal = Math.max(...data.map(d => d.added + d.expired + d.updated), 800);
+  const maxTotal = Math.max(...chartData.map(d => d.added + d.expired + d.updated), 800);
   const chartHeight = 160;
 
   return (
@@ -55,7 +56,7 @@ export function JobActivityChart({ data = DEFAULT_JOB_ACTIVITY }: { data?: JobAc
 
       {/* Bar Grid */}
       <div className="relative h-44 flex items-end justify-between gap-1 pt-6 px-1 border-b border-slate-200">
-        {data.map((item, idx) => {
+        {chartData.map((item, idx) => {
           const addedHeight = (item.added / maxTotal) * chartHeight;
           const expiredHeight = (item.expired / maxTotal) * chartHeight;
           const updatedHeight = (item.updated / maxTotal) * chartHeight;
@@ -88,9 +89,9 @@ export function JobActivityChart({ data = DEFAULT_JOB_ACTIVITY }: { data?: JobAc
 
       {/* Date Labels */}
       <div className="flex justify-between text-[10px] text-slate-400 mt-2 px-1 font-mono">
-        <span>{data[0]?.date}</span>
-        <span>{data[Math.floor(data.length / 2)]?.date}</span>
-        <span>{data[data.length - 1]?.date}</span>
+        <span>{chartData[0]?.date}</span>
+        <span>{chartData[Math.floor(chartData.length / 2)]?.date}</span>
+        <span>{chartData[chartData.length - 1]?.date}</span>
       </div>
     </div>
   );
@@ -105,34 +106,34 @@ interface UserActivityPoint {
   pageViews: number;
 }
 
-const DEFAULT_USER_ACTIVITY: UserActivityPoint[] = [
-  { date: "Sep 10", newUsers: 12, pageViews: 180 },
-  { date: "Sep 11", newUsers: 18, pageViews: 240 },
-  { date: "Sep 12", newUsers: 24, pageViews: 320 },
-  { date: "Sep 13", newUsers: 15, pageViews: 210 },
-  { date: "Sep 14", newUsers: 35, pageViews: 410 },
-  { date: "Sep 15", newUsers: 42, pageViews: 480 },
-  { date: "Sep 16", newUsers: 30, pageViews: 390 },
-  { date: "Sep 17", newUsers: 55, pageViews: 590 },
-  { date: "Sep 18", newUsers: 60, pageViews: 640 },
-  { date: "Sep 19", newUsers: 48, pageViews: 520 },
-  { date: "Sep 20", newUsers: 72, pageViews: 710 },
-  { date: "Sep 21", newUsers: 85, pageViews: 830 },
-  { date: "Sep 22", newUsers: 78, pageViews: 790 },
-  { date: "Sep 23", newUsers: 94, pageViews: 920 }
-];
+function generateUserActivity(): UserActivityPoint[] {
+  const points: UserActivityPoint[] = [];
+  const now = new Date();
+  for (let i = 13; i >= 0; i--) {
+    const d = new Date(now.getTime() - i * 24 * 60 * 60 * 1000);
+    const dateStr = d.toLocaleDateString("en-US", { month: "short", day: "numeric" });
+    const factor = 1 + (13 - i) * 0.08;
+    points.push({
+      date: dateStr,
+      newUsers: Math.round(18 * factor + ((i * 3) % 15)),
+      pageViews: Math.round(240 * factor + ((i * 29) % 120))
+    });
+  }
+  return points;
+}
 
-export function UserActivityChart({ data = DEFAULT_USER_ACTIVITY }: { data?: UserActivityPoint[] }) {
+export function UserActivityChart({ data }: { data?: UserActivityPoint[] }) {
+  const chartData = React.useMemo(() => data || generateUserActivity(), [data]);
   const width = 500;
   const height = 160;
   const padding = 20;
 
-  const maxViews = Math.max(...data.map(d => d.pageViews), 1000);
-  const maxUsers = Math.max(...data.map(d => d.newUsers), 100);
+  const maxViews = Math.max(...chartData.map(d => d.pageViews), 1000);
+  const maxUsers = Math.max(...chartData.map(d => d.newUsers), 100);
 
   const getPoints = (accessor: (d: UserActivityPoint) => number, maxVal: number) => {
-    return data.map((d, i) => {
-      const x = padding + (i / (data.length - 1)) * (width - 2 * padding);
+    return chartData.map((d, i) => {
+      const x = padding + (i / (chartData.length - 1)) * (width - 2 * padding);
       const y = height - padding - (accessor(d) / maxVal) * (height - 2 * padding);
       return `${x},${y}`;
     }).join(" ");
@@ -187,9 +188,9 @@ export function UserActivityChart({ data = DEFAULT_USER_ACTIVITY }: { data?: Use
 
       {/* Date Labels */}
       <div className="flex justify-between text-[10px] text-slate-400 mt-2 px-1 font-mono">
-        <span>{data[0]?.date}</span>
-        <span>{data[Math.floor(data.length / 2)]?.date}</span>
-        <span>{data[data.length - 1]?.date}</span>
+        <span>{chartData[0]?.date}</span>
+        <span>{chartData[Math.floor(chartData.length / 2)]?.date}</span>
+        <span>{chartData[chartData.length - 1]?.date}</span>
       </div>
     </div>
   );
