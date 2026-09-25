@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
 import { Shield, Lock } from "lucide-react";
 import Link from "next/link";
 import { getCurrentUser, User } from "@/lib/auth";
@@ -15,6 +15,7 @@ export default function AdminLayout({
   children: React.ReactNode;
 }) {
   const router = useRouter();
+  const pathname = usePathname();
   const [isAuthChecking, setIsAuthChecking] = useState(true);
   const [isAdmin, setIsAdmin] = useState(false);
 
@@ -36,6 +37,11 @@ export default function AdminLayout({
     window.addEventListener("jobhighway_auth_change", handleAuthChange);
     return () => window.removeEventListener("jobhighway_auth_change", handleAuthChange);
   }, []);
+
+  // Allow the admin login page to render directly without the restriction card
+  if (pathname === "/mastermindak/login") {
+    return <>{children}</>;
+  }
 
   if (isAuthChecking) {
     return (
