@@ -1,12 +1,12 @@
 "use client";
 
 import { useState, useMemo, useEffect, useCallback, useRef } from "react";
+import Image from "next/image";
 import { Job, OverviewStats } from "@/lib/api";
 import { JobCard } from "@/components/jobs/JobCard";
-import { Search, X, RotateCcw, MapPin, Globe, Building2, ArrowUpDown, Navigation, Briefcase, GraduationCap, Laptop, Zap, ShieldCheck, Clock } from "lucide-react";
+import { Search, X, RotateCcw, MapPin, Globe, Building2, ArrowUpDown, Navigation, Briefcase, GraduationCap, Laptop, Zap, ShieldCheck, Clock, Bookmark, ChevronRight } from "lucide-react";
 import { ALL_WORLD_COUNTRIES, COUNTRY_STATES, STATE_CITIES } from "@/lib/world_locations";
 import { SearchableSelect } from "@/components/ui/SearchableSelect";
-import { WorldMapGraphic } from "@/components/jobs/WorldMapGraphic";
 
 const FILTER_CONFIG = {
   "Job Type": ["All", "Full Time", "Internship", "Contract"],
@@ -706,11 +706,22 @@ export function InteractiveJobFeed({ initialJobs, stats, initialTotal, initialTo
   return (
     <div className="flex flex-col min-h-screen bg-slate-50">
       {/* Hero Section */}
-      <section className="relative overflow-hidden bg-gradient-to-b from-teal-50/70 via-emerald-50/20 to-slate-50 border-b border-slate-200/90 px-4 sm:px-6 lg:px-8 pt-7 sm:pt-9 pb-7 sm:pb-9">
-        {/* Ambient subtle tech background patterns */}
-        <div className="absolute inset-0 bg-[radial-gradient(#0d9488_1px,transparent_1px)] [background-size:24px_24px] opacity-[0.06] pointer-events-none" />
-        <div className="absolute -top-32 right-10 w-96 h-96 bg-teal-200/30 rounded-full blur-3xl pointer-events-none" />
-        <div className="absolute top-1/2 -left-20 w-80 h-80 bg-emerald-100/40 rounded-full blur-3xl pointer-events-none" />
+      <section className="relative overflow-hidden bg-gradient-to-b from-teal-50/60 via-[#f8fcfb] to-white border-b border-slate-200/90 px-4 sm:px-6 lg:px-8 pt-7 sm:pt-9 pb-7 sm:pb-9">
+        {/* Ambient subtle tech dotted background pattern */}
+        <div className="absolute inset-0 bg-[radial-gradient(#0d9488_1px,transparent_1px)] [background-size:20px_20px] opacity-[0.05] pointer-events-none" />
+        
+        {/* Subtle static vector world map graphic on the right side behind floating job cards */}
+        <div className="absolute right-0 top-0 w-[420px] sm:w-[560px] lg:w-[740px] xl:w-[820px] h-[340px] sm:h-[420px] lg:h-[480px] pointer-events-none select-none opacity-[0.25] z-0 overflow-hidden">
+          <Image
+            src="/world.svg"
+            alt=""
+            width={1010}
+            height={666}
+            className="w-full h-full object-contain object-right-top"
+            priority
+            unoptimized
+          />
+        </div>
 
         <div className="container mx-auto max-w-[1360px] relative z-10">
           <div className="flex flex-col lg:grid lg:grid-cols-12 gap-6 lg:gap-8 items-center">
@@ -719,7 +730,7 @@ export function InteractiveJobFeed({ initialJobs, stats, initialTotal, initialTo
               {/* Live USP Status */}
               <div className="flex items-center gap-2 mb-4 text-xs font-semibold tracking-wider uppercase text-teal-700">
                 <span className="w-2 h-2 rounded-full bg-emerald-500 shrink-0 animate-pulse" />
-                <span>Hourly live ATS sync · 100% direct official career portals</span>
+                <span>HOURLY LIVE ATS SYNC • 100% DIRECT OFFICIAL CAREER PORTALS</span>
               </div>
 
               {/* Main Headline with clear USP */}
@@ -806,33 +817,52 @@ export function InteractiveJobFeed({ initialJobs, stats, initialTotal, initialTo
 
             {/* RIGHT COLUMN: 42% width - Art-Directed Visual Composition */}
             <div className="order-3 lg:order-2 lg:col-span-5 relative w-full flex items-center justify-center lg:justify-end select-none">
-              {/* DESKTOP ART-DIRECTED CANVAS: Exactly 570px × 400px, all elements in dedicated coordinate space */}
-              <div className="hidden lg:block relative w-[570px] h-[400px] origin-top-right lg:scale-[0.94] xl:scale-100 transition-transform">
-                {/* 1. Static World Map Graphic Backdrop */}
-                <div className="absolute -left-[140px] -top-[30px] w-[750px] h-[430px] pointer-events-none select-none opacity-85 z-0">
-                  <WorldMapGraphic className="w-full h-full object-contain" />
+              {/* DESKTOP ART-DIRECTED CANVAS: Exactly 560px × 390px, 3 floating cards, vector world map behind */}
+              <div className="hidden lg:block relative w-[560px] h-[390px] origin-top-right lg:scale-[0.92] xl:scale-100 transition-transform">
+                {/* 1. Subtle World Map Overlay for Desktop Canvas */}
+                <div className="absolute right-0 top-0 w-[540px] h-[380px] pointer-events-none select-none opacity-[0.18] z-0 overflow-hidden">
+                  <Image
+                    src="/world.svg"
+                    alt=""
+                    width={1010}
+                    height={666}
+                    className="w-full h-full object-contain object-right-top"
+                    priority
+                    unoptimized
+                  />
                 </div>
 
-                {/* 2. ATS Source Labels with colored status dots */}
-                <div className="absolute top-[4px] right-[135px] z-10 flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/95 border border-slate-200/90 shadow-2xs text-[11px] font-semibold text-slate-700">
-                  <span className="w-2 h-2 rounded-full bg-emerald-500"></span>
+                {/* 2. ATS Source Labels along the right boundary */}
+                <div className="absolute top-[4px] right-[125px] z-10 flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-white/95 border border-slate-200/90 shadow-2xs text-[11px] font-semibold text-slate-700">
+                  <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
                   <span>Greenhouse</span>
                 </div>
-                <div className="absolute top-[62px] -right-[6px] z-10 flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/95 border border-slate-200/90 shadow-2xs text-[11px] font-semibold text-slate-700">
-                  <span className="w-2 h-2 rounded-full bg-indigo-500"></span>
+                <div className="absolute top-[62px] right-[0px] z-10 flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-white/95 border border-slate-200/90 shadow-2xs text-[11px] font-semibold text-slate-700">
+                  <span className="w-2 h-2 rounded-full bg-teal-500"></span>
                   <span>Lever</span>
                 </div>
-                <div className="absolute top-[192px] -right-[4px] z-10 flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/95 border border-slate-200/90 shadow-2xs text-[11px] font-semibold text-slate-700">
+                <div className="absolute top-[188px] -right-[10px] z-10 flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-white/95 border border-slate-200/90 shadow-2xs text-[11px] font-semibold text-slate-700">
                   <span className="w-2 h-2 rounded-full bg-cyan-500"></span>
                   <span>Ashby</span>
                 </div>
-                <div className="absolute top-[308px] right-[28px] z-10 flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/95 border border-slate-200/90 shadow-2xs text-[11px] font-semibold text-slate-700">
-                  <span className="w-2 h-2 rounded-full bg-amber-500"></span>
+                <div className="absolute top-[315px] right-[6px] z-10 flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-white/95 border border-slate-200/90 shadow-2xs text-[11px] font-semibold text-slate-700">
+                  <span className="w-2 h-2 rounded-full bg-blue-500"></span>
                   <span>Workday</span>
                 </div>
 
-                {/* 3. CARD 1: Upper-Right (Google / Software Engineer) */}
-                <div className="absolute top-[32px] right-[24px] w-[325px] bg-white border border-slate-200/90 rounded-xl p-3.5 shadow-md shadow-slate-200/50 hover:shadow-lg transition-all z-20">
+                {/* 3. Annotation 1 (Top Left, dedicated whitespace above Card 1) */}
+                <div className="absolute top-[6px] left-[45px] z-30 pointer-events-none flex items-center gap-1.5">
+                  <span className="font-serif italic font-semibold text-slate-700 text-xs sm:text-sm tracking-wide">
+                    New jobs as soon as they&apos;re live!
+                  </span>
+                  <svg width="44" height="28" viewBox="0 0 50 30" fill="none" className="text-slate-600">
+                    <path d="M4 10 C18 4, 34 6, 44 22" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
+                    <path d="M38 23 L46 23 L45 15" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+                  </svg>
+                </div>
+
+                {/* 4. CARD 1: Upper-Right (Google / Software Engineer) */}
+                <div className="absolute top-[32px] right-[24px] w-[330px] bg-white border border-slate-200/90 rounded-xl p-4 shadow-md shadow-slate-200/50 hover:shadow-lg transition-all z-20">
                   <div className="flex items-start justify-between gap-3 mb-2">
                     <div className="flex items-center gap-3 min-w-0">
                       <div className="w-9 h-9 rounded-lg bg-white border border-slate-100 p-1.5 flex items-center justify-center shadow-2xs shrink-0">
@@ -848,7 +878,7 @@ export function InteractiveJobFeed({ initialJobs, stats, initialTotal, initialTo
                         <p className="text-xs text-slate-500 font-medium">Google</p>
                       </div>
                     </div>
-                    <span className="text-[10px] font-bold px-2 py-0.5 rounded-md bg-emerald-50 text-emerald-700 border border-emerald-200 shrink-0">
+                    <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-emerald-50 text-emerald-700 border border-emerald-200 shrink-0">
                       NEW
                     </span>
                   </div>
@@ -871,8 +901,8 @@ export function InteractiveJobFeed({ initialJobs, stats, initialTotal, initialTo
                   </div>
                 </div>
 
-                {/* 4. CARD 2: Middle-Left (Microsoft / Product Manager) */}
-                <div className="absolute top-[144px] left-[10px] w-[325px] bg-white border border-slate-200/90 rounded-xl p-3.5 shadow-md shadow-slate-200/50 hover:shadow-lg transition-all z-20">
+                {/* 5. CARD 2: Middle-Left (Microsoft / Product Manager) */}
+                <div className="absolute top-[138px] left-[16px] w-[330px] bg-white border border-slate-200/90 rounded-xl p-4 shadow-md shadow-slate-200/50 hover:shadow-lg transition-all z-20">
                   <div className="flex items-start justify-between gap-3 mb-2">
                     <div className="flex items-center gap-3 min-w-0">
                       <div className="w-9 h-9 rounded-lg bg-white border border-slate-100 p-2 flex items-center justify-center shadow-2xs shrink-0">
@@ -905,18 +935,19 @@ export function InteractiveJobFeed({ initialJobs, stats, initialTotal, initialTo
                   </div>
                 </div>
 
-                {/* 5. Editorial Quote: Floating on the map in the open space */}
-                <div className="absolute top-[180px] right-[52px] z-10 pointer-events-none select-none text-left">
-                  <p className="font-serif italic font-semibold text-slate-700 text-[15px] leading-tight tracking-wide">
-                    Real<br />
-                    opportunities<br />
-                    from official<br />
-                    sources
-                  </p>
+                {/* 6. Annotation 2 (Mid-Right, open space between cards and Ashby/Workday labels) */}
+                <div className="absolute top-[180px] right-[34px] z-30 pointer-events-none flex items-center gap-2">
+                  <svg width="42" height="28" viewBox="0 0 45 30" fill="none" className="text-slate-600">
+                    <path d="M40 24 C28 26, 14 18, 6 6" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
+                    <path d="M5 13 L5 5 L13 6" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+                  </svg>
+                  <span className="font-serif italic font-semibold text-slate-700 text-xs sm:text-sm tracking-wide max-w-[130px] leading-tight">
+                    Real opportunities from official sources
+                  </span>
                 </div>
 
-                {/* 6. CARD 3: Lower-Left (Airbnb / Data Analyst) */}
-                <div className="absolute top-[254px] left-[56px] w-[315px] bg-white border border-slate-200/90 rounded-xl p-3.5 shadow-md shadow-slate-200/50 hover:shadow-lg transition-all z-20">
+                {/* 7. CARD 3: Lower-Left (Airbnb / Data Analyst) */}
+                <div className="absolute top-[244px] left-[110px] w-[320px] bg-white border border-slate-200/90 rounded-xl p-4 shadow-md shadow-slate-200/50 hover:shadow-lg transition-all z-20">
                   <div className="flex items-start justify-between gap-3 mb-2">
                     <div className="flex items-center gap-3 min-w-0">
                       <div className="w-9 h-9 rounded-lg bg-white border border-slate-100 p-1.5 flex items-center justify-center shadow-2xs shrink-0">
@@ -943,21 +974,21 @@ export function InteractiveJobFeed({ initialJobs, stats, initialTotal, initialTo
                 </div>
               </div>
 
-              {/* MOBILE / TABLET CONTROLLED VERTICAL STACK (< 1024px): No overlaps, zero clipping, zero horizontal scroll */}
-              <div className="lg:hidden w-full max-w-md mx-auto flex flex-col space-y-3 pt-4">
+              {/* MOBILE / TABLET CONTROLLED VERTICAL STACK (< 1024px): Exactly 3 cards, no overlaps, zero horizontal scroll */}
+              <div className="lg:hidden w-full max-w-md mx-auto flex flex-col space-y-3.5 pt-4">
                 {/* ATS Source Tags */}
                 <div className="flex items-center justify-center gap-2 flex-wrap text-[11px] pb-1">
-                  <span className="px-3 py-1 rounded-full bg-white border border-slate-200 text-slate-700 font-semibold shadow-2xs flex items-center gap-1.5">
+                  <span className="px-2.5 py-1 rounded-md bg-white border border-slate-200 text-slate-700 font-semibold shadow-2xs flex items-center gap-1.5">
                     <span className="w-2 h-2 rounded-full bg-emerald-500"></span> Greenhouse
                   </span>
-                  <span className="px-3 py-1 rounded-full bg-white border border-slate-200 text-slate-700 font-semibold shadow-2xs flex items-center gap-1.5">
-                    <span className="w-2 h-2 rounded-full bg-indigo-500"></span> Lever
+                  <span className="px-2.5 py-1 rounded-md bg-white border border-slate-200 text-slate-700 font-semibold shadow-2xs flex items-center gap-1.5">
+                    <span className="w-2 h-2 rounded-full bg-teal-500"></span> Lever
                   </span>
-                  <span className="px-3 py-1 rounded-full bg-white border border-slate-200 text-slate-700 font-semibold shadow-2xs flex items-center gap-1.5">
+                  <span className="px-2.5 py-1 rounded-md bg-white border border-slate-200 text-slate-700 font-semibold shadow-2xs flex items-center gap-1.5">
                     <span className="w-2 h-2 rounded-full bg-cyan-500"></span> Ashby
                   </span>
-                  <span className="px-3 py-1 rounded-full bg-white border border-slate-200 text-slate-700 font-semibold shadow-2xs flex items-center gap-1.5">
-                    <span className="w-2 h-2 rounded-full bg-amber-500"></span> Workday
+                  <span className="px-2.5 py-1 rounded-md bg-white border border-slate-200 text-slate-700 font-semibold shadow-2xs flex items-center gap-1.5">
+                    <span className="w-2 h-2 rounded-full bg-blue-500"></span> Workday
                   </span>
                 </div>
 
@@ -1074,9 +1105,7 @@ export function InteractiveJobFeed({ initialJobs, stats, initialTotal, initialTo
 
               {/* Trending Searches - Editorial Text Links */}
               <div className="flex flex-wrap items-center gap-x-2 gap-y-1.5 max-w-3xl mt-2.5 sm:mt-3 text-xs text-slate-500 px-1 justify-center sm:justify-start">
-                <span className="font-bold text-slate-800 flex items-center gap-1 mr-1">
-                  <span>🔥</span> Trending searches:
-                </span>
+                <span className="font-semibold text-slate-700 mr-0.5">Trending searches:</span>
                 {[
                   "Software Engineer",
                   "Data Analyst",
@@ -1092,10 +1121,10 @@ export function InteractiveJobFeed({ initialJobs, stats, initialTotal, initialTo
                         setSearchQuery(term);
                         document.getElementById("job-results-section")?.scrollIntoView({ behavior: "smooth" });
                       }}
-                      className={`transition-colors hover:underline underline-offset-2 cursor-pointer ${
+                      className={`hover:text-teal-700 hover:underline underline-offset-2 transition-colors cursor-pointer ${
                         searchQuery.toLowerCase() === term.toLowerCase()
                           ? "text-teal-700 font-semibold underline"
-                          : "text-teal-600 font-medium hover:text-teal-700"
+                          : "text-slate-600 font-medium"
                       }`}
                     >
                       {term}
