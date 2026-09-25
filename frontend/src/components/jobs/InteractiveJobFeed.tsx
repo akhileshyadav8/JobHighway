@@ -3,9 +3,10 @@
 import { useState, useMemo, useEffect, useCallback, useRef } from "react";
 import { Job, OverviewStats } from "@/lib/api";
 import { JobCard } from "@/components/jobs/JobCard";
-import { Search, X, RotateCcw, MapPin, Globe, Building2, ArrowUpDown, Navigation, Briefcase, GraduationCap, Laptop, Zap, ShieldCheck, Clock, Bookmark, ChevronRight } from "lucide-react";
+import { Search, X, RotateCcw, MapPin, Globe, Building2, ArrowUpDown, Navigation, Briefcase, GraduationCap, Laptop, Zap, ShieldCheck, Clock } from "lucide-react";
 import { ALL_WORLD_COUNTRIES, COUNTRY_STATES, STATE_CITIES } from "@/lib/world_locations";
 import { SearchableSelect } from "@/components/ui/SearchableSelect";
+import { WorldMapGraphic } from "@/components/jobs/WorldMapGraphic";
 
 const FILTER_CONFIG = {
   "Job Type": ["All", "Full Time", "Internship", "Contract"],
@@ -805,59 +806,33 @@ export function InteractiveJobFeed({ initialJobs, stats, initialTotal, initialTo
 
             {/* RIGHT COLUMN: 42% width - Art-Directed Visual Composition */}
             <div className="order-3 lg:order-2 lg:col-span-5 relative w-full flex items-center justify-center lg:justify-end select-none">
-              {/* DESKTOP ART-DIRECTED CANVAS: Exactly 560px × 435px, all elements in dedicated coordinate space */}
-              <div className="hidden lg:block relative w-[560px] h-[435px] origin-top-right lg:scale-[0.92] xl:scale-100 transition-transform">
-                {/* 1. Globe / Orbital Backdrop (Behind, centered at x:330, y:230) */}
-                <div className="absolute right-[0px] top-[30px] w-[320px] h-[320px] pointer-events-none opacity-45">
-                  <svg viewBox="0 0 340 340" className="w-full h-full text-teal-500/40">
-                    <circle cx="170" cy="170" r="160" fill="none" stroke="currentColor" strokeWidth="1" strokeDasharray="4 4" />
-                    <circle cx="170" cy="170" r="120" fill="none" stroke="currentColor" strokeWidth="1" opacity="0.6" />
-                    <circle cx="170" cy="170" r="80" fill="none" stroke="currentColor" strokeWidth="1" strokeDasharray="3 3" opacity="0.4" />
-                    <ellipse cx="170" cy="170" rx="120" ry="50" fill="none" stroke="currentColor" strokeWidth="0.8" opacity="0.5" />
-                    <ellipse cx="170" cy="170" rx="120" ry="90" fill="none" stroke="currentColor" strokeWidth="0.8" opacity="0.5" />
-                    <line x1="170" y1="50" x2="170" y2="290" stroke="currentColor" strokeWidth="0.8" opacity="0.5" />
-                    <line x1="50" y1="170" x2="290" y2="170" stroke="currentColor" strokeWidth="0.8" opacity="0.5" />
-                    <circle cx="170" cy="170" r="110" fill="url(#heroGlobeGlow)" opacity="0.3" />
-                    <defs>
-                      <radialGradient id="heroGlobeGlow" cx="50%" cy="50%" r="50%">
-                        <stop offset="0%" stopColor="#0d9488" stopOpacity="0.8" />
-                        <stop offset="100%" stopColor="#0d9488" stopOpacity="0" />
-                      </radialGradient>
-                    </defs>
-                  </svg>
+              {/* DESKTOP ART-DIRECTED CANVAS: Exactly 570px × 400px, all elements in dedicated coordinate space */}
+              <div className="hidden lg:block relative w-[570px] h-[400px] origin-top-right lg:scale-[0.94] xl:scale-100 transition-transform">
+                {/* 1. Static World Map Graphic Backdrop */}
+                <div className="absolute -left-[140px] -top-[30px] w-[750px] h-[430px] pointer-events-none select-none opacity-85 z-0">
+                  <WorldMapGraphic className="w-full h-full object-contain" />
                 </div>
 
-                {/* 2. ATS Source Labels along the right orbital boundary (completely unclipped, never behind cards) */}
-                <div className="absolute top-[10px] right-[75px] z-10 flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-white/95 border border-slate-200/90 shadow-2xs text-[11px] font-semibold text-slate-700">
-                  <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                {/* 2. ATS Source Labels with colored status dots */}
+                <div className="absolute top-[4px] right-[135px] z-10 flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/95 border border-slate-200/90 shadow-2xs text-[11px] font-semibold text-slate-700">
+                  <span className="w-2 h-2 rounded-full bg-emerald-500"></span>
                   <span>Greenhouse</span>
                 </div>
-                <div className="absolute top-[86px] right-[0px] z-10 flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-white/95 border border-slate-200/90 shadow-2xs text-[11px] font-semibold text-slate-700">
-                  <span className="w-2 h-2 rounded-full bg-teal-500"></span>
+                <div className="absolute top-[62px] -right-[6px] z-10 flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/95 border border-slate-200/90 shadow-2xs text-[11px] font-semibold text-slate-700">
+                  <span className="w-2 h-2 rounded-full bg-indigo-500"></span>
                   <span>Lever</span>
                 </div>
-                <div className="absolute top-[198px] -right-[10px] z-10 flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-white/95 border border-slate-200/90 shadow-2xs text-[11px] font-semibold text-slate-700">
+                <div className="absolute top-[192px] -right-[4px] z-10 flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/95 border border-slate-200/90 shadow-2xs text-[11px] font-semibold text-slate-700">
                   <span className="w-2 h-2 rounded-full bg-cyan-500"></span>
                   <span>Ashby</span>
                 </div>
-                <div className="absolute top-[318px] right-[4px] z-10 flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-white/95 border border-slate-200/90 shadow-2xs text-[11px] font-semibold text-slate-700">
-                  <span className="w-2 h-2 rounded-full bg-blue-500"></span>
+                <div className="absolute top-[308px] right-[28px] z-10 flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/95 border border-slate-200/90 shadow-2xs text-[11px] font-semibold text-slate-700">
+                  <span className="w-2 h-2 rounded-full bg-amber-500"></span>
                   <span>Workday</span>
                 </div>
 
-                {/* 3. Annotation 1 (Top Left, dedicated whitespace above Card 1) */}
-                <div className="absolute top-[6px] left-[55px] z-30 pointer-events-none flex items-center gap-1.5">
-                  <span className="font-serif italic font-semibold text-slate-700 text-xs sm:text-sm tracking-wide">
-                    New jobs as soon as they&apos;re live!
-                  </span>
-                  <svg width="44" height="28" viewBox="0 0 50 30" fill="none" className="text-slate-600">
-                    <path d="M4 10 C18 4, 34 6, 44 22" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
-                    <path d="M38 23 L46 23 L45 15" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
-                  </svg>
-                </div>
-
-                {/* 4. CARD 1: Upper-Right (Google / Software Engineer) */}
-                <div className="absolute top-[38px] right-[24px] w-[335px] bg-white border border-slate-200/90 rounded-xl p-4 shadow-md shadow-slate-200/50 hover:shadow-lg transition-all z-20">
+                {/* 3. CARD 1: Upper-Right (Google / Software Engineer) */}
+                <div className="absolute top-[32px] right-[24px] w-[325px] bg-white border border-slate-200/90 rounded-xl p-3.5 shadow-md shadow-slate-200/50 hover:shadow-lg transition-all z-20">
                   <div className="flex items-start justify-between gap-3 mb-2">
                     <div className="flex items-center gap-3 min-w-0">
                       <div className="w-9 h-9 rounded-lg bg-white border border-slate-100 p-1.5 flex items-center justify-center shadow-2xs shrink-0">
@@ -873,7 +848,7 @@ export function InteractiveJobFeed({ initialJobs, stats, initialTotal, initialTo
                         <p className="text-xs text-slate-500 font-medium">Google</p>
                       </div>
                     </div>
-                    <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-emerald-50 text-emerald-700 border border-emerald-200 shrink-0">
+                    <span className="text-[10px] font-bold px-2 py-0.5 rounded-md bg-emerald-50 text-emerald-700 border border-emerald-200 shrink-0">
                       NEW
                     </span>
                   </div>
@@ -896,8 +871,8 @@ export function InteractiveJobFeed({ initialJobs, stats, initialTotal, initialTo
                   </div>
                 </div>
 
-                {/* 5. CARD 2: Middle-Left (Microsoft / Product Manager) */}
-                <div className="absolute top-[150px] left-[16px] w-[335px] bg-white border border-slate-200/90 rounded-xl p-4 shadow-md shadow-slate-200/50 hover:shadow-lg transition-all z-20">
+                {/* 4. CARD 2: Middle-Left (Microsoft / Product Manager) */}
+                <div className="absolute top-[144px] left-[10px] w-[325px] bg-white border border-slate-200/90 rounded-xl p-3.5 shadow-md shadow-slate-200/50 hover:shadow-lg transition-all z-20">
                   <div className="flex items-start justify-between gap-3 mb-2">
                     <div className="flex items-center gap-3 min-w-0">
                       <div className="w-9 h-9 rounded-lg bg-white border border-slate-100 p-2 flex items-center justify-center shadow-2xs shrink-0">
@@ -913,7 +888,6 @@ export function InteractiveJobFeed({ initialJobs, stats, initialTotal, initialTo
                         <p className="text-xs text-slate-500 font-medium">Microsoft</p>
                       </div>
                     </div>
-                    <Bookmark className="w-4 h-4 text-slate-300 hover:text-slate-600 cursor-pointer shrink-0" />
                   </div>
                   <div className="flex items-center gap-3 text-xs text-slate-500 mb-2">
                     <span className="flex items-center gap-1">
@@ -931,19 +905,18 @@ export function InteractiveJobFeed({ initialJobs, stats, initialTotal, initialTo
                   </div>
                 </div>
 
-                {/* 6. Annotation 2 (Mid-Right, open space between cards and Ashby/Workday labels) */}
-                <div className="absolute top-[235px] right-[38px] z-30 pointer-events-none flex items-center gap-2">
-                  <svg width="42" height="28" viewBox="0 0 45 30" fill="none" className="text-slate-600">
-                    <path d="M40 24 C28 26, 14 18, 6 6" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
-                    <path d="M5 13 L5 5 L13 6" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
-                  </svg>
-                  <span className="font-serif italic font-semibold text-slate-700 text-xs sm:text-sm tracking-wide max-w-[130px] leading-tight">
-                    Real opportunities from official sources
-                  </span>
+                {/* 5. Editorial Quote: Floating on the map in the open space */}
+                <div className="absolute top-[180px] right-[52px] z-10 pointer-events-none select-none text-left">
+                  <p className="font-serif italic font-semibold text-slate-700 text-[15px] leading-tight tracking-wide">
+                    Real<br />
+                    opportunities<br />
+                    from official<br />
+                    sources
+                  </p>
                 </div>
 
-                {/* 7. CARD 3: Lower-Left (Airbnb / Data Analyst) */}
-                <div className="absolute top-[262px] left-[52px] w-[320px] bg-white border border-slate-200/90 rounded-xl p-4 shadow-md shadow-slate-200/50 hover:shadow-lg transition-all z-20">
+                {/* 6. CARD 3: Lower-Left (Airbnb / Data Analyst) */}
+                <div className="absolute top-[254px] left-[56px] w-[315px] bg-white border border-slate-200/90 rounded-xl p-3.5 shadow-md shadow-slate-200/50 hover:shadow-lg transition-all z-20">
                   <div className="flex items-start justify-between gap-3 mb-2">
                     <div className="flex items-center gap-3 min-w-0">
                       <div className="w-9 h-9 rounded-lg bg-white border border-slate-100 p-1.5 flex items-center justify-center shadow-2xs shrink-0">
@@ -956,7 +929,6 @@ export function InteractiveJobFeed({ initialJobs, stats, initialTotal, initialTo
                         <p className="text-xs text-slate-500 font-medium">Airbnb</p>
                       </div>
                     </div>
-                    <Bookmark className="w-4 h-4 text-slate-300 hover:text-slate-600 cursor-pointer shrink-0" />
                   </div>
                   <div className="flex items-center gap-3 text-xs text-slate-500 mb-2">
                     <span className="flex items-center gap-1">
@@ -969,37 +941,23 @@ export function InteractiveJobFeed({ initialJobs, stats, initialTotal, initialTo
                     <span>1 hour ago</span>
                   </div>
                 </div>
-
-                {/* 8. Worldwide Opportunities Card (Bottom-Right, isolated below all cards & annotations) */}
-                <div className="absolute top-[372px] right-[12px] w-[275px] bg-white border border-slate-200/90 rounded-xl px-4 py-3 shadow-md shadow-slate-200/50 flex items-center justify-between gap-3 hover:border-teal-300 transition-colors z-20">
-                  <div className="flex items-center gap-3 min-w-0">
-                    <div className="w-9 h-9 rounded-full bg-teal-50 border border-teal-200/80 text-teal-600 flex items-center justify-center shrink-0">
-                      <Globe className="w-4 h-4" />
-                    </div>
-                    <div className="min-w-0">
-                      <h5 className="font-bold text-xs text-slate-900 leading-tight truncate">Worldwide Opportunities</h5>
-                      <p className="text-[10px] text-slate-500 truncate">From {(stats?.total_companies || availableCompanies.length || 17533).toLocaleString()}+ official career portals</p>
-                    </div>
-                  </div>
-                  <ChevronRight className="w-4 h-4 text-slate-400 shrink-0" />
-                </div>
               </div>
 
               {/* MOBILE / TABLET CONTROLLED VERTICAL STACK (< 1024px): No overlaps, zero clipping, zero horizontal scroll */}
-              <div className="lg:hidden w-full max-w-md mx-auto flex flex-col space-y-3.5 pt-4">
+              <div className="lg:hidden w-full max-w-md mx-auto flex flex-col space-y-3 pt-4">
                 {/* ATS Source Tags */}
                 <div className="flex items-center justify-center gap-2 flex-wrap text-[11px] pb-1">
-                  <span className="px-2.5 py-1 rounded-md bg-white border border-slate-200 text-slate-700 font-semibold shadow-2xs flex items-center gap-1.5">
+                  <span className="px-3 py-1 rounded-full bg-white border border-slate-200 text-slate-700 font-semibold shadow-2xs flex items-center gap-1.5">
                     <span className="w-2 h-2 rounded-full bg-emerald-500"></span> Greenhouse
                   </span>
-                  <span className="px-2.5 py-1 rounded-md bg-white border border-slate-200 text-slate-700 font-semibold shadow-2xs flex items-center gap-1.5">
-                    <span className="w-2 h-2 rounded-full bg-teal-500"></span> Lever
+                  <span className="px-3 py-1 rounded-full bg-white border border-slate-200 text-slate-700 font-semibold shadow-2xs flex items-center gap-1.5">
+                    <span className="w-2 h-2 rounded-full bg-indigo-500"></span> Lever
                   </span>
-                  <span className="px-2.5 py-1 rounded-md bg-white border border-slate-200 text-slate-700 font-semibold shadow-2xs flex items-center gap-1.5">
+                  <span className="px-3 py-1 rounded-full bg-white border border-slate-200 text-slate-700 font-semibold shadow-2xs flex items-center gap-1.5">
                     <span className="w-2 h-2 rounded-full bg-cyan-500"></span> Ashby
                   </span>
-                  <span className="px-2.5 py-1 rounded-md bg-white border border-slate-200 text-slate-700 font-semibold shadow-2xs flex items-center gap-1.5">
-                    <span className="w-2 h-2 rounded-full bg-blue-500"></span> Workday
+                  <span className="px-3 py-1 rounded-full bg-white border border-slate-200 text-slate-700 font-semibold shadow-2xs flex items-center gap-1.5">
+                    <span className="w-2 h-2 rounded-full bg-amber-500"></span> Workday
                   </span>
                 </div>
 
@@ -1047,7 +1005,6 @@ export function InteractiveJobFeed({ initialJobs, stats, initialTotal, initialTo
                         <p className="text-[11px] text-slate-500">Microsoft</p>
                       </div>
                     </div>
-                    <Bookmark className="w-4 h-4 text-slate-300" />
                   </div>
                   <div className="flex items-center gap-3 text-[11px] text-slate-500 mb-2">
                     <span>Hyderabad, India · On-site</span>
@@ -1069,26 +1026,11 @@ export function InteractiveJobFeed({ initialJobs, stats, initialTotal, initialTo
                         <p className="text-[11px] text-slate-500">Airbnb</p>
                       </div>
                     </div>
-                    <Bookmark className="w-4 h-4 text-slate-300" />
                   </div>
                   <div className="flex items-center gap-3 text-[11px] text-slate-500 mb-2">
                     <span>Remote</span>
                   </div>
                   <div className="text-[10px] text-emerald-600 font-medium">● 1 hour ago</div>
-                </div>
-
-                {/* Mobile Worldwide Opportunities */}
-                <div className="bg-white border border-slate-200/90 rounded-xl px-4 py-3 shadow-sm flex items-center justify-between gap-3">
-                  <div className="flex items-center gap-3">
-                    <div className="w-8 h-8 rounded-full bg-teal-50 border border-teal-200/80 text-teal-600 flex items-center justify-center shrink-0">
-                      <Globe className="w-4 h-4" />
-                    </div>
-                    <div>
-                      <h5 className="font-bold text-xs text-slate-900 leading-tight">Worldwide Opportunities</h5>
-                      <p className="text-[10px] text-slate-500">From {(stats?.total_companies || availableCompanies.length || 17533).toLocaleString()}+ official career portals</p>
-                    </div>
-                  </div>
-                  <ChevronRight className="w-4 h-4 text-slate-400 shrink-0" />
                 </div>
               </div>
             </div>
@@ -1132,7 +1074,9 @@ export function InteractiveJobFeed({ initialJobs, stats, initialTotal, initialTo
 
               {/* Trending Searches - Editorial Text Links */}
               <div className="flex flex-wrap items-center gap-x-2 gap-y-1.5 max-w-3xl mt-2.5 sm:mt-3 text-xs text-slate-500 px-1 justify-center sm:justify-start">
-                <span className="font-semibold text-slate-700 mr-0.5">Trending searches:</span>
+                <span className="font-bold text-slate-800 flex items-center gap-1 mr-1">
+                  <span>🔥</span> Trending searches:
+                </span>
                 {[
                   "Software Engineer",
                   "Data Analyst",
@@ -1148,10 +1092,10 @@ export function InteractiveJobFeed({ initialJobs, stats, initialTotal, initialTo
                         setSearchQuery(term);
                         document.getElementById("job-results-section")?.scrollIntoView({ behavior: "smooth" });
                       }}
-                      className={`hover:text-teal-700 hover:underline underline-offset-2 transition-colors cursor-pointer ${
+                      className={`transition-colors hover:underline underline-offset-2 cursor-pointer ${
                         searchQuery.toLowerCase() === term.toLowerCase()
                           ? "text-teal-700 font-semibold underline"
-                          : "text-slate-600 font-medium"
+                          : "text-teal-600 font-medium hover:text-teal-700"
                       }`}
                     >
                       {term}
