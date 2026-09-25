@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { usePathname, useRouter } from 'next/navigation';
-import { Menu, X, Briefcase, Building2, BookOpen, Info, Mail, User as UserIcon, Shield, LogOut, ChevronDown, LayoutDashboard, Bell, Search } from 'lucide-react';
+import { Menu, X, Briefcase, Building2, BookOpen, Info, Mail, User as UserIcon, Shield, LogOut, ChevronDown, LayoutDashboard, Bell } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { getCurrentUser, logoutUser, User } from '@/lib/auth';
 
@@ -98,9 +98,6 @@ export function Navbar() {
               JobHighway
             </span>
           </Link>
-          <span className="hidden md:inline-block text-xs font-medium text-slate-500 border-l border-slate-200 pl-3">
-            Pathways to Professional Success • Official ATS Stream
-          </span>
         </div>
 
         {/* Desktop Nav */}
@@ -124,22 +121,6 @@ export function Navbar() {
 
         {/* Actions */}
         <div className="flex items-center gap-2.5">
-          {/* Quick Search bar in navbar */}
-          <div className="hidden lg:flex items-center relative w-52 xl:w-64">
-            <Search className="w-3.5 h-3.5 text-slate-400 absolute left-3 top-2.5 pointer-events-none" />
-            <input
-              type="text"
-              placeholder="Search jobs, companies, or skills..."
-              onKeyDown={(e) => {
-                if (e.key === "Enter") {
-                  const val = (e.target as HTMLInputElement).value.trim();
-                  if (val) router.push(`/jobs?search=${encodeURIComponent(val)}`);
-                }
-              }}
-              className="w-full pl-8 pr-3 py-1.5 rounded-full border border-slate-200 bg-slate-50 text-xs text-slate-800 placeholder:text-slate-400 focus:bg-white focus:border-teal-500 focus:outline-none transition-all"
-            />
-          </div>
-
           {user ? (
             <div className="hidden sm:flex items-center gap-2">
               {user.role === "admin" ? (
