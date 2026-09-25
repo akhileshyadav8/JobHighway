@@ -4,7 +4,7 @@ import { JobCard } from "@/components/jobs/JobCard";
 import { ExternalLink, MapPin, Users, Building2, Briefcase } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
-export const revalidate = 60;
+export const dynamic = 'force-dynamic';
 
 export default async function CompanyDetailPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;

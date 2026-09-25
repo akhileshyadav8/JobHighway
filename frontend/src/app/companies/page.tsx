@@ -1,7 +1,7 @@
 import { getCompanies, getOverviewStats } from "@/lib/api";
 import { InteractiveCompanies } from "@/components/companies/InteractiveCompanies";
 
-export const revalidate = 60;
+export const dynamic = 'force-dynamic';
 
 export default async function CompaniesPage() {
   const [data, stats] = await Promise.all([

@@ -18,8 +18,6 @@ import {
 import type { Metadata } from "next";
 import { getOverviewStats } from "@/lib/api";
 
-export const revalidate = 60;
-
 export const metadata: Metadata = {
   title: "About | JobHighway",
   description:

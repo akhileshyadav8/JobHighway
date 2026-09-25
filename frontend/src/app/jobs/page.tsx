@@ -1,4 +1,4 @@
-﻿import Home from "../page";
+import Home from "../page";
 
-export const revalidate = 60;
+export const dynamic = 'force-dynamic';
 export default Home;
