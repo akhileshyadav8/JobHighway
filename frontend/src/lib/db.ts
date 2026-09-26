@@ -13,9 +13,9 @@ export function getPool(): Pool | null {
     pool = new Pool({
       connectionString: formattedUrl,
       ssl: { rejectUnauthorized: false },
-      connectionTimeoutMillis: 10000,
-      idleTimeoutMillis: 20000,
-      max: 10,
+      connectionTimeoutMillis: 5000,
+      idleTimeoutMillis: 10000,
+      max: 5,
     });
   }
   return pool;
@@ -302,8 +302,10 @@ export async function getLiveJobsPaginated(params: JobFilterParams = {}): Promis
       orderClause = 'ORDER BY LEAST(COALESCE(j.posted_at, j.first_seen_at), NOW()) DESC NULLS LAST, j.id DESC';
     }
 
-    // Count Query
-    const countSql = `SELECT count(*) FROM jobs j JOIN companies c ON j.company_id = c.id ${whereClause};`;
+    // Count Query - only join companies if c. is referenced in whereClause to save DB compute
+    const countSql = whereClause.includes('c.')
+      ? `SELECT count(*) FROM jobs j JOIN companies c ON j.company_id = c.id ${whereClause};`
+      : `SELECT count(*) FROM jobs j ${whereClause};`;
     const countRes = await p.query(countSql, values);
     const total = Number(countRes.rows[0]?.count || 0);
 
@@ -450,7 +452,14 @@ export async function getLiveJobsFromDb(limit?: number): Promise<Job[] | null> {
   }
 }
 
+let cachedOverviewStats: { data: OverviewStats; expiresAt: number } | null = null;
+
 export async function getLiveStatsFromDb(): Promise<OverviewStats | null> {
+  const now = Date.now();
+  if (cachedOverviewStats && cachedOverviewStats.expiresAt > now) {
+    return cachedOverviewStats.data;
+  }
+
   const p = getPool();
   if (!p) return null;
 
@@ -463,13 +472,18 @@ export async function getLiveStatsFromDb(): Promise<OverviewStats | null> {
         (SELECT count(*) FROM jobs WHERE status = 'active' AND posted_at >= NOW() - INTERVAL '1 HOUR') as new_this_hour;
     `);
     const row = res.rows[0];
-    return {
+    const stats: OverviewStats = {
       total_jobs: Number(row?.total_jobs || 0),
       total_companies: Number(row?.total_companies || 0),
       new_today: Number(row?.new_today || 0),
       new_this_hour: Number(row?.new_this_hour || 0),
       last_updated: new Date().toISOString(),
     };
+    cachedOverviewStats = {
+      data: stats,
+      expiresAt: now + 60000, // Cache for 60 seconds
+    };
+    return stats;
   } catch (error) {
     console.error('getLiveStatsFromDb error:', error);
     return null;

@@ -1039,6 +1039,16 @@ def main():
             conn.commit()
 
         with Session(engine) as session:
+            # Purge expired and >30 day jobs to keep database lean and save storage
+            purged = session.execute(text("""
+                DELETE FROM jobs 
+                WHERE status = 'expired'
+                   OR (posted_at IS NOT NULL AND posted_at < NOW() - INTERVAL '30 DAYS')
+                   OR (posted_at IS NULL AND first_seen_at IS NOT NULL AND first_seen_at < NOW() - INTERVAL '30 DAYS')
+            """))
+            session.commit()
+            print(f"[*] Purged {purged.rowcount} expired/stale jobs (>30 days). Keeping database lean and fast.", flush=True)
+
             # Cache existing companies
             existing_companies = session.query(Company).all()
             company_cache = {c.slug: c for c in existing_companies}

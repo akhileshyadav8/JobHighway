@@ -338,28 +338,42 @@ export function InteractiveJobFeed({ initialJobs, stats, initialTotal, initialTo
     return pages;
   };
 
-  // Real-time live polling: checks every 30 seconds for newly added jobs in live database
+  // Real-time live polling: checks every 90s using lightweight timestamp probe to save DB resources
+  const latestJobTimestampRef = useRef<string | null>(null);
+
+  useEffect(() => {
+    if (jobsList.length > 0 && jobsList[0]?.posted_at) {
+      latestJobTimestampRef.current = jobsList[0].posted_at;
+    }
+  }, [jobsList]);
+
   useEffect(() => {
     const poller = setInterval(async () => {
       try {
-        const res = await fetch('/api/jobs?limit=50');
+        const sinceParam = latestJobTimestampRef.current 
+          ? `?since=${encodeURIComponent(latestJobTimestampRef.current)}` 
+          : '?limit=20';
+        const res = await fetch(`/api/jobs${sinceParam}`);
         if (res.ok) {
           const data = await res.json();
-          if (data.items && Array.isArray(data.items)) {
-            const currentSlugs = new Set(jobsList.map(j => j.slug));
-            const newOnes = data.items.filter((j: Job) => !currentSlugs.has(j.slug));
-            if (newOnes.length > 0) {
-              setIncomingJobs(newOnes);
-            }
+          if (data.items && Array.isArray(data.items) && data.items.length > 0) {
+            setJobsList(currentList => {
+              const currentSlugs = new Set(currentList.map(j => j.slug));
+              const newOnes = data.items.filter((j: Job) => !currentSlugs.has(j.slug));
+              if (newOnes.length > 0) {
+                setIncomingJobs(newOnes);
+              }
+              return currentList;
+            });
           }
         }
       } catch (err) {
         // silent fallback
       }
-    }, 30000);
+    }, 90000);
 
     return () => clearInterval(poller);
-  }, [jobsList]);
+  }, []);
 
   const applyIncomingJobs = () => {
     setJobsList(prev => {

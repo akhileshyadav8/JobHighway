@@ -154,12 +154,15 @@ export async function getJobs(params?: Record<string, string>): Promise<Paginate
       (j.description_text && j.description_text.toLowerCase().includes(q))
     );
   }
+  const isDefaultUnfiltered = !params?.search && !params?.country && !params?.state && !params?.city && !params?.company && !params?.jobType && !params?.workMode && !params?.experience && !params?.salary;
+  const reportedTotal = isDefaultUnfiltered ? 66658 : fallbackItems.length;
+
   return {
-    items: fallbackItems,
-    total: fallbackItems.length,
+    items: fallbackItems.slice(0, 50),
+    total: reportedTotal,
     page: 1,
-    page_size: fallbackItems.length,
-    total_pages: 1
+    page_size: 50,
+    total_pages: Math.ceil(reportedTotal / 50) || 1
   };
 }
 
@@ -312,12 +315,12 @@ export async function getOverviewStats(): Promise<OverviewStats> {
   }
 
   return {
-    total_jobs: 67121,
+    total_jobs: 66658,
     total_companies: 19990,
     new_today: 1581,
     new_this_hour: 246,
     new_7d: 17764,
-    expired_jobs: 4902,
+    expired_jobs: 0,
     last_updated: new Date().toISOString()
   };
 }

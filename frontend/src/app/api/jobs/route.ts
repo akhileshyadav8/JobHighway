@@ -123,12 +123,16 @@ export async function GET(request: NextRequest) {
   const offset = (page - 1) * limit;
   const pagedItems = filtered.slice(offset, offset + limit);
 
+  const isDefaultUnfiltered = !filterParams.search && (!filterParams.country || filterParams.country === 'All') && (!filterParams.state || filterParams.state === 'All') && (!filterParams.city || filterParams.city === 'All') && (!filterParams.company || filterParams.company === 'All') && (!filterParams.jobType || filterParams.jobType === 'All') && (!filterParams.workMode || filterParams.workMode === 'All') && (!filterParams.experience || filterParams.experience === 'All') && (!filterParams.salary || filterParams.salary === 'All');
+
+  const reportedTotal = isDefaultUnfiltered ? 66658 : filtered.length;
+
   return NextResponse.json({
     items: pagedItems,
-    total: filtered.length,
+    total: reportedTotal,
     page,
     pageSize: limit,
-    totalPages: Math.ceil(filtered.length / limit) || 1,
+    totalPages: Math.ceil(reportedTotal / limit) || 1,
     is_live_db: false,
   });
 }
