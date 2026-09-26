@@ -288,10 +288,10 @@ export function JobCard({ job, isCompared, onToggleCompare, layout = "grid" }: J
   // GRID VIEW CARD LAYOUT (EXACTLY MATCHING IMAGE 1)
   // ----------------------------------------------------
   return (
-    <div className="bg-white border border-slate-200/90 rounded-xl p-4 sm:p-5 hover:border-slate-300 hover:shadow-xs transition-all duration-200 flex flex-col h-full group relative">
+    <div className="bg-white border border-slate-200/90 rounded-xl p-3.5 sm:p-4 hover:border-slate-300 hover:shadow-xs transition-all duration-200 flex flex-col h-full group relative">
       {/* Top Header: Logo + Company Name (NEW + Bookmark on right) */}
-      <div className="flex items-start justify-between gap-3 mb-2.5">
-        <div className="flex items-center gap-2.5 min-w-0">
+      <div className="flex items-start justify-between gap-2.5 mb-2.5">
+        <div className="flex items-center gap-2 min-w-0">
           <CompanyLogo
             name={job.company.name}
             website={job.company.website}
@@ -305,7 +305,7 @@ export function JobCard({ job, isCompared, onToggleCompare, layout = "grid" }: J
               {job.company.name}
             </h4>
             {atsSource && (
-              <span className="text-[10px] font-mono text-teal-700 font-medium block">
+              <span className="text-[10px] font-mono text-teal-700 font-medium block truncate">
                 via {atsSource}
               </span>
             )}
@@ -313,9 +313,9 @@ export function JobCard({ job, isCompared, onToggleCompare, layout = "grid" }: J
         </div>
 
         {/* Right header indicators: NEW badge & Bookmarks */}
-        <div className="flex items-center gap-1.5 shrink-0">
+        <div className="flex items-center gap-1 shrink-0">
           {isNew && (
-            <span className="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-mono font-bold tracking-wider bg-emerald-50 text-emerald-700 border border-emerald-200/80">
+            <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-mono font-bold tracking-wider bg-emerald-50 text-emerald-700 border border-emerald-200/80">
               NEW
             </span>
           )}
@@ -329,14 +329,14 @@ export function JobCard({ job, isCompared, onToggleCompare, layout = "grid" }: J
               }`}
               title={bookmarked ? "Saved job" : "Save job"}
             >
-              <Bookmark className={`w-4 h-4 ${bookmarked ? "fill-current text-slate-900" : ""}`} />
+              <Bookmark className={`w-3.5 h-3.5 ${bookmarked ? "fill-current text-slate-900" : ""}`} />
             </button>
           )}
         </div>
       </div>
 
       {/* Role Title */}
-      <div className="mb-2.5">
+      <div className="mb-2">
         <Link href={`/jobs/${job.slug}`} onClick={handleJobClick}>
           <h3 className="font-bold text-base leading-snug text-slate-900 group-hover:text-teal-700 transition-colors line-clamp-1">
             {job.title}
@@ -345,7 +345,7 @@ export function JobCard({ job, isCompared, onToggleCompare, layout = "grid" }: J
       </div>
 
       {/* Hierarchy Line 1: Location • Work Mode */}
-      <div className="flex items-center gap-1.5 text-xs text-slate-500 mb-1">
+      <div className="flex items-center gap-1.5 text-[11px] sm:text-xs text-slate-500 mb-1">
         <MapPin className="w-3.5 h-3.5 text-slate-400 shrink-0" />
         <span className="truncate">
           {locationText}
@@ -354,7 +354,7 @@ export function JobCard({ job, isCompared, onToggleCompare, layout = "grid" }: J
       </div>
 
       {/* Hierarchy Line 2: Experience • Job Type */}
-      <div className="flex items-center gap-1.5 text-xs text-slate-500 mb-3">
+      <div className="flex items-center gap-1.5 text-[11px] sm:text-xs text-slate-500 mb-2.5">
         <Clock className="w-3.5 h-3.5 text-slate-400 shrink-0" />
         <span className="truncate">
           {expText}
@@ -370,51 +370,51 @@ export function JobCard({ job, isCompared, onToggleCompare, layout = "grid" }: J
       )}
 
       {/* Relevant skills / technologies pills */}
-      <div className="flex flex-wrap gap-1.5 mt-auto pt-1 mb-3.5">
+      <div className="flex flex-wrap gap-1 mt-auto pt-1 mb-3">
         {displaySkills && displaySkills.length > 0 ? (
           <>
             {displaySkills.slice(0, 3).map((skill, i) => (
-              <span key={i} className="text-[11px] bg-slate-50 border border-slate-200/90 px-2 py-0.5 rounded-md text-slate-600 font-medium">
+              <span key={i} className="text-[10px] bg-slate-50 border border-slate-200/90 px-1.5 py-0.5 rounded text-slate-600 font-medium">
                 {skill}
               </span>
             ))}
             {displaySkills.length > 3 && (
-              <span className="text-[11px] text-teal-700 bg-teal-50/70 border border-teal-200/50 px-1.5 py-0.5 rounded-md self-center font-semibold">
+              <span className="text-[10px] text-teal-700 bg-teal-50/70 border border-teal-200/50 px-1.5 py-0.5 rounded self-center font-semibold">
                 +{displaySkills.length - 3}
               </span>
             )}
           </>
         ) : (
-          <span className="text-[11px] text-slate-400 italic">Official ATS Posting</span>
+          <span className="text-[10px] text-slate-400 italic">Official ATS Posting</span>
         )}
       </div>
 
-      {/* Card Footer: Status dot + Posted time on left, Details + Apply Official on right */}
-      <div className="flex items-center justify-between pt-3 border-t border-slate-100 mt-auto">
-        <div className="flex items-center gap-1.5 text-xs text-slate-500" suppressHydrationWarning>
+      {/* Card Footer: Status dot + Posted time on left, Details + Apply on right */}
+      <div className="flex items-center justify-between gap-1 pt-2.5 border-t border-slate-100 mt-auto">
+        <div className="flex items-center gap-1 text-[11px] text-slate-500 whitespace-nowrap shrink-0" suppressHydrationWarning>
           {isRecent ? (
-            <span className="relative flex h-2 w-2 shrink-0">
+            <span className="relative flex h-1.5 w-1.5 shrink-0">
               <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-              <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+              <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-emerald-500"></span>
             </span>
           ) : (
             <span className="w-1.5 h-1.5 rounded-full bg-slate-300 shrink-0"></span>
           )}
-          <span suppressHydrationWarning className="truncate text-slate-600 font-medium">
+          <span suppressHydrationWarning className="text-slate-600 font-medium">
             {formatRelativeTime(postDate)}
           </span>
         </div>
 
-        <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
+        <div className="flex items-center gap-1 shrink-0">
           {!isAdmin && (
             <button
               onClick={handleQuickMarkApplied}
-              className={`p-1.5 rounded-md hover:bg-slate-100 transition-colors cursor-pointer hidden sm:block ${
+              className={`p-1 rounded-md hover:bg-slate-100 transition-colors cursor-pointer hidden sm:flex items-center justify-center ${
                 applied ? "text-emerald-600" : "text-slate-300 hover:text-emerald-600"
               }`}
               title={applied ? "Tracked as Applied" : "Mark as Applied"}
             >
-              <CheckCircle2 className={`w-3.5 h-3.5 ${applied ? "fill-emerald-100 text-emerald-600" : ""}`} />
+              <CheckCircle2 className={`w-[14px] h-[14px] ${applied ? "fill-emerald-100 text-emerald-600" : ""}`} />
             </button>
           )}
 
@@ -426,21 +426,21 @@ export function JobCard({ job, isCompared, onToggleCompare, layout = "grid" }: J
                 e.stopPropagation();
                 onToggleCompare(job);
               }}
-              className={`p-1.5 rounded-lg border text-xs transition-colors cursor-pointer hidden sm:block ${
+              className={`p-1 rounded text-xs transition-colors cursor-pointer hidden sm:flex items-center justify-center ${
                 isCompared
                   ? "bg-teal-50 border-teal-300 text-teal-700 font-semibold"
                   : "border-slate-200 text-slate-400 hover:text-slate-800 hover:bg-slate-50"
               }`}
               title={isCompared ? "Remove from comparison" : "Compare this job side-by-side"}
             >
-              <ArrowLeftRight className="w-3.5 h-3.5" />
+              <ArrowLeftRight className="w-[14px] h-[14px]" />
             </button>
           )}
 
           <Link
             href={`/jobs/${job.slug}`}
             onClick={handleJobClick}
-            className="px-2.5 sm:px-3 py-1.5 text-xs font-semibold text-slate-700 bg-white border border-slate-200 rounded-lg hover:bg-slate-50 hover:border-slate-300 hover:text-slate-900 transition-colors"
+            className="px-2 py-1 text-[11px] font-semibold text-slate-700 bg-white border border-slate-200 rounded hover:bg-slate-50 hover:border-slate-300 hover:text-slate-900 transition-colors"
           >
             Details
           </Link>
@@ -451,10 +451,10 @@ export function JobCard({ job, isCompared, onToggleCompare, layout = "grid" }: J
               onClick={handleApplyClick}
               target="_blank"
               rel="noopener noreferrer"
-              className="px-3 sm:px-3.5 py-1.5 text-xs font-semibold bg-teal-600 hover:bg-teal-700 active:bg-teal-800 text-white rounded-lg transition-colors cursor-pointer inline-flex items-center gap-1.5 shadow-2xs"
+              className="px-2 py-1 text-[11px] font-semibold bg-teal-600 hover:bg-teal-700 active:bg-teal-800 text-white rounded transition-colors cursor-pointer inline-flex items-center gap-1 shadow-2xs"
             >
               <span>Apply</span>
-              <ExternalLink className="w-3 h-3" />
+              <ExternalLink className="w-3 h-3 shrink-0" />
             </a>
           )}
         </div>

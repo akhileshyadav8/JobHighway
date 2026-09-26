@@ -308,7 +308,7 @@ export function loginUser(email: string, password?: string): { user?: User; erro
 
   // Prevent administrator account from logging in via candidate portal
   if (cleanEmail === ADMIN_EMAIL) {
-    return { error: "This portal is strictly for job candidates. Administrator accounts must authenticate via the administrative console." };
+    return { error: "Account not found with this email. Please sign up first." };
   }
 
   const users = getStoredUsers();
