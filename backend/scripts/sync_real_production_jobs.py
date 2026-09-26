@@ -444,8 +444,8 @@ def fetch_greenhouse_jobs(comp):
                 if updated_at_str:
                     try:
                         u_dt = datetime.fromisoformat(updated_at_str.replace("Z", "+00:00"))
-                        if (datetime.now(timezone.utc) - u_dt).days > 30:
-                            continue  # Exclude stale postings older than 30 days
+                        if (datetime.now(timezone.utc) - u_dt).days > 14:
+                            continue  # Exclude stale postings older than 14 days
                     except Exception:
                         pass
                 posted_at = updated_at_str or datetime.now(timezone.utc).isoformat()
@@ -532,8 +532,8 @@ def fetch_lever_jobs(comp):
                 created_at_ts = item.get("createdAt")
                 if created_at_ts:
                     age_ms = (datetime.now(timezone.utc).timestamp() * 1000) - created_at_ts
-                    if age_ms > (30 * 24 * 60 * 60 * 1000):
-                        continue  # Exclude stale postings older than 30 days
+                    if age_ms > (14 * 24 * 60 * 60 * 1000):
+                        continue  # Exclude stale postings older than 14 days
                 posted_at = datetime.fromtimestamp(created_at_ts / 1000, tz=timezone.utc).isoformat() if created_at_ts else datetime.now(timezone.utc).isoformat()
                 s_min, s_max, s_curr, s_per, s_basis = infer_historical_salary(title, name, [loc_name], commitment)
 
@@ -812,13 +812,13 @@ def fetch_remotive_jobs(limit=75):
 def fetch_adzuna_jobs(app_id, app_key):
     """
     Fetches real-time multi-location jobs from Adzuna across 19 countries and cities.
-    Only fetches jobs posted within the last 30 days (max_days_old=30).
+    Only fetches jobs posted within the last 14 days (max_days_old=14).
     """
     if not app_id or not app_key:
         print("[ℹ️] Adzuna credentials not configured. Skipping Adzuna location scraper.", flush=True)
         return []
 
-    print("[*] Connecting to Adzuna Worldwide Engine for Last 30-Day Verified Postings...", flush=True)
+    print("[*] Connecting to Adzuna Worldwide Engine for Last 14-Day Verified Postings...", flush=True)
     countries = ["in", "us", "gb", "ca", "de", "fr", "au", "sg", "nl", "pl", "nz", "za", "it", "es", "ch", "at", "be", "br", "mx"]
     currency_map = {
         "in": "INR", "gb": "GBP", "de": "EUR", "fr": "EUR", "nl": "EUR", "it": "EUR", "es": "EUR", "at": "EUR", "be": "EUR",
@@ -832,9 +832,9 @@ def fetch_adzuna_jobs(app_id, app_key):
         c_curr = currency_map.get(country, "USD")
         country_jobs_count = 0
 
-        # Query top pages for each country with max_days_old=30
+        # Query top pages for each country with max_days_old=14
         for page in [1, 2]:
-            url = f"https://api.adzuna.com/v1/api/jobs/{country}/search/{page}?app_id={app_id}&app_key={app_key}&results_per_page=50&max_days_old=30&content-type=application/json"
+            url = f"https://api.adzuna.com/v1/api/jobs/{country}/search/{page}?app_id={app_id}&app_key={app_key}&results_per_page=50&max_days_old=14&content-type=application/json"
             req = urllib.request.Request(url, headers=HEADERS)
             try:
                 with urllib.request.urlopen(req, timeout=12, context=ctx) as r:
@@ -978,7 +978,7 @@ def main():
     adzuna_key = os.getenv("ADZUNA_APP_KEY")
     all_real_jobs.extend(fetch_adzuna_jobs(adzuna_id, adzuna_key))
 
-    # Strict filter: Only keep jobs posted within the last 30 days
+    # Strict filter: Only keep jobs posted within the last 14 days
     now_utc = datetime.now(timezone.utc)
     fresh_jobs = []
     for j in all_real_jobs:
@@ -988,8 +988,8 @@ def main():
                 p_dt = datetime.fromisoformat(p_at.replace("Z", "+00:00"))
                 if p_dt.tzinfo is None:
                     p_dt = p_dt.replace(tzinfo=timezone.utc)
-                if (now_utc - p_dt).days > 30:
-                    continue  # Exclude jobs older than 30 days
+                if (now_utc - p_dt).days > 14:
+                    continue  # Exclude jobs older than 14 days
             except Exception:
                 pass
         fresh_jobs.append(j)
@@ -1000,7 +1000,7 @@ def main():
 
     with open(frontend_json, "w", encoding="utf-8") as f:
         json.dump(all_real_jobs, f, indent=2, ensure_ascii=False)
-    print(f"\n[+] Successfully saved {len(all_real_jobs)} verified 30-day jobs to {frontend_json.name}", flush=True)
+    print(f"\n[+] Successfully saved {len(all_real_jobs)} verified 14-day jobs to {frontend_json.name}", flush=True)
 
     # 7. Connect to Supabase & Store Real Live Data
     db_pass = quote_plus("MyJobPulse@2026#")
@@ -1033,21 +1033,21 @@ def main():
 
     print("\n[*] Connected to Supabase. Performing non-destructive smart UPSERT...", flush=True)
     try:
-        # Delete jobs older than 30 days to keep dataset fresh
+        # Delete jobs older than 14 days to keep dataset fresh
         with engine.connect() as conn:
-            conn.execute(text("DELETE FROM jobs WHERE (posted_at IS NOT NULL AND posted_at < NOW() - INTERVAL '30 DAYS') OR (posted_at IS NULL AND first_seen_at < NOW() - INTERVAL '30 DAYS');"))
+            conn.execute(text("DELETE FROM jobs WHERE (posted_at IS NOT NULL AND posted_at < NOW() - INTERVAL '14 DAYS') OR (posted_at IS NULL AND first_seen_at < NOW() - INTERVAL '14 DAYS');"))
             conn.commit()
 
         with Session(engine) as session:
-            # Purge expired and >30 day jobs to keep database lean and save storage
+            # Purge expired and >14 day jobs to keep database lean and save storage
             purged = session.execute(text("""
                 DELETE FROM jobs 
                 WHERE status = 'expired'
-                   OR (posted_at IS NOT NULL AND posted_at < NOW() - INTERVAL '30 DAYS')
-                   OR (posted_at IS NULL AND first_seen_at IS NOT NULL AND first_seen_at < NOW() - INTERVAL '30 DAYS')
+                   OR (posted_at IS NOT NULL AND posted_at < NOW() - INTERVAL '14 DAYS')
+                   OR (posted_at IS NULL AND first_seen_at IS NOT NULL AND first_seen_at < NOW() - INTERVAL '14 DAYS')
             """))
             session.commit()
-            print(f"[*] Purged {purged.rowcount} expired/stale jobs (>30 days). Keeping database lean and fast.", flush=True)
+            print(f"[*] Purged {purged.rowcount} expired/stale jobs (>14 days). Keeping database lean and fast.", flush=True)
 
             # Cache existing companies
             existing_companies = session.query(Company).all()

@@ -130,7 +130,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
       <head>
         <script
           type="application/ld+json"
@@ -141,7 +141,7 @@ export default function RootLayout({
           dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLdOrg) }}
         />
       </head>
-      <body className={`${inter.className} min-h-screen bg-slate-50 text-slate-900 flex flex-col`}>
+      <body suppressHydrationWarning className={`${inter.className} min-h-screen bg-slate-50 text-slate-900 flex flex-col`}>
         <Suspense fallback={null}>
           <NavigationProgressBar />
         </Suspense>

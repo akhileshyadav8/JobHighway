@@ -210,17 +210,17 @@ export default function AdminDashboardOverview() {
           </div>
         </div>
 
-        {/* KPI 6: Stale & Expired Cleaned (Zero Ghost Jobs) */}
+        {/* KPI 6: Database Retention (14-Day Rolling Window) */}
         <div className="bg-white border border-slate-200/90 rounded-xl p-4 shadow-2xs">
           <div className="flex items-center justify-between text-xs text-slate-500 font-semibold mb-1">
-            <span>Stale / Expired Jobs</span>
+            <span>Catalog Retention</span>
             <ShieldCheck className="w-4 h-4 text-emerald-500" />
           </div>
           <div className="text-2xl font-black text-emerald-600 tracking-tight">
-            0 <span className="text-xs font-semibold text-slate-400 font-normal">(Auto-Purged)</span>
+            14 Days <span className="text-xs font-semibold text-slate-400 font-normal">(Rolling)</span>
           </div>
           <div className="text-[11px] text-emerald-600 font-semibold mt-1">
-            Zero Ghost Jobs • Storage Saved
+            Auto-Purged • Storage Optimized
           </div>
         </div>
 

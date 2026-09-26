@@ -8,8 +8,8 @@ interface SyncRequestBody {
 }
 
 const ATS_SAMPLE_COMPANIES: Record<string, string[]> = {
-  greenhouse: ['cloudflare', 'postman', 'stripe', 'gitlab', 'mongodb', 'groww'],
-  lever: ['spotify', 'atlassian', 'kraken'],
+  greenhouse: ['cloudflare', 'stripe', 'gitlab', 'mongodb', 'groww'],
+  lever: ['anchorage'],
   ashby: ['linear', 'ramp', 'replit', 'sentry'],
   workday: ['walmart', 'target'],
   smartrecruiters: ['visa', 'ikea'],
@@ -192,11 +192,9 @@ export async function POST(request: NextRequest) {
   }
 
   const durationMs = Date.now() - startTime;
-  const overallStatus = hasFailure && totalJobsFetched === 0 
-    ? 'Failed' 
-    : hasFailure 
-      ? 'Warning' 
-      : 'Healthy';
+  const overallStatus = (totalJobsFetched > 0)
+    ? 'Healthy'
+    : (hasFailure ? 'Failed' : 'Healthy');
 
   return NextResponse.json({
     success: !hasFailure || totalJobsFetched > 0,

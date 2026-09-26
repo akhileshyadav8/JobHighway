@@ -53,6 +53,23 @@ export async function POST(req: NextRequest) {
     // Cleanup old entries after 15 min
     setTimeout(() => usedOtps.delete(otpKey), 15 * 60 * 1000);
 
+    // Persist registered user directly to Supabase PostgreSQL app_users table
+    try {
+      const { getPool } = await import('@/lib/db');
+      const pool = getPool();
+      if (pool) {
+        const userId = 'usr_' + Date.now();
+        await pool.query(
+          `INSERT INTO app_users (id, name, email, role, created_at)
+           VALUES ($1, $2, $3, 'user', NOW())
+           ON CONFLICT (email) DO UPDATE SET name = EXCLUDED.name`,
+          [userId, payload.name || 'Candidate', payload.email.toLowerCase().trim()]
+        );
+      }
+    } catch (dbErr) {
+      console.error('Failed to auto-insert registered user into Supabase:', dbErr);
+    }
+
     // Success — clear the cookie, return user data for localStorage registration
     const response = NextResponse.json({
       success: true,

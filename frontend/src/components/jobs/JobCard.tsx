@@ -2,9 +2,8 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
-import Image from "next/image";
 import { useRouter } from "next/navigation";
-import { MapPin, Clock, Bookmark, CheckCircle2, ExternalLink, ArrowLeftRight } from "lucide-react";
+import { MapPin, Clock, Bookmark, CheckCircle2, ExternalLink, ArrowLeftRight, Briefcase } from "lucide-react";
 import { Job } from "@/lib/api";
 import { formatSalary, formatRelativeTime, formatDate, sanitizeJobSkills, inferAtsSource } from "@/lib/utils";
 import { CountryFlag } from "@/components/ui/CountryFlag";
@@ -16,9 +15,10 @@ interface JobCardProps {
   job: Job;
   isCompared?: boolean;
   onToggleCompare?: (job: Job) => void;
+  layout?: "grid" | "list";
 }
 
-export function JobCard({ job, isCompared, onToggleCompare }: JobCardProps) {
+export function JobCard({ job, isCompared, onToggleCompare, layout = "grid" }: JobCardProps) {
   const router = useRouter();
   const [currentUser, setCurrentUser] = useState<User | null>(null);
   const [applied, setApplied] = useState(false);
@@ -145,14 +145,13 @@ export function JobCard({ job, isCompared, onToggleCompare }: JobCardProps) {
     ? `1–${job.experience_max || 3} Yrs`
     : job.experience_min !== null && job.experience_min !== undefined
     ? `${job.experience_min}+ Yrs`
-    : null;
+    : "Experience not specified";
 
   // Location display — safe guard against null/non-array
   const safeLocation = Array.isArray(job.location) ? job.location : [];
   const locationText = safeLocation.length > 0
     ? safeLocation.slice(0, 2).join(", ") + (safeLocation.length > 2 ? ` +${safeLocation.length - 2}` : "")
-    : null;
-
+    : "Remote / Worldwide";
 
   // Source ATS badge
   const atsSource = inferAtsSource(job.apply_url || job.job_url);
@@ -161,35 +160,138 @@ export function JobCard({ job, isCompared, onToggleCompare }: JobCardProps) {
   const salaryText = formatSalary(job.salary_min, job.salary_max, job.salary_currency, job.salary_period, true);
   const showSalary = salaryText && salaryText !== "Competitive (Disclosed on Application)";
 
-  // Batch information: display only if real meaningful data is present
-  const batchText = (job.eligible_batches && Array.isArray(job.eligible_batches) && job.eligible_batches.length > 0)
-    ? job.eligible_batches.filter((b: any) => Boolean(b && String(b).trim())).join(", ")
-    : null;
-
-  // Closing / Expiry date
-  const getClosingDateText = (): string | null => {
-    if (!job.deadline) return null;
-    const trimmed = String(job.deadline).trim();
-    if (!trimmed || trimmed.toLowerCase() === "null" || trimmed.toLowerCase() === "undefined") return null;
-    const parsedDate = new Date(trimmed);
-    if (!isNaN(parsedDate.getTime()) && parsedDate.getFullYear() > 2000) {
-      const formatted = formatDate(trimmed);
-      if (formatted) return `Apply by ${formatted}`;
-    }
-    return `Deadline: ${trimmed}`;
-  };
-  const closingText = getClosingDateText();
-
   const postDate = job.posted_at || job.first_seen_at;
   const isNew = Boolean(postDate && (Date.now() - new Date(postDate).getTime() <= 4 * 60 * 60 * 1000) && (Date.now() - new Date(postDate).getTime() >= 0));
   const isRecent = Boolean(postDate && (Date.now() - new Date(postDate).getTime() <= 24 * 60 * 60 * 1000) && (Date.now() - new Date(postDate).getTime() >= 0));
 
+  // ----------------------------------------------------
+  // LIST VIEW LAYOUT
+  // ----------------------------------------------------
+  if (layout === "list") {
+    return (
+      <div className="bg-white border border-slate-200/90 rounded-xl p-4 hover:border-slate-300 hover:shadow-xs transition-all duration-200 flex flex-col md:flex-row md:items-center justify-between gap-4 group">
+        <div className="flex items-start sm:items-center gap-3.5 min-w-0 flex-1">
+          <CompanyLogo
+            name={job.company.name}
+            website={job.company.website}
+            slug={job.company.slug}
+            logoUrl={job.company.logo_url}
+            size="md"
+          />
+
+          <div className="min-w-0 flex-1">
+            <div className="flex items-center gap-2 flex-wrap mb-0.5">
+              <span className="text-xs font-semibold text-slate-600 truncate max-w-[180px]">
+                {job.company.name}
+              </span>
+              {atsSource && (
+                <span className="text-[10px] font-mono text-teal-700 bg-teal-50/70 border border-teal-200/50 px-1.5 py-0.2 rounded font-medium">
+                  via {atsSource}
+                </span>
+              )}
+              {isNew && (
+                <span className="px-1.5 py-0.2 rounded text-[10px] font-mono font-bold tracking-wider bg-emerald-50 text-emerald-700 border border-emerald-200">
+                  NEW
+                </span>
+              )}
+            </div>
+
+            <Link href={`/jobs/${job.slug}`} onClick={handleJobClick}>
+              <h3 className="font-bold text-[15px] sm:text-base leading-snug text-slate-900 group-hover:text-teal-700 transition-colors line-clamp-1">
+                {job.title}
+              </h3>
+            </Link>
+
+            <div className="flex items-center gap-3 text-xs text-slate-500 mt-1 flex-wrap">
+              <span className="flex items-center gap-1">
+                <MapPin className="w-3.5 h-3.5 text-slate-400 shrink-0" />
+                <span>{locationText}</span>
+              </span>
+              <span>·</span>
+              <span>{job.work_mode || "Workplace"}</span>
+              <span>·</span>
+              <span>{expText}</span>
+              <span>·</span>
+              <span>{job.employment_type || "Full-time"}</span>
+              {showSalary && (
+                <>
+                  <span>·</span>
+                  <span className="font-semibold text-slate-900">{salaryText}</span>
+                </>
+              )}
+            </div>
+          </div>
+        </div>
+
+        {/* Right side: Skills + Actions */}
+        <div className="flex items-center justify-between md:justify-end gap-3 shrink-0 pt-2 md:pt-0 border-t md:border-t-0 border-slate-100">
+          <div className="hidden lg:flex items-center gap-1.5">
+            {displaySkills.slice(0, 2).map((skill, i) => (
+              <span key={i} className="text-[11px] bg-slate-50 border border-slate-200 px-2 py-0.5 rounded-md text-slate-600 font-medium">
+                {skill}
+              </span>
+            ))}
+          </div>
+
+          <div className="flex items-center gap-1.5 text-xs text-slate-500" suppressHydrationWarning>
+            {isRecent ? (
+              <span className="relative flex h-2 w-2 shrink-0">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+              </span>
+            ) : (
+              <span className="w-1.5 h-1.5 rounded-full bg-slate-300 shrink-0"></span>
+            )}
+            <span suppressHydrationWarning>{formatRelativeTime(postDate)}</span>
+          </div>
+
+          <div className="flex items-center gap-2">
+            {!isAdmin && (
+              <button
+                onClick={handleToggleBookmark}
+                className={`p-1.5 rounded-md hover:bg-slate-100 transition-colors cursor-pointer ${
+                  bookmarked ? "text-slate-900" : "text-slate-300 hover:text-slate-600"
+                }`}
+                title={bookmarked ? "Saved job" : "Save job"}
+              >
+                <Bookmark className={`w-4 h-4 ${bookmarked ? "fill-current text-slate-900" : ""}`} />
+              </button>
+            )}
+
+            <Link
+              href={`/jobs/${job.slug}`}
+              onClick={handleJobClick}
+              className="px-3 py-1.5 text-xs font-semibold text-slate-700 bg-white border border-slate-300 rounded-lg hover:bg-slate-50 hover:text-slate-900 transition-colors"
+            >
+              Details
+            </Link>
+
+            {job.apply_url && (
+              <a
+                href={job.apply_url}
+                onClick={handleApplyClick}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="px-3.5 py-1.5 text-xs font-semibold bg-teal-600 hover:bg-teal-700 text-white rounded-lg transition-colors cursor-pointer inline-flex items-center gap-1.5 shadow-2xs"
+              >
+                <span>Apply Official</span>
+                <ExternalLink className="w-3 h-3" />
+              </a>
+            )}
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // ----------------------------------------------------
+  // GRID VIEW CARD LAYOUT (EXACTLY MATCHING IMAGE 1)
+  // ----------------------------------------------------
   return (
-    <div className="bg-white border border-slate-200/90 rounded-xl p-4 sm:p-5 hover:border-slate-300 hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 flex flex-col h-full group relative">
-      {/* Top Header: Logo + Company + Badges */}
+    <div className="bg-white border border-slate-200/90 rounded-xl p-4 sm:p-5 hover:border-slate-300 hover:shadow-xs transition-all duration-200 flex flex-col h-full group relative">
+      {/* Top Header: Logo + Company Name (NEW + Bookmark on right) */}
       <div className="flex items-start justify-between gap-3 mb-2.5">
         <div className="flex items-center gap-2.5 min-w-0">
-          {/* Company Logo */}
           <CompanyLogo
             name={job.company.name}
             website={job.company.website}
@@ -199,9 +301,9 @@ export function JobCard({ job, isCompared, onToggleCompare }: JobCardProps) {
           />
 
           <div className="min-w-0">
-            <p className="text-xs font-semibold text-slate-700 truncate">
+            <h4 className="text-xs font-bold text-slate-800 truncate">
               {job.company.name}
-            </p>
+            </h4>
             {atsSource && (
               <span className="text-[10px] font-mono text-teal-700 font-medium block">
                 via {atsSource}
@@ -213,7 +315,7 @@ export function JobCard({ job, isCompared, onToggleCompare }: JobCardProps) {
         {/* Right header indicators: NEW badge & Bookmarks */}
         <div className="flex items-center gap-1.5 shrink-0">
           {isNew && (
-            <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-mono font-bold tracking-wider bg-teal-50 text-teal-700 border border-teal-200/70">
+            <span className="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-mono font-bold tracking-wider bg-emerald-50 text-emerald-700 border border-emerald-200/80">
               NEW
             </span>
           )}
@@ -234,92 +336,85 @@ export function JobCard({ job, isCompared, onToggleCompare }: JobCardProps) {
       </div>
 
       {/* Role Title */}
-      <div className="mb-2">
+      <div className="mb-2.5">
         <Link href={`/jobs/${job.slug}`} onClick={handleJobClick}>
-          <h3 className="font-bold text-[15px] leading-snug text-slate-900 group-hover:text-teal-700 transition-colors line-clamp-2">
+          <h3 className="font-bold text-base leading-snug text-slate-900 group-hover:text-teal-700 transition-colors line-clamp-1">
             {job.title}
           </h3>
         </Link>
       </div>
 
-      {/* Location + Meta Line */}
-      {(locationText || job.work_mode || job.employment_type || expText) && (
-        <div className="flex items-start gap-1.5 text-xs text-slate-500 mb-2.5">
-          <MapPin className="w-3.5 h-3.5 mt-0.5 shrink-0 text-slate-400" />
-          <span className="line-clamp-1 flex items-center gap-1.5">
-            <CountryFlag locations={safeLocation} countryCode={(job as any).country_code || (job as any).country} size="sm" />
-            <span>{[locationText, job.work_mode, job.employment_type, expText].filter(Boolean).join(" · ")}</span>
-          </span>
-        </div>
-      )}
+      {/* Hierarchy Line 1: Location • Work Mode */}
+      <div className="flex items-center gap-1.5 text-xs text-slate-500 mb-1">
+        <MapPin className="w-3.5 h-3.5 text-slate-400 shrink-0" />
+        <span className="truncate">
+          {locationText}
+          {job.work_mode ? ` · ${job.work_mode}` : ""}
+        </span>
+      </div>
 
-      {/* Salary */}
+      {/* Hierarchy Line 2: Experience • Job Type */}
+      <div className="flex items-center gap-1.5 text-xs text-slate-500 mb-3">
+        <Clock className="w-3.5 h-3.5 text-slate-400 shrink-0" />
+        <span className="truncate">
+          {expText}
+          {job.employment_type ? ` · ${job.employment_type}` : " · Full-time"}
+        </span>
+      </div>
+
+      {/* Salary (if present and meaningful) */}
       {showSalary && (
-        <p className="text-sm font-bold text-slate-900 mb-2 tracking-tight">
+        <p className="text-xs font-bold text-slate-800 mb-2.5">
           {salaryText}
         </p>
       )}
 
-      {/* Batch & Closing Date */}
-      {(batchText || closingText) && (
-        <div className="flex flex-wrap items-center gap-2 text-xs mb-2.5">
-          {batchText && (
-            <span className="bg-slate-100 text-slate-700 px-2 py-0.5 rounded-md text-[11px] font-medium border border-slate-200/60">
-              Batch: {batchText}
-            </span>
-          )}
-          {closingText && (
-            <span className="text-amber-800 bg-amber-50 border border-amber-200/60 px-2 py-0.5 rounded-md text-[11px] font-medium">
-              {closingText}
-            </span>
-          )}
-        </div>
-      )}
+      {/* Relevant skills / technologies pills */}
+      <div className="flex flex-wrap gap-1.5 mt-auto pt-1 mb-3.5">
+        {displaySkills && displaySkills.length > 0 ? (
+          <>
+            {displaySkills.slice(0, 3).map((skill, i) => (
+              <span key={i} className="text-[11px] bg-slate-50 border border-slate-200/90 px-2 py-0.5 rounded-md text-slate-600 font-medium">
+                {skill}
+              </span>
+            ))}
+            {displaySkills.length > 3 && (
+              <span className="text-[11px] text-teal-700 bg-teal-50/70 border border-teal-200/50 px-1.5 py-0.5 rounded-md self-center font-semibold">
+                +{displaySkills.length - 3}
+              </span>
+            )}
+          </>
+        ) : (
+          <span className="text-[11px] text-slate-400 italic">Official ATS Posting</span>
+        )}
+      </div>
 
-      {/* Skills — max 3 visible */}
-      {displaySkills && displaySkills.length > 0 && (
-        <div className="flex flex-wrap gap-1.5 mt-auto pt-2">
-          {displaySkills.slice(0, 3).map((skill, i) => (
-            <span key={i} className="text-[11px] bg-slate-50 border border-slate-200 px-2 py-0.5 rounded-md text-slate-600 font-medium">
-              {skill}
-            </span>
-          ))}
-          {displaySkills.length > 3 && (
-            <span className="text-[11px] text-slate-400 self-center font-medium pl-0.5">
-              +{displaySkills.length - 3}
-            </span>
-          )}
-        </div>
-      )}
-
-      {/* Footer */}
-      <div className="flex items-center justify-between mt-3.5 pt-3 border-t border-slate-100">
-        {/* Left: Freshness relative time with pulsing dot */}
+      {/* Card Footer: Status dot + Posted time on left, Details + Apply Official on right */}
+      <div className="flex items-center justify-between pt-3 border-t border-slate-100 mt-auto">
         <div className="flex items-center gap-1.5 text-xs text-slate-500" suppressHydrationWarning>
           {isRecent ? (
             <span className="relative flex h-2 w-2 shrink-0">
-              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-teal-400 opacity-75"></span>
-              <span className="relative inline-flex rounded-full h-2 w-2 bg-teal-600"></span>
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+              <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
             </span>
           ) : (
-            <Clock className="w-3.5 h-3.5 text-slate-400 shrink-0" />
+            <span className="w-1.5 h-1.5 rounded-full bg-slate-300 shrink-0"></span>
           )}
-          <span suppressHydrationWarning>{formatRelativeTime(postDate)}</span>
+          <span suppressHydrationWarning className="truncate text-slate-600 font-medium">
+            {formatRelativeTime(postDate)}
+          </span>
         </div>
 
-        {/* Right: Actions */}
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
           {!isAdmin && (
             <button
               onClick={handleQuickMarkApplied}
-              className={`p-1.5 rounded-md hover:bg-slate-100 transition-colors cursor-pointer ${
-                applied
-                  ? "text-emerald-600"
-                  : "text-slate-300 hover:text-emerald-600"
+              className={`p-1.5 rounded-md hover:bg-slate-100 transition-colors cursor-pointer hidden sm:block ${
+                applied ? "text-emerald-600" : "text-slate-300 hover:text-emerald-600"
               }`}
               title={applied ? "Tracked as Applied" : "Mark as Applied"}
             >
-              <CheckCircle2 className={`w-4 h-4 ${applied ? "fill-emerald-100 text-emerald-600" : ""}`} />
+              <CheckCircle2 className={`w-3.5 h-3.5 ${applied ? "fill-emerald-100 text-emerald-600" : ""}`} />
             </button>
           )}
 
@@ -331,7 +426,7 @@ export function JobCard({ job, isCompared, onToggleCompare }: JobCardProps) {
                 e.stopPropagation();
                 onToggleCompare(job);
               }}
-              className={`p-1.5 rounded-lg border text-xs transition-colors cursor-pointer ${
+              className={`p-1.5 rounded-lg border text-xs transition-colors cursor-pointer hidden sm:block ${
                 isCompared
                   ? "bg-teal-50 border-teal-300 text-teal-700 font-semibold"
                   : "border-slate-200 text-slate-400 hover:text-slate-800 hover:bg-slate-50"
@@ -345,7 +440,7 @@ export function JobCard({ job, isCompared, onToggleCompare }: JobCardProps) {
           <Link
             href={`/jobs/${job.slug}`}
             onClick={handleJobClick}
-            className="px-3 py-1.5 text-xs font-medium text-slate-700 bg-white border border-slate-300 rounded-lg hover:bg-slate-50 hover:border-slate-400 hover:text-slate-900 transition-colors"
+            className="px-2.5 sm:px-3 py-1.5 text-xs font-semibold text-slate-700 bg-white border border-slate-200 rounded-lg hover:bg-slate-50 hover:border-slate-300 hover:text-slate-900 transition-colors"
           >
             Details
           </Link>
@@ -356,9 +451,9 @@ export function JobCard({ job, isCompared, onToggleCompare }: JobCardProps) {
               onClick={handleApplyClick}
               target="_blank"
               rel="noopener noreferrer"
-              className="px-3.5 py-1.5 text-xs font-semibold bg-teal-600 hover:bg-teal-700 active:bg-teal-800 text-white rounded-lg transition-colors cursor-pointer inline-flex items-center gap-1.5 shadow-2xs"
+              className="px-3 sm:px-3.5 py-1.5 text-xs font-semibold bg-teal-600 hover:bg-teal-700 active:bg-teal-800 text-white rounded-lg transition-colors cursor-pointer inline-flex items-center gap-1.5 shadow-2xs"
             >
-              <span>Apply Official</span>
+              <span>Apply</span>
               <ExternalLink className="w-3 h-3" />
             </a>
           )}

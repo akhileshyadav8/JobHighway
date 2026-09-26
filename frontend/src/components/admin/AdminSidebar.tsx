@@ -54,7 +54,6 @@ const NAV_SECTIONS: NavSection[] = [
     title: "JOBS",
     items: [
       { name: "All Jobs", href: "/mastermindak/jobs", icon: Briefcase },
-      { name: "Expired Jobs", href: "/mastermindak/jobs/expired", icon: Clock },
       { name: "Duplicates", href: "/mastermindak/jobs/duplicates", icon: Copy },
       { name: "Data Quality", href: "/mastermindak/jobs/data-quality", icon: CheckCircle }
     ]

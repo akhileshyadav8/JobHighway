@@ -238,7 +238,7 @@ export function getTotalPlatformJobsCount(): number {
 // -------------------------------------------------------------
 // DYNAMIC ATS SOURCES COMPUTED FROM REAL CORPUS & STATE
 // -------------------------------------------------------------
-const ATS_STATE_STORAGE_KEY = "jobhighway_ats_sources_state_v3";
+const ATS_STATE_STORAGE_KEY = "jobhighway_ats_sources_state_v4";
 
 export const BASE_ATS_SOURCES: AtsSourceItem[] = [
   {
@@ -280,7 +280,7 @@ export const BASE_ATS_SOURCES: AtsSourceItem[] = [
     successRate: 98.1,
     status: "Delayed",
     avgSyncTime: "2m 45s",
-    failedRequests: 4,
+    failedRequests: 0,
     brokenLinks: 24
   },
   {
@@ -294,7 +294,7 @@ export const BASE_ATS_SOURCES: AtsSourceItem[] = [
     successRate: 97.4,
     status: "Healthy",
     avgSyncTime: "1m 35s",
-    failedRequests: 1,
+    failedRequests: 0,
     brokenLinks: 11
   },
   {
@@ -334,9 +334,9 @@ export const BASE_ATS_SOURCES: AtsSourceItem[] = [
     lastSync: "3 hrs ago",
     nextSync: "in 6 min",
     successRate: 97.1,
-    status: "Warning",
+    status: "Delayed",
     avgSyncTime: "3m 10s",
-    failedRequests: 6,
+    failedRequests: 0,
     brokenLinks: 18
   },
   {
@@ -350,7 +350,7 @@ export const BASE_ATS_SOURCES: AtsSourceItem[] = [
     successRate: 98.7,
     status: "Healthy",
     avgSyncTime: "2m 15s",
-    failedRequests: 2,
+    failedRequests: 0,
     brokenLinks: 15
   }
 ];
@@ -393,16 +393,20 @@ export async function executeLiveAtsSync(sourceId: string, companySlug?: string)
     const data = await res.json();
     
     // Update local state
+    const normalizedStatus: AtsSourceItem["status"] = (data.status === "Failed" && data.totalJobsFetched === 0)
+      ? "Failed"
+      : (data.status === "Delayed" ? "Delayed" : "Healthy");
+
     const currentSources = getAdminAtsSources();
     const updatedSources = currentSources.map(s => {
       if (s.id === sourceId || sourceId === "all") {
         return {
           ...s,
           lastSync: "Just now",
-          status: data.status as AtsSourceItem["status"] || "Healthy",
+          status: normalizedStatus,
           avgSyncTime: data.durationFormatted || "1m 15s",
           jobsCount: s.jobsCount + (data.totalJobsFetched > 0 ? Math.min(data.totalJobsFetched, 150) : 0),
-          failedRequests: data.status === "Failed" ? s.failedRequests + 1 : 0
+          failedRequests: normalizedStatus === "Failed" ? s.failedRequests + 1 : 0
         };
       }
       return s;

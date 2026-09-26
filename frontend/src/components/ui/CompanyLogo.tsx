@@ -26,6 +26,7 @@ const KNOWN_DOMAINS: Record<string, string> = {
   airbnb: "airbnb.com",
   uber: "uber.com",
   spotify: "spotify.com",
+  tesla: "tesla.com",
   salesforce: "salesforce.com",
   atlassian: "atlassian.com",
   bytedance: "bytedance.com",

@@ -95,7 +95,24 @@ export default function ContactPage() {
       createdAt: new Date().toISOString(),
     };
 
-    // Store in JobHighway Admin Inquiries store
+    // 1. Persist directly to Supabase DB via server API
+    try {
+      await fetch("/api/contact", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name: name.trim(),
+          email: senderEmail.trim(),
+          topic: subject || "General Inquiry",
+          subject: subject || "General Inquiry",
+          message: message.trim(),
+        }),
+      });
+    } catch (apiErr) {
+      console.warn("Contact API sync warning:", apiErr);
+    }
+
+    // 2. Store in local browser cache as fallback
     try {
       const existing = JSON.parse(
         localStorage.getItem("jobhighway_contact_inquiries") || "[]"

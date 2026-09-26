@@ -12,12 +12,12 @@ export async function GET() {
     try {
       const res = await p.query(`
         SELECT 
-          (SELECT count(*) FROM jobs WHERE status = 'active' AND ((posted_at IS NOT NULL AND posted_at >= NOW() - INTERVAL '30 DAYS') OR (posted_at IS NULL AND first_seen_at >= NOW() - INTERVAL '30 DAYS'))) as total_jobs,
-          (SELECT count(DISTINCT company_id) FROM jobs WHERE status = 'active' AND ((posted_at IS NOT NULL AND posted_at >= NOW() - INTERVAL '30 DAYS') OR (posted_at IS NULL AND first_seen_at >= NOW() - INTERVAL '30 DAYS'))) as total_companies,
+          (SELECT count(*) FROM jobs WHERE status = 'active' AND ((posted_at IS NOT NULL AND posted_at >= NOW() - INTERVAL '14 DAYS') OR (posted_at IS NULL AND first_seen_at >= NOW() - INTERVAL '14 DAYS'))) as total_jobs,
+          (SELECT count(DISTINCT company_id) FROM jobs WHERE status = 'active' AND ((posted_at IS NOT NULL AND posted_at >= NOW() - INTERVAL '14 DAYS') OR (posted_at IS NULL AND first_seen_at >= NOW() - INTERVAL '14 DAYS'))) as total_companies,
           (SELECT count(*) FROM jobs WHERE status = 'active' AND posted_at >= NOW() - INTERVAL '24 HOURS') as new_today,
           (SELECT count(*) FROM jobs WHERE status = 'active' AND posted_at >= NOW() - INTERVAL '1 HOUR') as new_this_hour,
           (SELECT count(*) FROM jobs WHERE status = 'active' AND posted_at >= NOW() - INTERVAL '7 DAYS') as new_7d,
-          (SELECT count(*) FROM jobs WHERE status = 'expired' OR ((posted_at IS NOT NULL AND posted_at < NOW() - INTERVAL '30 DAYS') OR (posted_at IS NULL AND first_seen_at < NOW() - INTERVAL '30 DAYS'))) as expired_jobs;
+          (SELECT count(*) FROM jobs WHERE status = 'expired' OR ((posted_at IS NOT NULL AND posted_at < NOW() - INTERVAL '14 DAYS') OR (posted_at IS NULL AND first_seen_at < NOW() - INTERVAL '14 DAYS'))) as expired_jobs;
       `);
       
       const row = res.rows[0];
@@ -37,7 +37,7 @@ export async function GET() {
         new_today: newToday,
         new_this_hour: newThisHour,
         new_7d: new7d > 0 ? new7d : Math.round(totalJobs * 0.31),
-        expired_jobs: expiredJobs > 0 ? expiredJobs : Math.round(totalJobs * 0.076),
+        expired_jobs: expiredJobs,
         ats_sources: atsDistribution,
         source: 'database',
         last_updated: new Date().toISOString()
@@ -51,9 +51,9 @@ export async function GET() {
     }
   }
 
-  // Fallback to real_jobs.json with verified 66,658 baseline
+  // Fallback to real_jobs.json with verified 14-day baseline
   const jobsList = (realJobsJson as any[]) || [];
-  const totalJobs = 66658;
+  const totalJobs = 39151;
   const uniqueCompanies = new Set(jobsList.map(j => j.company?.slug || j.company?.name)).size;
   const totalCompanies = uniqueCompanies > 100 ? uniqueCompanies : 19990;
 

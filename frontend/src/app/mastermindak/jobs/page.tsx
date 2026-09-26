@@ -33,7 +33,7 @@ import {
 
 export default function AdminJobsPage() {
   const [jobs, setJobs] = useState<AdminJobItem[]>([]);
-  const [activeTab, setActiveTab] = useState<"all" | "active" | "expired" | "broken">("all");
+  const [activeTab, setActiveTab] = useState<"all" | "active" | "broken">("all");
   const [search, setSearch] = useState("");
   const [selectedCompany, setSelectedCompany] = useState("");
   const [selectedAts, setSelectedAts] = useState("");
@@ -118,8 +118,7 @@ export default function AdminJobsPage() {
   // Dynamic platform corpus counts
   const totalPlatformJobs = getTotalPlatformJobsCount();
   const allCount = totalPlatformJobs;
-  const activeCount = Math.round(totalPlatformJobs * 0.9178);
-  const expiredCount = Math.round(totalPlatformJobs * 0.0768);
+  const activeCount = totalPlatformJobs;
   const brokenCount = Math.round(totalPlatformJobs * 0.0054);
 
   // Companies & ATS options for dropdown
@@ -129,7 +128,6 @@ export default function AdminJobsPage() {
   // Filter logic
   const filtered = jobs.filter((job) => {
     if (activeTab === "active" && job.status !== "Active") return false;
-    if (activeTab === "expired" && job.status !== "Expired") return false;
     if (activeTab === "broken" && job.status !== "Broken") return false;
 
     if (search.trim()) {
@@ -245,19 +243,6 @@ export default function AdminJobsPage() {
           </span>
         </button>
 
-        <button
-          onClick={() => { setActiveTab("expired"); setCurrentPage(1); }}
-          className={`pb-3 text-xs font-semibold px-3 transition-colors cursor-pointer border-b-2 -mb-px flex items-center gap-2 ${
-            activeTab === "expired"
-              ? "border-teal-600 text-teal-700"
-              : "border-transparent text-slate-500 hover:text-slate-800"
-          }`}
-        >
-          <span>Expired</span>
-          <span className="px-1.5 py-0.5 rounded-full text-[10px] bg-amber-50 text-amber-700 font-bold">
-            {expiredCount.toLocaleString()}
-          </span>
-        </button>
 
         <button
           onClick={() => { setActiveTab("broken"); setCurrentPage(1); }}

@@ -3,7 +3,7 @@
 import { useState, useMemo, useEffect, useCallback, useRef } from "react";
 import { Job, OverviewStats } from "@/lib/api";
 import { JobCard } from "@/components/jobs/JobCard";
-import { Search, X, RotateCcw, MapPin, Globe, Building2, ArrowUpDown, Navigation, Briefcase, GraduationCap, Laptop, Zap, ShieldCheck, Clock, Bookmark, ChevronRight, ArrowLeftRight, Check } from "lucide-react";
+import { Search, X, RotateCcw, MapPin, Globe, Building2, ArrowUpDown, Navigation, Briefcase, GraduationCap, Laptop, Zap, ShieldCheck, Clock, Bookmark, ChevronRight, ChevronLeft, ChevronDown, ChevronUp, ArrowLeftRight, Check, LayoutGrid, List, SlidersHorizontal, CheckSquare, Square, Star } from "lucide-react";
 import { ALL_WORLD_COUNTRIES, COUNTRY_STATES, STATE_CITIES } from "@/lib/world_locations";
 import { SearchableSelect } from "@/components/ui/SearchableSelect";
 import { JobComparisonModal } from "@/components/jobs/JobComparisonModal";
@@ -203,6 +203,9 @@ export function InteractiveJobFeed({ initialJobs, stats, initialTotal, initialTo
   const [selectedCompany, setSelectedCompany] = useState("All");
   type SortBy = "newest" | "fresher_highest_salary" | "high_salary_newest" | "oldest" | "salary_high" | "salary_low";
   const [sortBy, setSortBy] = useState<SortBy>("newest");
+  const [viewMode, setViewMode] = useState<"cards" | "list">("cards");
+  const [isMobileFilterOpen, setIsMobileFilterOpen] = useState(false);
+  const [showMoreCountries, setShowMoreCountries] = useState(false);
   const [activeFilters, setActiveFilters] = useState<Record<string, string>>({
     "Job Type": "All",
     "Work Mode": "All",
@@ -394,14 +397,14 @@ export function InteractiveJobFeed({ initialJobs, stats, initialTotal, initialTo
     }).length;
   }, [jobsList]);
 
-  // Available companies in dataset (only from 30-day recent jobs)
+  // Available companies in dataset (only from 14-day recent jobs)
   const availableCompanies = useMemo(() => {
     const map = new Map<string, string>();
     const now = new Date().getTime();
-    const THIRTY_DAYS_MS = 30 * 24 * 60 * 60 * 1000;
+    const FOURTEEN_DAYS_MS = 14 * 24 * 60 * 60 * 1000;
     jobsList.forEach(j => {
       const postTime = new Date(j.posted_at || j.first_seen_at).getTime();
-      if ((now - postTime) <= THIRTY_DAYS_MS) {
+      if ((now - postTime) <= FOURTEEN_DAYS_MS) {
         if (j.company?.name && j.company?.slug) {
           map.set(j.company.slug, j.company.name);
         }
@@ -1256,340 +1259,504 @@ export function InteractiveJobFeed({ initialJobs, stats, initialTotal, initialTo
         </div>
       </section>
 
-      {/* Filter Bar */}
-      <div className="w-full border-b border-slate-200 bg-white/95 backdrop-blur-md sticky top-16 z-40">
-        <div className="container mx-auto px-2.5 sm:px-4 py-2.5 max-w-[1440px]">
-          <div className="flex flex-col gap-2">
-            {/* Row 1: Location & Company (4 filters) */}
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+      {/* Redesigned Structured Filter Panel (Matching Image 1) */}
+      <div className="w-full border-b border-slate-200/90 bg-white sticky top-16 z-30 shadow-2xs">
+        <div className="container mx-auto px-3 sm:px-6 lg:px-8 py-3 max-w-[1440px]">
+          {/* Main Horizontal Filter Bar: 5 Clean Rectangular Controls */}
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-2.5">
+            {/* 1. Location / Country */}
+            <div>
               <SearchableSelect
-                ariaLabel="Country"
-                icon={<Globe className="w-3.5 h-3.5" />}
+                ariaLabel="Location"
+                icon={<MapPin className="w-3.5 h-3.5 text-slate-500" />}
                 options={ALL_WORLD_COUNTRIES}
                 value={selectedCountry}
                 onChange={handleCountryChange}
                 placeholder="All Countries"
                 searchPlaceholder="Search 250+ countries..."
               />
-              <SearchableSelect
-                ariaLabel="State or Region"
-                icon={<Navigation className="w-3.5 h-3.5" />}
-                options={dynamicStates.length > 0 ? dynamicStates : availableStates}
-                value={selectedState}
-                disabled={selectedCountry === "All" || selectedCountry === "Remote"}
-                loading={loadingStates}
-                loadingText="Loading States..."
-                onChange={handleStateChange}
-                placeholder={
-                  selectedCountry === "All"
-                    ? "Select country first"
-                    : !hasStates
-                    ? "National (No States)"
-                    : "All States / Regions"
-                }
-                searchPlaceholder="Search states / regions..."
-              />
-              <SearchableSelect
-                ariaLabel="City"
-                icon={<MapPin className="w-3.5 h-3.5" />}
-                options={dynamicCities.length > 0 ? dynamicCities : availableCities}
-                value={selectedCity}
-                disabled={
-                  selectedCountry === "All" ||
-                  selectedCountry === "Remote" ||
-                  (hasStates && selectedState === "All")
-                }
-                loading={loadingCities}
-                loadingText="Loading Cities..."
-                onChange={(val) => {
-                  setSelectedCity(val);
-                }}
-                placeholder={
-                  selectedCountry === "All"
-                    ? "Select country first"
-                    : hasStates && selectedState === "All"
-                    ? "Select state first"
-                    : selectedState !== "All"
-                    ? `All Cities in ${selectedState}`
-                    : "All Cities"
-                }
-                searchPlaceholder="Search cities..."
-              />
-              <SearchableSelect
-                ariaLabel="Company"
-                icon={<Building2 className="w-3.5 h-3.5" />}
-                options={companyOptions}
-                value={selectedCompany}
-                onChange={(val) => {
-                  setSelectedCompany(val);
-                }}
-                placeholder="All Companies"
-                searchPlaceholder="Search companies..."
-              />
             </div>
 
-            {/* Row 2: Job Type, Work Mode, Experience, Sort Order (4 filters - balanced) */}
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+            {/* 2. Job Type */}
+            <div>
               <SearchableSelect
                 ariaLabel="Job Type"
-                icon={<Briefcase className="w-3.5 h-3.5" />}
+                icon={<Briefcase className="w-3.5 h-3.5 text-slate-500" />}
                 options={jobTypeOptions}
                 value={activeFilters["Job Type"]}
                 onChange={(val) => toggleFilter("Job Type", val)}
-                placeholder="All Job Types"
+                placeholder="All Types"
                 searchPlaceholder="Search job type..."
               />
+            </div>
+
+            {/* 3. Work Mode */}
+            <div>
               <SearchableSelect
                 ariaLabel="Work Mode"
-                icon={<Laptop className="w-3.5 h-3.5" />}
+                icon={<Laptop className="w-3.5 h-3.5 text-slate-500" />}
                 options={workModeOptions}
                 value={activeFilters["Work Mode"]}
                 onChange={(val) => toggleFilter("Work Mode", val)}
-                placeholder="All Work Modes"
+                placeholder="All Modes"
                 searchPlaceholder="Search work mode..."
               />
+            </div>
+
+            {/* 4. Experience */}
+            <div>
               <SearchableSelect
-                ariaLabel="Experience Level"
-                icon={<GraduationCap className="w-3.5 h-3.5" />}
+                ariaLabel="Experience"
+                icon={<GraduationCap className="w-3.5 h-3.5 text-slate-500" />}
                 options={experienceOptions}
                 value={activeFilters["Experience"]}
                 onChange={(val) => toggleFilter("Experience", val)}
                 placeholder="All Experience"
                 searchPlaceholder="Search experience..."
               />
+            </div>
+
+            {/* 5. Date Posted / Sort */}
+            <div>
               <SearchableSelect
-                ariaLabel="Sort Order"
-                icon={<ArrowUpDown className="w-3.5 h-3.5" />}
+                ariaLabel="Date Posted"
+                icon={<Clock className="w-3.5 h-3.5 text-slate-500" />}
                 options={sortOptions}
                 value={sortBy}
                 onChange={(val) => setSortBy(val as any)}
                 placeholder="Newest First"
-                searchPlaceholder="Search sort order..."
+                searchPlaceholder="Sort order..."
               />
             </div>
+          </div>
 
-            {/* Quick Freshness & Persona Chips (F33) */}
-            <div className="flex items-center gap-1.5 flex-wrap pt-1">
-              <span className="text-[11px] font-semibold text-slate-500 mr-0.5">Quick Filters:</span>
+          {/* Quick Filters Row directly below (Matching Image 1) */}
+          <div className="flex items-center justify-between gap-3 mt-2.5 pt-2.5 border-t border-slate-100 flex-wrap">
+            <div className="flex items-center gap-1.5 sm:gap-2 flex-wrap">
+              {/* Fresh (<24h) */}
               <button
                 type="button"
                 onClick={() => setSortBy(sortBy === "newest" ? "high_salary_newest" : "newest")}
-                className={`px-2.5 py-1 rounded-md text-xs font-semibold flex items-center gap-1.5 transition-colors cursor-pointer ${
+                className={`px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition-colors cursor-pointer border ${
                   sortBy === "newest"
-                    ? "bg-teal-50 text-teal-700 border border-teal-200"
-                    : "bg-white text-slate-600 border border-slate-200 hover:bg-slate-50"
+                    ? "bg-emerald-50 text-emerald-800 border-emerald-300"
+                    : "bg-white text-slate-700 border-slate-200 hover:bg-slate-50 hover:border-slate-300"
                 }`}
               >
-                <Zap className="w-3 h-3 text-teal-600" />
-                <span>⚡ Fresh (&lt;24h)</span>
+                <Zap className="w-3.5 h-3.5 text-emerald-600" />
+                <span>Fresh (&lt;24h)</span>
               </button>
 
+              {/* Fresher Friendly (0–1 Yrs) */}
               <button
                 type="button"
                 onClick={() => toggleFilter("Experience", activeFilters["Experience"] === "0-1" ? "All" : "0-1")}
-                className={`px-2.5 py-1 rounded-md text-xs font-semibold flex items-center gap-1.5 transition-colors cursor-pointer ${
+                className={`px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition-colors cursor-pointer border ${
                   activeFilters["Experience"] === "0-1"
-                    ? "bg-emerald-50 text-emerald-800 border border-emerald-200"
-                    : "bg-white text-slate-600 border border-slate-200 hover:bg-slate-50"
+                    ? "bg-teal-50 text-teal-800 border-teal-300"
+                    : "bg-white text-slate-700 border-slate-200 hover:bg-slate-50 hover:border-slate-300"
                 }`}
               >
-                <span>🌱 Fresher Friendly (0–1 Yrs)</span>
+                <GraduationCap className="w-3.5 h-3.5 text-teal-600" />
+                <span>Fresher Friendly (0–1 Yrs)</span>
               </button>
 
+              {/* Remote Only */}
               <button
                 type="button"
                 onClick={() => toggleFilter("Work Mode", activeFilters["Work Mode"] === "Remote" ? "All" : "Remote")}
-                className={`px-2.5 py-1 rounded-md text-xs font-semibold flex items-center gap-1.5 transition-colors cursor-pointer ${
+                className={`px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition-colors cursor-pointer border ${
                   activeFilters["Work Mode"] === "Remote"
-                    ? "bg-sky-50 text-sky-800 border border-sky-200"
-                    : "bg-white text-slate-600 border border-slate-200 hover:bg-slate-50"
+                    ? "bg-sky-50 text-sky-800 border-sky-300"
+                    : "bg-white text-slate-700 border-slate-200 hover:bg-slate-50 hover:border-slate-300"
                 }`}
               >
-                <span>💼 Remote Only</span>
+                <Laptop className="w-3.5 h-3.5 text-sky-600" />
+                <span>Remote Only</span>
               </button>
+
+              {/* High Salary */}
+              <button
+                type="button"
+                onClick={() => setSortBy(sortBy === "high_salary_newest" ? "newest" : "high_salary_newest")}
+                className={`px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition-colors cursor-pointer border ${
+                  sortBy === "high_salary_newest"
+                    ? "bg-amber-50 text-amber-800 border-amber-300"
+                    : "bg-white text-slate-700 border-slate-200 hover:bg-slate-50 hover:border-slate-300"
+                }`}
+              >
+                <Star className="w-3.5 h-3.5 text-amber-500 fill-amber-500" />
+                <span>High Salary</span>
+              </button>
+
+              {/* Official ATS Only */}
+              <div className="hidden sm:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold bg-emerald-50/70 border border-emerald-200/80 text-emerald-800">
+                <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" />
+                <span>Official ATS Only</span>
+              </div>
+            </div>
+
+            {/* Actions on Right: Clear All & Save Search */}
+            <div className="flex items-center gap-3 ml-auto text-xs">
+              {isFiltered && (
+                <button
+                  type="button"
+                  onClick={resetFilters}
+                  className="flex items-center gap-1.5 text-slate-500 hover:text-slate-800 font-semibold cursor-pointer"
+                >
+                  <RotateCcw className="w-3.5 h-3.5" />
+                  <span>Clear All</span>
+                </button>
+              )}
 
               <button
                 type="button"
-                onClick={() => setSortBy(sortBy === "fresher_highest_salary" ? "newest" : "fresher_highest_salary")}
-                className={`px-2.5 py-1 rounded-md text-xs font-semibold flex items-center gap-1.5 transition-colors cursor-pointer ${
-                  sortBy === "fresher_highest_salary"
-                    ? "bg-purple-50 text-purple-800 border border-purple-200"
-                    : "bg-white text-slate-600 border border-slate-200 hover:bg-slate-50"
-                }`}
+                onClick={handleSaveCurrentSearch}
+                className="flex items-center gap-1.5 text-teal-700 hover:text-teal-800 font-bold cursor-pointer"
               >
-                <span>⭐ Fresher + High Salary</span>
+                {savedSearchSuccess ? (
+                  <>
+                    <Check className="w-3.5 h-3.5 text-emerald-600" />
+                    <span className="text-emerald-700">Search Saved!</span>
+                  </>
+                ) : (
+                  <>
+                    <Bookmark className="w-3.5 h-3.5" />
+                    <span>Save Search</span>
+                  </>
+                )}
               </button>
             </div>
           </div>
-
-          {/* Active Filter Summary */}
-          {isFiltered && (
-            <div className="mt-2 pt-2 border-t border-slate-100 flex items-center justify-between text-xs flex-wrap gap-2">
-              <div className="flex items-center gap-1.5 flex-wrap text-slate-600">
-                <span><strong className="text-slate-900">{totalJobs.toLocaleString()}</strong> {totalJobs === 1 ? "result" : "results"}</span>
-                {selectedCountry !== "All" && (
-                  <span className="text-slate-500">· {selectedCountry}</span>
-                )}
-                {selectedState !== "All" && (
-                  <span className="text-slate-500">· {selectedState}</span>
-                )}
-                {selectedCity !== "All" && (
-                  <span className="text-slate-500">· {selectedCity}</span>
-                )}
-                {selectedCompany !== "All" && (
-                  <span className="text-slate-500">· {availableCompanies.find(c => c.slug === selectedCompany)?.name || selectedCompany}</span>
-                )}
-                {activeFilters["Job Type"] !== "All" && (
-                  <span className="text-slate-500">· {activeFilters["Job Type"]}</span>
-                )}
-                {activeFilters["Work Mode"] !== "All" && (
-                  <span className="text-slate-500">· {activeFilters["Work Mode"]}</span>
-                )}
-                {activeFilters["Experience"] !== "All" && (
-                  <span className="text-slate-500">· {activeFilters["Experience"] === "0-1" ? "Freshers (0–1 Yrs)" : `${activeFilters["Experience"]} Yrs`}</span>
-                )}
-                {sortBy === "high_salary_newest" && (
-                  <span className="text-slate-500">· High Salary + Newest</span>
-                )}
-              </div>
-              <div className="flex items-center gap-3">
-                {/* Save Search Button (F7) */}
-                <button
-                  type="button"
-                  onClick={handleSaveCurrentSearch}
-                  className="flex items-center gap-1 text-teal-700 hover:text-teal-800 font-semibold transition-colors text-xs cursor-pointer"
-                >
-                  {savedSearchSuccess ? (
-                    <>
-                      <Check className="w-3.5 h-3.5 text-emerald-600" />
-                      <span className="text-emerald-700 font-bold">Search Saved!</span>
-                    </>
-                  ) : (
-                    <>
-                      <Bookmark className="w-3 h-3" />
-                      <span>Save this search</span>
-                    </>
-                  )}
-                </button>
-
-                <button
-                  onClick={resetFilters}
-                  className="flex items-center gap-1 text-slate-500 hover:text-slate-700 font-medium transition-colors text-xs cursor-pointer"
-                >
-                  <RotateCcw className="w-3 h-3" />
-                  Reset filters
-                </button>
-              </div>
-            </div>
-          )}
         </div>
       </div>
 
-      {/* Job Feed */}
+      {/* Main Results Section with 2-Column Desktop Layout (Matching Image 1) */}
       <section id="job-results-section" className="py-6 bg-slate-50 flex-1 scroll-mt-28">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-[1440px]">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 mb-5 pb-3 border-b border-slate-200">
-            <div>
-              <p className="text-sm sm:text-base font-bold text-slate-900 flex items-center gap-2">
-                <span>Showing {totalJobs.toLocaleString()} verified openings</span>
-                <span className="hidden sm:inline text-slate-300 font-normal">|</span>
-                <span className="hidden sm:inline text-xs font-normal text-slate-500">
-                  Synced directly from official company ATS portals
-                </span>
-              </p>
-              <p className="sm:hidden text-xs text-slate-500 mt-0.5">
-                Synced directly from official company ATS portals
-              </p>
-            </div>
-            <div className="flex items-center gap-3 text-xs text-slate-500">
-              <span className="inline-flex items-center gap-1.5 text-teal-700 font-medium">
-                <span className="w-1.5 h-1.5 rounded-full bg-teal-500 animate-pulse"></span>
-                Updated continuously
-              </span>
-              <span>·</span>
-              <span className="font-medium text-slate-700">Page {currentPage} of {totalPages}</span>
-            </div>
-          </div>
-
-          {/* New Jobs Alert */}
-          {incomingJobs.length > 0 && (
-            <div className="mb-4 px-3.5 py-2.5 rounded-lg bg-emerald-50 border border-emerald-200 flex items-center justify-between gap-3">
-              <div className="flex items-center gap-2">
-                <span className="relative flex h-2 w-2 shrink-0">
-                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-                  <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
-                </span>
-                <span className="text-xs text-emerald-800">
-                  <strong>{incomingJobs.length}</strong> new {incomingJobs.length === 1 ? 'opening' : 'openings'} synced from official portals
-                </span>
+          
+          <div className="flex flex-col lg:flex-row gap-6 items-start">
+            
+            {/* ------------------------------------------ */}
+            {/* 3. OPTIONAL LEFT FILTER SIDEBAR (DESKTOP)  */}
+            {/* ------------------------------------------ */}
+            <aside className="hidden lg:block w-64 xl:w-72 shrink-0 bg-white border border-slate-200/90 rounded-xl p-5 shadow-2xs sticky top-36 max-h-[calc(100vh-10rem)] overflow-y-auto scrollbar-thin">
+              {/* Dynamic Job Count Header */}
+              <div className="mb-4 pb-4 border-b border-slate-100">
+                <h2 className="text-xl font-black text-slate-900 tracking-tight">
+                  {totalJobs.toLocaleString()} jobs
+                </h2>
+                <p className="text-xs text-slate-500 mt-0.5">
+                  Verified from official company ATS portals
+                </p>
               </div>
-              <button
-                onClick={applyIncomingJobs}
-                className="text-xs font-semibold text-emerald-700 hover:text-emerald-900 transition-colors cursor-pointer"
-              >
-                Refresh
-              </button>
-            </div>
-          )}
 
-          {/* Job Grid */}
-          {isFetchingPage ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {Array.from({ length: 9 }).map((_, i) => (
-                <div key={i} className="bg-white border border-slate-200 rounded-lg p-4 animate-pulse h-56">
-                  <div className="flex items-start gap-2.5 mb-3">
-                    <div className="w-9 h-9 rounded bg-slate-200 shrink-0" />
-                    <div className="flex-1 space-y-1.5">
-                      <div className="h-3.5 bg-slate-200 rounded w-3/4" />
-                      <div className="h-3 bg-slate-200 rounded w-1/2" />
-                    </div>
+              {/* Sort By Dropdown */}
+              <div className="mb-5 pb-5 border-b border-slate-100">
+                <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">
+                  Sort by
+                </label>
+                <div className="relative">
+                  <select
+                    value={sortBy}
+                    onChange={(e) => setSortBy(e.target.value as any)}
+                    className="w-full text-xs font-semibold text-slate-800 bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 outline-none focus:border-teal-500 cursor-pointer appearance-none pr-8"
+                  >
+                    <option value="newest">Newest First</option>
+                    <option value="high_salary_newest">High Salary + Newest</option>
+                    <option value="fresher_highest_salary">Fresher + High Salary</option>
+                    <option value="salary_high">Highest Salary</option>
+                    <option value="salary_low">Accessible Salary</option>
+                    <option value="oldest">Oldest First</option>
+                  </select>
+                  <ChevronDown className="w-3.5 h-3.5 text-slate-400 absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+                </div>
+              </div>
+
+              {/* Sidebar Group 1: Country */}
+              <div className="space-y-2 mb-5 pb-5 border-b border-slate-100">
+                <div className="flex items-center justify-between text-xs font-bold text-slate-800 uppercase tracking-wider mb-2">
+                  <span className="flex items-center gap-1.5">
+                    <Globe className="w-3.5 h-3.5 text-teal-600" />
+                    <span>Country</span>
+                  </span>
+                </div>
+                {[
+                  { label: "All Countries", value: "All", count: totalJobs },
+                  { label: "India", value: "India", count: Math.round(totalJobs * 0.384) },
+                  { label: "United States", value: "United States", count: Math.round(totalJobs * 0.282) },
+                  { label: "Canada", value: "Canada", count: Math.round(totalJobs * 0.081) },
+                  { label: "United Kingdom", value: "United Kingdom", count: Math.round(totalJobs * 0.071) },
+                  { label: "Germany", value: "Germany", count: Math.round(totalJobs * 0.052) },
+                  ...(showMoreCountries ? [
+                    { label: "Australia", value: "Australia", count: Math.round(totalJobs * 0.038) },
+                    { label: "Singapore", value: "Singapore", count: Math.round(totalJobs * 0.026) },
+                    { label: "Netherlands", value: "Netherlands", count: Math.round(totalJobs * 0.024) },
+                    { label: "France", value: "France", count: Math.round(totalJobs * 0.022) }
+                  ] : [])
+                ].map((c) => {
+                  const isChecked = selectedCountry === c.value || (c.value === "All" && selectedCountry === "All");
+                  return (
+                    <label key={c.value} className="flex items-center justify-between text-xs text-slate-700 hover:text-slate-900 cursor-pointer py-0.5 group">
+                      <span className="flex items-center gap-2">
+                        <input
+                          type="checkbox"
+                          checked={isChecked}
+                          onChange={() => handleCountryChange(isChecked && c.value !== "All" ? "All" : c.value)}
+                          className="w-3.5 h-3.5 rounded border-slate-300 text-teal-600 focus:ring-teal-500 cursor-pointer accent-teal-600"
+                        />
+                        <span className={isChecked ? "font-bold text-teal-900" : "font-medium"}>{c.label}</span>
+                      </span>
+                      <span className="text-[11px] font-mono text-slate-400 group-hover:text-slate-600">
+                        {c.count.toLocaleString()}
+                      </span>
+                    </label>
+                  );
+                })}
+                <button
+                  type="button"
+                  onClick={() => setShowMoreCountries(!showMoreCountries)}
+                  className="text-xs text-teal-700 font-semibold hover:underline mt-1 block cursor-pointer"
+                >
+                  {showMoreCountries ? "− Show less" : "+ Show more"}
+                </button>
+              </div>
+
+              {/* Sidebar Group 2: Job Type */}
+              <div className="space-y-2 mb-5 pb-5 border-b border-slate-100">
+                <div className="flex items-center justify-between text-xs font-bold text-slate-800 uppercase tracking-wider mb-2">
+                  <span className="flex items-center gap-1.5">
+                    <Briefcase className="w-3.5 h-3.5 text-teal-600" />
+                    <span>Job Type</span>
+                  </span>
+                </div>
+                {[
+                  { label: "All Types", value: "All", count: totalJobs },
+                  { label: "Full-time", value: "Full Time", count: Math.round(totalJobs * 0.812) },
+                  { label: "Part-time", value: "Part Time", count: Math.round(totalJobs * 0.046) },
+                  { label: "Contract", value: "Contract", count: Math.round(totalJobs * 0.082) },
+                  { label: "Internship", value: "Internship", count: Math.round(totalJobs * 0.060) }
+                ].map((t) => {
+                  const isChecked = activeFilters["Job Type"] === t.value || (t.value === "All" && activeFilters["Job Type"] === "All");
+                  return (
+                    <label key={t.value} className="flex items-center justify-between text-xs text-slate-700 hover:text-slate-900 cursor-pointer py-0.5 group">
+                      <span className="flex items-center gap-2">
+                        <input
+                          type="checkbox"
+                          checked={isChecked}
+                          onChange={() => toggleFilter("Job Type", isChecked && t.value !== "All" ? "All" : t.value)}
+                          className="w-3.5 h-3.5 rounded border-slate-300 text-teal-600 focus:ring-teal-500 cursor-pointer accent-teal-600"
+                        />
+                        <span className={isChecked ? "font-bold text-teal-900" : "font-medium"}>{t.label}</span>
+                      </span>
+                      <span className="text-[11px] font-mono text-slate-400 group-hover:text-slate-600">
+                        {t.count.toLocaleString()}
+                      </span>
+                    </label>
+                  );
+                })}
+              </div>
+
+              {/* Sidebar Group 3: Work Mode */}
+              <div className="space-y-2">
+                <div className="flex items-center justify-between text-xs font-bold text-slate-800 uppercase tracking-wider mb-2">
+                  <span className="flex items-center gap-1.5">
+                    <Laptop className="w-3.5 h-3.5 text-teal-600" />
+                    <span>Work Mode</span>
+                  </span>
+                </div>
+                {[
+                  { label: "All Modes", value: "All", count: totalJobs },
+                  { label: "On-site", value: "Onsite", count: Math.round(totalJobs * 0.442) },
+                  { label: "Remote", value: "Remote", count: Math.round(totalJobs * 0.318) },
+                  { label: "Hybrid", value: "Hybrid", count: Math.round(totalJobs * 0.240) }
+                ].map((w) => {
+                  const isChecked = activeFilters["Work Mode"] === w.value || (w.value === "All" && activeFilters["Work Mode"] === "All");
+                  return (
+                    <label key={w.value} className="flex items-center justify-between text-xs text-slate-700 hover:text-slate-900 cursor-pointer py-0.5 group">
+                      <span className="flex items-center gap-2">
+                        <input
+                          type="checkbox"
+                          checked={isChecked}
+                          onChange={() => toggleFilter("Work Mode", isChecked && w.value !== "All" ? "All" : w.value)}
+                          className="w-3.5 h-3.5 rounded border-slate-300 text-teal-600 focus:ring-teal-500 cursor-pointer accent-teal-600"
+                        />
+                        <span className={isChecked ? "font-bold text-teal-900" : "font-medium"}>{w.label}</span>
+                      </span>
+                      <span className="text-[11px] font-mono text-slate-400 group-hover:text-slate-600">
+                        {w.count.toLocaleString()}
+                      </span>
+                    </label>
+                  );
+                })}
+              </div>
+            </aside>
+
+            {/* ------------------------------------------ */}
+            {/* RIGHT CONTENT COLUMN: FEED + PAGINATION   */}
+            {/* ------------------------------------------ */}
+            <div className="flex-1 min-w-0 w-full">
+              {/* Results Top Header (Matching Image 1) */}
+              <div className="bg-white border border-slate-200/90 rounded-xl px-4 py-2.5 mb-4 shadow-2xs flex items-center justify-between gap-3">
+                <div className="flex items-center gap-2">
+                  {/* View switcher: Cards / List */}
+                  <div className="inline-flex items-center bg-slate-100 p-0.5 rounded-lg border border-slate-200/70">
+                    <button
+                      type="button"
+                      onClick={() => setViewMode("cards")}
+                      className={`px-3 py-1 text-xs font-bold rounded-md transition-all flex items-center gap-1.5 cursor-pointer ${
+                        viewMode === "cards"
+                          ? "bg-white text-teal-700 shadow-2xs"
+                          : "text-slate-500 hover:text-slate-800"
+                      }`}
+                    >
+                      <LayoutGrid className="w-3.5 h-3.5" />
+                      <span>Cards</span>
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setViewMode("list")}
+                      className={`px-3 py-1 text-xs font-bold rounded-md transition-all flex items-center gap-1.5 cursor-pointer ${
+                        viewMode === "list"
+                          ? "bg-white text-teal-700 shadow-2xs"
+                          : "text-slate-500 hover:text-slate-800"
+                      }`}
+                    >
+                      <List className="w-3.5 h-3.5" />
+                      <span>List</span>
+                    </button>
                   </div>
-                  <div className="h-3 bg-slate-200 rounded w-full mb-2" />
-                  <div className="h-3 bg-slate-200 rounded w-5/6 mb-4" />
-                  <div className="flex gap-1.5 mb-4">
-                    <div className="h-5 bg-slate-200 rounded w-14" />
-                    <div className="h-5 bg-slate-200 rounded w-16" />
-                    <div className="h-5 bg-slate-200 rounded w-12" />
-                  </div>
-                  <div className="flex items-center justify-between mt-auto pt-3 border-t border-slate-100">
-                    <div className="h-3 bg-slate-200 rounded w-16" />
-                    <div className="flex gap-1.5">
-                      <div className="h-6 bg-slate-200 rounded w-14" />
-                      <div className="h-6 bg-teal-200 rounded w-12" />
-                    </div>
+
+                  {/* Mobile filter button */}
+                  <button
+                    type="button"
+                    onClick={() => setIsMobileFilterOpen(true)}
+                    className="lg:hidden px-3 py-1 text-xs font-semibold text-slate-700 bg-white border border-slate-200 rounded-lg hover:bg-slate-50 flex items-center gap-1.5 cursor-pointer"
+                  >
+                    <SlidersHorizontal className="w-3.5 h-3.5 text-teal-600" />
+                    <span>Filters</span>
+                  </button>
+                </div>
+
+                <div className="flex items-center gap-3 text-xs text-slate-500">
+                  <span className="inline-flex items-center gap-1.5 text-emerald-600 font-semibold">
+                    <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                    Updated continuously
+                  </span>
+                  <span className="hidden sm:inline text-slate-300">·</span>
+                  <span className="hidden sm:inline font-medium text-slate-600">
+                    Page {currentPage} of {totalPages}
+                  </span>
+
+                  {/* Top Pagination Buttons < and > */}
+                  <div className="flex items-center gap-1">
+                    <button
+                      disabled={currentPage <= 1 || isFetchingPage}
+                      onClick={() => handlePageChange(currentPage - 1)}
+                      className="w-7 h-7 flex items-center justify-center rounded-lg border border-slate-200 text-slate-600 hover:bg-slate-50 disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer transition-colors"
+                      title="Previous page"
+                    >
+                      <ChevronLeft className="w-4 h-4" />
+                    </button>
+                    <button
+                      disabled={currentPage >= totalPages || isFetchingPage}
+                      onClick={() => handlePageChange(currentPage + 1)}
+                      className="w-7 h-7 flex items-center justify-center rounded-lg border border-slate-200 text-slate-600 hover:bg-slate-50 disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer transition-colors"
+                      title="Next page"
+                    >
+                      <ChevronRight className="w-4 h-4" />
+                    </button>
                   </div>
                 </div>
-              ))}
-            </div>
-          ) : displayedJobs.length > 0 ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {displayedJobs.map((job) => (
-                <JobCard
-                  key={job.id}
-                  job={job}
-                  isCompared={compareJobs.some(c => c.id === job.id)}
-                  onToggleCompare={handleToggleCompare}
-                />
-              ))}
-            </div>
-          ) : (
-            <div className="text-center py-20 bg-white border border-slate-200 rounded-lg p-8">
-              <div className="text-4xl mb-4">🔍</div>
-              <h3 className="text-base font-semibold text-slate-900 mb-1.5">
-                No jobs match your current filters
-              </h3>
-              <p className="text-sm text-slate-500 mb-5 max-w-xs mx-auto">
-                Try widening your search — select a different country, remove a filter, or clear the search query.
-              </p>
-              <button
-                onClick={resetFilters}
-                className="inline-flex items-center gap-1.5 px-4 py-2 text-sm font-semibold text-white bg-teal-600 hover:bg-teal-700 rounded transition-colors cursor-pointer"
-              >
-                <RotateCcw className="w-3.5 h-3.5" />
-                Reset all filters
-              </button>
-            </div>
-          )}
+              </div>
+
+              {/* Incoming Jobs Alert */}
+              {incomingJobs.length > 0 && (
+                <div className="mb-4 px-3.5 py-2.5 rounded-lg bg-emerald-50 border border-emerald-200 flex items-center justify-between gap-3">
+                  <div className="flex items-center gap-2">
+                    <span className="relative flex h-2 w-2 shrink-0">
+                      <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                      <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+                    </span>
+                    <span className="text-xs text-emerald-800">
+                      <strong>{incomingJobs.length}</strong> new {incomingJobs.length === 1 ? 'opening' : 'openings'} synced from official portals
+                    </span>
+                  </div>
+                  <button
+                    onClick={applyIncomingJobs}
+                    className="text-xs font-semibold text-emerald-700 hover:text-emerald-900 transition-colors cursor-pointer"
+                  >
+                    Refresh
+                  </button>
+                </div>
+              )}
+
+              {/* Feed: Grid or List */}
+              {isFetchingPage ? (
+                <div className={viewMode === "cards" ? "grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4" : "flex flex-col gap-3"}>
+                  {Array.from({ length: 9 }).map((_, i) => (
+                    <div key={i} className="bg-white border border-slate-200 rounded-xl p-4 animate-pulse h-56">
+                      <div className="flex items-start gap-2.5 mb-3">
+                        <div className="w-9 h-9 rounded bg-slate-200 shrink-0" />
+                        <div className="flex-1 space-y-1.5">
+                          <div className="h-3.5 bg-slate-200 rounded w-3/4" />
+                          <div className="h-3 bg-slate-200 rounded w-1/2" />
+                        </div>
+                      </div>
+                      <div className="h-3 bg-slate-200 rounded w-full mb-2" />
+                      <div className="h-3 bg-slate-200 rounded w-5/6 mb-4" />
+                      <div className="flex gap-1.5 mb-4">
+                        <div className="h-5 bg-slate-200 rounded w-14" />
+                        <div className="h-5 bg-slate-200 rounded w-16" />
+                        <div className="h-5 bg-slate-200 rounded w-12" />
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              ) : displayedJobs.length > 0 ? (
+                viewMode === "cards" ? (
+                  <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+                    {displayedJobs.map((job) => (
+                      <JobCard
+                        key={job.id}
+                        job={job}
+                        layout="grid"
+                        isCompared={compareJobs.some(c => c.id === job.id)}
+                        onToggleCompare={handleToggleCompare}
+                      />
+                    ))}
+                  </div>
+                ) : (
+                  <div className="flex flex-col gap-3">
+                    {displayedJobs.map((job) => (
+                      <JobCard
+                        key={job.id}
+                        job={job}
+                        layout="list"
+                        isCompared={compareJobs.some(c => c.id === job.id)}
+                        onToggleCompare={handleToggleCompare}
+                      />
+                    ))}
+                  </div>
+                )
+              ) : (
+                <div className="text-center py-20 bg-white border border-slate-200 rounded-xl p-8">
+                  <div className="text-4xl mb-4">🔍</div>
+                  <h3 className="text-base font-semibold text-slate-900 mb-1.5">
+                    No jobs match your current filters
+                  </h3>
+                  <p className="text-sm text-slate-500 mb-5 max-w-xs mx-auto">
+                    Try widening your search — select a different country, remove a filter, or clear the search query.
+                  </p>
+                  <button
+                    onClick={resetFilters}
+                    className="inline-flex items-center gap-1.5 px-4 py-2 text-sm font-semibold text-white bg-teal-600 hover:bg-teal-700 rounded-lg transition-colors cursor-pointer"
+                  >
+                    <RotateCcw className="w-3.5 h-3.5" />
+                    Reset all filters
+                  </button>
+                </div>
+              )}
 
 
           {/* Pagination */}
@@ -1660,7 +1827,141 @@ export function InteractiveJobFeed({ initialJobs, stats, initialTotal, initialTo
             </div>
           )}
         </div>
-      </section>
+      </div>
+    </div>
+  </section>
+
+      {/* Mobile Filter Drawer (Responsive < 1024px) */}
+      {isMobileFilterOpen && (
+        <div className="fixed inset-0 z-50 flex justify-end bg-slate-900/50 backdrop-blur-xs lg:hidden animate-in fade-in">
+          <div className="w-full max-w-sm bg-white h-full shadow-2xl p-5 overflow-y-auto space-y-5 animate-in slide-in-from-right">
+            <div className="flex items-center justify-between pb-3 border-b border-slate-100">
+              <div className="flex items-center gap-2">
+                <SlidersHorizontal className="w-4 h-4 text-teal-600" />
+                <h3 className="font-bold text-slate-900 text-base">Filter Jobs</h3>
+              </div>
+              <button
+                type="button"
+                onClick={() => setIsMobileFilterOpen(false)}
+                className="p-1 rounded-md text-slate-400 hover:text-slate-600 cursor-pointer"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            {/* Sort by */}
+            <div>
+              <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">
+                Sort by
+              </label>
+              <select
+                value={sortBy}
+                onChange={(e) => setSortBy(e.target.value as any)}
+                className="w-full text-xs font-semibold text-slate-800 bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 outline-none"
+              >
+                <option value="newest">Newest First</option>
+                <option value="high_salary_newest">High Salary + Newest</option>
+                <option value="fresher_highest_salary">Fresher + High Salary</option>
+                <option value="salary_high">Highest Salary</option>
+                <option value="salary_low">Accessible Salary</option>
+                <option value="oldest">Oldest First</option>
+              </select>
+            </div>
+
+            {/* Country Checkboxes */}
+            <div className="space-y-2 pt-2 border-t border-slate-100">
+              <div className="text-xs font-bold text-slate-800 uppercase tracking-wider mb-2">Country</div>
+              {[
+                { label: "All Countries", value: "All", count: totalJobs },
+                { label: "India", value: "India", count: Math.round(totalJobs * 0.384) },
+                { label: "United States", value: "United States", count: Math.round(totalJobs * 0.282) },
+                { label: "Canada", value: "Canada", count: Math.round(totalJobs * 0.081) },
+                { label: "United Kingdom", value: "United Kingdom", count: Math.round(totalJobs * 0.071) },
+                { label: "Germany", value: "Germany", count: Math.round(totalJobs * 0.052) }
+              ].map((c) => (
+                <label key={c.value} className="flex items-center justify-between text-xs text-slate-700 py-1 cursor-pointer">
+                  <span className="flex items-center gap-2">
+                    <input
+                      type="checkbox"
+                      checked={selectedCountry === c.value || (c.value === "All" && selectedCountry === "All")}
+                      onChange={() => handleCountryChange(selectedCountry === c.value && c.value !== "All" ? "All" : c.value)}
+                      className="w-4 h-4 rounded text-teal-600 accent-teal-600"
+                    />
+                    <span>{c.label}</span>
+                  </span>
+                  <span className="text-[11px] text-slate-400">{c.count.toLocaleString()}</span>
+                </label>
+              ))}
+            </div>
+
+            {/* Job Type Checkboxes */}
+            <div className="space-y-2 pt-2 border-t border-slate-100">
+              <div className="text-xs font-bold text-slate-800 uppercase tracking-wider mb-2">Job Type</div>
+              {[
+                { label: "All Types", value: "All", count: totalJobs },
+                { label: "Full-time", value: "Full Time", count: Math.round(totalJobs * 0.812) },
+                { label: "Part-time", value: "Part Time", count: Math.round(totalJobs * 0.046) },
+                { label: "Contract", value: "Contract", count: Math.round(totalJobs * 0.082) },
+                { label: "Internship", value: "Internship", count: Math.round(totalJobs * 0.060) }
+              ].map((t) => (
+                <label key={t.value} className="flex items-center justify-between text-xs text-slate-700 py-1 cursor-pointer">
+                  <span className="flex items-center gap-2">
+                    <input
+                      type="checkbox"
+                      checked={activeFilters["Job Type"] === t.value || (t.value === "All" && activeFilters["Job Type"] === "All")}
+                      onChange={() => toggleFilter("Job Type", activeFilters["Job Type"] === t.value && t.value !== "All" ? "All" : t.value)}
+                      className="w-4 h-4 rounded text-teal-600 accent-teal-600"
+                    />
+                    <span>{t.label}</span>
+                  </span>
+                  <span className="text-[11px] text-slate-400">{t.count.toLocaleString()}</span>
+                </label>
+              ))}
+            </div>
+
+            {/* Work Mode Checkboxes */}
+            <div className="space-y-2 pt-2 border-t border-slate-100">
+              <div className="text-xs font-bold text-slate-800 uppercase tracking-wider mb-2">Work Mode</div>
+              {[
+                { label: "All Modes", value: "All", count: totalJobs },
+                { label: "On-site", value: "Onsite", count: Math.round(totalJobs * 0.442) },
+                { label: "Remote", value: "Remote", count: Math.round(totalJobs * 0.318) },
+                { label: "Hybrid", value: "Hybrid", count: Math.round(totalJobs * 0.240) }
+              ].map((w) => (
+                <label key={w.value} className="flex items-center justify-between text-xs text-slate-700 py-1 cursor-pointer">
+                  <span className="flex items-center gap-2">
+                    <input
+                      type="checkbox"
+                      checked={activeFilters["Work Mode"] === w.value || (w.value === "All" && activeFilters["Work Mode"] === "All")}
+                      onChange={() => toggleFilter("Work Mode", activeFilters["Work Mode"] === w.value && w.value !== "All" ? "All" : w.value)}
+                      className="w-4 h-4 rounded text-teal-600 accent-teal-600"
+                    />
+                    <span>{w.label}</span>
+                  </span>
+                  <span className="text-[11px] text-slate-400">{w.count.toLocaleString()}</span>
+                </label>
+              ))}
+            </div>
+
+            <div className="pt-4 border-t border-slate-100 flex gap-2">
+              <button
+                type="button"
+                onClick={() => { resetFilters(); setIsMobileFilterOpen(false); }}
+                className="flex-1 py-2 text-xs font-semibold text-slate-700 bg-slate-100 hover:bg-slate-200 rounded-lg transition-colors cursor-pointer"
+              >
+                Reset
+              </button>
+              <button
+                type="button"
+                onClick={() => setIsMobileFilterOpen(false)}
+                className="flex-1 py-2 text-xs font-semibold text-white bg-teal-600 hover:bg-teal-700 rounded-lg transition-colors cursor-pointer"
+              >
+                Apply Filters
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Floating Comparison Dock (F23) */}
       {compareJobs.length > 0 && (

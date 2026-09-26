@@ -829,7 +829,7 @@ export default function DashboardPage() {
         <div className="flex items-start gap-4 lg:gap-4 xl:gap-5">
           {/* Left Sidebar: Compact, sticky, no inner scrollbars */}
           <div
-            className={`fixed inset-y-0 left-0 z-50 w-64 bg-white p-6 shadow-2xl transition-transform duration-300 lg:static lg:z-auto lg:w-48 xl:w-52 lg:p-0 lg:shadow-none lg:bg-transparent lg:block lg:sticky lg:top-20 shrink-0 ${
+            className={`fixed inset-y-0 left-0 z-50 w-64 bg-white p-6 shadow-2xl transition-transform duration-300 lg:static lg:z-auto lg:w-48 xl:w-52 lg:p-0 lg:shadow-none lg:bg-transparent lg:block lg:sticky lg:top-20 shrink-0 max-h-[calc(100vh-6rem)] overflow-y-auto scrollbar-thin ${
               mobileSidebarOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"
             }`}
           >

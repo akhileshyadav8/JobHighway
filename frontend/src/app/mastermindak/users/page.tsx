@@ -32,8 +32,39 @@ export default function AdminUsersPage() {
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
   const [userApplications, setUserApplications] = useState<AppliedJob[]>([]);
 
-  const refreshUsers = () => {
-    setUsers(getAllUsersForAdmin());
+  const refreshUsers = async () => {
+    const localUsers = getAllUsersForAdmin();
+    try {
+      const res = await fetch("/api/admin/users");
+      if (res.ok) {
+        const data = await res.json();
+        if (Array.isArray(data.users) && data.users.length > 0) {
+          // Merge remote users with local users (de-duplicating by email)
+          const map = new Map<string, User>();
+          localUsers.forEach(u => map.set(u.email.toLowerCase(), u));
+          data.users.forEach((u: any) => {
+            const key = u.email.toLowerCase();
+            const existing = map.get(key);
+            map.set(key, {
+              id: u.id || existing?.id || key,
+              name: u.name || existing?.name || "Candidate",
+              email: u.email,
+              role: u.role || existing?.role || "user",
+              createdAt: u.createdAt || existing?.createdAt || new Date().toISOString(),
+              targetRole: u.targetRole || existing?.targetRole,
+              targetCtc: u.targetCtc || existing?.targetCtc,
+              preferredLocation: u.preferredLocation || existing?.preferredLocation,
+              skills: u.skills || existing?.skills || [],
+            });
+          });
+          setUsers(Array.from(map.values()));
+          return;
+        }
+      }
+    } catch (err) {
+      console.warn("Failed to fetch remote users:", err);
+    }
+    setUsers(localUsers);
   };
 
   useEffect(() => {

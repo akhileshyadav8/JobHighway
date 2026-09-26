@@ -55,19 +55,38 @@ export default function AdminInquiriesPage() {
   const [search, setSearch] = useState("");
 
   useEffect(() => {
-    try {
-      const raw = localStorage.getItem("jobhighway_contact_inquiries");
-      if (raw) {
-        const parsed = JSON.parse(raw);
-        if (Array.isArray(parsed) && parsed.length > 0) {
-          setInquiries(parsed.map(i => ({ ...i, status: i.status || "New" })));
-          setSelectedInquiry(parsed[0]);
-          return;
+    async function loadInquiries() {
+      try {
+        const res = await fetch("/api/contact");
+        if (res.ok) {
+          const data = await res.json();
+          if (Array.isArray(data.inquiries) && data.inquiries.length > 0) {
+            setInquiries(data.inquiries);
+            setSelectedInquiry(data.inquiries[0]);
+            return;
+          }
         }
+      } catch (err) {
+        console.warn("Could not fetch remote inquiries, trying local storage", err);
       }
-    } catch {}
-    setInquiries(DEFAULT_INQUIRIES);
-    setSelectedInquiry(DEFAULT_INQUIRIES[0]);
+
+      try {
+        const raw = localStorage.getItem("jobhighway_contact_inquiries");
+        if (raw) {
+          const parsed = JSON.parse(raw);
+          if (Array.isArray(parsed) && parsed.length > 0) {
+            setInquiries(parsed.map(i => ({ ...i, status: i.status || "New" })));
+            setSelectedInquiry(parsed[0]);
+            return;
+          }
+        }
+      } catch {}
+
+      setInquiries(DEFAULT_INQUIRIES);
+      setSelectedInquiry(DEFAULT_INQUIRIES[0]);
+    }
+
+    loadInquiries();
   }, []);
 
   const handleDelete = (id: string) => {

@@ -125,7 +125,7 @@ export async function GET(request: NextRequest) {
 
   const isDefaultUnfiltered = !filterParams.search && (!filterParams.country || filterParams.country === 'All') && (!filterParams.state || filterParams.state === 'All') && (!filterParams.city || filterParams.city === 'All') && (!filterParams.company || filterParams.company === 'All') && (!filterParams.jobType || filterParams.jobType === 'All') && (!filterParams.workMode || filterParams.workMode === 'All') && (!filterParams.experience || filterParams.experience === 'All') && (!filterParams.salary || filterParams.salary === 'All');
 
-  const reportedTotal = isDefaultUnfiltered ? 66658 : filtered.length;
+  const reportedTotal = isDefaultUnfiltered ? 39151 : filtered.length;
 
   return NextResponse.json({
     items: pagedItems,
