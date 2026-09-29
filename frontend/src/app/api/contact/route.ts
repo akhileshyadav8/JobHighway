@@ -10,6 +10,10 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Name, email, and message are required.' }, { status: 400 });
     }
 
+    if (message.trim().length > 300) {
+      return NextResponse.json({ error: 'Message cannot exceed 300 characters.' }, { status: 400 });
+    }
+
     const id = 'inq_' + Date.now() + '_' + Math.random().toString(36).substring(2, 7);
     const pool = getPool();
 
