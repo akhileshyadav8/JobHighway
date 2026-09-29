@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import {
   Mail,
@@ -15,7 +15,9 @@ import {
   CheckCircle2,
   Send,
   Clock,
+  Lock,
 } from "lucide-react";
+import { getCurrentUser, User } from "@/lib/auth";
 
 interface FAQItem {
   question: string;
@@ -62,6 +64,7 @@ const FAQ_ITEMS: FAQItem[] = [
 
 export default function ContactPage() {
   const EMAIL = "support@jobhighway.com";
+  const [currentUser, setCurrentUser] = useState<User | null>(null);
   const [name, setName] = useState("");
   const [senderEmail, setSenderEmail] = useState("");
   const [subject, setSubject] = useState("");
@@ -70,6 +73,15 @@ export default function ContactPage() {
   const [submitted, setSubmitted] = useState(false);
   const [openFaqIndex, setOpenFaqIndex] = useState<number | null>(null);
   const [showAllFaqs, setShowAllFaqs] = useState(false);
+
+  useEffect(() => {
+    const user = getCurrentUser();
+    if (user) {
+      setCurrentUser(user);
+      if (user.email) setSenderEmail(user.email);
+      if (user.name) setName(user.name);
+    }
+  }, []);
 
   const toggleFaq = (index: number) => {
     setOpenFaqIndex(openFaqIndex === index ? null : index);
@@ -86,12 +98,15 @@ export default function ContactPage() {
     e.preventDefault();
     setIsSubmitting(true);
 
+    const effectiveEmail = currentUser?.email || senderEmail.trim();
+    const effectiveName = name.trim() || currentUser?.name || "Candidate";
+
     const inquiry = {
       id: "inq_" + Date.now(),
-      name,
-      email: senderEmail,
+      name: effectiveName,
+      email: effectiveEmail,
       subject: subject || "General Inquiry",
-      message,
+      message: message.trim(),
       createdAt: new Date().toISOString(),
     };
 
@@ -101,8 +116,8 @@ export default function ContactPage() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          name: name.trim(),
-          email: senderEmail.trim(),
+          name: effectiveName,
+          email: effectiveEmail,
           topic: subject || "General Inquiry",
           subject: subject || "General Inquiry",
           message: message.trim(),
@@ -450,17 +465,41 @@ export default function ContactPage() {
                       </div>
 
                       <div>
-                        <label className="block text-xs font-semibold text-slate-700 mb-1.5">
-                          Email <span className="text-rose-500">*</span>
-                        </label>
-                        <input
-                          type="email"
-                          required
-                          value={senderEmail}
-                          onChange={(e) => setSenderEmail(e.target.value)}
-                          placeholder="your.email@example.com"
-                          className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-xs sm:text-sm text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 transition-all bg-white"
-                        />
+                        <div className="flex items-center justify-between mb-1.5">
+                          <label className="block text-xs font-semibold text-slate-700">
+                            Email <span className="text-rose-500">*</span>
+                          </label>
+                          {currentUser && (
+                            <span className="inline-flex items-center gap-1 text-[10px] font-semibold text-teal-700 bg-teal-50 px-2 py-0.5 rounded-md border border-teal-200/70">
+                              <Lock className="w-2.5 h-2.5 text-teal-600" />
+                              <span>Account Email</span>
+                            </span>
+                          )}
+                        </div>
+                        <div className="relative">
+                          <input
+                            type="email"
+                            required
+                            readOnly={Boolean(currentUser)}
+                            disabled={Boolean(currentUser)}
+                            value={senderEmail}
+                            onChange={(e) => setSenderEmail(e.target.value)}
+                            placeholder="your.email@example.com"
+                            className={`w-full px-3.5 py-2.5 rounded-xl border text-xs sm:text-sm transition-all ${
+                              currentUser
+                                ? "bg-slate-100/90 border-slate-200 text-slate-600 cursor-not-allowed select-none font-medium pr-9"
+                                : "bg-white border-slate-200 text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500"
+                            }`}
+                          />
+                          {currentUser && (
+                            <Lock className="w-3.5 h-3.5 text-slate-400 absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none" />
+                          )}
+                        </div>
+                        {currentUser && (
+                          <p className="text-[10px] text-slate-400 mt-1">
+                            Locked to your registered account email.
+                          </p>
+                        )}
                       </div>
                     </div>
 

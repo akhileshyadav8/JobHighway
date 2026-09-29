@@ -58,6 +58,26 @@ export async function POST(req: NextRequest) {
     }
     incrementAttempts(email);
 
+    // Check if email is already registered in Supabase DB
+    try {
+      const { getPool } = await import('@/lib/db');
+      const pool = getPool();
+      if (pool) {
+        const existing = await pool.query(
+          'SELECT id FROM app_users WHERE LOWER(email) = LOWER($1)',
+          [email.trim().toLowerCase()]
+        );
+        if (existing.rows && existing.rows.length > 0) {
+          return NextResponse.json(
+            { error: 'An account with this email already exists. Please sign in or reset your password.' },
+            { status: 409 }
+          );
+        }
+      }
+    } catch (dbErr) {
+      console.warn('Check existing user warning:', dbErr);
+    }
+
     // Generate OTP (valid for 1 minute)
     const otp = generateOtp();
     const expiresAt = Date.now() + 60 * 1000; // 1 minute

@@ -1,8 +1,22 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import Link from "next/link";
-import { Mail, Search, Trash2, ArrowLeft, Send, CheckCircle, Clock } from "lucide-react";
+import {
+  Mail,
+  Search,
+  Trash2,
+  ArrowLeft,
+  Send,
+  CheckCircle,
+  Clock,
+  Bell,
+  MessageSquare,
+  User as UserIcon,
+  ExternalLink,
+  ChevronRight,
+  AlertCircle
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 interface InquiryItem {
@@ -14,6 +28,15 @@ interface InquiryItem {
   message: string;
   createdAt: string;
   status?: "New" | "Open" | "In Progress" | "Resolved";
+}
+
+interface UserThread {
+  email: string;
+  name: string;
+  messages: InquiryItem[];
+  latestMessage: InquiryItem;
+  hasNew: boolean;
+  newCount: number;
 }
 
 const DEFAULT_INQUIRIES: InquiryItem[] = [
@@ -51,7 +74,7 @@ const DEFAULT_INQUIRIES: InquiryItem[] = [
 
 export default function AdminInquiriesPage() {
   const [inquiries, setInquiries] = useState<InquiryItem[]>([]);
-  const [selectedInquiry, setSelectedInquiry] = useState<InquiryItem | null>(null);
+  const [selectedEmail, setSelectedEmail] = useState<string | null>(null);
   const [search, setSearch] = useState("");
 
   useEffect(() => {
@@ -62,7 +85,7 @@ export default function AdminInquiriesPage() {
           const data = await res.json();
           if (Array.isArray(data.inquiries) && data.inquiries.length > 0) {
             setInquiries(data.inquiries);
-            setSelectedInquiry(data.inquiries[0]);
+            setSelectedEmail(data.inquiries[0].email.toLowerCase().trim());
             return;
           }
         }
@@ -75,43 +98,130 @@ export default function AdminInquiriesPage() {
         if (raw) {
           const parsed = JSON.parse(raw);
           if (Array.isArray(parsed) && parsed.length > 0) {
-            setInquiries(parsed.map(i => ({ ...i, status: i.status || "New" })));
-            setSelectedInquiry(parsed[0]);
+            const formatted = parsed.map((i: any) => ({ ...i, status: i.status || "New" }));
+            setInquiries(formatted);
+            setSelectedEmail(formatted[0].email.toLowerCase().trim());
             return;
           }
         }
       } catch {}
 
       setInquiries(DEFAULT_INQUIRIES);
-      setSelectedInquiry(DEFAULT_INQUIRIES[0]);
+      setSelectedEmail(DEFAULT_INQUIRIES[0].email.toLowerCase().trim());
     }
 
     loadInquiries();
   }, []);
 
-  const handleDelete = (id: string) => {
+  // Group inquiries by user email
+  const threads: UserThread[] = useMemo(() => {
+    const map = new Map<string, InquiryItem[]>();
+    for (const item of inquiries) {
+      const key = (item.email || "anonymous").toLowerCase().trim();
+      if (!map.has(key)) {
+        map.set(key, []);
+      }
+      map.get(key)!.push(item);
+    }
+
+    const result: UserThread[] = [];
+    for (const [email, msgs] of map.entries()) {
+      // Sort messages: newest first
+      msgs.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+      const latestMessage = msgs[0];
+      const newCount = msgs.filter(m => (m.status || "New") === "New").length;
+      result.push({
+        email,
+        name: latestMessage.name || email.split("@")[0],
+        messages: msgs,
+        latestMessage,
+        hasNew: newCount > 0,
+        newCount
+      });
+    }
+
+    // Sort threads: threads with new messages first, then by latest message date
+    result.sort((a, b) => {
+      if (a.hasNew && !b.hasNew) return -1;
+      if (!a.hasNew && b.hasNew) return 1;
+      return new Date(b.latestMessage.createdAt).getTime() - new Date(a.latestMessage.createdAt).getTime();
+    });
+
+    return result;
+  }, [inquiries]);
+
+  // Keep a selected thread
+  const activeThread = useMemo(() => {
+    if (!selectedEmail && threads.length > 0) return threads[0];
+    return threads.find(t => t.email === selectedEmail) || threads[0] || null;
+  }, [threads, selectedEmail]);
+
+  const handleDeleteSingleMessage = async (id: string) => {
     const next = inquiries.filter(i => i.id !== id);
     setInquiries(next);
     localStorage.setItem("jobhighway_contact_inquiries", JSON.stringify(next));
-    if (selectedInquiry?.id === id) {
-      setSelectedInquiry(next[0] || null);
+    try {
+      await fetch(`/api/contact?id=${encodeURIComponent(id)}`, { method: "DELETE" });
+    } catch {}
+  };
+
+  const handleDeleteThread = async (email: string) => {
+    if (!confirm(`Delete all ${activeThread?.messages.length || 0} messages from ${email}?`)) return;
+    const next = inquiries.filter(i => i.email.toLowerCase().trim() !== email.toLowerCase().trim());
+    setInquiries(next);
+    localStorage.setItem("jobhighway_contact_inquiries", JSON.stringify(next));
+    try {
+      await fetch(`/api/contact?email=${encodeURIComponent(email)}`, { method: "DELETE" });
+    } catch {}
+
+    const remainingThreads = threads.filter(t => t.email !== email);
+    if (remainingThreads.length > 0) {
+      setSelectedEmail(remainingThreads[0].email);
+    } else {
+      setSelectedEmail(null);
     }
   };
 
-  const handleUpdateStatus = (id: string, status: InquiryItem["status"]) => {
+  const handleUpdateStatus = async (id: string, status: InquiryItem["status"]) => {
     const next = inquiries.map(i => i.id === id ? { ...i, status } : i);
     setInquiries(next);
     localStorage.setItem("jobhighway_contact_inquiries", JSON.stringify(next));
-    if (selectedInquiry?.id === id) {
-      setSelectedInquiry(prev => prev ? { ...prev, status } : null);
+    try {
+      await fetch("/api/contact", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id, status })
+      });
+    } catch {}
+  };
+
+  const handleMarkAllResolved = async (msgs: InquiryItem[]) => {
+    const ids = msgs.map(m => m.id);
+    const next = inquiries.map(i => ids.includes(i.id) ? { ...i, status: "Resolved" as const } : i);
+    setInquiries(next);
+    localStorage.setItem("jobhighway_contact_inquiries", JSON.stringify(next));
+    for (const id of ids) {
+      try {
+        await fetch("/api/contact", {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ id, status: "Resolved" })
+        });
+      } catch {}
     }
   };
 
-  const filtered = inquiries.filter(i => {
+  const filteredThreads = threads.filter(t => {
     if (!search.trim()) return true;
     const q = search.toLowerCase();
-    return i.name.toLowerCase().includes(q) || i.email.toLowerCase().includes(q) || i.subject.toLowerCase().includes(q);
+    return (
+      t.name.toLowerCase().includes(q) ||
+      t.email.toLowerCase().includes(q) ||
+      t.messages.some(m => m.subject.toLowerCase().includes(q) || m.message.toLowerCase().includes(q) || m.topic.toLowerCase().includes(q))
+    );
   });
+
+  const totalNewMessages = inquiries.filter(i => (i.status || "New") === "New").length;
 
   return (
     <div className="space-y-6 pb-12">
@@ -121,121 +231,254 @@ export default function AdminInquiriesPage() {
             <ArrowLeft className="w-3.5 h-3.5" /> Back to Dashboard
           </Link>
         </div>
-        <h1 className="text-2xl font-black text-slate-900 tracking-tight flex items-center gap-2">
-          <Mail className="w-6 h-6 text-teal-600" />
-          <span>Contact Inquiries &amp; Support Inbox</span>
-        </h1>
-        <p className="text-xs text-slate-500 mt-0.5">
-          Review incoming candidate feedback, bug reports, and hiring partner outreach submissions.
-        </p>
+        <div className="flex flex-wrap items-center justify-between gap-4">
+          <div>
+            <h1 className="text-2xl font-black text-slate-900 tracking-tight flex items-center gap-2.5">
+              <Mail className="w-6 h-6 text-teal-600" />
+              <span>Contact Inquiries &amp; Support Inbox</span>
+            </h1>
+            <p className="text-xs text-slate-500 mt-0.5">
+              Grouped user message threads, candidate bug reports, and partner submissions.
+            </p>
+          </div>
+
+          {totalNewMessages > 0 && (
+            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs font-bold">
+              <span className="relative flex h-2 w-2">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+              </span>
+              <span>{totalNewMessages} New unaddressed message{totalNewMessages > 1 ? "s" : ""}</span>
+            </div>
+          )}
+        </div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        {/* Left List */}
-        <div className="md:col-span-1 space-y-3">
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+        {/* Left Column: Grouped User Threads */}
+        <div className="lg:col-span-5 space-y-3">
           <div className="relative">
             <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" />
             <input
               type="text"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              placeholder="Search messages..."
-              className="w-full pl-9 pr-3 py-2 bg-white border border-slate-200/90 rounded-xl text-xs text-slate-800 outline-none focus:border-teal-500"
+              placeholder="Search by user, email, or message..."
+              className="w-full pl-9 pr-3 py-2.5 bg-white border border-slate-200/90 rounded-xl text-xs text-slate-800 outline-none focus:border-teal-500 transition-colors shadow-2xs"
             />
           </div>
 
           <div className="space-y-2">
-            {filtered.map((item) => (
-              <div
-                key={item.id}
-                onClick={() => setSelectedInquiry(item)}
-                className={`p-3.5 rounded-xl border transition-all cursor-pointer ${
-                  selectedInquiry?.id === item.id
-                    ? "border-teal-500 bg-teal-50/40 shadow-xs"
-                    : "border-slate-200/90 bg-white hover:border-slate-300"
-                }`}
-              >
-                <div className="flex items-center justify-between text-[11px] mb-1">
-                  <span className="font-bold text-teal-700">{item.topic}</span>
-                  <span className="text-slate-400 font-mono">{new Date(item.createdAt).toLocaleDateString()}</span>
-                </div>
-                <div className="font-bold text-xs text-slate-900 truncate">
-                  {item.subject}
-                </div>
-                <div className="text-[11px] text-slate-500 truncate mt-0.5">
-                  {item.name} ({item.email})
-                </div>
+            {filteredThreads.length === 0 ? (
+              <div className="p-8 text-center text-xs text-slate-400 bg-white rounded-xl border border-slate-200">
+                No inquiry threads found matching &ldquo;{search}&rdquo;.
               </div>
-            ))}
+            ) : (
+              filteredThreads.map((thread) => {
+                const isSelected = activeThread?.email === thread.email;
+                return (
+                  <div
+                    key={thread.email}
+                    onClick={() => setSelectedEmail(thread.email)}
+                    className={`p-3.5 rounded-xl border transition-all cursor-pointer relative ${
+                      isSelected
+                        ? "border-teal-500 bg-teal-50/40 shadow-xs"
+                        : "border-slate-200/90 bg-white hover:border-slate-300 hover:shadow-2xs"
+                    }`}
+                  >
+                    {/* Header Row: User Name + Message count + New Badge */}
+                    <div className="flex items-center justify-between gap-2 mb-1.5">
+                      <div className="flex items-center gap-2 min-w-0">
+                        <div className="w-6 h-6 rounded-full bg-teal-100 text-teal-800 font-bold text-[10px] flex items-center justify-center shrink-0 uppercase">
+                          {thread.name.charAt(0)}
+                        </div>
+                        <span className="font-bold text-xs text-slate-900 truncate">
+                          {thread.name}
+                        </span>
+                        <span className="text-[10px] font-semibold text-slate-500 bg-slate-100 px-1.5 py-0.2 rounded-md shrink-0">
+                          {thread.messages.length} msg{thread.messages.length > 1 ? "s" : ""}
+                        </span>
+                      </div>
+
+                      <div className="flex items-center gap-1.5 shrink-0">
+                        {thread.hasNew && (
+                          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-black bg-emerald-100 text-emerald-800 border border-emerald-300">
+                            <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+                            {thread.newCount} NEW
+                          </span>
+                        )}
+                        <span className="text-[10px] text-slate-400 font-mono">
+                          {new Date(thread.latestMessage.createdAt).toLocaleDateString()}
+                        </span>
+                      </div>
+                    </div>
+
+                    {/* Email */}
+                    <div className="text-[11px] font-medium text-teal-700 truncate font-mono mb-1">
+                      {thread.email}
+                    </div>
+
+                    {/* Latest topic / subject preview */}
+                    <div className="flex items-center gap-1.5 mt-1.5 pt-1.5 border-t border-slate-100 text-[11px]">
+                      <span className="px-1.5 py-0.2 rounded text-[10px] font-semibold text-teal-700 bg-teal-50 border border-teal-100 shrink-0">
+                        {thread.latestMessage.topic}
+                      </span>
+                      <span className="text-slate-600 truncate font-medium">
+                        {thread.latestMessage.subject}
+                      </span>
+                    </div>
+                  </div>
+                );
+              })
+            )}
           </div>
         </div>
 
-        {/* Right Reader */}
-        <div className="md:col-span-2">
-          {selectedInquiry ? (
-            <div className="bg-white border border-slate-200/90 rounded-xl p-6 shadow-2xs space-y-4">
-              <div className="flex items-start justify-between gap-4 pb-4 border-b border-slate-100">
-                <div>
-                  <span className="text-xs font-bold text-teal-700 bg-teal-50 border border-teal-100 px-2.5 py-0.5 rounded-md">
-                    {selectedInquiry.topic}
-                  </span>
-                  <h2 className="text-lg font-bold text-slate-900 mt-2">
-                    {selectedInquiry.subject}
-                  </h2>
+        {/* Right Column: User Thread Reader with Conversation History */}
+        <div className="lg:col-span-7">
+          {activeThread ? (
+            <div className="bg-white border border-slate-200/90 rounded-2xl p-6 shadow-2xs space-y-6">
+              {/* User Overview Header */}
+              <div className="flex flex-wrap items-start justify-between gap-4 pb-5 border-b border-slate-100">
+                <div className="flex items-center gap-3">
+                  <div className="w-11 h-11 rounded-2xl bg-teal-600 text-white font-black text-base flex items-center justify-center shrink-0 shadow-xs uppercase">
+                    {activeThread.name.charAt(0)}
+                  </div>
+                  <div>
+                    <div className="flex items-center gap-2">
+                      <h2 className="text-lg font-black text-slate-900 leading-snug">
+                        {activeThread.name}
+                      </h2>
+                      <span className="text-xs font-semibold px-2 py-0.5 rounded-full bg-slate-100 text-slate-600 border border-slate-200">
+                        {activeThread.messages.length} total message{activeThread.messages.length > 1 ? "s" : ""}
+                      </span>
+                      {activeThread.hasNew && (
+                        <span className="text-xs font-bold px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 border border-emerald-300">
+                          {activeThread.newCount} New
+                        </span>
+                      )}
+                    </div>
+                    <div className="text-xs font-mono text-teal-700 mt-0.5">
+                      {activeThread.email}
+                    </div>
+                  </div>
                 </div>
 
-                <button
-                  onClick={() => handleDelete(selectedInquiry.id)}
-                  className="text-xs text-rose-500 hover:text-rose-600 flex items-center gap-1 cursor-pointer"
-                >
-                  <Trash2 className="w-3.5 h-3.5" />
-                  <span>Delete</span>
-                </button>
-              </div>
-
-              <div className="p-3.5 bg-slate-50 rounded-xl text-xs space-y-1">
-                <div className="text-slate-600">
-                  From: <strong className="text-slate-900">{selectedInquiry.name}</strong>
-                </div>
-                <div className="text-slate-600">
-                  Email: <strong className="text-teal-700 font-mono">{selectedInquiry.email}</strong>
-                </div>
-                <div className="text-slate-400 text-[11px]">
-                  Timestamp: {new Date(selectedInquiry.createdAt).toLocaleString()}
-                </div>
-              </div>
-
-              <div className="py-2 text-sm text-slate-700 whitespace-pre-wrap leading-relaxed">
-                {selectedInquiry.message}
-              </div>
-
-              <div className="pt-4 border-t border-slate-100 flex items-center justify-between gap-3">
                 <div className="flex items-center gap-2">
-                  <span className="text-xs text-slate-500 font-medium">Status:</span>
-                  <select
-                    value={selectedInquiry.status || "New"}
-                    onChange={(e) => handleUpdateStatus(selectedInquiry.id, e.target.value as any)}
-                    className="px-2 py-1 rounded-lg border border-slate-200 text-xs font-semibold text-slate-700 outline-none"
+                  {activeThread.hasNew && (
+                    <button
+                      onClick={() => handleMarkAllResolved(activeThread.messages)}
+                      className="px-3 py-1.5 text-xs font-semibold text-teal-700 bg-teal-50 border border-teal-200 hover:bg-teal-100 rounded-xl transition-colors cursor-pointer"
+                    >
+                      Mark All Resolved
+                    </button>
+                  )}
+                  <button
+                    onClick={() => handleDeleteThread(activeThread.email)}
+                    className="p-2 text-rose-500 hover:text-rose-600 hover:bg-rose-50 rounded-xl transition-colors cursor-pointer border border-transparent hover:border-rose-200"
+                    title="Delete entire conversation thread"
                   >
-                    <option value="New">New</option>
-                    <option value="In Progress">In Progress</option>
-                    <option value="Resolved">Resolved</option>
-                  </select>
+                    <Trash2 className="w-4 h-4" />
+                  </button>
+                  <a
+                    href={`mailto:${activeThread.email}?subject=Re: Your JobHighway Support Inquiry`}
+                    className="px-3.5 py-1.5 rounded-xl bg-teal-600 hover:bg-teal-700 text-white font-semibold text-xs inline-flex items-center gap-1.5 transition-colors cursor-pointer shadow-xs"
+                  >
+                    <Send className="w-3.5 h-3.5" />
+                    <span>Reply via Email</span>
+                  </a>
+                </div>
+              </div>
+
+              {/* Thread Messages Stack (Chronological) */}
+              <div className="space-y-4">
+                <div className="flex items-center justify-between text-xs font-bold text-slate-500 uppercase tracking-wider">
+                  <span>Message History ({activeThread.messages.length})</span>
+                  <span className="text-[11px] font-normal lowercase text-slate-400">newest first</span>
                 </div>
 
-                <a
-                  href={`mailto:${selectedInquiry.email}?subject=Re: ${encodeURIComponent(selectedInquiry.subject)}`}
-                  className="px-4 py-2 rounded-xl bg-teal-600 hover:bg-teal-700 text-white font-semibold text-xs inline-flex items-center gap-1.5 transition-colors"
-                >
-                  <Send className="w-3.5 h-3.5" />
-                  <span>Reply via Email</span>
-                </a>
+                <div className="space-y-3.5">
+                  {activeThread.messages.map((msg, index) => {
+                    const isNew = (msg.status || "New") === "New";
+                    return (
+                      <div
+                        key={msg.id}
+                        className={`rounded-2xl border p-4 sm:p-5 transition-all space-y-3 ${
+                          isNew
+                            ? "bg-emerald-50/30 border-emerald-200/80 shadow-xs"
+                            : "bg-slate-50/60 border-slate-200/80"
+                        }`}
+                      >
+                        {/* Message Top Meta */}
+                        <div className="flex flex-wrap items-center justify-between gap-2 pb-2.5 border-b border-slate-200/60">
+                          <div className="flex items-center gap-2 flex-wrap">
+                            <span className="text-xs font-bold text-slate-900">
+                              #{activeThread.messages.length - index} · {msg.subject}
+                            </span>
+                            <span className="text-[10px] font-semibold text-teal-700 bg-white border border-teal-200/80 px-2 py-0.5 rounded-md">
+                              {msg.topic}
+                            </span>
+                          </div>
+
+                          <div className="flex items-center gap-2">
+                            <span className="text-[11px] text-slate-400 font-mono">
+                              {new Date(msg.createdAt).toLocaleString()}
+                            </span>
+                            <button
+                              onClick={() => handleDeleteSingleMessage(msg.id)}
+                              className="text-slate-400 hover:text-rose-500 p-1 rounded transition-colors cursor-pointer"
+                              title="Delete this message"
+                            >
+                              <Trash2 className="w-3.5 h-3.5" />
+                            </button>
+                          </div>
+                        </div>
+
+                        {/* Message Content */}
+                        <p className="text-xs sm:text-sm text-slate-800 whitespace-pre-wrap leading-relaxed">
+                          {msg.message}
+                        </p>
+
+                        {/* Status Bar */}
+                        <div className="pt-2 border-t border-slate-200/50 flex items-center justify-between text-xs">
+                          <div className="flex items-center gap-2">
+                            <span className="text-slate-500 font-medium">Status:</span>
+                            <select
+                              value={msg.status || "New"}
+                              onChange={(e) => handleUpdateStatus(msg.id, e.target.value as any)}
+                              className={`px-2.5 py-1 rounded-lg border text-xs font-semibold outline-none cursor-pointer ${
+                                (msg.status || "New") === "New"
+                                  ? "bg-emerald-50 border-emerald-200 text-emerald-800"
+                                  : msg.status === "In Progress"
+                                  ? "bg-amber-50 border-amber-200 text-amber-800"
+                                  : "bg-slate-100 border-slate-200 text-slate-700"
+                              }`}
+                            >
+                              <option value="New">New</option>
+                              <option value="In Progress">In Progress</option>
+                              <option value="Resolved">Resolved</option>
+                            </select>
+                          </div>
+
+                          <a
+                            href={`mailto:${activeThread.email}?subject=Re: ${encodeURIComponent(msg.subject)}`}
+                            className="text-[11px] text-teal-700 hover:text-teal-800 font-semibold inline-flex items-center gap-1 hover:underline"
+                          >
+                            <span>Reply to this</span>
+                            <ChevronRight className="w-3 h-3" />
+                          </a>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
               </div>
             </div>
           ) : (
-            <div className="h-64 flex flex-col items-center justify-center bg-white rounded-xl border border-slate-200 p-8 text-center text-xs text-slate-400">
-              <Mail className="w-8 h-8 text-slate-300 mb-2" />
-              <span>Select an inquiry from the inbox to read full details.</span>
+            <div className="h-72 flex flex-col items-center justify-center bg-white rounded-2xl border border-slate-200 p-8 text-center text-xs text-slate-400">
+              <Mail className="w-10 h-10 text-slate-300 mb-2.5" />
+              <span className="text-slate-600 font-medium">No contact inquiries in inbox.</span>
+              <span className="text-[11px] mt-1 text-slate-400">Incoming inquiries from candidate contact forms will appear here.</span>
             </div>
           )}
         </div>

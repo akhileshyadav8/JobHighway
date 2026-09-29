@@ -33,7 +33,7 @@ export default function RegisterPage() {
   };
   const isPasswordValid = Object.values(pwChecks).every(Boolean);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
 
@@ -48,16 +48,43 @@ export default function RegisterPage() {
     }
 
     setIsLoading(true);
+    const cleanEmail = email.toLowerCase().trim();
 
     try {
-      const res = registerUser(name, email, password);
+      // 1. Check server-side Supabase database for existing email
+      const checkRes = await fetch("/api/admin/users", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name: name.trim(),
+          email: cleanEmail,
+          role: "user",
+          checkUnique: true
+        })
+      });
+
+      const checkData = await checkRes.json();
+      if (!checkRes.ok || checkData.error) {
+        setError(checkData.error || "An account with this email already exists. Please sign in or reset your password.");
+        setIsLoading(false);
+        return;
+      }
+
+      // 2. Register user locally and establish session
+      const res = registerUser(name, cleanEmail, password);
       if (res.user) {
         router.push("/dashboard");
       } else {
         setError(res.error || "Registration failed. Please try again.");
       }
     } catch {
-      setError("An unexpected error occurred. Please try again.");
+      // If server check fails (offline), fall back to local registerUser
+      const res = registerUser(name, cleanEmail, password);
+      if (res.user) {
+        router.push("/dashboard");
+      } else {
+        setError(res.error || "Registration failed. Please try again.");
+      }
     } finally {
       setIsLoading(false);
     }

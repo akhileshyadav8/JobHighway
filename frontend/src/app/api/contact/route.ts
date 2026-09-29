@@ -64,3 +64,42 @@ export async function GET() {
     return NextResponse.json({ inquiries: [] });
   }
 }
+
+export async function PATCH(req: NextRequest) {
+  try {
+    const body = await req.json();
+    const { id, status } = body;
+    const pool = getPool();
+    if (pool && id && status) {
+      await pool.query(
+        `UPDATE contact_inquiries SET status = $1 WHERE id = $2`,
+        [status, id]
+      );
+    }
+    return NextResponse.json({ success: true });
+  } catch (error) {
+    console.error('Update inquiry API error:', error);
+    return NextResponse.json({ error: 'Failed to update inquiry' }, { status: 500 });
+  }
+}
+
+export async function DELETE(req: NextRequest) {
+  try {
+    const { searchParams } = new URL(req.url);
+    const id = searchParams.get('id');
+    const email = searchParams.get('email');
+    const pool = getPool();
+
+    if (pool) {
+      if (id) {
+        await pool.query(`DELETE FROM contact_inquiries WHERE id = $1`, [id]);
+      } else if (email) {
+        await pool.query(`DELETE FROM contact_inquiries WHERE LOWER(email) = LOWER($1)`, [email.trim()]);
+      }
+    }
+    return NextResponse.json({ success: true });
+  } catch (error) {
+    console.error('Delete inquiry API error:', error);
+    return NextResponse.json({ error: 'Failed to delete inquiry' }, { status: 500 });
+  }
+}
