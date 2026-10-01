@@ -19,6 +19,15 @@ export interface RecommendedJobItem {
   postedTime: string;
   applyUrl: string;
   isBookmarked?: boolean;
+  scoreBreakdown?: {
+    roleRelevance: number;
+    skillCompatibility: number;
+    experienceCompatibility: number;
+    locationCompatibility: number;
+    preferenceCompatibility: number;
+  };
+  matchReasons?: string[];
+  matchedSkills?: string[];
 }
 
 export interface RecommendedJobsSectionProps {
@@ -152,10 +161,24 @@ export function RecommendedJobsSection({
                       >
                         {job.company}
                       </p>
+                      {job.matchReasons && job.matchReasons[0] && (
+                        <p className="text-[10px] text-teal-600 font-semibold truncate flex items-center gap-1 mt-0.5" title={job.matchReasons[0]}>
+                          <Sparkles className="w-2.5 h-2.5 shrink-0 text-amber-500 fill-amber-400" />
+                          <span>{job.matchReasons[0]}</span>
+                        </p>
+                      )}
                     </div>
                   </div>
 
-                  <span className="shrink-0 text-[10px] sm:text-[11px] font-bold px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200/60 whitespace-nowrap">
+                  <span className={`shrink-0 text-[10px] sm:text-[11px] font-bold px-2 py-0.5 rounded-full border whitespace-nowrap ${
+                    job.matchScore >= 80
+                      ? "bg-emerald-50 text-emerald-700 border-emerald-200/60"
+                      : job.matchScore >= 65
+                      ? "bg-teal-50 text-teal-700 border-teal-200/60"
+                      : job.matchScore >= 50
+                      ? "bg-blue-50 text-blue-700 border-blue-200/60"
+                      : "bg-amber-50 text-amber-700 border-amber-200/60"
+                  }`}>
                     {job.matchScore}% Match
                   </span>
                 </div>
@@ -170,15 +193,24 @@ export function RecommendedJobsSection({
 
                 {/* Skill Tags */}
                 <div className="flex flex-wrap gap-1 mt-2">
-                  {job.skills.slice(0, 3).map((skill) => (
-                    <span
-                      key={skill}
-                      className="text-[10px] sm:text-[11px] font-medium px-2 py-0.5 rounded-md bg-slate-100 text-slate-600 truncate max-w-[110px]"
-                      title={skill}
-                    >
-                      {skill}
-                    </span>
-                  ))}
+                  {job.skills.slice(0, 3).map((skill) => {
+                    const isMatched = job.matchedSkills?.some(
+                      (ms) => ms.toLowerCase() === skill.toLowerCase() || skill.toLowerCase().includes(ms.toLowerCase())
+                    );
+                    return (
+                      <span
+                        key={skill}
+                        className={`text-[10px] sm:text-[11px] font-medium px-2 py-0.5 rounded-md truncate max-w-[110px] ${
+                          isMatched
+                            ? "bg-emerald-50 text-emerald-700 border border-emerald-200/70 font-semibold"
+                            : "bg-slate-100 text-slate-600"
+                        }`}
+                        title={skill}
+                      >
+                        {skill}
+                      </span>
+                    );
+                  })}
                   {((job.extraSkillsCount && job.extraSkillsCount > 0) || job.skills.length > 3) && (
                     <span className="text-[10px] sm:text-[11px] font-semibold px-1.5 py-0.5 rounded-md bg-slate-100 text-slate-500 shrink-0">
                       +{job.extraSkillsCount || (job.skills.length - 3)}

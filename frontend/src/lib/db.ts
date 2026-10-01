@@ -1,6 +1,7 @@
 import { Pool } from 'pg';
 import { Job, OverviewStats, Company } from './api';
 import { sanitizeJobSkills } from './utils';
+import { CandidateRecommendationProfile, detectCandidateDomain } from './recommendationEngine';
 
 let pool: Pool | null = null;
 
@@ -1163,5 +1164,177 @@ export async function getLiveCompanyJobsFromDb(slug: string): Promise<Job[] | nu
   } catch (error) {
     console.error('getLiveCompanyJobsFromDb error:', error);
     return null;
+  }
+}
+
+export async function getCandidateRecommendationPool(
+  profile: CandidateRecommendationProfile,
+  limit: number = 150
+): Promise<Job[]> {
+  const p = getPool();
+  if (!p) return [];
+
+  try {
+    const candidateDomain = detectCandidateDomain(profile);
+    const conditions: string[] = ["j.status = 'active'"];
+    const values: any[] = [];
+    let paramIdx = 1;
+
+    // Filter by freshness (active in last 45 days)
+    conditions.push("((j.posted_at IS NOT NULL AND j.posted_at >= NOW() - INTERVAL '45 DAYS') OR (j.posted_at IS NULL AND j.first_seen_at >= NOW() - INTERVAL '45 DAYS'))");
+
+    // Build role/domain/skill targeting conditions
+    const matchOrClauses: string[] = [];
+
+    // 1. Direct Target Role
+    if (profile.targetRole && profile.targetRole.trim().length > 1) {
+      matchOrClauses.push(`j.title ILIKE $${paramIdx}`);
+      values.push(`%${profile.targetRole.trim()}%`);
+      paramIdx++;
+    }
+
+    // 2. Candidate Current Role
+    if (profile.currentRole && profile.currentRole.trim().length > 1) {
+      matchOrClauses.push(`j.title ILIKE $${paramIdx}`);
+      values.push(`%${profile.currentRole.trim()}%`);
+      paramIdx++;
+    }
+
+    // 3. Domain Core Keywords
+    if (candidateDomain && candidateDomain.coreKeywords.length > 0) {
+      const topKeywords = candidateDomain.coreKeywords.slice(0, 5);
+      for (const kw of topKeywords) {
+        matchOrClauses.push(`j.title ILIKE $${paramIdx}`);
+        values.push(`%${kw}%`);
+        paramIdx++;
+      }
+    }
+
+    // 4. Candidate Skills Overlap
+    if (profile.skills && profile.skills.length > 0) {
+      const topSkills = profile.skills.slice(0, 8);
+      for (const sk of topSkills) {
+        const cleaned = sk.trim();
+        if (cleaned.length > 1) {
+          matchOrClauses.push(`j.skills_required::text ILIKE $${paramIdx}`);
+          values.push(`%${cleaned}%`);
+          paramIdx++;
+        }
+      }
+    }
+
+    if (matchOrClauses.length > 0) {
+      conditions.push(`(${matchOrClauses.join(' OR ')})`);
+    }
+
+    // 5. Exclude negative keywords if domain has them
+    if (candidateDomain && candidateDomain.negativeKeywords.length > 0) {
+      for (const neg of candidateDomain.negativeKeywords.slice(0, 8)) {
+        conditions.push(`j.title NOT ILIKE $${paramIdx}`);
+        values.push(`%${neg}%`);
+        paramIdx++;
+      }
+    }
+
+    // 6. Location preference affinity
+    if (profile.preferredLocation && profile.preferredLocation.trim().length > 1) {
+      const pLoc = profile.preferredLocation.toLowerCase().trim();
+      if (pLoc.includes('india')) {
+        conditions.push(`(
+          j.work_mode ILIKE '%remote%' OR 
+          j.location::text ILIKE '%remote%' OR
+          j.location::text ILIKE '%india%' OR
+          j.location::text ILIKE '%bengaluru%' OR
+          j.location::text ILIKE '%bangalore%' OR
+          j.location::text ILIKE '%mumbai%' OR
+          j.location::text ILIKE '%delhi%' OR
+          j.location::text ILIKE '%hyderabad%' OR
+          j.location::text ILIKE '%pune%' OR
+          j.location::text ILIKE '%noida%' OR
+          j.location::text ILIKE '%gurgaon%' OR
+          j.location::text ILIKE '%chennai%'
+        )`);
+      } else if (pLoc.includes('remote')) {
+        conditions.push(`(j.work_mode ILIKE '%remote%' OR j.location::text ILIKE '%remote%')`);
+      }
+    }
+
+    const whereClause = conditions.length > 0 ? `WHERE ${conditions.join(' AND ')}` : '';
+
+    const query = `
+      SELECT 
+        j.id,
+        j.title,
+        j.slug,
+        j.department,
+        j.location,
+        j.employment_type,
+        j.work_mode,
+        j.salary_min,
+        j.salary_max,
+        j.salary_currency,
+        j.salary_period,
+        j.experience_min,
+        j.experience_max,
+        j.education,
+        j.eligible_batches,
+        j.min_cgpa,
+        j.min_percentage,
+        j.backlog_allowed,
+        j.skills_required,
+        j.skills_preferred,
+        j.job_url,
+        j.apply_url,
+        j.posted_at,
+        j.deadline,
+        j.first_seen_at,
+        j.last_seen_at,
+        j.status,
+        '' as description_text,
+        j.jobpulse_rating as jobhighway_rating,
+        j.jobpulse_rating,
+        j.rating_reason,
+        j.view_count,
+        c.id as comp_id,
+        c.name as comp_name,
+        c.slug as comp_slug,
+        c.logo_url as comp_logo,
+        c.industry as comp_industry
+      FROM jobs j
+      JOIN companies c ON j.company_id = c.id
+      ${whereClause}
+      ORDER BY LEAST(COALESCE(j.posted_at, j.first_seen_at), NOW()) DESC NULLS LAST, j.id DESC
+      LIMIT $${paramIdx};
+    `;
+
+    values.push(limit);
+
+    const res = await p.query(query, values);
+    if (!res.rows || res.rows.length === 0) {
+      // If candidate-specific filtered pool was empty (e.g. very rare skill combinations),
+      // retrieve a broader active pool
+      const fallbackQuery = `
+        SELECT 
+          j.id, j.title, j.slug, j.department, j.location, j.employment_type, j.work_mode,
+          j.salary_min, j.salary_max, j.salary_currency, j.salary_period,
+          j.experience_min, j.experience_max, j.education, j.eligible_batches,
+          j.min_cgpa, j.min_percentage, j.backlog_allowed, j.skills_required, j.skills_preferred,
+          j.job_url, j.apply_url, j.posted_at, j.deadline, j.first_seen_at, j.last_seen_at,
+          j.status, '' as description_text, j.jobpulse_rating as jobhighway_rating, j.jobpulse_rating, j.rating_reason, j.view_count,
+          c.id as comp_id, c.name as comp_name, c.slug as comp_slug, c.logo_url as comp_logo, c.industry as comp_industry
+        FROM jobs j
+        JOIN companies c ON j.company_id = c.id
+        WHERE j.status = 'active'
+        ORDER BY LEAST(COALESCE(j.posted_at, j.first_seen_at), NOW()) DESC NULLS LAST, j.id DESC
+        LIMIT $1;
+      `;
+      const fallbackRes = await p.query(fallbackQuery, [limit]);
+      return (fallbackRes.rows || []).map(mapRowToJob);
+    }
+
+    return res.rows.map(mapRowToJob);
+  } catch (error) {
+    console.error('getCandidateRecommendationPool error:', error);
+    return [];
   }
 }

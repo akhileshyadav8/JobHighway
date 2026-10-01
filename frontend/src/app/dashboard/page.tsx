@@ -86,6 +86,10 @@ export default function DashboardPage() {
   const [totalJobsCount, setTotalJobsCount] = useState<number>(0);
   const [isLoadingJobs, setIsLoadingJobs] = useState<boolean>(true);
 
+  // Recommendations State (Candidate-centric AI engine)
+  const [recommendedJobs, setRecommendedJobs] = useState<RecommendedJobItem[]>([]);
+  const [isLoadingRecommendations, setIsLoadingRecommendations] = useState<boolean>(true);
+
   // Modals state
   const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
   const [isApplicationsModalOpen, setIsApplicationsModalOpen] = useState(false);
@@ -306,72 +310,117 @@ export default function DashboardPage() {
     });
   }, [followedCompanies, liveJobs]);
 
-  // Real Recommended Jobs from Live Dataset (Only when user has uploaded resume)
-  const recommendedJobs: RecommendedJobItem[] = useMemo(() => {
-    if (!user?.resumeFile) return [];
-    if (!liveJobs || liveJobs.length === 0) return [];
-    const userSkillsLower = (user?.skills || []).map((s) => s.toLowerCase().trim());
-    const userTargetRoleLower = (user?.targetRole || "").toLowerCase().trim();
+  // Real Personalized Recommendations fetched dynamically from candidate profile and active jobs database
+  useEffect(() => {
+    let isMounted = true;
 
-    const scored = liveJobs.map((job) => {
-      let matchScore = 70;
-      const jobSkills = job.skills_required || [];
-      const jobTitleLower = job.title.toLowerCase();
+    // Check if user has uploaded resume or has profile skills/target role
+    const hasProfileData = Boolean(
+      user?.resumeFile || 
+      (user?.skills && user.skills.length > 0) || 
+      (user?.targetRole && user.targetRole.trim().length > 0)
+    );
 
-      // Role relevance
-      if (userTargetRoleLower && jobTitleLower.includes(userTargetRoleLower)) {
-        matchScore += 18;
-      } else if (
-        jobTitleLower.includes("data") || 
-        jobTitleLower.includes("engineer") || 
-        jobTitleLower.includes("analyst") ||
-        jobTitleLower.includes("developer")
-      ) {
-        matchScore += 10;
+    if (!hasProfileData) {
+      setRecommendedJobs([]);
+      setIsLoadingRecommendations(false);
+      return;
+    }
+
+    const fetchCandidateRecommendations = async () => {
+      setIsLoadingRecommendations(true);
+      try {
+        const payload = {
+          candidate: {
+            targetRole: user?.targetRole || "",
+            currentRole: user?.currentRole || "",
+            skills: user?.skills || [],
+            yearsExperience: user?.yearsExperience || "",
+            education: user?.education || "",
+            preferredLocation: user?.preferredLocation || "",
+            bookmarks: bookmarks.map((b) => b.jobId),
+            appliedJobIds: appliedJobs.map((a) => a.jobId),
+            followedCompanies: followedCompanies.map((c) => c.name)
+          },
+          limit: 12
+        };
+
+        const res = await fetch("/api/jobs/recommendations", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload)
+        });
+
+        if (res.ok) {
+          const data = await res.json();
+          if (isMounted && Array.isArray(data.recommendations)) {
+            const mapped: RecommendedJobItem[] = data.recommendations.map((rec: any) => {
+              const job = rec.job;
+              let postedTime = "Recently posted";
+              if (job.posted_at) {
+                const diffMs = Date.now() - new Date(job.posted_at).getTime();
+                const diffMins = Math.floor(diffMs / 60000);
+                if (diffMins < 60) postedTime = `Posted ${diffMins} minutes ago`;
+                else if (diffMins < 1440) postedTime = `Posted ${Math.floor(diffMins / 60)} hours ago`;
+                else postedTime = `Posted ${Math.floor(diffMins / 1440)} days ago`;
+              }
+
+              const isBookmarked = bookmarks.some((b) => b.jobId === String(job.id));
+
+              return {
+                id: job.id,
+                title: job.title,
+                company: job.company?.name || "Official Requisition",
+                companySlug: job.company?.slug || "",
+                companyLogo: job.company?.logo_url,
+                matchScore: rec.matchScore,
+                scoreBreakdown: rec.scoreBreakdown,
+                matchReasons: rec.matchReasons,
+                matchedSkills: rec.matchedSkills,
+                location: Array.isArray(job.location)
+                  ? job.location.join(", ")
+                  : job.location || "Global",
+                workMode: job.work_mode || "Hybrid",
+                skills: (job.skills_required && job.skills_required.length > 0)
+                  ? job.skills_required
+                  : (rec.matchedSkills && rec.matchedSkills.length > 0)
+                  ? rec.matchedSkills
+                  : [job.department || "Technology"],
+                extraSkillsCount: Math.max(0, (job.skills_required?.length || 0) - 3),
+                postedTime,
+                applyUrl: job.apply_url || job.job_url || "#",
+                isBookmarked,
+              };
+            });
+
+            setRecommendedJobs(mapped);
+            setIsLoadingRecommendations(false);
+            return;
+          }
+        }
+      } catch (err) {
+        console.error("Failed to load candidate recommendations:", err);
       }
+      if (isMounted) setIsLoadingRecommendations(false);
+    };
 
-      // Skill overlap
-      const matchingSkills = jobSkills.filter((s) =>
-        userSkillsLower.includes(s.toLowerCase().trim())
-      );
-      if (matchingSkills.length > 0) {
-        matchScore += Math.min(18, matchingSkills.length * 6);
-      }
+    fetchCandidateRecommendations();
 
-      matchScore = Math.min(96, Math.max(72, matchScore));
-      const isBookmarked = bookmarks.some((b) => b.jobId === String(job.id));
-
-      let postedTime = "Recently posted";
-      if (job.posted_at) {
-        const diffMs = Date.now() - new Date(job.posted_at).getTime();
-        const diffMins = Math.floor(diffMs / 60000);
-        if (diffMins < 60) postedTime = `Posted ${diffMins} minutes ago`;
-        else if (diffMins < 1440) postedTime = `Posted ${Math.floor(diffMins / 60)} hours ago`;
-        else postedTime = `Posted ${Math.floor(diffMins / 1440)} days ago`;
-      }
-
-      return {
-        id: job.id,
-        title: job.title,
-        company: job.company?.name || "Official Requisition",
-        companySlug: job.company?.slug || "",
-        companyLogo: job.company?.logo_url,
-        matchScore,
-        location: Array.isArray(job.location)
-          ? job.location[0] || "Global"
-          : job.location || "Global",
-        workMode: job.work_mode || "Hybrid",
-        skills: jobSkills.slice(0, 3),
-        extraSkillsCount: Math.max(0, jobSkills.length - 3),
-        postedTime,
-        applyUrl: job.apply_url || job.job_url || "#",
-        isBookmarked
-      };
-    });
-
-    scored.sort((a, b) => b.matchScore - a.matchScore);
-    return scored.slice(0, 3);
-  }, [liveJobs, user?.skills, user?.targetRole, bookmarks]);
+    return () => {
+      isMounted = false;
+    };
+  }, [
+    user?.targetRole,
+    user?.currentRole,
+    user?.yearsExperience,
+    user?.preferredLocation,
+    user?.education,
+    user?.resumeFile,
+    user?.skills,
+    bookmarks.length,
+    appliedJobs.length,
+    followedCompanies.length
+  ]);
 
   // Real Job Market Insights Calculated from Live Dataset & Realistic Industry Normalization
   const { topCountries, inDemandSkills } = useMemo(() => {
@@ -871,8 +920,8 @@ export default function DashboardPage() {
                 <div id="recommended-jobs-section" className="scroll-mt-24">
                   <RecommendedJobsSection
                     jobs={recommendedJobs}
-                    isLoading={isLoadingJobs}
-                    hasResume={Boolean(user?.resumeFile)}
+                    isLoading={isLoadingRecommendations}
+                    hasResume={Boolean(user?.resumeFile || (user?.skills && user.skills.length > 0) || user?.targetRole)}
                     onUploadResume={() => setIsProfileModalOpen(true)}
                     onToggleBookmark={handleToggleBookmark}
                     onViewDetails={(job) => setSelectedJobForDetails(job)}
