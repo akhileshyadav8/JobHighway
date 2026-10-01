@@ -89,8 +89,15 @@ export interface FilterCounts {
   onsite: number;
   remote: number;
   hybrid: number;
-  india?: number;
   us?: number;
+  india?: number;
+  canada?: number;
+  uk?: number;
+  germany?: number;
+  australia?: number;
+  singapore?: number;
+  netherlands?: number;
+  france?: number;
 }
 
 export interface OverviewStats {

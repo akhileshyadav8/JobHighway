@@ -26,7 +26,9 @@ import {
   ChevronLeft,
   ChevronRight,
   Sparkles,
-  RotateCcw
+  RotateCcw,
+  Laptop,
+  GraduationCap
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { CompanyLogo, getCleanDomain } from "@/components/ui/CompanyLogo";
@@ -162,40 +164,66 @@ export function InteractiveCompanies({ initialCompanies, initialStats, initialSe
     return Array.from(map.entries()).sort((a, b) => b[1] - a[1]);
   }, [initialCompanies]);
 
-  // Extract unique countries with counts
+  // Extract unique countries with counts using standard normalization
   const countryCounts = useMemo(() => {
     const map = new Map<string, number>();
     initialCompanies.forEach(c => {
-      let country = "United States";
-      if (c.headquarters && c.headquarters.trim()) {
-        const parts = c.headquarters.split(",");
-        const lastPart = parts[parts.length - 1].trim();
-        if (lastPart.length > 1) {
-          country = lastPart;
-        }
-      }
+      const country = normalizeCompanyCountry(c.headquarters);
       map.set(country, (map.get(country) || 0) + 1);
     });
     return Array.from(map.entries()).sort((a, b) => b[1] - a[1]);
   }, [initialCompanies]);
 
+function normalizeCompanyCountry(hq: string | null | undefined): string {
+  if (!hq || !hq.trim()) return "United States";
+  const text = hq.trim();
+  const lower = text.toLowerCase();
+
+  if (/^(india\b|.*,\s*india\b)/i.test(text) || lower.includes("bangalore") || lower.includes("bengaluru") || lower.includes("mumbai") || lower.includes("delhi") || lower.includes("hyderabad") || lower.includes("chennai") || lower.includes("pune") || lower.includes("gurgaon") || lower.includes("noida") || lower.includes("blr")) return "India";
+  if (/^(singapore\b)/i.test(text) || lower.includes("singapore")) return "Singapore";
+  if (/^(italia\b|italy\b)/i.test(text) || lower.includes("milano") || lower.includes("rome") || lower.includes("torino")) return "Italy";
+  if (/^(deutschland\b|germany\b)/i.test(text) || lower.includes("berlin") || lower.includes("munich") || lower.includes("münchen") || lower.includes("hamburg") || lower.includes("frankfurt") || lower.includes("düsseldorf") || lower.includes("köln") || lower.includes("cologne") || lower.includes("stuttgart")) return "Germany";
+  if (/^(brasil\b|brazil\b)/i.test(text) || lower.includes("são paulo") || lower.includes("sao paulo") || lower.includes("rio de janeiro")) return "Brazil";
+  if (/^(méxico\b|mexico\b)/i.test(text) || lower.includes("ciudad de méxico") || lower.includes("guadalajara")) return "Mexico";
+  if (/^(schweiz\b|switzerland\b|suisse\b)/i.test(text) || lower.includes("zürich") || lower.includes("zurich") || lower.includes("geneva") || lower.includes("basel")) return "Switzerland";
+  if (/^(österreich\b|austria\b)/i.test(text) || lower.includes("wien") || lower.includes("vienna")) return "Austria";
+  if (/^(polska\b|poland\b)/i.test(text) || lower.includes("warszawa") || lower.includes("warsaw") || lower.includes("kraków")) return "Poland";
+  if (/^(españa\b|spain\b)/i.test(text) || lower.includes("madrid") || lower.includes("barcelona")) return "Spain";
+  if (/^(united kingdom\b|uk\b|england\b|great britain\b)/i.test(text) || lower.includes("london") || lower.includes("manchester") || lower.includes("cambridge") || lower.includes("oxford")) return "United Kingdom";
+  if (/^(united states\b|usa\b|us\b)/i.test(text) || lower.includes("san francisco") || lower.includes("new york") || lower.includes("california") || lower.includes("austin") || lower.includes("seattle") || lower.includes("boston") || lower.includes("chicago") || lower.includes("los angeles")) return "United States";
+  if (/^(new zealand\b)/i.test(text) || lower.includes("auckland") || lower.includes("wellington")) return "New Zealand";
+  if (/^(canada\b)/i.test(text) || lower.includes("toronto") || lower.includes("vancouver") || lower.includes("montreal") || lower.includes("ottawa")) return "Canada";
+  if (/^(france\b)/i.test(text) || lower.includes("paris") || lower.includes("lyon")) return "France";
+  if (/^(australia\b)/i.test(text) || lower.includes("sydney") || lower.includes("melbourne") || lower.includes("brisbane")) return "Australia";
+  if (/^(netherlands\b|nederland\b)/i.test(text) || lower.includes("amsterdam") || lower.includes("rotterdam")) return "Netherlands";
+  if (/^(belgië\b|belgium\b|belgique\b)/i.test(text) || lower.includes("brussels") || lower.includes("antwerp")) return "Belgium";
+  if (/^(ireland\b)/i.test(text) || lower.includes("dublin")) return "Ireland";
+  if (/^(sweden\b|sverige\b)/i.test(text) || lower.includes("stockholm") || lower.includes("gothenburg")) return "Sweden";
+  if (/^(japan\b|nippon\b)/i.test(text) || lower.includes("tokyo")) return "Japan";
+
+  const firstPart = text.split(",")[0].trim();
+  if (firstPart.length > 2) return firstPart;
+  return "United States";
+}
+
 function matchesCompanySize(rangeStr: string | null | undefined, bucketKey: string): boolean {
   if (!rangeStr) return bucketKey === '1-50';
-  const r = rangeStr.replace(/\s/g, '').toLowerCase();
+  const clean = rangeStr.replace(/[\u2013\u2014]/g, '-').replace(/[\s,]/g, '').toLowerCase();
+  
   if (bucketKey === '1-50') {
-    return r.includes('1–50') || r.includes('1-50') || r.includes('1to50');
+    return clean.includes('1-50') || clean.includes('1to50');
   }
   if (bucketKey === '51-200') {
-    return r.includes('51–200') || r.includes('51-200');
+    return clean.includes('51-200');
   }
   if (bucketKey === '201-1000') {
-    return r.includes('201–1,000') || r.includes('201-1000') || r.includes('201–1000') || r.includes('201-1,000');
+    return clean.includes('201-1000') || clean.includes('201-500') || clean.includes('501-1000');
   }
   if (bucketKey === '1001-5000') {
-    return r.includes('1,001–5,000') || r.includes('1001-5000') || r.includes('1001–5000') || r.includes('1,001-5,000');
+    return clean.includes('1001-5000') || clean.includes('1000-5000') || clean.includes('1k-5k');
   }
   if (bucketKey === '5000+') {
-    return r.includes('5,000+') || r.includes('5000+') || r.includes('10,001+') || r.includes('10001+') || r.includes('10k');
+    return clean.includes('5000+') || clean.includes('10001+') || clean.includes('10000+') || clean.includes('10k') || clean.includes('5k+');
   }
   return false;
 }
@@ -213,13 +241,13 @@ function matchesCompanySize(rangeStr: string | null | undefined, bucketKey: stri
 
   // Feature counts
   const featureBuckets = useMemo(() => {
-    const hiring = initialCompanies.filter(c => (c.active_job_count || 0) > 0).length;
+    const hiring = initialCompanies.filter(c => (c.active_job_count || 0) >= 5).length;
     const remote = initialCompanies.filter(c => (c.remote_job_count || 0) > 0 || (c.headquarters || "").toLowerCase().includes("remote")).length;
     const internship = initialCompanies.filter(c => (c.internship_job_count || 0) > 0).length;
     const fresher = initialCompanies.filter(c => (c.fresher_job_count || 0) > 0).length;
 
     return [
-      { key: "hiring", label: "Currently Hiring", count: hiring },
+      { key: "hiring", label: "High Volume (5+ Jobs)", count: hiring },
       { key: "remote", label: "Remote Jobs", count: remote },
       { key: "internship", label: "Offers Internship", count: internship },
       { key: "fresher", label: "Fresher Friendly", count: fresher },
@@ -244,12 +272,12 @@ function matchesCompanySize(rangeStr: string | null | undefined, bucketKey: stri
 
     // Country filter
     if (selectedCountry !== "All") {
-      list = list.filter(c => (c.headquarters || "").toLowerCase().includes(selectedCountry.toLowerCase()));
+      list = list.filter(c => normalizeCompanyCountry(c.headquarters).toLowerCase() === selectedCountry.toLowerCase());
     }
 
     // Industry filter
     if (selectedIndustry !== "All") {
-      list = list.filter(c => (c.industry || "").toLowerCase().includes(selectedIndustry.toLowerCase()));
+      list = list.filter(c => (c.industry || "Technology").toLowerCase() === selectedIndustry.toLowerCase());
     }
 
     // Size filter
@@ -260,7 +288,7 @@ function matchesCompanySize(rangeStr: string | null | undefined, bucketKey: stri
     // Feature filter
     if (selectedFeature !== "All") {
       if (selectedFeature === "hiring") {
-        list = list.filter(c => (c.active_job_count || 0) > 0);
+        list = list.filter(c => (c.active_job_count || 0) >= 5);
       } else if (selectedFeature === "remote") {
         list = list.filter(c => (c.remote_job_count || 0) > 0 || (c.headquarters || "").toLowerCase().includes("remote"));
       } else if (selectedFeature === "internship") {
@@ -530,6 +558,18 @@ function matchesCompanySize(rangeStr: string | null | undefined, bucketKey: stri
           <ChevronUp className="w-3.5 h-3.5 text-slate-400" />
         </label>
         <div className="space-y-1.5 text-xs text-slate-700">
+          <label className="flex items-center justify-between cursor-pointer py-0.5 hover:text-teal-700 group">
+            <div className="flex items-center gap-2">
+              <input
+                type="checkbox"
+                checked={selectedFeature === "All"}
+                onChange={() => setSelectedFeature("All")}
+                className="w-3.5 h-3.5 rounded text-teal-600 focus:ring-teal-500 border-slate-300 cursor-pointer"
+              />
+              <span className={selectedFeature === "All" ? "font-bold text-slate-900" : ""}>All Features</span>
+            </div>
+            <span className="text-[11px] text-slate-400 font-mono">{initialCompanies.length.toLocaleString()}</span>
+          </label>
           {featureBuckets.map((bucket) => (
             <label key={bucket.key} className="flex items-center justify-between cursor-pointer py-0.5 hover:text-teal-700 group">
               <div className="flex items-center gap-2">
@@ -537,7 +577,7 @@ function matchesCompanySize(rangeStr: string | null | undefined, bucketKey: stri
                   type="checkbox"
                   checked={selectedFeature === bucket.key}
                   onChange={() => setSelectedFeature(selectedFeature === bucket.key ? "All" : bucket.key)}
-                  className="w-3.5 h-3.5 rounded text-teal-600 focus:ring-teal-500 border-slate-300"
+                  className="w-3.5 h-3.5 rounded text-teal-600 focus:ring-teal-500 border-slate-300 cursor-pointer"
                 />
                 <span className={selectedFeature === bucket.key ? "font-bold text-teal-700" : ""}>
                   {bucket.label}
@@ -874,6 +914,22 @@ function matchesCompanySize(rangeStr: string | null | undefined, bucketKey: stri
             <ChevronDown className="w-3.5 h-3.5 text-slate-400 absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
           </div>
 
+          {/* Feature Filter */}
+          <div className="relative flex-[1.05] min-w-[155px] w-full sm:w-auto">
+            <Sparkles className="w-3.5 h-3.5 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
+            <select
+              value={selectedFeature}
+              onChange={(e) => setSelectedFeature(e.target.value)}
+              className="w-full h-10 appearance-none bg-white border border-slate-200/90 rounded-lg pl-8 pr-7 text-xs sm:text-[13px] font-semibold text-slate-700 hover:border-slate-300 focus:outline-none focus:border-teal-600 cursor-pointer shadow-2xs transition-colors"
+            >
+              <option value="All">All Features</option>
+              {featureBuckets.map((f) => (
+                <option key={f.key} value={f.key}>{f.label} ({f.count.toLocaleString()})</option>
+              ))}
+            </select>
+            <ChevronDown className="w-3.5 h-3.5 text-slate-400 absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+          </div>
+
           {/* Sort Filter */}
           <div className="relative flex-[0.95] min-w-[145px] w-full sm:w-auto">
             <ArrowUpDown className="w-3.5 h-3.5 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
@@ -967,7 +1023,7 @@ function matchesCompanySize(rangeStr: string | null | undefined, bucketKey: stri
                   </div>
                   <span className="hidden sm:inline text-slate-300">•</span>
                   <span className="font-semibold text-slate-700">
-                    Page {currentPage} of {totalPages}
+                    <span className="text-teal-700 font-bold">{filtered.length.toLocaleString()}</span> companies · Page {currentPage} of {totalPages}
                   </span>
                   <div className="flex items-center gap-1">
                     <button
@@ -1085,18 +1141,34 @@ function matchesCompanySize(rangeStr: string | null | undefined, bucketKey: stri
                               </p>
 
                               {/* Then: Location · Employee count */}
-                              <div className="flex items-center gap-1.5 text-xs text-slate-500 mb-4 font-normal truncate">
+                              <div className="flex items-center gap-1.5 text-xs text-slate-500 mb-2 font-normal truncate">
                                 <span className="truncate max-w-[130px]">
-                                  {company.headquarters ? company.headquarters.split(",")[company.headquarters.split(",").length - 1].trim() : "United States"}
+                                  {normalizeCompanyCountry(company.headquarters)}
                                 </span>
                                 <span className="text-slate-300">·</span>
-                                <span className="shrink-0">{company.employee_count_range || "10,001+"} employees</span>
+                                <span className="shrink-0">{company.employee_count_range || "51–200"} employees</span>
                                 {company.industry && (
                                   <>
                                     <span className="text-slate-300">·</span>
                                     <span className="truncate max-w-[110px]">{company.industry}</span>
                                   </>
                                 )}
+                              </div>
+
+                              {/* Feature Badges */}
+                              <div className="flex flex-wrap items-center gap-1.5 mb-3">
+                                {company.remote_job_count && company.remote_job_count > 0 ? (
+                                  <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-medium bg-purple-50 text-purple-700 border border-purple-200/60">
+                                    <Laptop className="w-2.5 h-2.5" />
+                                    {company.remote_job_count} Remote
+                                  </span>
+                                ) : null}
+                                {company.internship_job_count && company.internship_job_count > 0 ? (
+                                  <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-medium bg-amber-50 text-amber-700 border border-amber-200/60">
+                                    <GraduationCap className="w-2.5 h-2.5" />
+                                    Internships
+                                  </span>
+                                ) : null}
                               </div>
                             </div>
 
@@ -1174,18 +1246,27 @@ function matchesCompanySize(rangeStr: string | null | undefined, bucketKey: stri
                                 <div className="flex items-center flex-wrap gap-x-3 gap-y-1 text-xs text-slate-500">
                                   <span className="flex items-center gap-1">
                                     <MapPin className="w-3 h-3 text-slate-400" />
-                                    {company.headquarters ? company.headquarters.split(",")[company.headquarters.split(",").length - 1].trim() : "Worldwide"}
+                                    {normalizeCompanyCountry(company.headquarters)}
                                   </span>
                                   <span>•</span>
                                   <span className="flex items-center gap-1">
                                     <Users className="w-3 h-3 text-slate-400" />
-                                    {company.employee_count_range || "1,000+"}
+                                    {company.employee_count_range || "51–200"}
                                   </span>
                                   <span>•</span>
                                   <span className="flex items-center gap-1 font-semibold text-teal-700">
                                     <Briefcase className="w-3 h-3 text-teal-600" />
                                     {openingsCount > 0 ? `${openingsCount.toLocaleString()} Openings` : "Openings available"}
                                   </span>
+                                  {company.remote_job_count && company.remote_job_count > 0 ? (
+                                    <>
+                                      <span>•</span>
+                                      <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-medium bg-purple-50 text-purple-700 border border-purple-200/60">
+                                        <Laptop className="w-2.5 h-2.5" />
+                                        {company.remote_job_count} Remote
+                                      </span>
+                                    </>
+                                  ) : null}
                                 </div>
                               </div>
                             </div>

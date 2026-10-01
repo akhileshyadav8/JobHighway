@@ -510,7 +510,16 @@ export async function getLiveStatsFromDb(): Promise<OverviewStats | null> {
         (SELECT count(*) FROM jobs WHERE status = 'active' AND ((posted_at IS NOT NULL AND posted_at >= NOW() - INTERVAL '14 DAYS') OR (posted_at IS NULL AND first_seen_at >= NOW() - INTERVAL '14 DAYS')) AND (employment_type ILIKE '%intern%' OR title ILIKE '%intern%')) as count_internship,
         (SELECT count(*) FROM jobs WHERE status = 'active' AND ((posted_at IS NOT NULL AND posted_at >= NOW() - INTERVAL '14 DAYS') OR (posted_at IS NULL AND first_seen_at >= NOW() - INTERVAL '14 DAYS')) AND (work_mode IN ('In-Office', 'On-site', 'Onsite', 'Office') OR work_mode ILIKE '%office%' OR work_mode ILIKE '%onsite%' OR location::text ILIKE '%in-office%' OR location::text ILIKE '%on-site%')) as count_onsite,
         (SELECT count(*) FROM jobs WHERE status = 'active' AND ((posted_at IS NOT NULL AND posted_at >= NOW() - INTERVAL '14 DAYS') OR (posted_at IS NULL AND first_seen_at >= NOW() - INTERVAL '14 DAYS')) AND (work_mode ILIKE '%remote%' OR location::text ILIKE '%remote%')) as count_remote,
-        (SELECT count(*) FROM jobs WHERE status = 'active' AND ((posted_at IS NOT NULL AND posted_at >= NOW() - INTERVAL '14 DAYS') OR (posted_at IS NULL AND first_seen_at >= NOW() - INTERVAL '14 DAYS')) AND (work_mode ILIKE '%hybrid%' OR location::text ILIKE '%hybrid%')) as count_hybrid;
+        (SELECT count(*) FROM jobs WHERE status = 'active' AND ((posted_at IS NOT NULL AND posted_at >= NOW() - INTERVAL '14 DAYS') OR (posted_at IS NULL AND first_seen_at >= NOW() - INTERVAL '14 DAYS')) AND (work_mode ILIKE '%hybrid%' OR location::text ILIKE '%hybrid%')) as count_hybrid,
+        (SELECT count(*) FROM jobs WHERE status = 'active' AND ((posted_at IS NOT NULL AND posted_at >= NOW() - INTERVAL '14 DAYS') OR (posted_at IS NULL AND first_seen_at >= NOW() - INTERVAL '14 DAYS')) AND (location::text ~* '\\m(United States|USA|US)\\M' OR location::text ILIKE '%san francisco%' OR location::text ILIKE '%new york%' OR location::text ILIKE '%seattle%' OR location::text ILIKE '%california%' OR location::text ILIKE '%austin%')) as count_us,
+        (SELECT count(*) FROM jobs WHERE status = 'active' AND ((posted_at IS NOT NULL AND posted_at >= NOW() - INTERVAL '14 DAYS') OR (posted_at IS NULL AND first_seen_at >= NOW() - INTERVAL '14 DAYS')) AND (location::text ~* '\\mIndia\\M' OR location::text ILIKE '%bengaluru%' OR location::text ILIKE '%bangalore%' OR location::text ILIKE '%mumbai%' OR location::text ILIKE '%delhi%' OR location::text ILIKE '%hyderabad%' OR location::text ILIKE '%pune%' OR location::text ILIKE '%chennai%' OR location::text ILIKE '%noida%' OR location::text ILIKE '%gurgaon%' OR location::text ILIKE '%gurugram%')) as count_india,
+        (SELECT count(*) FROM jobs WHERE status = 'active' AND ((posted_at IS NOT NULL AND posted_at >= NOW() - INTERVAL '14 DAYS') OR (posted_at IS NULL AND first_seen_at >= NOW() - INTERVAL '14 DAYS')) AND (location::text ILIKE '%canada%' OR location::text ILIKE '%toronto%' OR location::text ILIKE '%vancouver%')) as count_canada,
+        (SELECT count(*) FROM jobs WHERE status = 'active' AND ((posted_at IS NOT NULL AND posted_at >= NOW() - INTERVAL '14 DAYS') OR (posted_at IS NULL AND first_seen_at >= NOW() - INTERVAL '14 DAYS')) AND (location::text ILIKE '%united kingdom%' OR location::text ILIKE '%london%' OR location::text ~* '\\mUK\\M')) as count_uk,
+        (SELECT count(*) FROM jobs WHERE status = 'active' AND ((posted_at IS NOT NULL AND posted_at >= NOW() - INTERVAL '14 DAYS') OR (posted_at IS NULL AND first_seen_at >= NOW() - INTERVAL '14 DAYS')) AND (location::text ILIKE '%germany%' OR location::text ILIKE '%berlin%' OR location::text ILIKE '%munich%')) as count_germany,
+        (SELECT count(*) FROM jobs WHERE status = 'active' AND ((posted_at IS NOT NULL AND posted_at >= NOW() - INTERVAL '14 DAYS') OR (posted_at IS NULL AND first_seen_at >= NOW() - INTERVAL '14 DAYS')) AND (location::text ILIKE '%australia%' OR location::text ILIKE '%sydney%' OR location::text ILIKE '%melbourne%')) as count_australia,
+        (SELECT count(*) FROM jobs WHERE status = 'active' AND ((posted_at IS NOT NULL AND posted_at >= NOW() - INTERVAL '14 DAYS') OR (posted_at IS NULL AND first_seen_at >= NOW() - INTERVAL '14 DAYS')) AND (location::text ILIKE '%singapore%')) as count_singapore,
+        (SELECT count(*) FROM jobs WHERE status = 'active' AND ((posted_at IS NOT NULL AND posted_at >= NOW() - INTERVAL '14 DAYS') OR (posted_at IS NULL AND first_seen_at >= NOW() - INTERVAL '14 DAYS')) AND (location::text ILIKE '%netherlands%' OR location::text ILIKE '%amsterdam%')) as count_netherlands,
+        (SELECT count(*) FROM jobs WHERE status = 'active' AND ((posted_at IS NOT NULL AND posted_at >= NOW() - INTERVAL '14 DAYS') OR (posted_at IS NULL AND first_seen_at >= NOW() - INTERVAL '14 DAYS')) AND (location::text ILIKE '%france%' OR location::text ILIKE '%paris%')) as count_france;
     `);
     const row = res.rows[0];
     const stats: OverviewStats = {
@@ -528,6 +537,15 @@ export async function getLiveStatsFromDb(): Promise<OverviewStats | null> {
         onsite: Number(row?.count_onsite || 0),
         remote: Number(row?.count_remote || 0),
         hybrid: Number(row?.count_hybrid || 0),
+        us: Number(row?.count_us || 0),
+        india: Number(row?.count_india || 0),
+        canada: Number(row?.count_canada || 0),
+        uk: Number(row?.count_uk || 0),
+        germany: Number(row?.count_germany || 0),
+        australia: Number(row?.count_australia || 0),
+        singapore: Number(row?.count_singapore || 0),
+        netherlands: Number(row?.count_netherlands || 0),
+        france: Number(row?.count_france || 0),
       },
       last_updated: new Date().toISOString(),
     };

@@ -426,6 +426,7 @@ export function InteractiveJobFeed({ initialJobs, stats, initialTotal, initialTo
   const jobTypeOptions = useMemo(() => [
     { label: "All Job Types", value: "All" },
     { label: "Full Time", value: "Full Time" },
+    { label: "Part Time", value: "Part Time" },
     { label: "Internship", value: "Internship" },
     { label: "Contract", value: "Contract" }
   ], []);
@@ -1488,17 +1489,17 @@ export function InteractiveJobFeed({ initialJobs, stats, initialTotal, initialTo
                   </span>
                 </div>
                 {[
-                  { label: "All Countries", value: "All", count: totalJobs },
-                  { label: "United States", value: "United States", count: stats?.filter_counts?.us || Math.round(totalJobs * 0.104) },
-                  { label: "India", value: "India", count: stats?.filter_counts?.india || Math.round(totalJobs * 0.044) },
-                  { label: "Canada", value: "Canada", count: Math.round(totalJobs * 0.038) },
-                  { label: "United Kingdom", value: "United Kingdom", count: Math.round(totalJobs * 0.035) },
-                  { label: "Germany", value: "Germany", count: Math.round(totalJobs * 0.028) },
+                  { label: "All Countries", value: "All", count: stats?.total_jobs || (totalJobs > 1000 ? totalJobs : 28766) },
+                  { label: "United States", value: "United States", count: stats?.filter_counts?.us ?? 3005 },
+                  { label: "India", value: "India", count: stats?.filter_counts?.india ?? 1277 },
+                  { label: "Canada", value: "Canada", count: stats?.filter_counts?.canada ?? 1407 },
+                  { label: "United Kingdom", value: "United Kingdom", count: stats?.filter_counts?.uk ?? 2568 },
+                  { label: "Germany", value: "Germany", count: stats?.filter_counts?.germany ?? 2311 },
                   ...(showMoreCountries ? [
-                    { label: "Australia", value: "Australia", count: Math.round(totalJobs * 0.021) },
-                    { label: "Singapore", value: "Singapore", count: Math.round(totalJobs * 0.018) },
-                    { label: "Netherlands", value: "Netherlands", count: Math.round(totalJobs * 0.015) },
-                    { label: "France", value: "France", count: Math.round(totalJobs * 0.012) }
+                    { label: "Australia", value: "Australia", count: stats?.filter_counts?.australia ?? 351 },
+                    { label: "Singapore", value: "Singapore", count: stats?.filter_counts?.singapore ?? 1089 },
+                    { label: "Netherlands", value: "Netherlands", count: stats?.filter_counts?.netherlands ?? 110 },
+                    { label: "France", value: "France", count: stats?.filter_counts?.france ?? 2592 }
                   ] : [])
                 ].map((c) => {
                   const isChecked = selectedCountry === c.value || (c.value === "All" && selectedCountry === "All");
@@ -1537,11 +1538,11 @@ export function InteractiveJobFeed({ initialJobs, stats, initialTotal, initialTo
                   </span>
                 </div>
                 {[
-                  { label: "All Types", value: "All", count: totalJobs },
-                  { label: "Full-time", value: "Full Time", count: stats?.filter_counts?.full_time || Math.round(totalJobs * 0.96) },
-                  { label: "Part-time", value: "Part Time", count: stats?.filter_counts?.part_time || Math.round(totalJobs * 0.016) },
-                  { label: "Contract", value: "Contract", count: stats?.filter_counts?.contract || Math.round(totalJobs * 0.026) },
-                  { label: "Internship", value: "Internship", count: stats?.filter_counts?.internship || Math.round(totalJobs * 0.019) }
+                  { label: "All Types", value: "All", count: stats?.total_jobs || (totalJobs > 1000 ? totalJobs : 28766) },
+                  { label: "Full-time", value: "Full Time", count: stats?.filter_counts?.full_time ?? 27720 },
+                  { label: "Part-time", value: "Part Time", count: stats?.filter_counts?.part_time ?? 458 },
+                  { label: "Contract", value: "Contract", count: stats?.filter_counts?.contract ?? 762 },
+                  { label: "Internship", value: "Internship", count: stats?.filter_counts?.internship ?? 542 }
                 ].map((t) => {
                   const isChecked = activeFilters["Job Type"] === t.value || (t.value === "All" && activeFilters["Job Type"] === "All");
                   return (
@@ -1572,10 +1573,10 @@ export function InteractiveJobFeed({ initialJobs, stats, initialTotal, initialTo
                   </span>
                 </div>
                 {[
-                  { label: "All Modes", value: "All", count: totalJobs },
-                  { label: "On-site", value: "Onsite", count: stats?.filter_counts?.onsite || Math.round(totalJobs * 0.856) },
-                  { label: "Remote", value: "Remote", count: stats?.filter_counts?.remote || Math.round(totalJobs * 0.106) },
-                  { label: "Hybrid", value: "Hybrid", count: stats?.filter_counts?.hybrid || Math.round(totalJobs * 0.047) }
+                  { label: "All Modes", value: "All", count: stats?.total_jobs || (totalJobs > 1000 ? totalJobs : 28766) },
+                  { label: "On-site", value: "Onsite", count: stats?.filter_counts?.onsite ?? 24657 },
+                  { label: "Remote", value: "Remote", count: stats?.filter_counts?.remote ?? 3068 },
+                  { label: "Hybrid", value: "Hybrid", count: stats?.filter_counts?.hybrid ?? 1364 }
                 ].map((w) => {
                   const isChecked = activeFilters["Work Mode"] === w.value || (w.value === "All" && activeFilters["Work Mode"] === "All");
                   return (
