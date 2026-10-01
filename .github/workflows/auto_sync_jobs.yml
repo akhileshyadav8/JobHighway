@@ -40,6 +40,14 @@ jobs:
         run: |
           python backend/scripts/sync_real_production_jobs.py
 
+      - name: Set up Node.js & Sync to Supabase PostgreSQL
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+        run: |
+          cd frontend && npm install pg
+          NODE_PATH=node_modules node ../scripts/sync_json_to_db.js
+
+
       - name: Commit and Push Updated Job Data
         run: |
           git config --global user.name "JobHighway Bot"

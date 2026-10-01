@@ -1007,7 +1007,7 @@ def main():
     urls = []
     env_db_url = os.getenv("DATABASE_URL")
     if env_db_url:
-        urls.append(("Environment DATABASE_URL", env_db_url))
+        urls.append(("Environment DATABASE_URL", env_db_url.replace("+asyncpg", "")))
     urls.extend([
         ("Supabase Pooler (Port 6543 - Transaction)", f"postgresql://postgres.difdvbmniyhlltmdzngg:{db_pass}@aws-0-ap-south-1.pooler.supabase.com:6543/postgres?sslmode=require"),
         ("Supabase Direct (Port 5432)", f"postgresql://postgres:{db_pass}@db.difdvbmniyhlltmdzngg.supabase.co:5432/postgres?sslmode=require")
