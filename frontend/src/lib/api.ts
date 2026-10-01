@@ -102,6 +102,7 @@ export interface FilterCounts {
 
 export interface JobFacets {
   total: number;
+  total_no_country?: number;
   full_time: number;
   part_time: number;
   contract: number;

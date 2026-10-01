@@ -59,6 +59,11 @@ export default function AdminJobsPage() {
     setJobs(getAdminJobs());
   }, []);
 
+  // Reset to page 1 whenever search, tab or filters change
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [search, selectedCompany, selectedAts, selectedStatus, activeTab]);
+
   const showToast = (msg: string) => {
     setToastMessage(msg);
     setTimeout(() => setToastMessage(null), 3500);

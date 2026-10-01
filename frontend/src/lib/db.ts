@@ -112,6 +112,110 @@ function mapRowToJob(row: any): Job {
   };
 }
 
+export function getCountryConditionSql(country: string): { condition: string; paramVal?: string } | null {
+  if (!country || country === 'All') return null;
+  const c = country.trim().toLowerCase();
+
+  if (c === 'remote') {
+    return { condition: `(j.work_mode ILIKE '%remote%' OR j.location::text ILIKE '%remote%')` };
+  }
+  if (c === 'india') {
+    return {
+      condition: `(
+        j.location::text ~* '\\mIndia\\M' OR 
+        j.location::text ILIKE '%bengaluru%' OR 
+        j.location::text ILIKE '%bangalore%' OR 
+        j.location::text ILIKE '%mumbai%' OR 
+        j.location::text ILIKE '%delhi%' OR 
+        j.location::text ILIKE '%hyderabad%' OR 
+        j.location::text ILIKE '%pune%' OR 
+        j.location::text ILIKE '%chennai%' OR 
+        j.location::text ILIKE '%noida%' OR 
+        j.location::text ILIKE '%gurgaon%' OR 
+        j.location::text ILIKE '%gurugram%'
+      )`
+    };
+  }
+  if (c === 'united states' || c === 'usa' || c === 'us') {
+    return {
+      condition: `(
+        j.location::text ~* '\\m(United States|USA|US)\\M' OR 
+        j.location::text ILIKE '%san francisco%' OR 
+        j.location::text ILIKE '%new york%' OR 
+        j.location::text ILIKE '%seattle%' OR 
+        j.location::text ILIKE '%california%' OR 
+        j.location::text ILIKE '%austin%'
+      )`
+    };
+  }
+  if (c === 'united kingdom' || c === 'uk' || c === 'great britain' || c === 'england') {
+    return {
+      condition: `(j.location::text ILIKE '%united kingdom%' OR j.location::text ILIKE '%london%' OR j.location::text ILIKE '%manchester%' OR j.location::text ILIKE '%edinburgh%' OR j.location::text ILIKE '%birmingham%' OR j.location::text ~* '\\m(UK|England|Scotland|Wales)\\M')`
+    };
+  }
+  if (c === 'germany' || c === 'deutschland') {
+    return {
+      condition: `(j.location::text ILIKE '%germany%' OR j.location::text ILIKE '%berlin%' OR j.location::text ILIKE '%munich%' OR j.location::text ILIKE '%münchen%' OR j.location::text ILIKE '%frankfurt%' OR j.location::text ILIKE '%hamburg%' OR j.location::text ILIKE '%deutschland%')`
+    };
+  }
+  if (c === 'canada') {
+    return {
+      condition: `(j.location::text ILIKE '%canada%' OR j.location::text ILIKE '%toronto%' OR j.location::text ILIKE '%vancouver%' OR j.location::text ILIKE '%montreal%' OR j.location::text ILIKE '%ottawa%')`
+    };
+  }
+  if (c === 'australia') {
+    return {
+      condition: `(j.location::text ILIKE '%australia%' OR j.location::text ILIKE '%sydney%' OR j.location::text ILIKE '%melbourne%' OR j.location::text ILIKE '%brisbane%')`
+    };
+  }
+  if (c === 'singapore') {
+    return {
+      condition: `(j.location::text ILIKE '%singapore%')`
+    };
+  }
+  if (c === 'netherlands' || c === 'nederland' || c === 'holland') {
+    return {
+      condition: `(j.location::text ILIKE '%netherlands%' OR j.location::text ILIKE '%amsterdam%' OR j.location::text ILIKE '%rotterdam%')`
+    };
+  }
+  if (c === 'france') {
+    return {
+      condition: `(j.location::text ILIKE '%france%' OR j.location::text ILIKE '%paris%' OR j.location::text ILIKE '%lyon%')`
+    };
+  }
+  if (c === 'brazil' || c === 'brasil') {
+    return {
+      condition: `(j.location::text ILIKE '%brazil%' OR j.location::text ILIKE '%brasil%' OR j.location::text ILIKE '%são paulo%' OR j.location::text ILIKE '%sao paulo%')`
+    };
+  }
+  if (c === 'italy' || c === 'italia') {
+    return {
+      condition: `(j.location::text ILIKE '%italy%' OR j.location::text ILIKE '%italia%' OR j.location::text ILIKE '%milan%' OR j.location::text ILIKE '%rome%')`
+    };
+  }
+  if (c === 'spain' || c === 'españa') {
+    return {
+      condition: `(j.location::text ILIKE '%spain%' OR j.location::text ILIKE '%españa%' OR j.location::text ILIKE '%madrid%' OR j.location::text ILIKE '%barcelona%')`
+    };
+  }
+  if (c === 'switzerland' || c === 'schweiz') {
+    return {
+      condition: `(j.location::text ILIKE '%switzerland%' OR j.location::text ILIKE '%schweiz%' OR j.location::text ILIKE '%zurich%' OR j.location::text ILIKE '%geneva%')`
+    };
+  }
+  if (c === 'poland' || c === 'polska') {
+    return {
+      condition: `(j.location::text ILIKE '%poland%' OR j.location::text ILIKE '%polska%' OR j.location::text ILIKE '%warsaw%')`
+    };
+  }
+  if (c === 'ireland') {
+    return {
+      condition: `(j.location::text ILIKE '%ireland%' OR j.location::text ILIKE '%dublin%')`
+    };
+  }
+  return { condition: `j.location::text ILIKE $PARAM`, paramVal: `%${country}%` };
+}
+
 export async function getLiveJobsPaginated(params: JobFilterParams = {}): Promise<PaginatedJobResult | null> {
   const p = getPool();
   if (!p) return null;
@@ -142,38 +246,17 @@ export async function getLiveJobsPaginated(params: JobFilterParams = {}): Promis
       paramIdx++;
     }
 
-    // 2. Country
+    // 2. Country (Canonical city/country alias matching matching stats & facets)
     if (params.country && params.country !== 'All') {
-      if (params.country === 'Remote') {
-        conditions.push(`(j.work_mode ILIKE '%remote%' OR j.location::text ILIKE '%remote%')`);
-      } else if (params.country.toLowerCase() === 'india') {
-        conditions.push(`(
-          j.location::text ~* '\\mIndia\\M' OR 
-          j.location::text ILIKE '%bengaluru%' OR 
-          j.location::text ILIKE '%bangalore%' OR 
-          j.location::text ILIKE '%mumbai%' OR 
-          j.location::text ILIKE '%delhi%' OR 
-          j.location::text ILIKE '%hyderabad%' OR 
-          j.location::text ILIKE '%pune%' OR 
-          j.location::text ILIKE '%chennai%' OR 
-          j.location::text ILIKE '%noida%' OR 
-          j.location::text ILIKE '%gurgaon%' OR 
-          j.location::text ILIKE '%gurugram%'
-        )`);
-      } else if (params.country.toLowerCase() === 'united states' || params.country.toLowerCase() === 'usa') {
-        conditions.push(`(
-          j.location::text ~* '\\m(United States|USA|US)\\M' OR 
-          j.location::text ILIKE '%san francisco%' OR 
-          j.location::text ILIKE '%new york%' OR 
-          j.location::text ILIKE '%seattle%' OR 
-          j.location::text ILIKE '%california%' OR 
-          j.location::text ILIKE '%austin%'
-        )`);
-      } else {
-        const cTerm = `%${params.country}%`;
-        conditions.push(`j.location::text ILIKE $${paramIdx}`);
-        values.push(cTerm);
-        paramIdx++;
+      const cCond = getCountryConditionSql(params.country);
+      if (cCond) {
+        if (cCond.paramVal) {
+          conditions.push(cCond.condition.replace('$PARAM', `$${paramIdx}`));
+          values.push(cCond.paramVal);
+          paramIdx++;
+        } else {
+          conditions.push(cCond.condition);
+        }
       }
     }
 
@@ -563,6 +646,7 @@ export async function getLiveStatsFromDb(): Promise<OverviewStats | null> {
 // JobFacets type (same shape as JobFacets in api.ts — kept in sync manually to avoid circular import)
 type JobFacets = {
   total: number;
+  total_no_country: number;
   full_time: number; part_time: number; contract: number; internship: number;
   onsite: number; remote: number; hybrid: number;
   us: number; india: number; canada: number; uk: number; germany: number;
@@ -595,17 +679,15 @@ function buildFacetConditions(
 
   // Country (excluded when counting country facets)
   if (excludeDimension !== 'country' && params.country && params.country !== 'All') {
-    if (params.country === 'Remote') {
-      conditions.push(`(j.work_mode ILIKE '%remote%' OR j.location::text ILIKE '%remote%')`);
-    } else if (params.country.toLowerCase() === 'india') {
-      conditions.push(`(j.location::text ~* '\\mIndia\\M' OR j.location::text ILIKE '%bengaluru%' OR j.location::text ILIKE '%bangalore%' OR j.location::text ILIKE '%mumbai%' OR j.location::text ILIKE '%delhi%' OR j.location::text ILIKE '%hyderabad%' OR j.location::text ILIKE '%pune%' OR j.location::text ILIKE '%chennai%' OR j.location::text ILIKE '%noida%' OR j.location::text ILIKE '%gurgaon%' OR j.location::text ILIKE '%gurugram%')`);
-    } else if (params.country.toLowerCase() === 'united states' || params.country.toLowerCase() === 'usa') {
-      conditions.push(`(j.location::text ~* '\\m(United States|USA|US)\\M' OR j.location::text ILIKE '%san francisco%' OR j.location::text ILIKE '%new york%' OR j.location::text ILIKE '%seattle%' OR j.location::text ILIKE '%california%' OR j.location::text ILIKE '%austin%')`);
-    } else {
-      const cTerm = `%${params.country}%`;
-      conditions.push(`j.location::text ILIKE $${paramIdx}`);
-      values.push(cTerm);
-      paramIdx++;
+    const cCond = getCountryConditionSql(params.country);
+    if (cCond) {
+      if (cCond.paramVal) {
+        conditions.push(cCond.condition.replace('$PARAM', `$${paramIdx}`));
+        values.push(cCond.paramVal);
+        paramIdx++;
+      } else {
+        conditions.push(cCond.condition);
+      }
     }
   }
 
@@ -718,6 +800,7 @@ export async function getLiveJobFacets(params: JobFilterParams = {}): Promise<Jo
       // 4. Country counts (with jobType + workMode + experience applied, but NOT country)
       p.query(`
         SELECT
+          count(*)::int as total_no_country,
           count(*) FILTER (WHERE j.location::text ~* '\\m(United States|USA|US)\\M' OR j.location::text ILIKE '%san francisco%' OR j.location::text ILIKE '%new york%' OR j.location::text ILIKE '%seattle%' OR j.location::text ILIKE '%california%' OR j.location::text ILIKE '%austin%')::int as us,
           count(*) FILTER (WHERE j.location::text ~* '\\mIndia\\M' OR j.location::text ILIKE '%bengaluru%' OR j.location::text ILIKE '%bangalore%' OR j.location::text ILIKE '%mumbai%' OR j.location::text ILIKE '%delhi%' OR j.location::text ILIKE '%hyderabad%' OR j.location::text ILIKE '%pune%' OR j.location::text ILIKE '%chennai%' OR j.location::text ILIKE '%noida%' OR j.location::text ILIKE '%gurgaon%' OR j.location::text ILIKE '%gurugram%')::int as india,
           count(*) FILTER (WHERE j.location::text ILIKE '%canada%' OR j.location::text ILIKE '%toronto%' OR j.location::text ILIKE '%vancouver%')::int as canada,
@@ -738,6 +821,7 @@ export async function getLiveJobFacets(params: JobFilterParams = {}): Promise<Jo
 
     return {
       total: Number(tr?.total || 0),
+      total_no_country: Number(cr?.total_no_country || 0),
       full_time: Number(jtr?.full_time || 0),
       part_time: Number(jtr?.part_time || 0),
       contract: Number(jtr?.contract || 0),

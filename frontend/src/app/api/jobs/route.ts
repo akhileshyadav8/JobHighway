@@ -75,7 +75,16 @@ export async function GET(request: NextRequest) {
       filtered = filtered.filter(j => j.work_mode.toLowerCase().includes('remote'));
     } else {
       const c = filterParams.country.toLowerCase();
-      filtered = filtered.filter(j => j.location.some((l: string) => l.toLowerCase().includes(c)));
+      filtered = filtered.filter(j => j.location.some((l: string) => {
+        const loc = l.toLowerCase();
+        if (c === 'united kingdom' || c === 'uk') return loc.includes('united kingdom') || loc.includes('london') || /\buk\b/i.test(loc) || loc.includes('england');
+        if (c === 'germany' || c === 'deutschland') return loc.includes('germany') || loc.includes('berlin') || loc.includes('munich') || loc.includes('frankfurt') || loc.includes('deutschland');
+        if (c === 'canada') return loc.includes('canada') || loc.includes('toronto') || loc.includes('vancouver') || loc.includes('montreal');
+        if (c === 'australia') return loc.includes('australia') || loc.includes('sydney') || loc.includes('melbourne');
+        if (c === 'india') return loc.includes('india') || loc.includes('bengaluru') || loc.includes('bangalore') || loc.includes('mumbai') || loc.includes('delhi');
+        if (c === 'united states' || c === 'usa' || c === 'us') return loc.includes('united states') || loc.includes('usa') || /\bus\b/i.test(loc) || loc.includes('california') || loc.includes('new york');
+        return loc.includes(c);
+      }));
     }
   }
   if (filterParams.state && filterParams.state !== 'All') {

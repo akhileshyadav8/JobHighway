@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo, useEffect } from "react";
+import { useState, useMemo, useEffect, useCallback } from "react";
 import { Company, OverviewStats } from "@/lib/api";
 import Link from "next/link";
 import { 
@@ -72,6 +72,60 @@ function getPostingTime(company: Company): string {
   if (seed < 30) return `${Math.floor(seed / 5)} hours ago`;
   if (seed < 45) return `${Math.floor(seed / 8)} hours ago`;
   return `${Math.floor(seed / 12)} hours ago`;
+}
+
+function normalizeCompanyCountry(hq: string | null | undefined): string {
+  if (!hq || !hq.trim()) return "United States";
+  const text = hq.trim();
+  const lower = text.toLowerCase();
+
+  if (/^(india\b|.*,\s*india\b)/i.test(text) || lower.includes("bangalore") || lower.includes("bengaluru") || lower.includes("mumbai") || lower.includes("delhi") || lower.includes("hyderabad") || lower.includes("chennai") || lower.includes("pune") || lower.includes("gurgaon") || lower.includes("noida") || lower.includes("blr")) return "India";
+  if (/^(singapore\b)/i.test(text) || lower.includes("singapore")) return "Singapore";
+  if (/^(italia\b|italy\b)/i.test(text) || lower.includes("milano") || lower.includes("rome") || lower.includes("torino")) return "Italy";
+  if (/^(deutschland\b|germany\b)/i.test(text) || lower.includes("berlin") || lower.includes("munich") || lower.includes("münchen") || lower.includes("hamburg") || lower.includes("frankfurt") || lower.includes("düsseldorf") || lower.includes("köln") || lower.includes("cologne") || lower.includes("stuttgart")) return "Germany";
+  if (/^(brasil\b|brazil\b)/i.test(text) || lower.includes("são paulo") || lower.includes("sao paulo") || lower.includes("rio de janeiro")) return "Brazil";
+  if (/^(méxico\b|mexico\b)/i.test(text) || lower.includes("ciudad de méxico") || lower.includes("guadalajara")) return "Mexico";
+  if (/^(schweiz\b|switzerland\b|suisse\b)/i.test(text) || lower.includes("zürich") || lower.includes("zurich") || lower.includes("geneva") || lower.includes("basel")) return "Switzerland";
+  if (/^(österreich\b|austria\b)/i.test(text) || lower.includes("wien") || lower.includes("vienna")) return "Austria";
+  if (/^(polska\b|poland\b)/i.test(text) || lower.includes("warszawa") || lower.includes("warsaw") || lower.includes("kraków")) return "Poland";
+  if (/^(españa\b|spain\b)/i.test(text) || lower.includes("madrid") || lower.includes("barcelona")) return "Spain";
+  if (/^(united kingdom\b|uk\b|england\b|great britain\b)/i.test(text) || lower.includes("london") || lower.includes("manchester") || lower.includes("cambridge") || lower.includes("oxford")) return "United Kingdom";
+  if (/^(united states\b|usa\b|us\b)/i.test(text) || lower.includes("san francisco") || lower.includes("new york") || lower.includes("california") || lower.includes("austin") || lower.includes("seattle") || lower.includes("boston") || lower.includes("chicago") || lower.includes("los angeles")) return "United States";
+  if (/^(new zealand\b)/i.test(text) || lower.includes("auckland") || lower.includes("wellington")) return "New Zealand";
+  if (/^(canada\b)/i.test(text) || lower.includes("toronto") || lower.includes("vancouver") || lower.includes("montreal") || lower.includes("ottawa")) return "Canada";
+  if (/^(france\b)/i.test(text) || lower.includes("paris") || lower.includes("lyon")) return "France";
+  if (/^(australia\b)/i.test(text) || lower.includes("sydney") || lower.includes("melbourne") || lower.includes("brisbane")) return "Australia";
+  if (/^(netherlands\b|nederland\b)/i.test(text) || lower.includes("amsterdam") || lower.includes("rotterdam")) return "Netherlands";
+  if (/^(belgië\b|belgium\b|belgique\b)/i.test(text) || lower.includes("brussels") || lower.includes("antwerp")) return "Belgium";
+  if (/^(ireland\b)/i.test(text) || lower.includes("dublin")) return "Ireland";
+  if (/^(sweden\b|sverige\b)/i.test(text) || lower.includes("stockholm") || lower.includes("gothenburg")) return "Sweden";
+  if (/^(japan\b|nippon\b)/i.test(text) || lower.includes("tokyo")) return "Japan";
+
+  const firstPart = text.split(",")[0].trim();
+  if (firstPart.length > 2) return firstPart;
+  return "United States";
+}
+
+function matchesCompanySize(rangeStr: string | null | undefined, bucketKey: string): boolean {
+  if (!rangeStr) return bucketKey === '1-50';
+  const clean = rangeStr.replace(/[\u2013\u2014]/g, '-').replace(/[\s,]/g, '').toLowerCase();
+  
+  if (bucketKey === '1-50') {
+    return clean.includes('1-50') || clean.includes('1to50');
+  }
+  if (bucketKey === '51-200') {
+    return clean.includes('51-200');
+  }
+  if (bucketKey === '201-1000') {
+    return clean.includes('201-1000') || clean.includes('201-500') || clean.includes('501-1000');
+  }
+  if (bucketKey === '1001-5000') {
+    return clean.includes('1001-5000') || clean.includes('1000-5000') || clean.includes('1k-5k');
+  }
+  if (bucketKey === '5000+') {
+    return clean.includes('5000+') || clean.includes('10001+') || clean.includes('10000+') || clean.includes('10k') || clean.includes('5k+');
+  }
+  return false;
 }
 
 export function InteractiveCompanies({ initialCompanies, initialStats, initialSearch }: InteractiveCompaniesProps) {
@@ -154,97 +208,82 @@ export function InteractiveCompanies({ initialCompanies, initialStats, initialSe
     ? Number(initialStats.total_companies).toLocaleString() 
     : (initialCompanies.length > 50 ? initialCompanies.length.toLocaleString() : "19,875");
 
-  // Extract unique industries with counts
-  const industryCounts = useMemo(() => {
-    const map = new Map<string, number>();
-    initialCompanies.forEach(c => {
-      const ind = (c.industry && c.industry.trim()) ? c.industry.trim() : "Technology";
-      map.set(ind, (map.get(ind) || 0) + 1);
-    });
-    return Array.from(map.entries()).sort((a, b) => b[1] - a[1]);
-  }, [initialCompanies]);
+  // Helper predicates for cross-filtering
+  const matchSearch = useCallback((c: Company) => {
+    if (!search.trim()) return true;
+    const q = search.toLowerCase().trim();
+    return c.name.toLowerCase().includes(q) || 
+           (c.industry || "").toLowerCase().includes(q) || 
+           (c.headquarters || "").toLowerCase().includes(q) ||
+           (c.website || "").toLowerCase().includes(q) ||
+           (c.description || "").toLowerCase().includes(q);
+  }, [search]);
 
-  // Extract unique countries with counts using standard normalization
+  const matchCountry = useCallback((c: Company) => {
+    if (selectedCountry === "All") return true;
+    return normalizeCompanyCountry(c.headquarters).toLowerCase() === selectedCountry.toLowerCase();
+  }, [selectedCountry]);
+
+  const matchIndustry = useCallback((c: Company) => {
+    if (selectedIndustry === "All") return true;
+    return (c.industry || "Technology").toLowerCase() === selectedIndustry.toLowerCase();
+  }, [selectedIndustry]);
+
+  const matchSize = useCallback((c: Company) => {
+    if (selectedSize === "All") return true;
+    return matchesCompanySize(c.employee_count_range, selectedSize);
+  }, [selectedSize]);
+
+  const matchFeature = useCallback((c: Company) => {
+    if (selectedFeature === "All") return true;
+    if (selectedFeature === "hiring") return (c.active_job_count || 0) >= 5;
+    if (selectedFeature === "remote") return (c.remote_job_count || 0) > 0 || (c.headquarters || "").toLowerCase().includes("remote");
+    if (selectedFeature === "internship") return (c.internship_job_count || 0) > 0;
+    if (selectedFeature === "fresher") return (c.fresher_job_count || 0) > 0;
+    return true;
+  }, [selectedFeature]);
+
+  // Dynamic Country counts (cross-filtered by search, industry, size, feature)
   const countryCounts = useMemo(() => {
+    const pool = initialCompanies.filter(c => matchSearch(c) && matchIndustry(c) && matchSize(c) && matchFeature(c));
     const map = new Map<string, number>();
-    initialCompanies.forEach(c => {
+    pool.forEach(c => {
       const country = normalizeCompanyCountry(c.headquarters);
       map.set(country, (map.get(country) || 0) + 1);
     });
     return Array.from(map.entries()).sort((a, b) => b[1] - a[1]);
-  }, [initialCompanies]);
+  }, [initialCompanies, matchSearch, matchIndustry, matchSize, matchFeature]);
 
-function normalizeCompanyCountry(hq: string | null | undefined): string {
-  if (!hq || !hq.trim()) return "United States";
-  const text = hq.trim();
-  const lower = text.toLowerCase();
+  // Dynamic Industry counts (cross-filtered by search, country, size, feature)
+  const industryCounts = useMemo(() => {
+    const pool = initialCompanies.filter(c => matchSearch(c) && matchCountry(c) && matchSize(c) && matchFeature(c));
+    const map = new Map<string, number>();
+    pool.forEach(c => {
+      const ind = (c.industry && c.industry.trim()) ? c.industry.trim() : "Technology";
+      map.set(ind, (map.get(ind) || 0) + 1);
+    });
+    return Array.from(map.entries()).sort((a, b) => b[1] - a[1]);
+  }, [initialCompanies, matchSearch, matchCountry, matchSize, matchFeature]);
 
-  if (/^(india\b|.*,\s*india\b)/i.test(text) || lower.includes("bangalore") || lower.includes("bengaluru") || lower.includes("mumbai") || lower.includes("delhi") || lower.includes("hyderabad") || lower.includes("chennai") || lower.includes("pune") || lower.includes("gurgaon") || lower.includes("noida") || lower.includes("blr")) return "India";
-  if (/^(singapore\b)/i.test(text) || lower.includes("singapore")) return "Singapore";
-  if (/^(italia\b|italy\b)/i.test(text) || lower.includes("milano") || lower.includes("rome") || lower.includes("torino")) return "Italy";
-  if (/^(deutschland\b|germany\b)/i.test(text) || lower.includes("berlin") || lower.includes("munich") || lower.includes("münchen") || lower.includes("hamburg") || lower.includes("frankfurt") || lower.includes("düsseldorf") || lower.includes("köln") || lower.includes("cologne") || lower.includes("stuttgart")) return "Germany";
-  if (/^(brasil\b|brazil\b)/i.test(text) || lower.includes("são paulo") || lower.includes("sao paulo") || lower.includes("rio de janeiro")) return "Brazil";
-  if (/^(méxico\b|mexico\b)/i.test(text) || lower.includes("ciudad de méxico") || lower.includes("guadalajara")) return "Mexico";
-  if (/^(schweiz\b|switzerland\b|suisse\b)/i.test(text) || lower.includes("zürich") || lower.includes("zurich") || lower.includes("geneva") || lower.includes("basel")) return "Switzerland";
-  if (/^(österreich\b|austria\b)/i.test(text) || lower.includes("wien") || lower.includes("vienna")) return "Austria";
-  if (/^(polska\b|poland\b)/i.test(text) || lower.includes("warszawa") || lower.includes("warsaw") || lower.includes("kraków")) return "Poland";
-  if (/^(españa\b|spain\b)/i.test(text) || lower.includes("madrid") || lower.includes("barcelona")) return "Spain";
-  if (/^(united kingdom\b|uk\b|england\b|great britain\b)/i.test(text) || lower.includes("london") || lower.includes("manchester") || lower.includes("cambridge") || lower.includes("oxford")) return "United Kingdom";
-  if (/^(united states\b|usa\b|us\b)/i.test(text) || lower.includes("san francisco") || lower.includes("new york") || lower.includes("california") || lower.includes("austin") || lower.includes("seattle") || lower.includes("boston") || lower.includes("chicago") || lower.includes("los angeles")) return "United States";
-  if (/^(new zealand\b)/i.test(text) || lower.includes("auckland") || lower.includes("wellington")) return "New Zealand";
-  if (/^(canada\b)/i.test(text) || lower.includes("toronto") || lower.includes("vancouver") || lower.includes("montreal") || lower.includes("ottawa")) return "Canada";
-  if (/^(france\b)/i.test(text) || lower.includes("paris") || lower.includes("lyon")) return "France";
-  if (/^(australia\b)/i.test(text) || lower.includes("sydney") || lower.includes("melbourne") || lower.includes("brisbane")) return "Australia";
-  if (/^(netherlands\b|nederland\b)/i.test(text) || lower.includes("amsterdam") || lower.includes("rotterdam")) return "Netherlands";
-  if (/^(belgië\b|belgium\b|belgique\b)/i.test(text) || lower.includes("brussels") || lower.includes("antwerp")) return "Belgium";
-  if (/^(ireland\b)/i.test(text) || lower.includes("dublin")) return "Ireland";
-  if (/^(sweden\b|sverige\b)/i.test(text) || lower.includes("stockholm") || lower.includes("gothenburg")) return "Sweden";
-  if (/^(japan\b|nippon\b)/i.test(text) || lower.includes("tokyo")) return "Japan";
-
-  const firstPart = text.split(",")[0].trim();
-  if (firstPart.length > 2) return firstPart;
-  return "United States";
-}
-
-function matchesCompanySize(rangeStr: string | null | undefined, bucketKey: string): boolean {
-  if (!rangeStr) return bucketKey === '1-50';
-  const clean = rangeStr.replace(/[\u2013\u2014]/g, '-').replace(/[\s,]/g, '').toLowerCase();
-  
-  if (bucketKey === '1-50') {
-    return clean.includes('1-50') || clean.includes('1to50');
-  }
-  if (bucketKey === '51-200') {
-    return clean.includes('51-200');
-  }
-  if (bucketKey === '201-1000') {
-    return clean.includes('201-1000') || clean.includes('201-500') || clean.includes('501-1000');
-  }
-  if (bucketKey === '1001-5000') {
-    return clean.includes('1001-5000') || clean.includes('1000-5000') || clean.includes('1k-5k');
-  }
-  if (bucketKey === '5000+') {
-    return clean.includes('5000+') || clean.includes('10001+') || clean.includes('10000+') || clean.includes('10k') || clean.includes('5k+');
-  }
-  return false;
-}
-
-  // Company size categories with counts
+  // Dynamic Company size categories with cross-filtered counts (by search, country, industry, feature)
   const sizeBuckets = useMemo(() => {
+    const pool = initialCompanies.filter(c => matchSearch(c) && matchCountry(c) && matchIndustry(c) && matchFeature(c));
     return [
-      { key: "1-50", label: "1–50", count: initialCompanies.filter(c => matchesCompanySize(c.employee_count_range, "1-50")).length },
-      { key: "51-200", label: "51–200", count: initialCompanies.filter(c => matchesCompanySize(c.employee_count_range, "51-200")).length },
-      { key: "201-1000", label: "201–1,000", count: initialCompanies.filter(c => matchesCompanySize(c.employee_count_range, "201-1000")).length },
-      { key: "1001-5000", label: "1,001–5,000", count: initialCompanies.filter(c => matchesCompanySize(c.employee_count_range, "1001-5000")).length },
-      { key: "5000+", label: "5,000+", count: initialCompanies.filter(c => matchesCompanySize(c.employee_count_range, "5000+")).length },
+      { key: "1-50", label: "1–50", count: pool.filter(c => matchesCompanySize(c.employee_count_range, "1-50")).length },
+      { key: "51-200", label: "51–200", count: pool.filter(c => matchesCompanySize(c.employee_count_range, "51-200")).length },
+      { key: "201-1000", label: "201–1,000", count: pool.filter(c => matchesCompanySize(c.employee_count_range, "201-1000")).length },
+      { key: "1001-5000", label: "1,001–5,000", count: pool.filter(c => matchesCompanySize(c.employee_count_range, "1001-5000")).length },
+      { key: "5000+", label: "5,000+", count: pool.filter(c => matchesCompanySize(c.employee_count_range, "5000+")).length },
     ];
-  }, [initialCompanies]);
+  }, [initialCompanies, matchSearch, matchCountry, matchIndustry, matchFeature]);
 
-  // Feature counts
+  // Dynamic Feature counts (cross-filtered by search, country, industry, size)
   const featureBuckets = useMemo(() => {
-    const hiring = initialCompanies.filter(c => (c.active_job_count || 0) >= 5).length;
-    const remote = initialCompanies.filter(c => (c.remote_job_count || 0) > 0 || (c.headquarters || "").toLowerCase().includes("remote")).length;
-    const internship = initialCompanies.filter(c => (c.internship_job_count || 0) > 0).length;
-    const fresher = initialCompanies.filter(c => (c.fresher_job_count || 0) > 0).length;
+    const pool = initialCompanies.filter(c => matchSearch(c) && matchCountry(c) && matchIndustry(c) && matchSize(c));
+    const hiring = pool.filter(c => (c.active_job_count || 0) >= 5).length;
+    const remote = pool.filter(c => (c.remote_job_count || 0) > 0 || (c.headquarters || "").toLowerCase().includes("remote")).length;
+    const internship = pool.filter(c => (c.internship_job_count || 0) > 0).length;
+    const fresher = pool.filter(c => (c.fresher_job_count || 0) > 0).length;
 
     return [
       { key: "hiring", label: "High Volume (5+ Jobs)", count: hiring },
@@ -252,7 +291,25 @@ function matchesCompanySize(rangeStr: string | null | undefined, bucketKey: stri
       { key: "internship", label: "Offers Internship", count: internship },
       { key: "fresher", label: "Fresher Friendly", count: fresher },
     ];
-  }, [initialCompanies]);
+  }, [initialCompanies, matchSearch, matchCountry, matchIndustry, matchSize]);
+
+  // Dynamic totals for "All" options per filter group
+  const totalForCountries = useMemo(() => {
+    return initialCompanies.filter(c => matchSearch(c) && matchIndustry(c) && matchSize(c) && matchFeature(c)).length;
+  }, [initialCompanies, matchSearch, matchIndustry, matchSize, matchFeature]);
+
+  const totalForIndustries = useMemo(() => {
+    return initialCompanies.filter(c => matchSearch(c) && matchCountry(c) && matchSize(c) && matchFeature(c)).length;
+  }, [initialCompanies, matchSearch, matchCountry, matchSize, matchFeature]);
+
+  const totalForSizes = useMemo(() => {
+    return initialCompanies.filter(c => matchSearch(c) && matchCountry(c) && matchIndustry(c) && matchFeature(c)).length;
+  }, [initialCompanies, matchSearch, matchCountry, matchIndustry, matchFeature]);
+
+  const totalForFeatures = useMemo(() => {
+    return initialCompanies.filter(c => matchSearch(c) && matchCountry(c) && matchIndustry(c) && matchSize(c)).length;
+  }, [initialCompanies, matchSearch, matchCountry, matchIndustry, matchSize]);
+
 
   // Filtered companies
   const filtered = useMemo(() => {
@@ -422,7 +479,7 @@ function matchesCompanySize(rangeStr: string | null | undefined, bucketKey: stri
               />
               <span className={selectedCountry === "All" ? "font-bold text-slate-900" : ""}>All Countries</span>
             </div>
-            <span className="text-[11px] text-slate-400 font-mono">{initialCompanies.length.toLocaleString()}</span>
+            <span className="text-[11px] text-slate-400 font-mono">{totalForCountries.toLocaleString()}</span>
           </label>
 
           {(showMoreCountries ? countryCounts : countryCounts.slice(0, 5)).map(([country, count]) => (
@@ -474,7 +531,7 @@ function matchesCompanySize(rangeStr: string | null | undefined, bucketKey: stri
               />
               <span className={selectedIndustry === "All" ? "font-bold text-slate-900" : ""}>All Industries</span>
             </div>
-            <span className="text-[11px] text-slate-400 font-mono">{initialCompanies.length.toLocaleString()}</span>
+            <span className="text-[11px] text-slate-400 font-mono">{totalForIndustries.toLocaleString()}</span>
           </label>
 
           {(showMoreIndustries ? industryCounts : industryCounts.slice(0, 5)).map(([industry, count]) => (
@@ -526,7 +583,7 @@ function matchesCompanySize(rangeStr: string | null | undefined, bucketKey: stri
               />
               <span className={selectedSize === "All" ? "font-bold text-slate-900" : ""}>All Sizes</span>
             </div>
-            <span className="text-[11px] text-slate-400 font-mono">{initialCompanies.length.toLocaleString()}</span>
+            <span className="text-[11px] text-slate-400 font-mono">{totalForSizes.toLocaleString()}</span>
           </label>
 
           {sizeBuckets.map((bucket) => (
@@ -568,7 +625,7 @@ function matchesCompanySize(rangeStr: string | null | undefined, bucketKey: stri
               />
               <span className={selectedFeature === "All" ? "font-bold text-slate-900" : ""}>All Features</span>
             </div>
-            <span className="text-[11px] text-slate-400 font-mono">{initialCompanies.length.toLocaleString()}</span>
+            <span className="text-[11px] text-slate-400 font-mono">{totalForFeatures.toLocaleString()}</span>
           </label>
           {featureBuckets.map((bucket) => (
             <label key={bucket.key} className="flex items-center justify-between cursor-pointer py-0.5 hover:text-teal-700 group">

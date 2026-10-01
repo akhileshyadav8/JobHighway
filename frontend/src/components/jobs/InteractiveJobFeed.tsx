@@ -1522,7 +1522,7 @@ export function InteractiveJobFeed({ initialJobs, stats, initialTotal, initialTo
                   </span>
                 </div>
                 {[
-                  { label: "All Countries", value: "All", count: facets != null ? facets.total : (stats?.total_jobs || totalJobs) },
+                  { label: "All Countries", value: "All", count: facets?.total_no_country ?? stats?.total_jobs ?? (totalJobs > 1000 ? totalJobs : 28766) },
                   { label: "United States", value: "United States", count: facets != null ? facets.us : (stats?.filter_counts?.us ?? 3005) },
                   { label: "India", value: "India", count: facets != null ? facets.india : (stats?.filter_counts?.india ?? 1277) },
                   { label: "Canada", value: "Canada", count: facets != null ? facets.canada : (stats?.filter_counts?.canada ?? 1407) },

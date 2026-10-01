@@ -37,6 +37,11 @@ export default function AdminCompaniesPage() {
     setCompanies(getAdminCompanies());
   }, []);
 
+  // Reset to page 1 whenever search or ATS filter changes
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [search, selectedAts]);
+
   const showToast = (msg: string) => {
     setToastMessage(msg);
     setTimeout(() => setToastMessage(null), 3500);

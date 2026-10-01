@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo, useRef } from "react";
+import { useState, useMemo, useRef, useEffect } from "react";
 import Link from "next/link";
 import {
   Search,
@@ -92,6 +92,11 @@ export default function BlogPage() {
     }
 
     return list;
+  }, [selectedCategory, searchQuery, sortBy]);
+
+  // Reset to page 1 when category, search, or sort changes
+  useEffect(() => {
+    setCurrentPage(1);
   }, [selectedCategory, searchQuery, sortBy]);
 
   // Pagination calculation
