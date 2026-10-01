@@ -176,6 +176,18 @@ export const PREP_COMPANIES: CompanyPrepItem[] = [
         focusAreas: ["First-principles Thinking", "TAM & Market Sizing", "Metric Tree Hierarchy", "Technical Architecture Trade-offs"],
         frequentlyAsked: ["Design an automated luggage tracking product for Google Maps", "Google Photos storage is full—how do you monetize without losing DAUs?", "How does Google Search indexing work under the hood?"],
         insiderTip: "Start with user segments and their pain points before proposing features. Never jump to solutions."
+      },
+      "devops-engineer": {
+        rounds: ["Phone Screen (Linux & Networking)", "Coding / Scripting (Python/Go)", "Systems Engineering & Troubleshooting", "SRE Architecture & Incident Response", "Googliness & Leadership"],
+        focusAreas: ["Linux Internals", "Borg / Kubernetes", "SLOs, SLIs & Error Budgets", "Incident Management"],
+        frequentlyAsked: ["How does Linux process scheduling work under high load?", "Design an automated canary deployment pipeline for Google Cloud services", "Troubleshoot a 502 Bad Gateway cascade across microservices"],
+        insiderTip: "Focus on Google SRE principles: SLOs, error budgets, and automating away operational toil."
+      },
+      "frontend-developer": {
+        rounds: ["Online Screen (JS Algorithms & DOM)", "Technical 1 (React / Component Architecture)", "Technical 2 (Performance & Core Web Vitals)", "System Design (Frontend Architecture)", "Googliness"],
+        focusAreas: ["DOM Rendering & Event Loop", "State Management & Reactivity", "Rendering Optimization (LCP, INP, CLS)", "Accessibility (a11y)"],
+        frequentlyAsked: ["Build an autocomplete search component with debouncing and keyboard navigation", "Design the frontend architecture for Google Docs (operational transformation / offline syncing)", "Optimize a web application with 200ms main thread blocking time"],
+        insiderTip: "Write clean, modular TypeScript with zero layout thrashing or unoptimized re-renders."
       }
     }
   },
@@ -216,6 +228,18 @@ export const PREP_COMPANIES: CompanyPrepItem[] = [
         focusAreas: ["Enterprise B2B vs Consumer", "Customer Empathy", "Telemetry & KPIs", "Platform Extensibility"],
         frequentlyAsked: ["How would you improve Microsoft Teams for remote classrooms?", "Design a generative AI feature for Outlook", "Xbox subscription growth has plateaued in Tier-2 markets. What do you do?"],
         insiderTip: "Show genuine empathy for both enterprise administrators and end users."
+      },
+      "devops-engineer": {
+        rounds: ["Online Assessment (Azure & Scripting)", "Infrastructure as Code (Terraform / Bicep)", "CI/CD & Release Engineering (Azure DevOps / GitHub)", "Cloud Security & Monitoring", "As Appropriate (AA) Round"],
+        focusAreas: ["Azure Resource Manager / Bicep", "GitHub Actions & Azure Pipelines", "Kubernetes (AKS)", "Zero Trust & RBAC"],
+        frequentlyAsked: ["Architect a multi-region disaster recovery setup on Azure with active-passive failover", "Automate blue-green deployments for microservices using Azure DevOps", "How do you enforce security policies using Azure Policy across 500 subscriptions?"],
+        insiderTip: "Understand enterprise compliance, identity management (Microsoft Entra ID), and hybrid cloud architectures."
+      },
+      "frontend-developer": {
+        rounds: ["Coding Assessment", "Component Architecture (React / Fluent UI)", "Web Performance & State", "System Design (Web App Scale)", "Hiring Manager"],
+        focusAreas: ["TypeScript", "Fluent UI / Design Systems", "State Management", "Enterprise Accessibility"],
+        frequentlyAsked: ["Design a virtualized data grid component capable of rendering 100,000 rows smoothly", "How does Microsoft 365 web apps achieve offline caching and synchronization?", "Explain how to eliminate hydration mismatches in server-rendered applications"],
+        insiderTip: "Demonstrate deep familiarity with TypeScript and enterprise accessibility standards (WCAG 2.1 AA)."
       }
     }
   },
@@ -256,6 +280,18 @@ export const PREP_COMPANIES: CompanyPrepItem[] = [
         focusAreas: ["Working Backwards from Customer", "PR/FAQ Writing", "Operational Metrics", "High-judgment Decisions"],
         frequentlyAsked: ["Write a 1-page PR/FAQ for a 1-hour drone delivery service", "Amazon wants to launch an EV charging network. Build the business case.", "Tell me about a time you had to say NO to an important feature request."],
         insiderTip: "Master the 'Working Backwards' document structure (Press Release + FAQ)."
+      },
+      "devops-engineer": {
+        rounds: ["Online Assessment", "Technical 1 (Linux & Systems Architecture)", "Technical 2 (AWS Services & Automation)", "System Design (Scalable Cloud Infra)", "Bar Raiser (2 Leadership Principles)"],
+        focusAreas: ["AWS CloudFormation / CDK", "EC2, ECS & EKS", "Multi-Region High Availability", "Operational Excellence (LP)"],
+        frequentlyAsked: ["Design an automated rollback mechanism for ECS deployments triggering on elevated error rates", "Explain VPC peering vs Transit Gateway for 200 interconnected AWS accounts", "Tell me about a time you automated a manual process to eliminate operational toil."],
+        insiderTip: "Tie technical decisions to Amazon Leadership Principles, especially Bias for Action and Insist on Highest Standards."
+      },
+      "frontend-developer": {
+        rounds: ["Online Coding Screen", "Frontend Coding 1 (JS / React / DOM)", "Frontend Coding 2 (Data Flow & Architecture)", "Frontend System Design", "Bar Raiser (2 Leadership Principles)"],
+        focusAreas: ["Vanilla JS & React", "Client-Side Caching & CDN", "Accessibility & Device Agnosticism", "Customer Obsession (LP)"],
+        frequentlyAsked: ["Implement a custom debounce and throttle function from scratch with immediate execution flag", "Design the frontend architecture for Amazon Product Detail Page with sub-second page loads", "Build an accessible modal dialog compliant with ARIA standards"],
+        insiderTip: "Demonstrate customer obsession through fast render times, micro-interactions, and pristine accessibility."
       }
     }
   },
@@ -296,6 +332,18 @@ export const PREP_COMPANIES: CompanyPrepItem[] = [
         focusAreas: ["Engagement & Retention", "Sub-product Monetization (Ad Tier)", "Global Localization", "High Ownership"],
         frequentlyAsked: ["How would you design the ad-supported tier experience without damaging subscriber retention?", "Should Netflix add interactive gaming to the main TV interface?", "How would you measure the success of non-English content in the US?"],
         insiderTip: "Emphasize customer joy and long-term retention rather than short-term clicks."
+      },
+      "devops-engineer": {
+        rounds: ["Technical Screen (SRE & Linux)", "Infrastructure as Code & Chaos Engineering", "Cloud Architecture (Spinnaker & AWS)", "Culture & High Ownership"],
+        focusAreas: ["Chaos Engineering (Chaos Monkey)", "Spinnaker / CD Pipelines", "Multi-region Failover", "Observability (Titus)"],
+        frequentlyAsked: ["How do you conduct automated chaos experiments without impacting paying subscribers?", "Design an automated canary analysis pipeline that analyzes metrics during deployments", "Explain how Netflix utilizes AWS Spot instances without downtime"],
+        insiderTip: "Demonstrate extreme autonomy. Netflix engineers make direct architectural decisions without layers of management approvals."
+      },
+      "frontend-developer": {
+        rounds: ["Coding Screen (React & JS)", "TV & Web Client Performance", "Application Architecture (GraphQL & State)", "Culture Memo"],
+        focusAreas: ["Living Room Devices / TV UI Performance", "Memory Constrained Devices", "React & Component Architecture", "A/B Testing UI"],
+        frequentlyAsked: ["How would you optimize React animations on low-powered Smart TV hardware?", "Design client-side telemetry to detect video playback stalling before the user notices", "Build a lazy-loading horizontal carousel with keyboard navigation"],
+        insiderTip: "Focus on rendering performance on memory-constrained devices like smart TVs and mobile browsers."
       }
     }
   },
@@ -336,6 +384,18 @@ export const PREP_COMPANIES: CompanyPrepItem[] = [
         focusAreas: ["Product Sense & User Need", "Goal Setting & North Star Metrics", "Prioritization & Trade-offs", "Meta Product Ecosystem"],
         frequentlyAsked: ["How would you improve Facebook Marketplace for local communities?", "Set goals and primary metrics for Instagram Threads", "You find a bug that increases user engagement but violates privacy guidelines. What do you do?"],
         insiderTip: "Structure your Execution interview strictly: Goal -> North Star Metric -> Guardrail Metrics -> Trade-offs."
+      },
+      "devops-engineer": {
+        rounds: ["Coding Screen (Python/C++)", "Production Engineering (Systems & Kernel)", "Troubleshooting / Triage Live Simulation", "Systems Architecture at Scale", "Behavioral (Impact & Speed)"],
+        focusAreas: ["Linux Kernel & eBPF", "Fleet Management (Chef/Tupperware)", "Traffic Routing & BGP", "Site Outage Triage"],
+        frequentlyAsked: ["Diagnose a silent packet drop issue across multi-tier data center fabrics", "How does Meta balance millions of simultaneous TCP connections in edge proxies?", "Explain how cgroups and namespaces enforce container isolation"],
+        insiderTip: "Meta calls DevOps 'Production Engineering'. They expect strong software development skills alongside deep Linux internals."
+      },
+      "frontend-developer": {
+        rounds: ["Screen (JS Algorithms & DOM)", "Frontend Coding 1 (React Core & UI)", "Frontend Coding 2 (Data Fetching & Virtualization)", "Frontend System Design (News Feed / Messenger)", "Behavioral (Impact)"],
+        focusAreas: ["React Internals (Fiber, Concurrent Mode)", "Relay / GraphQL Caching", "Feed Virtualization & Memory Leaks", "High-frequency DOM updates"],
+        frequentlyAsked: ["Design Instagram Feed web client with infinite scroll, optimistic likes, and image prefetching", "Build a nested comment thread component with expand/collapse and real-time updates", "Explain how React reconciler determines which nodes to re-render"],
+        insiderTip: "Meta invented React. Be prepared to explain React Fiber reconciliation, state batching, and custom hooks deeply."
       }
     }
   },
@@ -376,6 +436,18 @@ export const PREP_COMPANIES: CompanyPrepItem[] = [
         focusAreas: ["Creative Professional Workflows", "Generative AI Integration", "Freemium to Paid Conversion", "Design Systems"],
         frequentlyAsked: ["How would you integrate generative AI into Premiere Pro without disrupting professional editors?", "Design a mobile-first vector illustration app for non-designers", "How to price Adobe Firefly credits for enterprise teams?"],
         insiderTip: "Show deep appreciation for the creative user experience and non-destructive editing workflows."
+      },
+      "devops-engineer": {
+        rounds: ["Technical Assessment (Terraform & AWS/Azure)", "Kubernetes & Cloud Native Infrastructure", "Security & Secret Management", "Observability & SRE"],
+        focusAreas: ["GitOps (ArgoCD)", "Multi-Cloud Governance", "Kubernetes Operators", "Container Scanning & Security"],
+        frequentlyAsked: ["Design a secure CI/CD pipeline with automated vulnerability scanning for Docker images", "Manage multi-cluster Kubernetes deployments across AWS and Azure", "Implement secrets rotation for microservices with HashiCorp Vault"],
+        insiderTip: "Emphasize security compliance and automated policy enforcement in multi-cloud enterprise setups."
+      },
+      "frontend-developer": {
+        rounds: ["Coding Screen (HTML5 Canvas & WebGL)", "Component Architecture (React / Spectrum)", "State & Performance (WebAssembly / Workers)", "Design System & UX Collaboration"],
+        focusAreas: ["HTML5 Canvas / WebGL", "WebAssembly (WASM)", "Spectrum Design System", "High-performance Asset Rendering"],
+        frequentlyAsked: ["How do you render 50,000 vector shapes on an HTML5 Canvas without dropping below 60 FPS?", "Explain how WebAssembly speeds up image processing in Photoshop for Web", "Implement an undo/redo stack with immutable state in React"],
+        insiderTip: "Adobe leads in complex web apps (Photoshop on Web). Showcase understanding of WebAssembly and Canvas optimization."
       }
     }
   }

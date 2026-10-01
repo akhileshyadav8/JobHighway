@@ -2212,21 +2212,728 @@ export const PRODUCT_MANAGER_ROLE: PrepRole = {
   ]
 };
 
+
+// 6. DevOps Engineer
+export const DEVOPS_ENGINEER_ROLE: PrepRole = {
+  id: "devops-engineer",
+  name: "DevOps Engineer",
+  category: "Security & Ops",
+  badge: "High Demand · Cloud & Infra",
+  tagline: "CI/CD, Kubernetes, Terraform, AWS/GCP, Docker & Infrastructure as Code",
+  overview: {
+    coreSkills: ["Linux & Shell Scripting", "Docker & Containerization", "Kubernetes (K8s)", "CI/CD Pipelines", "Terraform (IaC)", "Cloud Architecture (AWS/GCP)", "Observability (Prometheus/Grafana)"],
+    recommendedTopics: ["Kubernetes Networking & Ingress", "Multi-Stage Docker Builds", "Terraform State Management", "GitOps (ArgoCD)", "Zero-Downtime Deployments"],
+    interviewAreas: ["Linux Internals & Networking", "Scripting & Automation", "Cloud Infrastructure Design", "Incident Response & SRE"],
+    assessmentAreas: ["Shell & Python Scripting", "Docker & Kubernetes Manifests", "Terraform Configuration", "Networking & Security MCQs"],
+    typicalProjects: ["Automated Multi-Environment GitOps Pipeline", "Production Kubernetes Cluster with Terraform", "Prometheus & Grafana Alerting Stack", "Zero-Downtime Blue/Green Deployment System"],
+    estimatedWeeks: "8 – 12 Weeks",
+    avgFresherSalary: "₹7L – ₹16L / $85k – $115k",
+    avgSeniorSalary: "₹30L – ₹65L / $170k – $260k"
+  },
+  roadmap: [
+    {
+      id: "devops_step_1",
+      stepNumber: 1,
+      title: "Linux Administration, Networking & Shell Automation",
+      focus: "Filesystems, Systemd, TCP/IP, DNS, SSL & Bash Scripting",
+      description: "Master Linux operating system fundamentals, permissions, process management, networking protocols, SSH key management, and automate server administration tasks with Bash.",
+      difficulty: "Beginner",
+      subtopics: ["Linux Processes, Signals & Systemd", "File Permissions, Users & Cron Jobs", "Networking: TCP/IP, DNS, HTTP/S, Firewalls (iptables/ufw)", "Bash Scripting, Piping & Log Parsing"],
+      recommendedAction: "Write a Bash script to audit system health, memory, and disk usage with automated Slack alerts.",
+      resourceName: "Linux Journey & OverTheWire Bandit",
+      resourceUrl: "https://linuxjourney.com/"
+    },
+    {
+      id: "devops_step_2",
+      stepNumber: 2,
+      title: "Git, Version Control & CI/CD Pipelines",
+      focus: "GitHub Actions, GitLab CI, Automated Testing & Branching Strategies",
+      description: "Implement continuous integration and continuous delivery workflows. Automate unit tests, linting, security scanning, artifact versioning, and environment promotions.",
+      difficulty: "Beginner",
+      subtopics: ["Trunk-based Development vs GitFlow", "GitHub Actions Workflows & Runners", "Artifact Storage (Docker Hub / AWS ECR)", "Automated Secrets Management", "Semantic Versioning & Release Automation"],
+      recommendedAction: "Build an end-to-end GitHub Actions pipeline that lints, tests, and builds Docker containers on every pull request.",
+      resourceName: "GitHub Actions Official Docs",
+      resourceUrl: "https://docs.github.com/en/actions"
+    },
+    {
+      id: "devops_step_3",
+      stepNumber: 3,
+      title: "Containerization with Docker & Container Security",
+      focus: "Multi-stage Builds, Distroless Images, Networking & Docker Compose",
+      description: "Master Docker containerization. Create optimized production images under 50MB, manage multi-container services with Docker Compose, and scan images for CVE vulnerabilities.",
+      difficulty: "Intermediate",
+      subtopics: ["Dockerfile Best Practices & Multi-Stage Builds", "Docker Networks (Bridge, Host, Overlay)", "Volume Persistence & Secrets", "Trivy & Snyk Container Security Scanning", "Docker Compose Multi-Service Stacks"],
+      recommendedAction: "Refactor a bloated 1GB application image into a hardened multi-stage distroless build under 60MB.",
+      resourceName: "Docker Curriculum",
+      resourceUrl: "https://docker-curriculum.com/"
+    },
+    {
+      id: "devops_step_4",
+      stepNumber: 4,
+      title: "Container Orchestration with Kubernetes (K8s)",
+      focus: "Pods, Deployments, Services, Ingress, ConfigMaps, Secrets & Helm",
+      description: "Architect, deploy, and manage distributed workloads on Kubernetes. Master declarative manifests, ingress controllers, autoscaling (HPA/VPA), persistent volumes, and Helm packaging.",
+      difficulty: "Advanced",
+      subtopics: ["K8s Architecture (Control Plane vs Worker Nodes)", "Deployments, ReplicaSets & StatefulSets", "Services (ClusterIP, NodePort, LoadBalancer) & Ingress", "Horizontal Pod Autoscaler (HPA)", "Helm Package Management & Templating"],
+      recommendedAction: "Deploy a microservices application to a local Minikube/Kind cluster with ingress, cert-manager, and auto-scaling.",
+      resourceName: "Kubernetes The Hard Way by Kelsey Hightower",
+      resourceUrl: "https://github.com/kelseyhightower/kubernetes-the-hard-way"
+    },
+    {
+      id: "devops_step_5",
+      stepNumber: 5,
+      title: "Infrastructure as Code (Terraform) & Cloud (AWS/GCP)",
+      focus: "Declarative Cloud Provisioning, State Management & Modular IaC",
+      description: "Automate cloud provisioning across AWS/GCP using Terraform. Master remote state locking with S3 and DynamoDB, reusable modules, VPC networking, and IAM least privilege.",
+      difficulty: "Advanced",
+      subtopics: ["Terraform HCL Syntax, Providers & Resources", "Remote State, State Locking & Workspaces", "Terraform Modules for VPC, Subnets & EKS", "IAM Roles, Least Privilege & Security Groups", "Cost Estimation (Infracost)"],
+      recommendedAction: "Write reusable Terraform modules that provision a secure AWS VPC, private subnets, and an EKS cluster with one command.",
+      resourceName: "HashiCorp Terraform Tutorials",
+      resourceUrl: "https://developer.hashicorp.com/terraform/tutorials"
+    },
+    {
+      id: "devops_step_6",
+      stepNumber: 6,
+      title: "Monitoring, Observability & Site Reliability (SRE)",
+      focus: "Prometheus, Grafana, Distributed Tracing, Alerting & Incident Management",
+      description: "Implement full-stack observability. Collect system and application metrics, build executive Grafana dashboards, configure alert routing (PagerDuty), and practice post-mortems.",
+      difficulty: "Advanced",
+      subtopics: ["Metrics, Logs, Traces (The Three Pillars)", "Prometheus PromQL & Node Exporters", "Grafana Dashboard Design & Thresholds", "Log Aggregation (ELK / Loki)", "SLI, SLO & Error Budget Calculations", "Incident Runbooks & Blameless Post-mortems"],
+      recommendedAction: "Instrument a web service with Prometheus metrics and design a Grafana dashboard monitoring the 4 Golden Signals (Latency, Traffic, Errors, Saturation).",
+      resourceName: "Google SRE Book",
+      resourceUrl: "https://sre.google/sre-book/table-of-contents/"
+    }
+  ],
+  skills: {
+    mustKnow: [
+      "Linux Administration & Bash Scripting",
+      "Docker & Containerization",
+      "Kubernetes (K8s) Orchestration",
+      "CI/CD (GitHub Actions / GitLab CI)",
+      "Terraform (Infrastructure as Code)",
+      "Cloud Providers (AWS or GCP)",
+      "Networking (DNS, TLS, Load Balancers)"
+    ],
+    goodToKnow: [
+      "Helm Package Management",
+      "Prometheus & Grafana Monitoring",
+      "Ansible Configuration Management",
+      "Python / Go for Cloud Automation",
+      "ArgoCD / GitOps",
+      "Log Aggregation (ELK / Loki)"
+    ],
+    advanced: [
+      "Service Mesh (Istio / Linkerd)",
+      "Chaos Engineering & Disaster Recovery",
+      "Cloud Cost Optimization (FinOps)",
+      "Zero Trust Security & HashiCorp Vault",
+      "eBPF & Kernel Observability"
+    ],
+    toolsAndTech: [
+      "Docker", "Kubernetes", "Terraform", "AWS", "GitHub Actions", "Prometheus", "Grafana", "ArgoCD", "Helm", "Linux"
+    ]
+  },
+  interviewRounds: [
+    {
+      step: "1",
+      title: "Online Technical Assessment & Shell Scripting",
+      focus: "Bash, Python, Linux Commands, Networking & Dockerfile Review",
+      description: "Timed 60-90 minute test evaluating Linux command fluency, log parsing with awk/sed, writing multi-stage Dockerfiles, and core networking questions.",
+      tips: ["Practice text manipulation with awk, sed, and grep.", "Memorize standard Dockerfile caching rules."],
+      keyQuestions: ["How to find top 10 IP addresses by request count in nginx.log?", "Fix security flaws in this sample Dockerfile."]
+    },
+    {
+      step: "2",
+      title: "Live Systems Engineering & Troubleshooting",
+      focus: "Debugging Crashing Services, High CPU/Memory, DNS Issues",
+      description: "Interactive live troubleshooting session where the interviewer gives you a broken Linux machine or Kubernetes cluster that you must triage and restore.",
+      tips: ["Check system logs first using journalctl and dmesg.", "Verify network connectivity step by step: DNS -> ping -> curl."],
+      keyQuestions: ["A Kubernetes pod is in CrashLoopBackOff. How do you triage it?", "A server has 100% disk usage and commands are failing. How do you recover safely?"]
+    },
+    {
+      step: "3",
+      title: "Cloud Infrastructure & CI/CD Architecture",
+      focus: "Designing Scalable, Highly Available & Secure Cloud Environments",
+      description: "Whiteboarding round designing resilient multi-region infrastructure using Terraform, Kubernetes, load balancers, and automated deployment pipelines.",
+      tips: ["Discuss high availability, blast radius reduction, and state isolation.", "Explicitly calculate cost trade-offs and SLA/SLO requirements."],
+      keyQuestions: ["Design a multi-region deployment strategy with zero downtime rollbacks.", "How would you migrate a monolithic application to Kubernetes with zero downtime?"]
+    },
+    {
+      step: "4",
+      title: "Site Reliability, Culture & Incident Management",
+      focus: "SRE Philosophy, Post-mortems, On-call Scenarios & Leadership",
+      description: "Evaluates how you handle production outages, communication during severe incidents, cross-team collaboration, and blameless retrospective processes.",
+      tips: ["Never assign personal blame in outage explanations; focus on systemic guardrails.", "Show how you balance developer velocity with platform reliability."],
+      keyQuestions: ["Walk me through the worst production outage you caused or triaged.", "How do you decide when to halt feature releases based on error budgets?"]
+    }
+  ],
+  assessmentPrep: [
+    {
+      title: "Linux & Shell Scripting",
+      weightage: "30% Weightage",
+      description: "Process management, piping, permissions, file manipulation, and script automation.",
+      keyTopics: ["Process Signals", "File Permissions", "Crontab", "Awk & Sed Log Parsing"],
+      sampleQuestion: "Write a command to find and delete all .log files modified more than 30 days ago that exceed 100MB.",
+      preparationTip: "Master find -mtime, xargs, and awk column filtering."
+    },
+    {
+      title: "Containerization & K8s",
+      weightage: "30% Weightage",
+      description: "Docker multi-stage optimization, Kubernetes pod lifecycle, services, and manifests.",
+      keyTopics: ["Multi-Stage Dockerfiles", "Pod Lifecycle", "ClusterIP vs NodePort", "Security Context"],
+      sampleQuestion: "Why should you never run Docker containers as the root user in production?",
+      preparationTip: "Understand securityContext, non-root users, and read-only root filesystems."
+    },
+    {
+      title: "CI/CD & Infrastructure as Code",
+      weightage: "25% Weightage",
+      description: "Terraform resource dependencies, state locking, GitHub Actions caching, and secret management.",
+      keyTopics: ["Remote State Locking", "Terraform Plan/Apply", "GitHub Actions Runners", "Secret Masking"],
+      sampleQuestion: "What happens if two Terraform applies run concurrently without state locking?",
+      preparationTip: "Explain race conditions, state file corruption, and DynamoDB lock tables."
+    },
+    {
+      title: "Cloud & Networking Fundamentals",
+      weightage: "15% Weightage",
+      description: "VPC subnets, NAT gateways, security groups vs NACLs, TLS handshakes, and DNS propagation.",
+      keyTopics: ["VPC Subnetting", "NAT Gateway Routing", "Security Groups vs NACL", "TLS Certificates"],
+      sampleQuestion: "What is the difference between a public subnet and a private subnet in AWS VPC?",
+      preparationTip: "Remember: Route to Internet Gateway makes a subnet public; NAT Gateway makes it private."
+    }
+  ],
+  interviewCategories: [
+    {
+      categoryName: "Containerization & Orchestration",
+      description: "Docker internals, container security, and Kubernetes cluster operations.",
+      questionCount: 45,
+      topicsCovered: ["Docker Architecture", "Kubernetes Pods & Deployments", "K8s Ingress & Services", "Helm Packaging"],
+      sampleQuestions: [
+        {
+          question: "Explain the difference between a Kubernetes Deployment and a StatefulSet.",
+          expectedApproach: "StatefulSets provide stable network IDs, ordered graceful deployments, and persistent dedicated volume claims per pod.",
+          difficulty: "Medium"
+        },
+        {
+          question: "How do you handle secrets securely in Kubernetes without committing plain text to Git?",
+          expectedApproach: "Explain Sealed Secrets, External Secrets Operator syncing with AWS Secrets Manager / Vault, or SOPS encryption.",
+          difficulty: "Hard"
+        }
+      ]
+    },
+    {
+      categoryName: "CI/CD & Automation",
+      description: "Pipeline optimization, release strategies, and automated testing.",
+      questionCount: 35,
+      topicsCovered: ["GitHub Actions", "Blue/Green Deployments", "Canary Releases", "Rollback Mechanisms"],
+      sampleQuestions: [
+        {
+          question: "Explain the difference between Blue/Green and Canary deployment strategies.",
+          expectedApproach: "Blue/Green switches 100% traffic instantly between two identical environments. Canary gradually shifts traffic (e.g. 5%, 25%, 100%) while monitoring error rates.",
+          difficulty: "Medium"
+        }
+      ]
+    }
+  ],
+  practiceQuestions: [
+    {
+      id: "devops_q1",
+      topic: "Docker",
+      title: "Optimize a Multi-Stage Dockerfile for a Node.js / Python Application",
+      difficulty: "Medium",
+      type: "Architecture",
+      questionText: "A developer has created a Dockerfile that copies all source code first, runs npm install, and uses the full node:latest image resulting in a 1.2GB image and slow builds. How do you optimize it?",
+      solutionHint: "1. Copy package*.json first to leverage layer caching.\n2. Use a multi-stage build: builder stage with build dependencies, production stage with node:alpine or distroless.\n3. Run npm ci --only=production.\n4. Use a non-root user (USER node). Result: <100MB image.",
+      companyTags: ["Google", "Amazon", "Microsoft"]
+    },
+    {
+      id: "devops_q2",
+      topic: "Kubernetes",
+      title: "Debug a Pod in CrashLoopBackOff State",
+      difficulty: "Medium",
+      type: "Conceptual",
+      questionText: "You deploy a new version of a microservice to Kubernetes. The pod status immediately changes to CrashLoopBackOff. Walk through your step-by-step triage process.",
+      solutionHint: "1. Run kubectl describe pod <name> to check events, exit codes, and health check failures.\n2. Run kubectl logs <name> --previous to inspect the application crash stack trace.\n3. Check if environment variables, ConfigMaps, or Secrets are missing.\n4. Verify resource limits (OOMKilled exit code 137).\n5. Validate liveness/readiness probe paths and initialDelaySeconds.",
+      companyTags: ["Netflix", "Meta", "Adobe"]
+    },
+    {
+      id: "devops_q3",
+      topic: "Terraform",
+      title: "Manage Terraform State in a Collaborative Multi-Developer Team",
+      difficulty: "Hard",
+      type: "Architecture",
+      questionText: "Your team of 15 engineers is provisioning cloud resources with Terraform. How do you structure remote state, prevent concurrent state modification, and handle secrets?",
+      solutionHint: "1. Use Amazon S3 or Terraform Cloud as the remote backend with versioning and encryption enabled.\n2. Use DynamoDB table for distributed state locking to prevent concurrent applies.\n3. Separate state into isolated workspaces or directories (e.g., networking, compute, database) to limit blast radius.\n4. Inject secrets via environment variables or AWS Secrets Manager; never hardcode secrets in .tf files.",
+      companyTags: ["Amazon", "Google"]
+    },
+    {
+      id: "devops_q4",
+      topic: "Linux",
+      title: "Identify and Resolve High CPU and Memory Consumption on Linux",
+      difficulty: "Easy",
+      type: "Conceptual",
+      questionText: "A production Linux server triggers a 99% CPU alert. What commands do you run to isolate which process and thread is causing the spike?",
+      solutionHint: "1. top or htop to view top resource-consuming processes.\n2. Shift + P to sort by CPU, Shift + M to sort by memory.\n3. top -H -p <PID> to view specific threads within the offending process.\n4. perf top or strace -p <PID> to inspect system calls.\n5. vmstat 1 and iostat -xz 1 to differentiate between CPU compute vs I/O wait.",
+      companyTags: ["Microsoft", "Google", "Amazon"]
+    }
+  ],
+  projects: [
+    {
+      id: "devops_proj_1",
+      title: "Production GitOps Kubernetes Platform with ArgoCD & Terraform",
+      difficulty: "Advanced",
+      skillsCovered: ["Kubernetes", "Terraform", "ArgoCD", "AWS EKS", "Helm", "Prometheus"],
+      whatItDemonstrates: "Demonstrates complete Infrastructure as Code and GitOps automation. The entire cluster and all application workloads deploy declaratively from Git with zero manual intervention.",
+      recommendedStack: ["AWS EKS", "Terraform", "ArgoCD", "Helm", "GitHub Actions", "Prometheus"],
+      talkingPoints: [
+        "Automated provisioning of VPC, IAM roles, and managed node groups using Terraform modules.",
+        "Implemented GitOps continuous deployment using ArgoCD with automated drift detection and self-healing.",
+        "Configured ingress controller with automatic TLS certificate issuance via Let's Encrypt."
+      ]
+    },
+    {
+      id: "devops_proj_2",
+      title: "Automated Zero-Downtime Microservices Deployment Pipeline",
+      difficulty: "Intermediate",
+      skillsCovered: ["Docker", "GitHub Actions", "Trivy", "AWS ECS / EKS", "Canary Deployment"],
+      whatItDemonstrates: "Demonstrates secure continuous delivery with automated vulnerability scanning, semantic versioning, and zero-downtime blue/green rollouts.",
+      recommendedStack: ["GitHub Actions", "Docker", "Trivy Security", "AWS ECS", "Slack Webhooks"],
+      talkingPoints: [
+        "Multi-stage Docker builds reducing image footprint by 85%.",
+        "Automated security scanning with Trivy halting builds on HIGH or CRITICAL CVEs.",
+        "Zero-downtime blue/green deployments with automatic rollback on elevated 5xx error spikes."
+      ]
+    }
+  ],
+  resumeGuidance: {
+    targetRole: "DevOps Engineer",
+    atsKeywords: [
+      "Kubernetes", "Docker", "CI/CD", "Terraform", "Infrastructure as Code",
+      "AWS", "GCP", "Linux", "Bash", "GitHub Actions", "Prometheus", "Grafana",
+      "Helm", "ArgoCD", "GitOps", "SRE", "Ansible", "High Availability"
+    ],
+    mustHaveSections: ["Technical Skills Matrix", "Production Infrastructure Projects", "Cloud Architecture Experience", "Certifications (AWS / CKA)"],
+    recommendedProjectTypes: ["GitOps Kubernetes Platform", "Infrastructure as Code AWS Suite", "CI/CD Security Automation"],
+    actionVerbs: ["Automated", "Architected", "Provisioned", "Containerized", "Orchestrated", "Reduced", "Streamlined", "Hardened"],
+    commonMistakes: [
+      "Listing cloud tools without explaining business impact (e.g. latency reduction, cost savings).",
+      "Omitting metrics such as build time reduction or uptime percentage.",
+      "Claiming Kubernetes expertise without understanding networking, ingress, or storage persistence."
+    ],
+    sampleBulletPoints: [
+      "Architected automated CI/CD pipeline using GitHub Actions and AWS ECR, reducing production deployment cycle time by 65%.",
+      "Provisioned multi-region AWS infrastructure with Terraform, saving $45,000 annually through automated spot instance orchestration.",
+      "Containerized 14 backend microservices with Docker and deployed to Amazon EKS, maintaining 99.98% service uptime across 2M daily requests."
+    ]
+  },
+  studySheets: [
+    { title: "Kubernetes Core Concepts & Commands", category: "Containerization", provider: "JobHighway Curated", description: "Comprehensive cheatsheet of kubectl, pod lifecycles, and YAML manifest patterns.", url: "https://kubernetes.io/docs/reference/kubectl/cheatsheet/", badge: "Essential" },
+    { title: "Terraform Best Practices & Modules", category: "IaC", provider: "HashiCorp", description: "Production standards for modular Terraform code and state locking.", url: "https://www.terraform-best-practices.com/", badge: "Industry Standard" },
+    { title: "Linux SysAdmin & Bash Handbook", category: "Systems", provider: "Linux Foundation", description: "System diagnostics, networking commands, and automation scripts.", url: "https://linuxjourney.com/", badge: "High Yield" }
+  ],
+  careerPathways: [
+    {
+      stage: "Associate / Junior DevOps Engineer",
+      experience: "0 – 2 Years",
+      compensation: "₹7L – ₹15L / $80k – $115k",
+      focus: "Scripting, Pipeline Maintenance & Containerization",
+      responsibilities: "Writing Bash/Python automation scripts, updating Dockerfiles, assisting with CI/CD build failures, and monitoring server alerts.",
+      requiredSkills: ["Linux Basics", "Bash Scripting", "Docker", "Git", "Basic Cloud (AWS/GCP)"]
+    },
+    {
+      stage: "DevOps / Cloud Engineer",
+      experience: "2 – 5 Years",
+      compensation: "₹18L – ₹35L / $125k – $165k",
+      focus: "Infrastructure as Code, Kubernetes & CI/CD Ownership",
+      responsibilities: "Designing production Kubernetes deployments, managing Terraform infrastructure, establishing automated CI/CD guardrails, and optimizing cloud spend.",
+      requiredSkills: ["Kubernetes", "Terraform", "CI/CD Architecture", "Helm", "Cloud Networking"]
+    },
+    {
+      stage: "Senior DevOps / Platform Engineer",
+      experience: "5 – 8 Years",
+      compensation: "₹35L – ₹65L / $170k – $240k",
+      focus: "Developer Platform Architecture & SRE Reliability",
+      responsibilities: "Building internal developer platforms (IDP), defining multi-region disaster recovery SLAs, establishing chaos engineering practices, and mentoring junior engineers.",
+      requiredSkills: ["Platform Engineering", "GitOps", "Disaster Recovery", "SRE Metrics (SLO/SLI)", "Security Compliance"]
+    },
+    {
+      stage: "Principal SRE / Staff Infrastructure Architect",
+      experience: "8+ Years",
+      compensation: "₹70L – ₹1.8Cr+ / $250k – $400k+",
+      focus: "Enterprise Cloud Strategy, Zero Trust & Org Reliability",
+      responsibilities: "Leading organization-wide infrastructure strategy, managing multi-million-dollar cloud budgets, architecting zero trust security, and setting reliability standards.",
+      requiredSkills: ["Enterprise Cloud Strategy", "FinOps", "Executive Leadership", "Zero Trust Architecture"]
+    }
+  ]
+};
+
+// 7. Frontend Developer
+export const FRONTEND_DEVELOPER_ROLE: PrepRole = {
+  id: "frontend-developer",
+  name: "Frontend Developer",
+  category: "Engineering",
+  badge: "High Demand · React, Next.js & UI/UX",
+  tagline: "React, Next.js, TypeScript, State Management, Performance & Modern Web Apps",
+  overview: {
+    coreSkills: ["JavaScript (ES6+) & TypeScript", "React.js & Component Design", "Next.js & App Router (SSR/SSG)", "Tailwind CSS & Responsive UI", "State Management (Zustand/Redux)", "Web Performance & Core Web Vitals", "REST & GraphQL APIs"],
+    recommendedTopics: ["React Fiber & Reconciliation", "Custom Hooks & Composition", "Next.js Server Components (RSC)", "Client-Side Caching (TanStack Query)", "Accessibility (WCAG & ARIA)"],
+    interviewAreas: ["JavaScript Coding & Machine Coding", "React Component Architecture", "Web Performance & Core Web Vitals", "Frontend System Design (Large Apps)"],
+    assessmentAreas: ["JavaScript / TypeScript MCQs", "Live UI Machine Coding (60-90m)", "DOM Manipulation & Async JS", "CSS Grid & Flexbox Layouts"],
+    typicalProjects: ["Collaborative Real-time Kanban Board", "High-Performance E-Commerce Web App", "Interactive Data Analytics Dashboard", "Component UI Design System Library"],
+    estimatedWeeks: "8 – 10 Weeks",
+    avgFresherSalary: "₹6L – ₹14L / $75k – $110k",
+    avgSeniorSalary: "₹28L – ₹60L / $160k – $230k"
+  },
+  roadmap: [
+    {
+      id: "fe_step_1",
+      stepNumber: 1,
+      title: "Modern JavaScript (ES6+), Event Loop & DOM Internals",
+      focus: "Closures, Prototypes, Async/Await, Event Bubbling & Web APIs",
+      description: "Deep dive into core JavaScript fundamentals. Master execution contexts, closures, the event loop and microtask queue, prototypical inheritance, promises, and vanilla DOM manipulation.",
+      difficulty: "Beginner",
+      subtopics: ["Execution Context, Scope & Closures", "Event Loop, Microtasks & Macrotasks", "Promises, Async/Await & Error Handling", "DOM Traversal, Event Delegation & Bubbling", "ES6+ Modules, Destructuring & Rest/Spread"],
+      recommendedAction: "Build a vanilla JavaScript drag-and-drop task board with zero external libraries.",
+      resourceName: "JavaScript.info Modern Tutorial",
+      resourceUrl: "https://javascript.info/"
+    },
+    {
+      id: "fe_step_2",
+      stepNumber: 2,
+      title: "Advanced CSS, Tailwind CSS & Responsive Layouts",
+      focus: "Flexbox, CSS Grid, Transitions, Keyframes & Responsive Typography",
+      description: "Craft modern, accessible, and responsive user interfaces. Master Flexbox alignment, CSS Grid 2D layouts, Tailwind utility classes, fluid typography, and smooth CSS animations.",
+      difficulty: "Beginner",
+      subtopics: ["Flexbox Alignment & Space Distribution", "CSS Grid Areas, Auto-fit & Minmax", "Tailwind CSS Utility Philosophy & Configuration", "Fluid Typography with clamp()", "CSS Transitions & Hardware-Accelerated Animations"],
+      recommendedAction: "Recreate a responsive SaaS landing page with mobile hamburger drawer and dark mode using Tailwind CSS.",
+      resourceName: "Kevin Powell Responsive Design",
+      resourceUrl: "https://www.youtube.com/@KevinPowell"
+    },
+    {
+      id: "fe_step_3",
+      stepNumber: 3,
+      title: "React Fundamentals, Hooks & Component Architecture",
+      focus: "JSX, Virtual DOM, useState, useEffect, useMemo, useCallback & Custom Hooks",
+      description: "Master declarative UI development with React. Understand how the Virtual DOM works, avoid redundant re-renders, master hook rules, and write reusable custom hooks.",
+      difficulty: "Intermediate",
+      subtopics: ["React Lifecycle & Reconciliation (Fiber)", "Rules of Hooks: State & Effect Dependency Arrays", "Performance Hooks: useMemo & useCallback", "Custom Hooks for Data Fetching & LocalStorage", "Context API vs Component Composition"],
+      recommendedAction: "Build an interactive e-commerce product catalog with category filters, search debouncing, and shopping cart persistence.",
+      resourceName: "React Official Documentation (react.dev)",
+      resourceUrl: "https://react.dev/"
+    },
+    {
+      id: "fe_step_4",
+      stepNumber: 4,
+      title: "Next.js App Router, SSR, SSG & Server Components",
+      focus: "Server-Side Rendering, Static Generation, Streaming & SEO",
+      description: "Build full-stack production web applications with Next.js. Master Server Components, Client Components, dynamic routing, route handlers, metadata optimization, and image performance.",
+      difficulty: "Intermediate",
+      subtopics: ["App Router File Conventions (page, layout, loading, error)", "Server Components (RSC) vs Client Components ('use client')", "Static Site Generation (SSG) & Incremental Static Regeneration (ISR)", "Server Actions & Form Handling", "Metadata API for Search Engine Optimization (SEO)"],
+      recommendedAction: "Build a high-performance content blog with dynamic routing, server-rendered articles, and sub-second Lighthouse scores.",
+      resourceName: "Next.js Official Learn Platform",
+      resourceUrl: "https://nextjs.org/learn"
+    },
+    {
+      id: "fe_step_5",
+      stepNumber: 5,
+      title: "TypeScript Mastery, State Management & Testing",
+      focus: "Generics, Utility Types, Zustand / Redux Toolkit, Jest & RTL",
+      description: "Enforce type safety across large web codebases with TypeScript. Implement scalable global state management with Zustand, and write automated tests with React Testing Library.",
+      difficulty: "Advanced",
+      subtopics: ["TypeScript Generics, Unions & Type Narrowing", "Utility Types (Partial, Pick, Omit, Record)", "Global State Management with Zustand / Redux", "Server State Caching with TanStack React Query", "Unit & Integration Testing with Jest & React Testing Library"],
+      recommendedAction: "Migrate an existing JavaScript project to strict TypeScript with 100% type coverage and test coverage for key flows.",
+      resourceName: "Total TypeScript by Matt Pocock",
+      resourceUrl: "https://www.totaltypescript.com/"
+    },
+    {
+      id: "fe_step_6",
+      stepNumber: 6,
+      title: "Web Performance, Core Web Vitals & Accessibility (a11y)",
+      focus: "LCP, INP, CLS, Code Splitting, Bundle Analysis & ARIA Roles",
+      description: "Optimize applications for maximum user speed and international accessibility compliance. Eliminate layout shifts, optimize images with next/gen formats, and support screen readers.",
+      difficulty: "Advanced",
+      subtopics: ["Core Web Vitals: Largest Contentful Paint (LCP) & INP", "Cumulative Layout Shift (CLS) Prevention", "Dynamic Imports & Route Code Splitting", "Lighthouse Performance Audits & Bundle Analyzers", "WCAG 2.1 AA Standards, ARIA Roles & Keyboard Navigation"],
+      recommendedAction: "Audit an existing web application to achieve a 95+ score on all four Lighthouse categories (Performance, Accessibility, Best Practices, SEO).",
+      resourceName: "web.dev by Google",
+      resourceUrl: "https://web.dev/explore/metrics"
+    }
+  ],
+  skills: {
+    mustKnow: [
+      "JavaScript (ES6+) & Modern Syntax",
+      "React.js & Hooks Architecture",
+      "TypeScript & Static Typing",
+      "Next.js App Router (SSR / SSG)",
+      "Tailwind CSS & Responsive Layouts",
+      "HTML5 Semantics & CSS3",
+      "RESTful APIs & Async Data Fetching"
+    ],
+    goodToKnow: [
+      "State Management (Zustand / Redux Toolkit)",
+      "Server State Management (TanStack Query)",
+      "Testing (Jest & React Testing Library)",
+      "Git & GitHub Version Control",
+      "Web Performance & Core Web Vitals",
+      "Accessibility (WCAG 2.1 & ARIA)"
+    ],
+    advanced: [
+      "Micro-Frontends & Module Federation",
+      "WebSockets & Real-time Collaboration",
+      "Animation (Framer Motion / GSAP)",
+      "WebAssembly (WASM)",
+      "Progressive Web Apps (PWA) & Service Workers"
+    ],
+    toolsAndTech: [
+      "React", "Next.js", "TypeScript", "Tailwind CSS", "Vite", "Zustand", "Jest", "Playwright", "Figma", "npm / pnpm"
+    ]
+  },
+  interviewRounds: [
+    {
+      step: "1",
+      title: "Online Assessment / Technical Screen",
+      focus: "JavaScript Fundamentals, Array Methods, Closures, DOM MCQs",
+      description: "Timed 60-minute coding test featuring JavaScript data transformation, implementing polyfills (e.g. Array.prototype.map, Promise.all), and CSS layout puzzles.",
+      tips: ["Practice implementing common JavaScript polyfills from scratch.", "Brush up on closure-based counter and debounce implementations."],
+      keyQuestions: ["Implement Promise.all from scratch with proper rejection handling.", "Write a function to deep clone an object handling circular references."]
+    },
+    {
+      step: "2",
+      title: "Machine Coding Round (Live UI Building)",
+      focus: "Building a Functional Component in 60-90 Minutes (Vanilla JS / React)",
+      description: "Live interactive coding session building a real-world component (e.g., Autocomplete Search, Infinite Scroll Feed, Multi-Step Form with Validation, Modal Dialog).",
+      tips: ["Clarify functional and edge-case requirements before typing code.", "Handle loading, error, empty, and success UI states cleanly."],
+      keyQuestions: ["Build an accessible search component with keyboard arrow navigation and debouncing.", "Create an image carousel with touch swipe support and lazy loading."]
+    },
+    {
+      step: "3",
+      title: "Frontend System Design & Architecture",
+      focus: "Scalability, State Architecture, Asset Delivery & Performance",
+      description: "Whiteboard interview designing the frontend architecture of complex applications like Google Docs, Netflix Web, or E-commerce Checkout.",
+      tips: ["Cover: Component Hierarchy -> State Management -> API Layer -> Performance & Caching -> Security (XSS/CSRF).", "Discuss Core Web Vitals trade-offs between SSR and CSR."],
+      keyQuestions: ["Design the frontend architecture for an infinite-scroll photo feed like Instagram.", "How would you design a real-time collaborative rich-text editor?"]
+    },
+    {
+      step: "4",
+      title: "Behavioral, Code Quality & Cross-Functional Fit",
+      focus: "Design Collaboration, Code Review Philosophy & Team Impact",
+      description: "Discusses past engineering projects, resolving conflicts between design and engineering constraints, mentoring, and accessibility advocacy.",
+      tips: ["Demonstrate customer empathy and respect for UI design precision.", "Highlight times you improved performance or developer tooling."],
+      keyQuestions: ["Tell me about a time a designer gave you an unfeasible mockup. How did you negotiate?", "How do you ensure web accessibility across a team of 20 developers?"]
+    }
+  ],
+  assessmentPrep: [
+    {
+      title: "Core JavaScript & DOM",
+      weightage: "35% Weightage",
+      description: "Prototypes, closures, asynchronous execution, event loop, and event delegation.",
+      keyTopics: ["Closures", "Event Loop", "Promises", "Event Delegation"],
+      sampleQuestion: "What is the difference between event.preventDefault() and event.stopPropagation()?",
+      preparationTip: "Remember: preventDefault stops default browser behavior (e.g. form submission); stopPropagation halts event bubbling up the DOM tree."
+    },
+    {
+      title: "React & Component Architecture",
+      weightage: "30% Weightage",
+      description: "Hook dependency arrays, state batching, memoization, and rendering optimization.",
+      keyTopics: ["Custom Hooks", "Virtual DOM", "React.memo & useCallback", "Context API"],
+      sampleQuestion: "Why should you never mutate state directly in React (e.g. array.push)?",
+      preparationTip: "React uses reference equality checks on state. Direct mutation skips re-rendering and breaks time-travel debugging."
+    },
+    {
+      title: "CSS, Responsive Layouts & Tailwind",
+      weightage: "20% Weightage",
+      description: "Flexbox, CSS Grid, media queries, stacking contexts (z-index), and CSS specificity.",
+      keyTopics: ["Flexbox Alignment", "CSS Grid 2D", "Stacking Context", "Tailwind Breakpoints"],
+      sampleQuestion: "Explain how CSS stacking context is created and why z-index: 9999 sometimes fails.",
+      preparationTip: "Understand position (relative/absolute/fixed) combined with z-index, opacity < 1, and transform properties."
+    },
+    {
+      title: "Web Performance & Core Web Vitals",
+      weightage: "15% Weightage",
+      description: "LCP, CLS, INP, code splitting, asset preloading, and caching strategies.",
+      keyTopics: ["LCP Optimization", "CLS Prevention", "Dynamic Imports", "Browser Caching"],
+      sampleQuestion: "How do you diagnose and fix Cumulative Layout Shift (CLS) on an image-heavy webpage?",
+      preparationTip: "Always specify explicit width and height attributes or aspect-ratio on images and reserve space for dynamic ads."
+    }
+  ],
+  interviewCategories: [
+    {
+      categoryName: "JavaScript Deep Dive",
+      description: "Object-oriented JS, functional patterns, and asynchronous mastery.",
+      questionCount: 40,
+      topicsCovered: ["Closures", "Event Loop", "Promises & Async", "Prototypes & 'this'"],
+      sampleQuestions: [
+        {
+          question: "Explain how 'this' keyword binding works in JavaScript (Default, Implicit, Explicit, Arrow).",
+          expectedApproach: "Explain the 4 rules of 'this' binding and why arrow functions lexically bind 'this' from their enclosing scope.",
+          difficulty: "Medium"
+        }
+      ]
+    },
+    {
+      categoryName: "React & Component Engineering",
+      description: "Component patterns, custom hooks, and state architecture.",
+      questionCount: 45,
+      topicsCovered: ["Virtual DOM", "Hooks", "Re-render Optimization", "Context API"],
+      sampleQuestions: [
+        {
+          question: "When should you use useMemo and useCallback vs when is it premature optimization?",
+          expectedApproach: "Use for expensive calculations, referential equality for child props wrapped in React.memo, or dependency arrays. Avoid for trivial primitives.",
+          difficulty: "Medium"
+        }
+      ]
+    }
+  ],
+  practiceQuestions: [
+    {
+      id: "fe_q1",
+      topic: "JavaScript",
+      title: "Implement a Debounce Function with Immediate Execution Support",
+      difficulty: "Medium",
+      type: "Coding",
+      questionText: "Write a custom debounce function in TypeScript that takes a callback function, a delay in milliseconds, and an optional 'immediate' boolean parameter.",
+      solutionHint: "function debounce<T extends (...args: any[]) => void>(fn: T, delay: number, immediate = false) {\n  let timer: NodeJS.Timeout | null = null;\n  return function(this: any, ...args: Parameters<T>) {\n    const callNow = immediate && !timer;\n    if (timer) clearTimeout(timer);\n    timer = setTimeout(() => {\n      timer = null;\n      if (!immediate) fn.apply(this, args);\n    }, delay);\n    if (callNow) fn.apply(this, args);\n  };\n}",
+      companyTags: ["Google", "Meta", "Amazon"]
+    },
+    {
+      id: "fe_q2",
+      topic: "React",
+      title: "Build an Accessible Autocomplete Search Component",
+      difficulty: "Medium",
+      type: "Coding",
+      questionText: "Design a React component that fetches search suggestions as the user types, debounces network calls by 300ms, and supports ArrowUp, ArrowDown, Enter, and Escape keys with ARIA accessibility.",
+      solutionHint: "1. Manage activeIndex state for keyboard navigation.\n2. Use role='combobox', aria-expanded, aria-autocomplete='list', and role='option' on items.\n3. Handle onKeyDown for ArrowUp (decrement activeIndex), ArrowDown (increment), Enter (select), Escape (close).\n4. Debounce search query effect with cleanup function.",
+      companyTags: ["Microsoft", "Adobe", "Netflix"]
+    },
+    {
+      id: "fe_q3",
+      topic: "Web Performance",
+      title: "Optimize an Image-Heavy Web App for Core Web Vitals (LCP < 2.5s)",
+      difficulty: "Hard",
+      type: "Architecture",
+      questionText: "A client application has a poor LCP of 5.8s and high CLS of 0.35 on mobile connections. Detail how you would diagnose and systematically reduce LCP below 2.5s and CLS to 0.",
+      solutionHint: "1. Use Next.js Image component (<Image priority /> on the hero image) to automatically serve modern formats (WebP/AVIF).\n2. Preload the hero image in <head> with <link rel='preload' as='image'>.\n3. Specify explicit width/height or aspect-ratio on all containers to eliminate CLS.\n4. Defer non-critical CSS/JS and use font-display: swap with preloaded critical web fonts.\n5. Serve static assets via Cloudflare / CloudFront CDN with Brotli compression.",
+      companyTags: ["Netflix", "Amazon", "Google"]
+    },
+    {
+      id: "fe_q4",
+      topic: "System Design",
+      title: "Design Frontend Architecture for an Infinite Scroll Social Feed",
+      difficulty: "Hard",
+      type: "Architecture",
+      questionText: "Design the client-side architecture for an infinite-scroll feed (like Instagram or LinkedIn) supporting multimedia posts, optimistic likes, offline draft saving, and memory virtualization.",
+      solutionHint: "1. Virtualization: Use Virtual Windowing (react-window) to render only items in the viewport, preventing DOM bloat.\n2. Data Fetching: IntersectionObserver API for infinite scroll triggers paired with TanStack Query cursor pagination.\n3. State & Cache: Normalized client cache with optimistic updates for likes/comments.\n4. Image Performance: IntersectionObserver lazy-loading and blur placeholders.\n5. Offline Support: IndexedDB for storing unsent drafts.",
+      companyTags: ["Meta", "Adobe"]
+    }
+  ],
+  projects: [
+    {
+      id: "fe_proj_1",
+      title: "High-Performance SaaS Analytics Dashboard with Dark Mode",
+      difficulty: "Advanced",
+      skillsCovered: ["Next.js App Router", "TypeScript", "Tailwind CSS", "Recharts", "Zustand", "Accessibility"],
+      whatItDemonstrates: "Demonstrates enterprise UI precision, responsive multi-breakpoint layouts, accessible data visualizations, and fast client-side rendering with sub-second page transitions.",
+      recommendedStack: ["Next.js 15", "TypeScript", "Tailwind CSS", "Zustand", "Recharts", "Lucide Icons"],
+      talkingPoints: [
+        "Implemented custom SVG data visualizations with accessible ARIA descriptions and responsive resize observers.",
+        "Zero-runtime dark mode toggle with local storage persistence and no flicker on hydration.",
+        "Optimized bundle size by dynamic-importing heavy charting libraries only on user demand."
+      ]
+    },
+    {
+      id: "fe_proj_2",
+      title: "Real-Time Collaborative Kanban Board with Drag & Drop",
+      difficulty: "Intermediate",
+      skillsCovered: ["React", "TypeScript", "dnd-kit", "WebSockets / Supabase Realtime", "Tailwind CSS"],
+      whatItDemonstrates: "Demonstrates advanced client-side state handling, complex drag-and-drop interactions with keyboard accessibility, and real-time multiplayer synchronization.",
+      recommendedStack: ["React 19", "dnd-kit", "Tailwind CSS", "TypeScript", "Supabase Realtime"],
+      talkingPoints: [
+        "Built fluid drag-and-drop mechanics supporting both pointer and keyboard accessible navigation.",
+        "Optimistic UI updates for immediate column reordering followed by asynchronous backend synchronization.",
+        "Implemented conflict resolution algorithms for simultaneous multi-user edits."
+      ]
+    }
+  ],
+  resumeGuidance: {
+    targetRole: "Frontend Developer",
+    atsKeywords: [
+      "React", "Next.js", "TypeScript", "JavaScript", "Tailwind CSS",
+      "HTML5", "CSS3", "Redux", "Zustand", "REST APIs", "GraphQL",
+      "Web Performance", "Core Web Vitals", "Jest", "React Testing Library",
+      "Accessibility", "WCAG", "Git", "Webpack", "Vite"
+    ],
+    mustHaveSections: ["Technical Skills Matrix", "Featured Web Applications", "Professional Engineering Experience", "Education & Open Source Contributions"],
+    recommendedProjectTypes: ["Next.js Full-Stack App", "Complex Dashboard with Charting", "Accessible Component Design System"],
+    actionVerbs: ["Developed", "Architected", "Engineered", "Optimized", "Refactored", "Implemented", "Designed", "Accelerated"],
+    commonMistakes: [
+      "Listing only HTML/CSS/JS without showcasing modern React/Next.js/TypeScript architecture.",
+      "Omitting measurable performance improvements (e.g. improved Lighthouse score from 55 to 98).",
+      "Failing to demonstrate understanding of state management and accessibility standards."
+    ],
+    sampleBulletPoints: [
+      "Architected customer-facing web dashboard in Next.js and TypeScript, reducing initial page load time by 48% and achieving 98+ Core Web Vitals.",
+      "Built reusable component design system with Tailwind CSS used across 5 web applications, cutting feature delivery time by 30%.",
+      "Implemented client-side caching with TanStack Query, eliminating 60% of redundant API calls and boosting mobile responsiveness."
+    ]
+  },
+  studySheets: [
+    { title: "React Hooks & Fiber Deep Dive", category: "Framework", provider: "react.dev", description: "Complete guide to hook lifecycles, reconciliation, and concurrent features.", url: "https://react.dev/reference/react", badge: "Essential" },
+    { title: "JavaScript Promises & Event Loop Guide", category: "Core JS", provider: "MDN Web Docs", description: "Microtasks, macrotasks, and asynchronous execution under the hood.", url: "https://developer.mozilla.org/en-US/docs/Web/JavaScript", badge: "Must Know" },
+    { title: "Web Performance & Core Web Vitals", category: "Performance", provider: "web.dev", description: "Google's official guide to optimizing LCP, INP, and CLS.", url: "https://web.dev/explore/metrics", badge: "High Yield" }
+  ],
+  careerPathways: [
+    {
+      stage: "Associate / Junior Frontend Developer",
+      experience: "0 – 2 Years",
+      compensation: "₹6L – ₹14L / $75k – $110k",
+      focus: "UI Implementation, Bug Fixes & Responsive Design",
+      responsibilities: "Translating Figma mockups into pixel-perfect React/HTML/CSS components, fixing cross-browser UI defects, and consuming backend REST APIs.",
+      requiredSkills: ["HTML/CSS/JS", "React Basics", "Git", "Responsive CSS", "REST API Consumption"]
+    },
+    {
+      stage: "Frontend Engineer",
+      experience: "2 – 5 Years",
+      compensation: "₹16L – ₹32L / $115k – $155k",
+      focus: "Component Architecture, State Management & Performance",
+      responsibilities: "Leading feature development in React/Next.js, designing global state stores (Zustand/Redux), writing integration tests, and optimizing Core Web Vitals.",
+      requiredSkills: ["React & Next.js", "TypeScript", "State Management", "Testing (Jest/RTL)", "Web Performance"]
+    },
+    {
+      stage: "Senior Frontend Engineer / Tech Lead",
+      experience: "5 – 8 Years",
+      compensation: "₹35L – ₹60L / $165k – $230k",
+      focus: "Frontend System Architecture & Design System Ownership",
+      responsibilities: "Architecting organization-wide frontend frameworks, owning design systems, establishing accessibility (a11y) standards, and mentoring junior engineers.",
+      requiredSkills: ["Frontend System Design", "Design Systems", "WebAssembly / Micro-frontends", "CI/CD & Bundling", "Team Mentorship"]
+    },
+    {
+      stage: "Staff / Principal UI Architect",
+      experience: "8+ Years",
+      compensation: "₹65L – ₹1.6Cr+ / $240k – $380k+",
+      focus: "Company-wide Web Platform Strategy & Developer Experience",
+      responsibilities: "Setting corporate technical direction for web platforms, driving web performance standards across all product lines, and evaluating emerging web technologies.",
+      requiredSkills: ["Enterprise Web Strategy", "Core Web Vitals Governance", "Multi-Product Architecture", "Executive Alignment"]
+    }
+  ]
+};
+
 // Map of all supported roles
 export const PREPARATION_ROLES_MAP: Record<string, PrepRole> = {
   "software-engineer": SOFTWARE_ENGINEER_ROLE,
-  "data-scientist": DATA_SCIENTIST_ROLE,
   "data-analyst": DATA_ANALYST_ROLE,
-  "data-engineer": DATA_ENGINEER_ROLE,
-  "product-manager": PRODUCT_MANAGER_ROLE
+  "data-scientist": DATA_SCIENTIST_ROLE,
+  "devops-engineer": DEVOPS_ENGINEER_ROLE,
+  "product-manager": PRODUCT_MANAGER_ROLE,
+  "frontend-developer": FRONTEND_DEVELOPER_ROLE,
+  "data-engineer": DATA_ENGINEER_ROLE
 };
 
 export const ALL_PREPARATION_ROLES: PrepRole[] = [
   SOFTWARE_ENGINEER_ROLE,
   DATA_ANALYST_ROLE,
   DATA_SCIENTIST_ROLE,
-  DATA_ENGINEER_ROLE,
-  PRODUCT_MANAGER_ROLE
+  DEVOPS_ENGINEER_ROLE,
+  PRODUCT_MANAGER_ROLE,
+  FRONTEND_DEVELOPER_ROLE,
+  DATA_ENGINEER_ROLE
 ];
 
 // Helper to look up a role with smart fuzzy fallback
@@ -2240,6 +2947,8 @@ export function getPrepRoleById(roleId?: string | null): PrepRole {
   }
   
   // Fuzzy match aliases
+  if (cleanId.includes("devops") || cleanId.includes("cloud") || cleanId.includes("sre") || cleanId.includes("infra")) return DEVOPS_ENGINEER_ROLE;
+  if (cleanId.includes("frontend") || cleanId.includes("ui") || cleanId.includes("react") || cleanId.includes("web")) return FRONTEND_DEVELOPER_ROLE;
   if (cleanId.includes("data") && cleanId.includes("scien")) return DATA_SCIENTIST_ROLE;
   if (cleanId.includes("data") && cleanId.includes("analy")) return DATA_ANALYST_ROLE;
   if (cleanId.includes("data") && cleanId.includes("engin")) return DATA_ENGINEER_ROLE;

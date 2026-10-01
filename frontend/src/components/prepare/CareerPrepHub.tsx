@@ -37,7 +37,8 @@ import {
   Check,
   Copy,
   Info,
-  Laptop
+  Laptop,
+  CheckSquare
 } from "lucide-react";
 import {
   PrepRole,
@@ -65,7 +66,6 @@ export function CareerPrepHub({ initialRoleId }: { initialRoleId?: string }) {
   const [selectedCompany, setSelectedCompany] = useState<CompanyPrepItem | null>(null);
 
   // 3. User Progress Persistence State (stored in localStorage)
-  // Stored format: { [roleId]: { completedRoadmap: string[], completedSkills: string[], completedQuestions: string[] } }
   const [completedSteps, setCompletedSteps] = useState<Set<string>>(new Set());
   const [completedSkills, setCompletedSkills] = useState<Set<string>>(new Set());
   const [completedQuestions, setCompletedQuestions] = useState<Set<string>>(new Set());
@@ -78,6 +78,13 @@ export function CareerPrepHub({ initialRoleId }: { initialRoleId?: string }) {
 
   // 5. Active Tab for Deep Dives
   const [activeTab, setActiveTab] = useState<"roadmap" | "skills" | "interview" | "practice" | "projects" | "resume">("roadmap");
+
+  // 6. Roadmap Stepper View State
+  const [activeStepIndex, setActiveStepIndex] = useState<number>(0);
+  const [roadmapViewMode, setRoadmapViewMode] = useState<"stepper" | "all">("stepper");
+
+  // Deep dive container ref for smooth scrolling
+  const deepDivesRef = useRef<HTMLDivElement>(null);
 
   // Load auth state and user preference on mount
   useEffect(() => {
@@ -112,6 +119,7 @@ export function CareerPrepHub({ initialRoleId }: { initialRoleId?: string }) {
     } catch (e) {
       // ignore
     }
+    setActiveStepIndex(0);
   }, [selectedRole.id, currentUser?.id]);
 
   // Save progress changes
@@ -175,6 +183,7 @@ export function CareerPrepHub({ initialRoleId }: { initialRoleId?: string }) {
     setRoleSearchOpen(false);
     setRoleSearchTerm("");
     setExpandedQuestionId(null);
+    setActiveStepIndex(0);
 
     // Update URL cleanly
     const url = new URL(window.location.href);
@@ -184,6 +193,14 @@ export function CareerPrepHub({ initialRoleId }: { initialRoleId?: string }) {
     // If user is logged in, optionally update their preferred target role
     if (currentUser?.id) {
       updateUserProfile(currentUser.id, { targetRole: role.name });
+    }
+  };
+
+  // Switch tab and smoothly scroll to the section
+  const handleSwitchTab = (tab: "roadmap" | "skills" | "interview" | "practice" | "projects" | "resume") => {
+    setActiveTab(tab);
+    if (deepDivesRef.current) {
+      deepDivesRef.current.scrollIntoView({ behavior: "smooth", block: "start" });
     }
   };
 
@@ -211,6 +228,10 @@ export function CareerPrepHub({ initialRoleId }: { initialRoleId?: string }) {
     }
     return selectedRole.roadmap[0];
   }, [selectedRole.roadmap, completedSteps]);
+
+  // Current active step in the stepper
+  const currentStepperStep = selectedRole.roadmap[activeStepIndex] || selectedRole.roadmap[0];
+  const isCurrentStepDone = currentStepperStep ? completedSteps.has(currentStepperStep.id) : false;
 
   // Filtered practice questions
   const filteredQuestions = useMemo(() => {
@@ -247,11 +268,26 @@ export function CareerPrepHub({ initialRoleId }: { initialRoleId?: string }) {
     );
   }, [roleSearchTerm]);
 
+  // Role icon helper
+  const getRoleIcon = (roleId: string) => {
+    switch (roleId) {
+      case "software-engineer": return Code2;
+      case "frontend-developer": return Laptop;
+      case "data-analyst": return Database;
+      case "data-scientist": return BrainCircuit;
+      case "data-engineer": return Layers;
+      case "devops-engineer": return Cloud;
+      case "product-manager": return Briefcase;
+      default: return Target;
+    }
+  };
+
   return (
-    <div className="bg-slate-50 min-h-screen">
-      {/* 1. HERO SECTION WITH ROLE SEARCH & QUICK ROLES (Matches Reference Image) */}
+    <div className="bg-slate-50 min-h-screen text-slate-800">
+      
+      {/* 1. HERO SECTION (Layout & Visual Hierarchy Matching Reference UI) */}
       <section className="relative overflow-hidden bg-gradient-to-b from-teal-50/80 via-emerald-50/20 to-slate-50 border-b border-slate-200/90 px-4 sm:px-6 lg:px-8 pt-10 pb-12 sm:pb-16">
-        {/* World map background */}
+        {/* World map background watermark */}
         <div className="absolute top-0 right-0 w-full lg:w-3/5 h-full overflow-hidden pointer-events-none z-0">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
@@ -379,7 +415,7 @@ export function CareerPrepHub({ initialRoleId }: { initialRoleId?: string }) {
               </div>
             </div>
 
-            {/* Right Visual Illustration Cards (Matching Reference Image) */}
+            {/* Right Visual Illustration: Active Target Role Card (Matching Reference Image) */}
             <div className="lg:col-span-5 relative hidden lg:flex items-center justify-center">
               <div className="relative w-full max-w-md bg-white border border-slate-200/90 rounded-2xl p-6 shadow-sm">
                 <div className="flex items-center justify-between pb-4 border-b border-slate-100">
@@ -412,7 +448,7 @@ export function CareerPrepHub({ initialRoleId }: { initialRoleId?: string }) {
                   <div className="pt-2">
                     <a
                       href="#learning-roadmap"
-                      className="w-full py-2.5 rounded-xl bg-teal-600 hover:bg-teal-700 text-white font-bold text-xs flex items-center justify-center gap-2 shadow-xs transition-colors"
+                      className="w-full py-2.5 rounded-xl bg-teal-600 hover:bg-teal-700 active:bg-teal-800 text-white font-bold text-xs flex items-center justify-center gap-2 shadow-xs transition-colors"
                     >
                       <span>Continue Preparation</span>
                       <ArrowRight className="w-3.5 h-3.5" />
@@ -426,7 +462,7 @@ export function CareerPrepHub({ initialRoleId }: { initialRoleId?: string }) {
         </div>
       </section>
 
-      {/* 2. EXPLORE INTERVIEW PREPARATION BY ROLE (Role Cards Carousel / Grid) */}
+      {/* 2. EXPLORE INTERVIEW PREPARATION BY ROLE (Role Cards Grid) */}
       <section className="container mx-auto max-w-[1360px] px-4 sm:px-6 lg:px-8 py-8 sm:py-10">
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-2">
@@ -440,14 +476,10 @@ export function CareerPrepHub({ initialRoleId }: { initialRoleId?: string }) {
           </span>
         </div>
 
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 sm:gap-4">
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-7 gap-3 sm:gap-4">
           {ALL_PREPARATION_ROLES.map((role) => {
             const isSelected = selectedRole.id === role.id;
-            const Icon = 
-              role.id === "software-engineer" ? Code2 :
-              role.id === "data-analyst" ? Database :
-              role.id === "data-scientist" ? BrainCircuit :
-              role.id === "data-engineer" ? Layers : Briefcase;
+            const Icon = getRoleIcon(role.id);
 
             return (
               <button
@@ -472,7 +504,7 @@ export function CareerPrepHub({ initialRoleId }: { initialRoleId?: string }) {
                       </span>
                     )}
                   </div>
-                  <h3 className={`text-sm font-bold mb-1 ${
+                  <h3 className={`text-sm font-bold mb-1 leading-snug ${
                     isSelected ? "text-teal-900" : "text-slate-900"
                   }`}>
                     {role.name}
@@ -485,7 +517,7 @@ export function CareerPrepHub({ initialRoleId }: { initialRoleId?: string }) {
                 <div className="mt-3 pt-2 border-t border-slate-100 flex items-center justify-between text-[10px]">
                   <span className="text-slate-400 font-medium">{role.overview.estimatedWeeks}</span>
                   <span className={`font-semibold ${isSelected ? "text-teal-600" : "text-slate-500"}`}>
-                    {isSelected ? "Active Path" : "Switch Path →"}
+                    {isSelected ? "Active Path" : "Switch →"}
                   </span>
                 </div>
               </button>
@@ -494,11 +526,11 @@ export function CareerPrepHub({ initialRoleId }: { initialRoleId?: string }) {
         </div>
       </section>
 
-      {/* 3. MAIN SECTION: COMPLETE LEARNING ROADMAP & TOP COMPANIES GUIDES */}
+      {/* 3. MAIN SECTION: COMPLETE LEARNING ROADMAP & TOP COMPANIES GUIDES (8 + 4 Grid) */}
       <section id="learning-roadmap" className="container mx-auto max-w-[1360px] px-4 sm:px-6 lg:px-8 py-4 sm:py-6">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
           
-          {/* LEFT 8 COLUMNS: INTERACTIVE LEARNING ROADMAP */}
+          {/* LEFT 8 COLUMNS: INTERACTIVE LEARNING ROADMAP (Stepper + Detail Panel) */}
           <div className="lg:col-span-8 space-y-6">
             
             {/* Header + Progress Bar */}
@@ -508,20 +540,22 @@ export function CareerPrepHub({ initialRoleId }: { initialRoleId?: string }) {
                   <div className="flex items-center gap-2">
                     <Layers className="w-5 h-5 text-teal-600" />
                     <h2 className="text-xl sm:text-2xl font-bold text-slate-900">
-                      {selectedRole.name} Learning Roadmap
+                      Complete Learning Roadmap
                     </h2>
                     <span className="text-[11px] font-bold px-2 py-0.5 rounded bg-teal-50 text-teal-700 border border-teal-200">
                       Curated Order
                     </span>
                   </div>
                   <p className="text-xs sm:text-sm text-slate-500 mt-1">
-                    Step-by-step master plan with subtopics, recommended actions, and progress tracking
+                    Step-by-step master plan with subtopics, recommended actions, and progress tracking for <strong className="text-slate-800">{selectedRole.name}</strong>
                   </p>
                 </div>
 
-                <div className="text-right shrink-0">
-                  <div className="text-xs font-semibold text-slate-500">Your Progress</div>
-                  <div className="text-xl font-black text-teal-600">{roadmapPercent}%</div>
+                <div className="flex items-center gap-3">
+                  <div className="text-right shrink-0">
+                    <div className="text-xs font-semibold text-slate-500">Your Progress</div>
+                    <div className="text-xl font-black text-teal-600">{roadmapPercent}%</div>
+                  </div>
                 </div>
               </div>
 
@@ -541,135 +575,340 @@ export function CareerPrepHub({ initialRoleId }: { initialRoleId?: string }) {
                     Next recommended focus: <strong className="text-teal-900 font-bold">{nextRecommendedStep.title}</strong>
                   </span>
                 </div>
-                <a
-                  href={`#step-${nextRecommendedStep.id}`}
-                  className="text-xs font-bold text-teal-700 hover:text-teal-900 flex items-center gap-1 hover:underline"
-                >
-                  <span>Jump to Topic</span>
-                  <ChevronRight className="w-3.5 h-3.5" />
-                </a>
+                <div className="flex items-center gap-2">
+                  <button
+                    onClick={() => {
+                      const idx = selectedRole.roadmap.findIndex(s => s.id === nextRecommendedStep.id);
+                      if (idx !== -1) setActiveStepIndex(idx);
+                    }}
+                    className="text-xs font-bold text-teal-700 hover:text-teal-900 flex items-center gap-1 hover:underline cursor-pointer"
+                  >
+                    <span>Focus on Stage</span>
+                    <ChevronRight className="w-3.5 h-3.5" />
+                  </button>
+                </div>
+              </div>
+
+              {/* View Mode Toggle: Stepper vs All Stages */}
+              <div className="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between text-xs">
+                <span className="text-slate-500">
+                  Showing Stage {activeStepIndex + 1} of {selectedRole.roadmap.length}
+                </span>
+                <div className="flex items-center bg-slate-100 p-0.5 rounded-lg border border-slate-200">
+                  <button
+                    onClick={() => setRoadmapViewMode("stepper")}
+                    className={`px-3 py-1 rounded-md font-semibold transition-colors cursor-pointer ${
+                      roadmapViewMode === "stepper"
+                        ? "bg-white text-teal-700 shadow-2xs"
+                        : "text-slate-600 hover:text-slate-900"
+                    }`}
+                  >
+                    Interactive Stepper
+                  </button>
+                  <button
+                    onClick={() => setRoadmapViewMode("all")}
+                    className={`px-3 py-1 rounded-md font-semibold transition-colors cursor-pointer ${
+                      roadmapViewMode === "all"
+                        ? "bg-white text-teal-700 shadow-2xs"
+                        : "text-slate-600 hover:text-slate-900"
+                    }`}
+                  >
+                    View All Stages
+                  </button>
+                </div>
               </div>
             </div>
 
-            {/* Roadmap Steps Accordion / Cards */}
-            <div className="space-y-4">
-              {selectedRole.roadmap.map((step, idx) => {
-                const isCompleted = completedSteps.has(step.id);
+            {/* ROADMAP PRESENTATION MODE 1: INTERACTIVE STEPPER (Matching Reference Image Layout) */}
+            {roadmapViewMode === "stepper" && currentStepperStep && (
+              <div className="bg-white border border-slate-200/90 rounded-2xl p-5 sm:p-6 shadow-xs">
+                <div className="grid grid-cols-1 md:grid-cols-12 gap-6 items-start">
+                  
+                  {/* Left Stepper List (Stages 1-6) */}
+                  <div className="md:col-span-5 space-y-2 border-b md:border-b-0 md:border-r border-slate-100 pb-4 md:pb-0 md:pr-4">
+                    <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider block mb-2">
+                      Roadmap Progression
+                    </span>
+                    {selectedRole.roadmap.map((step, idx) => {
+                      const isCompleted = completedSteps.has(step.id);
+                      const isCurrent = activeStepIndex === idx;
 
-                return (
-                  <div
-                    key={step.id}
-                    id={`step-${step.id}`}
-                    className={`bg-white border rounded-2xl p-5 sm:p-6 transition-all shadow-xs ${
-                      isCompleted 
-                        ? "border-emerald-200/80 bg-emerald-50/15" 
-                        : "border-slate-200/90 hover:border-slate-300"
-                    }`}
-                  >
-                    <div className="flex items-start justify-between gap-4">
-                      {/* Step Number + Title */}
-                      <div className="flex items-start gap-3.5 min-w-0">
+                      return (
                         <button
-                          onClick={() => toggleStep(step.id)}
-                          className={`w-7 h-7 rounded-full flex items-center justify-center shrink-0 mt-0.5 transition-colors cursor-pointer ${
-                            isCompleted
-                              ? "bg-emerald-500 text-white shadow-2xs"
-                              : "border-2 border-slate-300 text-slate-400 hover:border-teal-500 hover:text-teal-600"
+                          key={step.id}
+                          onClick={() => setActiveStepIndex(idx)}
+                          className={`w-full text-left p-3 rounded-xl border transition-all cursor-pointer flex items-center justify-between gap-3 ${
+                            isCurrent
+                              ? "bg-teal-50/70 border-teal-500 ring-1 ring-teal-500/20"
+                              : "bg-slate-50/60 border-slate-200/80 hover:bg-slate-100/60"
                           }`}
-                          title={isCompleted ? "Mark as incomplete" : "Mark as completed"}
                         >
-                          {isCompleted ? (
-                            <Check className="w-4 h-4 stroke-[3]" />
+                          <div className="flex items-center gap-2.5 min-w-0">
+                            <div className={`w-6 h-6 rounded-full flex items-center justify-center shrink-0 text-xs font-bold ${
+                              isCompleted
+                                ? "bg-emerald-500 text-white"
+                                : isCurrent
+                                  ? "bg-teal-600 text-white"
+                                  : "bg-slate-200 text-slate-700"
+                            }`}>
+                              {isCompleted ? <Check className="w-3.5 h-3.5 stroke-[3]" /> : idx + 1}
+                            </div>
+                            <div className="min-w-0">
+                              <div className={`text-xs font-bold truncate ${
+                                isCurrent ? "text-teal-950" : isCompleted ? "text-emerald-900" : "text-slate-800"
+                              }`}>
+                                Stage {idx + 1}: {step.title}
+                              </div>
+                              <div className="text-[10px] text-slate-500 truncate">
+                                {step.focus}
+                              </div>
+                            </div>
+                          </div>
+
+                          <span className={`text-[10px] font-semibold px-1.5 py-0.5 rounded shrink-0 ${
+                            step.difficulty === "Beginner" ? "bg-blue-50 text-blue-700 border border-blue-200" :
+                            step.difficulty === "Intermediate" ? "bg-amber-50 text-amber-700 border border-amber-200" :
+                            "bg-purple-50 text-purple-700 border border-purple-200"
+                          }`}>
+                            {step.difficulty}
+                          </span>
+                        </button>
+                      );
+                    })}
+                  </div>
+
+                  {/* Right Detail Panel for Active Stepper Stage */}
+                  <div className="md:col-span-7 flex flex-col justify-between">
+                    <div>
+                      {/* Step Header Badges */}
+                      <div className="flex items-center justify-between gap-2 mb-2">
+                        <div className="flex items-center gap-2">
+                          <span className="text-xs font-mono font-bold text-teal-700 bg-teal-50 px-2 py-0.5 rounded border border-teal-200/60">
+                            STAGE 0{currentStepperStep.stepNumber}
+                          </span>
+                          <span className={`text-[10px] font-bold px-2 py-0.5 rounded ${
+                            currentStepperStep.difficulty === "Beginner" ? "bg-blue-50 text-blue-700 border border-blue-200" :
+                            currentStepperStep.difficulty === "Intermediate" ? "bg-amber-50 text-amber-700 border border-amber-200" :
+                            "bg-purple-50 text-purple-700 border border-purple-200"
+                          }`}>
+                            {currentStepperStep.difficulty}
+                          </span>
+                        </div>
+
+                        <button
+                          onClick={() => toggleStep(currentStepperStep.id)}
+                          className={`text-xs font-semibold px-3 py-1 rounded-lg shrink-0 transition-colors cursor-pointer flex items-center gap-1.5 ${
+                            isCurrentStepDone
+                              ? "bg-emerald-100 text-emerald-800 hover:bg-emerald-200 border border-emerald-300"
+                              : "bg-slate-100 text-slate-700 hover:bg-teal-50 hover:text-teal-700 border border-slate-200"
+                          }`}
+                        >
+                          {isCurrentStepDone ? (
+                            <>
+                              <Check className="w-3.5 h-3.5 stroke-[3]" />
+                              <span>Completed</span>
+                            </>
                           ) : (
-                            <span className="text-xs font-bold font-mono">{idx + 1}</span>
+                            <span>Mark Stage Done</span>
                           )}
                         </button>
+                      </div>
 
-                        <div className="min-w-0">
-                          <div className="flex items-center gap-2 flex-wrap mb-1">
-                            <span className="text-xs font-mono font-bold text-teal-700 bg-teal-50 px-2 py-0.5 rounded border border-teal-200/60">
-                              STAGE 0{step.stepNumber}
-                            </span>
-                            <span className="text-xs font-semibold text-slate-500">
-                              {step.focus}
-                            </span>
-                            <span className={`text-[10px] font-bold px-2 py-0.2 rounded ${
-                              step.difficulty === "Beginner" ? "bg-blue-50 text-blue-700 border border-blue-200" :
-                              step.difficulty === "Intermediate" ? "bg-amber-50 text-amber-700 border border-amber-200" :
-                              "bg-purple-50 text-purple-700 border border-purple-200"
-                            }`}>
-                              {step.difficulty}
-                            </span>
-                          </div>
+                      <h3 className={`text-lg sm:text-xl font-bold mb-2 ${
+                        isCurrentStepDone ? "text-emerald-950" : "text-slate-900"
+                      }`}>
+                        {currentStepperStep.title}
+                      </h3>
 
-                          <h3 className={`text-base sm:text-lg font-bold ${
-                            isCompleted ? "text-emerald-950 line-through decoration-emerald-500/60" : "text-slate-900"
-                          }`}>
-                            {step.title}
-                          </h3>
+                      <p className="text-xs sm:text-sm text-slate-600 mb-4 leading-relaxed">
+                        {currentStepperStep.description}
+                      </p>
 
-                          <p className="text-xs sm:text-sm text-slate-600 mt-1 leading-relaxed">
-                            {step.description}
-                          </p>
-
-                          {/* Subtopics Checklist */}
-                          <div className="mt-3.5 pt-3 border-t border-slate-100">
-                            <span className="text-[11px] font-bold text-slate-700 uppercase tracking-wider block mb-2">
-                              Core Subtopics to Master:
-                            </span>
-                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                              {step.subtopics.map((sub, sIdx) => (
-                                <div key={sIdx} className="flex items-center gap-2 text-xs text-slate-700 bg-slate-50 px-2.5 py-1.5 rounded-lg border border-slate-100">
-                                  <span className="w-1.5 h-1.5 rounded-full bg-teal-500 shrink-0" />
-                                  <span className="truncate">{sub}</span>
-                                </div>
-                              ))}
+                      {/* Subtopics Checklist */}
+                      <div className="mb-4">
+                        <span className="text-[11px] font-bold text-slate-700 uppercase tracking-wider block mb-2">
+                          Core Subtopics to Master:
+                        </span>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                          {currentStepperStep.subtopics.map((sub, sIdx) => (
+                            <div key={sIdx} className="flex items-center gap-2 text-xs text-slate-700 bg-slate-50 px-2.5 py-1.5 rounded-lg border border-slate-100">
+                              <span className="w-1.5 h-1.5 rounded-full bg-teal-500 shrink-0" />
+                              <span className="truncate">{sub}</span>
                             </div>
-                          </div>
-
-                          {/* Action & Resource Link */}
-                          <div className="mt-3.5 p-3 rounded-xl bg-slate-50/80 border border-slate-100 flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs">
-                            <div className="text-slate-600">
-                              <strong className="text-slate-800">Action:</strong> {step.recommendedAction}
-                            </div>
-                            {step.resourceUrl && (
-                              <a
-                                href={step.resourceUrl}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="text-teal-600 hover:text-teal-700 font-bold inline-flex items-center gap-1 shrink-0 hover:underline"
-                              >
-                                <span>{step.resourceName || "Study Guide"}</span>
-                                <ExternalLink className="w-3 h-3" />
-                              </a>
-                            )}
-                          </div>
+                          ))}
                         </div>
                       </div>
 
-                      {/* Checkbox Action Button */}
+                      {/* Action & Resource Link */}
+                      <div className="p-3 rounded-xl bg-slate-50 border border-slate-100 flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs mb-4">
+                        <div className="text-slate-600">
+                          <strong className="text-slate-800">Action:</strong> {currentStepperStep.recommendedAction}
+                        </div>
+                        {currentStepperStep.resourceUrl && (
+                          <a
+                            href={currentStepperStep.resourceUrl}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-teal-600 hover:text-teal-700 font-bold inline-flex items-center gap-1 shrink-0 hover:underline"
+                          >
+                            <span>{currentStepperStep.resourceName || "Study Guide"}</span>
+                            <ExternalLink className="w-3 h-3" />
+                          </a>
+                        )}
+                      </div>
+                    </div>
+
+                    {/* Stepper Navigation Buttons */}
+                    <div className="pt-3 border-t border-slate-100 flex items-center justify-between">
                       <button
-                        onClick={() => toggleStep(step.id)}
-                        className={`text-xs font-semibold px-2.5 py-1 rounded-md shrink-0 transition-colors cursor-pointer ${
-                          isCompleted
-                            ? "bg-emerald-100 text-emerald-800 hover:bg-emerald-200"
-                            : "bg-slate-100 text-slate-700 hover:bg-teal-50 hover:text-teal-700 border border-slate-200"
+                        disabled={activeStepIndex === 0}
+                        onClick={() => setActiveStepIndex(prev => Math.max(0, prev - 1))}
+                        className={`text-xs font-semibold px-3 py-1.5 rounded-lg flex items-center gap-1 transition-colors ${
+                          activeStepIndex === 0
+                            ? "text-slate-300 cursor-not-allowed"
+                            : "text-slate-600 hover:text-slate-900 hover:bg-slate-100 cursor-pointer"
                         }`}
                       >
-                        {isCompleted ? "Completed ✓" : "Mark Done"}
+                        <ChevronLeft className="w-3.5 h-3.5" />
+                        <span>Previous Stage</span>
+                      </button>
+
+                      <button
+                        disabled={activeStepIndex === selectedRole.roadmap.length - 1}
+                        onClick={() => setActiveStepIndex(prev => Math.min(selectedRole.roadmap.length - 1, prev + 1))}
+                        className={`text-xs font-semibold px-3 py-1.5 rounded-lg flex items-center gap-1 transition-colors ${
+                          activeStepIndex === selectedRole.roadmap.length - 1
+                            ? "text-slate-300 cursor-not-allowed"
+                            : "text-teal-700 hover:text-teal-900 hover:bg-teal-50 font-bold cursor-pointer"
+                        }`}
+                      >
+                        <span>Next Stage</span>
+                        <ChevronRight className="w-3.5 h-3.5" />
                       </button>
                     </div>
+
                   </div>
-                );
-              })}
-            </div>
+                </div>
+              </div>
+            )}
+
+            {/* ROADMAP PRESENTATION MODE 2: ALL STAGES ACCORDION / CARDS */}
+            {roadmapViewMode === "all" && (
+              <div className="space-y-4">
+                {selectedRole.roadmap.map((step, idx) => {
+                  const isCompleted = completedSteps.has(step.id);
+
+                  return (
+                    <div
+                      key={step.id}
+                      id={`step-${step.id}`}
+                      className={`bg-white border rounded-2xl p-5 sm:p-6 transition-all shadow-xs ${
+                        isCompleted 
+                          ? "border-emerald-200/80 bg-emerald-50/15" 
+                          : "border-slate-200/90 hover:border-slate-300"
+                      }`}
+                    >
+                      <div className="flex items-start justify-between gap-4">
+                        <div className="flex items-start gap-3.5 min-w-0">
+                          <button
+                            onClick={() => toggleStep(step.id)}
+                            className={`w-7 h-7 rounded-full flex items-center justify-center shrink-0 mt-0.5 transition-colors cursor-pointer ${
+                              isCompleted
+                                ? "bg-emerald-500 text-white shadow-2xs"
+                                : "border-2 border-slate-300 text-slate-400 hover:border-teal-500 hover:text-teal-600"
+                            }`}
+                            title={isCompleted ? "Mark as incomplete" : "Mark as completed"}
+                          >
+                            {isCompleted ? (
+                              <Check className="w-4 h-4 stroke-[3]" />
+                            ) : (
+                              <span className="text-xs font-bold font-mono">{idx + 1}</span>
+                            )}
+                          </button>
+
+                          <div className="min-w-0">
+                            <div className="flex items-center gap-2 flex-wrap mb-1">
+                              <span className="text-xs font-mono font-bold text-teal-700 bg-teal-50 px-2 py-0.5 rounded border border-teal-200/60">
+                                STAGE 0{step.stepNumber}
+                              </span>
+                              <span className="text-xs font-semibold text-slate-500">
+                                {step.focus}
+                              </span>
+                              <span className={`text-[10px] font-bold px-2 py-0.2 rounded ${
+                                step.difficulty === "Beginner" ? "bg-blue-50 text-blue-700 border border-blue-200" :
+                                step.difficulty === "Intermediate" ? "bg-amber-50 text-amber-700 border border-amber-200" :
+                                "bg-purple-50 text-purple-700 border border-purple-200"
+                              }`}>
+                                {step.difficulty}
+                              </span>
+                            </div>
+
+                            <h3 className={`text-base sm:text-lg font-bold ${
+                              isCompleted ? "text-emerald-950 line-through decoration-emerald-500/60" : "text-slate-900"
+                            }`}>
+                              {step.title}
+                            </h3>
+
+                            <p className="text-xs sm:text-sm text-slate-600 mt-1 leading-relaxed">
+                              {step.description}
+                            </p>
+
+                            <div className="mt-3.5 pt-3 border-t border-slate-100">
+                              <span className="text-[11px] font-bold text-slate-700 uppercase tracking-wider block mb-2">
+                                Core Subtopics to Master:
+                              </span>
+                              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                                {step.subtopics.map((sub, sIdx) => (
+                                  <div key={sIdx} className="flex items-center gap-2 text-xs text-slate-700 bg-slate-50 px-2.5 py-1.5 rounded-lg border border-slate-100">
+                                    <span className="w-1.5 h-1.5 rounded-full bg-teal-500 shrink-0" />
+                                    <span className="truncate">{sub}</span>
+                                  </div>
+                                ))}
+                              </div>
+                            </div>
+
+                            <div className="mt-3.5 p-3 rounded-xl bg-slate-50/80 border border-slate-100 flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs">
+                              <div className="text-slate-600">
+                                <strong className="text-slate-800">Action:</strong> {step.recommendedAction}
+                              </div>
+                              {step.resourceUrl && (
+                                <a
+                                  href={step.resourceUrl}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className="text-teal-600 hover:text-teal-700 font-bold inline-flex items-center gap-1 shrink-0 hover:underline"
+                                >
+                                  <span>{step.resourceName || "Study Guide"}</span>
+                                  <ExternalLink className="w-3 h-3" />
+                                </a>
+                              )}
+                            </div>
+                          </div>
+                        </div>
+
+                        <button
+                          onClick={() => toggleStep(step.id)}
+                          className={`text-xs font-semibold px-2.5 py-1 rounded-md shrink-0 transition-colors cursor-pointer ${
+                            isCompleted
+                              ? "bg-emerald-100 text-emerald-800 hover:bg-emerald-200"
+                              : "bg-slate-100 text-slate-700 hover:bg-teal-50 hover:text-teal-700 border border-slate-200"
+                          }`}
+                        >
+                          {isCompleted ? "Completed ✓" : "Mark Done"}
+                        </button>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
 
           </div>
 
-          {/* RIGHT 4 COLUMNS: TOP COMPANIES INTERVIEW GUIDES (Specific to Selected Role) */}
+          {/* RIGHT 4 COLUMNS: TOP COMPANIES INTERVIEW GUIDES & PREPARATION TRACKING */}
           <div className="lg:col-span-4 space-y-6">
             
-            {/* Top Companies Box */}
+            {/* Top Companies Box (Google, Microsoft, Amazon, Netflix, Meta, Adobe) */}
             <div className="bg-white border border-slate-200/90 rounded-2xl p-5 sm:p-6 shadow-xs">
               <div className="flex items-center justify-between pb-3 border-b border-slate-100 mb-4">
                 <div>
@@ -680,7 +919,7 @@ export function CareerPrepHub({ initialRoleId }: { initialRoleId?: string }) {
                     </h3>
                   </div>
                   <p className="text-xs text-slate-500 mt-0.5">
-                    Questions for <strong className="text-slate-800">{selectedRole.name}</strong>
+                    Questions &amp; hiring bars for <strong className="text-slate-800">{selectedRole.name}</strong>
                   </p>
                 </div>
                 <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-slate-100 text-slate-600 border border-slate-200">
@@ -691,7 +930,6 @@ export function CareerPrepHub({ initialRoleId }: { initialRoleId?: string }) {
               <div className="space-y-2">
                 {PREP_COMPANIES.map((company) => {
                   const roleData = company.roleQuestions[selectedRole.id] || company.roleQuestions["software-engineer"];
-                  const questionCount = roleData?.frequentlyAsked.length || 4;
 
                   return (
                     <button
@@ -760,7 +998,7 @@ export function CareerPrepHub({ initialRoleId }: { initialRoleId?: string }) {
                   href="/dashboard"
                   className="w-full py-2 rounded-xl bg-teal-600 hover:bg-teal-700 text-white font-bold text-xs text-center transition-colors"
                 >
-                  View in User Dashboard →
+                  Go to Candidate Dashboard →
                 </Link>
               </div>
             </div>
@@ -770,8 +1008,196 @@ export function CareerPrepHub({ initialRoleId }: { initialRoleId?: string }) {
         </div>
       </section>
 
-      {/* 4. TABBED DEEP DIVES: SKILLS, INTERVIEW ROUNDS, PRACTICE, PROJECTS & RESUME */}
-      <section className="container mx-auto max-w-[1360px] px-4 sm:px-6 lg:px-8 py-8 sm:py-10">
+      {/* 4. STUDY SHEETS & PRACTICE RESOURCES (6-Card Grid Matching Reference UI) */}
+      <section className="container mx-auto max-w-[1360px] px-4 sm:px-6 lg:px-8 py-8 sm:py-10 border-t border-slate-200">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-3 border-b border-slate-200 mb-6">
+          <div>
+            <div className="flex items-center gap-2">
+              <BookOpen className="w-5 h-5 text-teal-600" />
+              <h2 className="text-xl sm:text-2xl font-bold text-slate-900">
+                Study Sheets &amp; Practice Resources
+              </h2>
+            </div>
+            <p className="text-xs sm:text-sm text-slate-500 mt-0.5">
+              Quick references, cheat sheets, and curated pattern guides for technical interviews
+            </p>
+          </div>
+          <span className="text-xs text-slate-500 font-medium">
+            Calibrated for {selectedRole.name} rounds
+          </span>
+        </div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+          
+          {/* Card 1: DSA & Algorithmic Patterns */}
+          <div className="bg-white border border-slate-200/90 rounded-2xl p-5 shadow-xs flex flex-col justify-between hover:border-teal-300 transition-colors">
+            <div>
+              <div className="flex items-center justify-between mb-3">
+                <div className="w-9 h-9 rounded-lg bg-teal-50 text-teal-700 flex items-center justify-center">
+                  <Code2 className="w-5 h-5" />
+                </div>
+                <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-teal-50 text-teal-700 border border-teal-200">
+                  Core Technical
+                </span>
+              </div>
+              <h3 className="font-bold text-base text-slate-900 mb-1">
+                DSA Cheat Sheet &amp; Blind-75 Patterns
+              </h3>
+              <p className="text-xs text-slate-600 leading-relaxed mb-4">
+                Curated patterns for arrays, binary search, two pointers, sliding window, tree traversals, and dynamic programming with time/space complexity notes.
+              </p>
+            </div>
+            <button
+              onClick={() => handleSwitchTab("practice")}
+              className="text-xs font-bold text-teal-600 hover:text-teal-700 inline-flex items-center gap-1.5 cursor-pointer pt-2 border-t border-slate-100"
+            >
+              <span>Open Practice Questions</span>
+              <ArrowRight className="w-3.5 h-3.5" />
+            </button>
+          </div>
+
+          {/* Card 2: System Design & Architecture */}
+          <div className="bg-white border border-slate-200/90 rounded-2xl p-5 shadow-xs flex flex-col justify-between hover:border-teal-300 transition-colors">
+            <div>
+              <div className="flex items-center justify-between mb-3">
+                <div className="w-9 h-9 rounded-lg bg-emerald-50 text-emerald-700 flex items-center justify-center">
+                  <Layers className="w-5 h-5" />
+                </div>
+                <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-emerald-50 text-emerald-700 border border-emerald-200">
+                  Architecture
+                </span>
+              </div>
+              <h3 className="font-bold text-base text-slate-900 mb-1">
+                System Design Blueprint
+              </h3>
+              <p className="text-xs text-slate-600 leading-relaxed mb-4">
+                High-level and low-level architectural templates, microservices, load balancers, CDN caching, database sharding, and CAP theorem trade-offs.
+              </p>
+            </div>
+            <button
+              onClick={() => handleSwitchTab("projects")}
+              className="text-xs font-bold text-teal-600 hover:text-teal-700 inline-flex items-center gap-1.5 cursor-pointer pt-2 border-t border-slate-100"
+            >
+              <span>View Portfolio Architecture</span>
+              <ArrowRight className="w-3.5 h-3.5" />
+            </button>
+          </div>
+
+          {/* Card 3: SQL & Analytical Query Bank */}
+          <div className="bg-white border border-slate-200/90 rounded-2xl p-5 shadow-xs flex flex-col justify-between hover:border-teal-300 transition-colors">
+            <div>
+              <div className="flex items-center justify-between mb-3">
+                <div className="w-9 h-9 rounded-lg bg-blue-50 text-blue-700 flex items-center justify-center">
+                  <Database className="w-5 h-5" />
+                </div>
+                <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-blue-50 text-blue-700 border border-blue-200">
+                  Data &amp; DB
+                </span>
+              </div>
+              <h3 className="font-bold text-base text-slate-900 mb-1">
+                SQL Practice &amp; Query Optimization
+              </h3>
+              <p className="text-xs text-slate-600 leading-relaxed mb-4">
+                Window functions (ROW_NUMBER, DENSE_RANK), recursive CTEs, indexing strategies, join execution plans, and real-world analytical query drills.
+              </p>
+            </div>
+            <button
+              onClick={() => handleSwitchTab("practice")}
+              className="text-xs font-bold text-teal-600 hover:text-teal-700 inline-flex items-center gap-1.5 cursor-pointer pt-2 border-t border-slate-100"
+            >
+              <span>Practice Database Drills</span>
+              <ArrowRight className="w-3.5 h-3.5" />
+            </button>
+          </div>
+
+          {/* Card 4: Aptitude & Assessment Structure */}
+          <div className="bg-white border border-slate-200/90 rounded-2xl p-5 shadow-xs flex flex-col justify-between hover:border-teal-300 transition-colors">
+            <div>
+              <div className="flex items-center justify-between mb-3">
+                <div className="w-9 h-9 rounded-lg bg-amber-50 text-amber-700 flex items-center justify-center">
+                  <Zap className="w-5 h-5" />
+                </div>
+                <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-amber-50 text-amber-700 border border-amber-200">
+                  Online Screening
+                </span>
+              </div>
+              <h3 className="font-bold text-base text-slate-900 mb-1">
+                Aptitude &amp; Cognitive Drills
+              </h3>
+              <p className="text-xs text-slate-600 leading-relaxed mb-4">
+                Quantitative problem solving, probability, logical reasoning, and speed math for HackerRank, CodeSignal, and TestGorilla screening rounds.
+              </p>
+            </div>
+            <button
+              onClick={() => handleSwitchTab("interview")}
+              className="text-xs font-bold text-teal-600 hover:text-teal-700 inline-flex items-center gap-1.5 cursor-pointer pt-2 border-t border-slate-100"
+            >
+              <span>Explore Assessment Breakdown</span>
+              <ArrowRight className="w-3.5 h-3.5" />
+            </button>
+          </div>
+
+          {/* Card 5: Behavioral & STAR Method */}
+          <div className="bg-white border border-slate-200/90 rounded-2xl p-5 shadow-xs flex flex-col justify-between hover:border-teal-300 transition-colors">
+            <div>
+              <div className="flex items-center justify-between mb-3">
+                <div className="w-9 h-9 rounded-lg bg-purple-50 text-purple-700 flex items-center justify-center">
+                  <Award className="w-5 h-5" />
+                </div>
+                <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-purple-50 text-purple-700 border border-purple-200">
+                  HR &amp; Leadership
+                </span>
+              </div>
+              <h3 className="font-bold text-base text-slate-900 mb-1">
+                Behavioral &amp; STAR Framework
+              </h3>
+              <p className="text-xs text-slate-600 leading-relaxed mb-4">
+                Structure your answers with the Situation, Task, Action, Result formula. Align with Amazon Leadership Principles and engineering culture expectations.
+              </p>
+            </div>
+            <button
+              onClick={() => handleSwitchTab("interview")}
+              className="text-xs font-bold text-teal-600 hover:text-teal-700 inline-flex items-center gap-1.5 cursor-pointer pt-2 border-t border-slate-100"
+            >
+              <span>Read Behavioral Strategies</span>
+              <ArrowRight className="w-3.5 h-3.5" />
+            </button>
+          </div>
+
+          {/* Card 6: Company-Specific Vault */}
+          <div className="bg-white border border-slate-200/90 rounded-2xl p-5 shadow-xs flex flex-col justify-between hover:border-teal-300 transition-colors">
+            <div>
+              <div className="flex items-center justify-between mb-3">
+                <div className="w-9 h-9 rounded-lg bg-rose-50 text-rose-700 flex items-center justify-center">
+                  <Building2 className="w-5 h-5" />
+                </div>
+                <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-rose-50 text-rose-700 border border-rose-200">
+                  Employer Guides
+                </span>
+              </div>
+              <h3 className="font-bold text-base text-slate-900 mb-1">
+                Company-Specific Question Vault
+              </h3>
+              <p className="text-xs text-slate-600 leading-relaxed mb-4">
+                Direct interview questions and loop structures from Google, Microsoft, Amazon, Meta, Netflix, and Adobe hiring teams.
+              </p>
+            </div>
+            <button
+              onClick={() => {
+                if (PREP_COMPANIES.length > 0) setSelectedCompany(PREP_COMPANIES[0]);
+              }}
+              className="text-xs font-bold text-teal-600 hover:text-teal-700 inline-flex items-center gap-1.5 cursor-pointer pt-2 border-t border-slate-100"
+            >
+              <span>Open Google Interview Guide</span>
+              <ArrowRight className="w-3.5 h-3.5" />
+            </button>
+          </div>
+
+        </div>
+      </section>
+
+      {/* 5. TABBED DEEP DIVES: OVERVIEW, SKILLS, INTERVIEW ROUNDS, PRACTICE, PROJECTS & RESUME */}
+      <section ref={deepDivesRef} id="tabbed-deep-dives" className="container mx-auto max-w-[1360px] px-4 sm:px-6 lg:px-8 py-8 sm:py-10 border-t border-slate-200">
         
         {/* Navigation Tabs Bar */}
         <div className="flex items-center gap-2 border-b border-slate-200 pb-3 mb-8 overflow-x-auto text-xs sm:text-sm font-semibold">
@@ -802,6 +1228,71 @@ export function CareerPrepHub({ initialRoleId }: { initialRoleId?: string }) {
             );
           })}
         </div>
+
+        {/* TAB 0: OVERVIEW & ROADMAP SUMMARY */}
+        {activeTab === "roadmap" && (
+          <div className="space-y-6">
+            <div className="bg-white border border-slate-200/90 rounded-2xl p-6 shadow-xs">
+              <div className="flex items-center justify-between pb-3 border-b border-slate-100 mb-4">
+                <div>
+                  <h3 className="text-xl font-bold text-slate-900 flex items-center gap-2">
+                    <Layers className="w-5 h-5 text-teal-600" />
+                    <span>{selectedRole.name} Role Blueprint</span>
+                  </h3>
+                  <p className="text-xs text-slate-500 mt-0.5">
+                    {selectedRole.tagline}
+                  </p>
+                </div>
+                <span className="text-xs font-bold text-teal-700 bg-teal-50 px-3 py-1 rounded-full border border-teal-200">
+                  {selectedRole.overview.estimatedWeeks} Complete Track
+                </span>
+              </div>
+
+              <p className="text-sm text-slate-700 leading-relaxed mb-6">
+                Master the complete {selectedRole.name} interview curriculum from fundamental concepts to high-level architecture, hands-on coding rounds, and company-specific hiring standards.
+              </p>
+
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 pt-2">
+                <div className="p-4 rounded-xl bg-slate-50 border border-slate-100">
+                  <span className="text-xs font-bold text-slate-500 uppercase tracking-wider block mb-1">
+                    Primary Core Skills
+                  </span>
+                  <div className="flex flex-wrap gap-1.5 mt-2">
+                    {selectedRole.overview.coreSkills.map((sk, idx) => (
+                      <span key={idx} className="text-xs font-semibold px-2 py-0.5 rounded bg-white border border-slate-200 text-slate-800">
+                        {sk}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+
+                <div className="p-4 rounded-xl bg-slate-50 border border-slate-100">
+                  <span className="text-xs font-bold text-slate-500 uppercase tracking-wider block mb-1">
+                    Typical Interview Rounds
+                  </span>
+                  <div className="text-sm font-bold text-slate-900 mt-2">
+                    {selectedRole.interviewRounds.length} Rounds
+                  </div>
+                  <div className="text-xs text-slate-500 mt-1">
+                    Screening, Technical Coding, System Design &amp; Managerial
+                  </div>
+                </div>
+
+                <div className="p-4 rounded-xl bg-slate-50 border border-slate-100">
+                  <span className="text-xs font-bold text-slate-500 uppercase tracking-wider block mb-1">
+                    Curated Practice Bank
+                  </span>
+                  <div className="text-sm font-bold text-slate-900 mt-2">
+                    {selectedRole.practiceQuestions.length} Questions Ready
+                  </div>
+                  <div className="text-xs text-slate-500 mt-1">
+                    With expandable answers &amp; company frequency tags
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* TAB 1: SKILLS CHECKLIST */}
         {activeTab === "skills" && (
@@ -1289,7 +1780,7 @@ export function CareerPrepHub({ initialRoleId }: { initialRoleId?: string }) {
 
       </section>
 
-      {/* 5. CAREER GROWTH PATHWAYS (Career Ladder for Selected Role) */}
+      {/* 6. CAREER GROWTH PATHWAYS (Career Ladder for Selected Role) */}
       <section className="container mx-auto max-w-[1360px] px-4 sm:px-6 lg:px-8 py-8 sm:py-10 border-t border-slate-200">
         <div className="pb-3 border-b border-slate-200 mb-6">
           <h2 className="text-xl sm:text-2xl font-bold text-slate-900 flex items-center gap-2">
@@ -1346,7 +1837,7 @@ export function CareerPrepHub({ initialRoleId }: { initialRoleId?: string }) {
         </div>
       </section>
 
-      {/* 6. COMPANY + ROLE MODAL */}
+      {/* 7. COMPANY + ROLE MODAL */}
       {selectedCompany && (
         <div 
           className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs animate-in fade-in duration-150"
@@ -1450,7 +1941,7 @@ export function CareerPrepHub({ initialRoleId }: { initialRoleId?: string }) {
         </div>
       )}
 
-      {/* 7. BOTTOM CTA SECTION */}
+      {/* 8. BOTTOM CTA SECTION */}
       <section className="container mx-auto max-w-[1360px] px-4 sm:px-6 lg:px-8 pb-12 sm:pb-16">
         <div className="bg-gradient-to-r from-teal-900 via-slate-900 to-teal-950 text-white rounded-3xl p-8 sm:p-10 shadow-lg text-center space-y-4">
           <div className="w-12 h-12 rounded-2xl bg-teal-500/20 text-teal-400 flex items-center justify-center mx-auto">
@@ -1478,6 +1969,7 @@ export function CareerPrepHub({ initialRoleId }: { initialRoleId?: string }) {
           </div>
         </div>
       </section>
+
     </div>
   );
 }
