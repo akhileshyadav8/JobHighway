@@ -142,7 +142,7 @@ export const PREP_COMPANIES: CompanyPrepItem[] = [
   {
     id: "google",
     name: "Google",
-    logo: "https://www.google.com/favicon.ico",
+    logo: "/logos/google.svg",
     totalQuestions: 120,
     atsUsed: "Greenhouse / Internal ATS",
     hiringPhilosophy: "Focus on Googleyness, algorithmic complexity, distributed systems scalability, and clean modular code.",
@@ -194,7 +194,7 @@ export const PREP_COMPANIES: CompanyPrepItem[] = [
   {
     id: "microsoft",
     name: "Microsoft",
-    logo: "https://www.microsoft.com/favicon.ico",
+    logo: "/logos/microsoft.svg",
     totalQuestions: 100,
     atsUsed: "Internal Career Portal",
     hiringPhilosophy: "Strong emphasis on Growth Mindset, solid engineering fundamentals, object-oriented design, and customer empathy.",
@@ -246,7 +246,7 @@ export const PREP_COMPANIES: CompanyPrepItem[] = [
   {
     id: "amazon",
     name: "Amazon",
-    logo: "https://www.amazon.com/favicon.ico",
+    logo: "/logos/amazon.svg",
     totalQuestions: 150,
     atsUsed: "Internal iCIMS / Amazon Jobs",
     hiringPhilosophy: "Driven strictly by the 16 Leadership Principles (Customer Obsession, Ownership, Bias for Action, Dive Deep). Every question maps to an LP.",
@@ -298,7 +298,7 @@ export const PREP_COMPANIES: CompanyPrepItem[] = [
   {
     id: "netflix",
     name: "Netflix",
-    logo: "https://www.netflix.com/favicon.ico",
+    logo: "/logos/netflix.svg",
     totalQuestions: 85,
     atsUsed: "Lever ATS",
     hiringPhilosophy: "Freedom & Responsibility culture. Looks for senior-level autonomy, high ownership, and deep distributed systems mastery.",
@@ -350,7 +350,7 @@ export const PREP_COMPANIES: CompanyPrepItem[] = [
   {
     id: "meta",
     name: "Meta",
-    logo: "https://www.meta.com/favicon.ico",
+    logo: "/logos/meta.svg",
     totalQuestions: 125,
     atsUsed: "Internal Career Portal",
     hiringPhilosophy: "Move Fast, Focus on Long-Term Impact, and Live in the Future. Extremely fast-paced technical coding and large-scale infrastructure.",
@@ -402,7 +402,7 @@ export const PREP_COMPANIES: CompanyPrepItem[] = [
   {
     id: "adobe",
     name: "Adobe",
-    logo: "https://www.adobe.com/favicon.ico",
+    logo: "/logos/adobe.svg",
     totalQuestions: 90,
     atsUsed: "Workday ATS",
     hiringPhilosophy: "Creativity, technical precision, computer graphics, cloud microservices, and creative AI (Firefly).",

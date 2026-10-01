@@ -10,11 +10,18 @@ import {
   Eye, 
   X, 
   ChevronLeft, 
-  ChevronRight,
-  FileText,
-  Shield,
-  UserCheck,
-  Check
+  ChevronRight, 
+  FileText, 
+  Shield, 
+  UserCheck, 
+  Check,
+  Award,
+  Code2,
+  CheckCircle2,
+  Layers,
+  GraduationCap,
+  Clock,
+  Sparkles
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { getAllUsersForAdmin, adminDeleteUser, getAppliedJobs, User, AppliedJob } from "@/lib/auth";
@@ -31,6 +38,10 @@ export default function AdminUsersPage() {
   // Selected Candidate modal
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
   const [userApplications, setUserApplications] = useState<AppliedJob[]>([]);
+  const [userQuizzes, setUserQuizzes] = useState<any[]>([]);
+  const [userCodings, setUserCodings] = useState<any[]>([]);
+  const [userPrepData, setUserPrepData] = useState<{ steps: number; skills: number } | null>(null);
+  const [resumeDataUrl, setResumeDataUrl] = useState<string | null>(null);
 
   const refreshUsers = async () => {
     const localUsers = getAllUsersForAdmin();
@@ -55,6 +66,7 @@ export default function AdminUsersPage() {
               targetCtc: u.targetCtc || existing?.targetCtc,
               preferredLocation: u.preferredLocation || existing?.preferredLocation,
               skills: u.skills || existing?.skills || [],
+              resumeFile: u.resumeFile || existing?.resumeFile
             });
           });
           setUsers(Array.from(map.values()));
@@ -79,6 +91,51 @@ export default function AdminUsersPage() {
   const handleOpenUser = (u: User) => {
     setSelectedUser(u);
     setUserApplications(getAppliedJobs(u.id));
+
+    // Load Resume Data URL if saved separately
+    try {
+      const rKey = `jobhighway_resume_data_${u.id}`;
+      const savedData = localStorage.getItem(rKey);
+      setResumeDataUrl(savedData || u.resumeFile?.dataUrl || null);
+    } catch {
+      setResumeDataUrl(u.resumeFile?.dataUrl || null);
+    }
+
+    // Load Quiz history
+    try {
+      const qKey = `jobhighway_quiz_history_user_${u.id}`;
+      const qRaw = localStorage.getItem(qKey);
+      setUserQuizzes(qRaw ? JSON.parse(qRaw) : []);
+    } catch {
+      setUserQuizzes([]);
+    }
+
+    // Load Coding submissions
+    try {
+      const cKey = `jobhighway_coding_submissions_user_${u.id}`;
+      const cRaw = localStorage.getItem(cKey);
+      setUserCodings(cRaw ? JSON.parse(cRaw) : []);
+    } catch {
+      setUserCodings([]);
+    }
+
+    // Load Roadmap progress
+    try {
+      const roleSlug = (u.targetRole || "software-engineer").toLowerCase().trim().replace(/\s+/g, "-");
+      const pKey = `jobhighway_prep_user_${u.id}_${roleSlug}`;
+      const pRaw = localStorage.getItem(pKey);
+      if (pRaw) {
+        const parsed = JSON.parse(pRaw);
+        setUserPrepData({
+          steps: (parsed.completedSteps || []).length,
+          skills: (parsed.completedSkills || []).length
+        });
+      } else {
+        setUserPrepData(null);
+      }
+    } catch {
+      setUserPrepData(null);
+    }
   };
 
   const handleDeleteUser = (id: string, name: string) => {
@@ -135,10 +192,10 @@ export default function AdminUsersPage() {
         <div>
           <h1 className="text-2xl font-black text-slate-900 tracking-tight flex items-center gap-2">
             <Users className="w-6 h-6 text-teal-600" />
-            <span>Registered Users &amp; Roles ({users.length})</span>
+            <span>Registered Users &amp; Candidate Activity ({users.length})</span>
           </h1>
           <p className="text-xs text-slate-500 mt-0.5">
-            View and manage all registered candidate and operator user accounts.
+            Monitor candidate preparation readiness, quiz scores, coding submissions, and job applications.
           </p>
         </div>
 
@@ -193,12 +250,12 @@ export default function AdminUsersPage() {
           <table className="w-full text-left text-xs">
             <thead className="bg-slate-50/80 border-b border-slate-200/90 text-slate-500 font-bold uppercase tracking-wider text-[10px]">
               <tr>
-                <th className="p-3.5">Name</th>
+                <th className="p-3.5">Candidate</th>
                 <th className="p-3.5">Email</th>
-                <th className="p-3.5">Joined</th>
                 <th className="p-3.5">Target Role</th>
+                <th className="p-3.5">Resume</th>
                 <th className="p-3.5">Applications</th>
-                <th className="p-3.5">Account Role</th>
+                <th className="p-3.5">Role</th>
                 <th className="p-3.5 text-right">Actions</th>
               </tr>
             </thead>
@@ -212,6 +269,8 @@ export default function AdminUsersPage() {
               ) : (
                 pagedUsers.map((u) => {
                   const apps = getAppliedJobs(u.id);
+                  const hasResume = !!(u.resumeFile || (typeof window !== "undefined" && localStorage.getItem(`jobhighway_resume_data_${u.id}`)));
+
                   return (
                     <tr key={u.id} className="hover:bg-slate-50/70 transition-colors">
                       <td className="p-3.5 font-bold text-slate-900 flex items-center gap-2">
@@ -225,11 +284,17 @@ export default function AdminUsersPage() {
                       <td className="p-3.5 text-slate-600 font-mono text-[11px]">
                         {u.email}
                       </td>
-                      <td className="p-3.5 text-slate-400 font-mono text-[11px]">
-                        {new Date(u.createdAt).toLocaleDateString()}
-                      </td>
-                      <td className="p-3.5 text-slate-600 font-medium">
+                      <td className="p-3.5 text-slate-700 font-medium">
                         {u.targetRole || "Software Engineer"}
+                      </td>
+                      <td className="p-3.5">
+                        <span className={`px-2 py-0.5 rounded text-[10px] font-semibold border ${
+                          hasResume 
+                            ? "bg-emerald-50 text-emerald-700 border-emerald-200" 
+                            : "bg-slate-100 text-slate-500 border-slate-200"
+                        }`}>
+                          {hasResume ? "✓ Uploaded" : "Pending"}
+                        </span>
                       </td>
                       <td className="p-3.5">
                         <span className="font-semibold text-slate-700 bg-slate-100 px-2 py-0.5 rounded text-[11px]">
@@ -254,7 +319,7 @@ export default function AdminUsersPage() {
                           onClick={() => handleOpenUser(u)}
                           className="px-2.5 py-1 rounded-lg border border-teal-200 bg-teal-50 text-teal-700 hover:bg-teal-100 font-semibold text-[11px] transition-colors cursor-pointer"
                         >
-                          View
+                          View Activity
                         </button>
                         {u.id !== "admin_founder" && (
                           <button
@@ -306,13 +371,14 @@ export default function AdminUsersPage() {
         </div>
       </div>
 
-      {/* User Details Drawer Modal */}
+      {/* User Details & Preparation Performance Modal */}
       {selectedUser && (
         <div className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4">
-          <div className="bg-white rounded-2xl max-w-xl w-full p-6 shadow-2xl border border-slate-200 animate-in fade-in zoom-in-95 max-h-[85vh] overflow-y-auto">
+          <div className="bg-white rounded-2xl max-w-2xl w-full p-6 shadow-2xl border border-slate-200 animate-in fade-in zoom-in-95 max-h-[88vh] overflow-y-auto">
+            {/* Modal Header */}
             <div className="flex items-center justify-between pb-4 border-b border-slate-100">
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-full bg-teal-100 text-teal-800 font-extrabold flex items-center justify-center text-sm border border-teal-200">
+                <div className="w-11 h-11 rounded-full bg-teal-100 text-teal-800 font-extrabold flex items-center justify-center text-base border border-teal-200">
                   {selectedUser.name.slice(0, 2).toUpperCase()}
                 </div>
                 <div>
@@ -320,35 +386,142 @@ export default function AdminUsersPage() {
                   <div className="text-xs text-slate-500 font-mono">{selectedUser.email}</div>
                 </div>
               </div>
-              <button onClick={() => setSelectedUser(null)} className="text-slate-400 hover:text-slate-600 p-1">
+              <button onClick={() => setSelectedUser(null)} className="text-slate-400 hover:text-slate-600 p-1 cursor-pointer">
                 <X className="w-4 h-4" />
               </button>
             </div>
 
-            <div className="mt-4 space-y-4 text-xs">
-              <div className="grid grid-cols-2 gap-3 bg-slate-50 p-3.5 rounded-xl border border-slate-100">
+            <div className="mt-4 space-y-5 text-xs">
+              {/* Account & Profile Metrics */}
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 bg-slate-50 p-3.5 rounded-xl border border-slate-100">
                 <div>
-                  <span className="text-slate-400 block mb-0.5">Role Designation</span>
-                  <span className="font-bold text-slate-800 uppercase">{selectedUser.role}</span>
+                  <span className="text-slate-400 block mb-0.5">Target Role</span>
+                  <span className="font-bold text-slate-800">{selectedUser.targetRole || "Software Engineer"}</span>
                 </div>
                 <div>
-                  <span className="text-slate-400 block mb-0.5">Target Work Mode</span>
+                  <span className="text-slate-400 block mb-0.5">Location Preference</span>
                   <span className="font-bold text-slate-800">{selectedUser.preferredLocation || "Any / Remote"}</span>
                 </div>
                 <div>
-                  <span className="text-slate-400 block mb-0.5">Account Created</span>
-                  <span className="font-mono text-slate-700">{new Date(selectedUser.createdAt).toLocaleString()}</span>
+                  <span className="text-slate-400 block mb-0.5">Account Role</span>
+                  <span className="font-bold text-slate-800 uppercase">{selectedUser.role}</span>
                 </div>
                 <div>
-                  <span className="text-slate-400 block mb-0.5">Total Tracked Jobs</span>
+                  <span className="text-slate-400 block mb-0.5">Applications</span>
                   <span className="font-bold text-teal-700">{userApplications.length} applied</span>
                 </div>
               </div>
 
+              {/* Resume File & Parsed Skills */}
+              <div className="p-3.5 bg-slate-50/70 border border-slate-200 rounded-xl space-y-2">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <FileText className="w-4 h-4 text-teal-600" />
+                    <span className="font-bold text-slate-900">Uploaded Resume</span>
+                  </div>
+                  {resumeDataUrl ? (
+                    <a
+                      href={resumeDataUrl}
+                      download={selectedUser.resumeFile?.name || "candidate_resume.pdf"}
+                      className="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg bg-teal-50 hover:bg-teal-100 text-teal-700 border border-teal-200 font-bold transition-colors"
+                    >
+                      <Download className="w-3.5 h-3.5" />
+                      <span>Download Resume ({selectedUser.resumeFile?.name || "resume.pdf"})</span>
+                    </a>
+                  ) : (
+                    <span className="text-slate-400 italic">No resume uploaded yet</span>
+                  )}
+                </div>
+
+                {selectedUser.skills && selectedUser.skills.length > 0 && (
+                  <div className="pt-2 border-t border-slate-100">
+                    <span className="text-[10px] font-bold uppercase text-slate-500 block mb-1">Parsed Profile Skills:</span>
+                    <div className="flex flex-wrap gap-1">
+                      {selectedUser.skills.map((sk, idx) => (
+                        <span key={idx} className="px-2 py-0.5 rounded bg-white border border-slate-200 text-slate-700 text-[11px] font-medium">
+                          {sk}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              {/* Career Preparation & Assessment Performance */}
+              <div className="space-y-3">
+                <h4 className="font-bold text-sm text-slate-900 flex items-center gap-1.5">
+                  <GraduationCap className="w-4 h-4 text-teal-600" />
+                  <span>Career Preparation &amp; Assessment Performance</span>
+                </h4>
+
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                  {/* Quizzes Stat */}
+                  <div className="p-3 rounded-xl bg-teal-50/50 border border-teal-200/80">
+                    <span className="text-slate-500 block text-[11px]">Mock Assessments</span>
+                    <div className="text-lg font-black text-teal-700 mt-0.5">
+                      {userQuizzes.length} Attempted
+                    </div>
+                    <span className="text-[10px] text-slate-500">
+                      {userQuizzes.length > 0 
+                        ? `Avg Score: ${Math.round(userQuizzes.reduce((acc, q) => acc + (q.percentage || 0), 0) / userQuizzes.length)}%` 
+                        : "No tests taken"}
+                    </span>
+                  </div>
+
+                  {/* Coding Stat */}
+                  <div className="p-3 rounded-xl bg-blue-50/50 border border-blue-200/80">
+                    <span className="text-slate-500 block text-[11px]">Coding Practice</span>
+                    <div className="text-lg font-black text-blue-700 mt-0.5">
+                      {userCodings.filter(c => c.status === "Accepted").length} Solved
+                    </div>
+                    <span className="text-[10px] text-slate-500">
+                      {userCodings.length} total code submissions
+                    </span>
+                  </div>
+
+                  {/* Roadmap Stat */}
+                  <div className="p-3 rounded-xl bg-purple-50/50 border border-purple-200/80">
+                    <span className="text-slate-500 block text-[11px]">Roadmap Progress</span>
+                    <div className="text-lg font-black text-purple-700 mt-0.5">
+                      {userPrepData?.steps || 0} Stages Done
+                    </div>
+                    <span className="text-[10px] text-slate-500">
+                      {userPrepData?.skills || 0} skills checked
+                    </span>
+                  </div>
+                </div>
+
+                {/* Recent Quiz Attempts List */}
+                {userQuizzes.length > 0 && (
+                  <div className="space-y-1.5 pt-1">
+                    <span className="text-[11px] font-bold text-slate-700 uppercase tracking-wider block">
+                      Recent Assessment History:
+                    </span>
+                    {userQuizzes.slice(0, 3).map((quiz) => (
+                      <div key={quiz.id} className="p-2.5 rounded-lg border border-slate-200 bg-white flex items-center justify-between text-xs">
+                        <div>
+                          <span className="font-bold text-slate-900">{quiz.quizTitle}</span>
+                          <div className="text-[10px] text-slate-400">{new Date(quiz.completedAt).toLocaleString()}</div>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <span className="font-bold font-mono text-slate-800">{quiz.score}/{quiz.totalQuestions} ({quiz.percentage}%)</span>
+                          <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded ${
+                            quiz.passed ? "bg-emerald-50 text-emerald-700 border border-emerald-200" : "bg-rose-50 text-rose-700 border border-rose-200"
+                          }`}>
+                            {quiz.passed ? "PASSED" : "FAILED"}
+                          </span>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              {/* Submitted Applications */}
               <div>
                 <h4 className="font-bold text-sm text-slate-900 mb-2 flex items-center gap-1.5">
-                  <FileText className="w-4 h-4 text-teal-600" />
-                  <span>Submitted Applications</span>
+                  <CheckCircle2 className="w-4 h-4 text-teal-600" />
+                  <span>Submitted Applications ({userApplications.length})</span>
                 </h4>
                 {userApplications.length === 0 ? (
                   <div className="p-4 text-center text-slate-400 bg-slate-50 rounded-xl border border-dashed border-slate-200">
@@ -370,6 +543,7 @@ export default function AdminUsersPage() {
                   </div>
                 )}
               </div>
+
             </div>
           </div>
         </div>

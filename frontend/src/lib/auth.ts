@@ -240,7 +240,33 @@ export function getCurrentUser(): User | null {
       }
     }
     if (!raw) return null;
-    return JSON.parse(raw);
+    const sessionUser: User = JSON.parse(raw);
+
+    // Rehydrate from stored users to guarantee resumeFile, skills, phone, etc. are never lost across refreshes or sessions
+    const users = getStoredUsers();
+    const stored = users.find(u => u.id === sessionUser.id || u.email.toLowerCase() === sessionUser.email.toLowerCase());
+    if (stored) {
+      const merged: User = {
+        ...stored,
+        ...sessionUser,
+        resumeFile: stored.resumeFile || sessionUser.resumeFile
+      };
+      if (merged.resumeFile && !merged.resumeFile.dataUrl) {
+        const dedicatedDataUrl = localStorage.getItem(`jobhighway_resume_data_${merged.id}`);
+        if (dedicatedDataUrl) {
+          merged.resumeFile.dataUrl = dedicatedDataUrl;
+        }
+      }
+      return merged;
+    }
+
+    if (sessionUser.resumeFile && !sessionUser.resumeFile.dataUrl) {
+      const dedicatedDataUrl = localStorage.getItem(`jobhighway_resume_data_${sessionUser.id}`);
+      if (dedicatedDataUrl) {
+        sessionUser.resumeFile.dataUrl = dedicatedDataUrl;
+      }
+    }
+    return sessionUser;
   } catch {
     return null;
   }
@@ -278,15 +304,8 @@ export function loginAdmin(email: string, password?: string): { user?: User; err
   }
 
   const safeAdmin: User = {
-    id: adminUser.id,
-    name: adminUser.name,
-    email: adminUser.email,
-    role: "admin",
-    createdAt: adminUser.createdAt,
-    targetCtc: adminUser.targetCtc,
-    preferredLocation: adminUser.preferredLocation,
-    targetRole: adminUser.targetRole,
-    skills: adminUser.skills
+    ...adminUser,
+    role: "admin"
   };
 
   localStorage.setItem(SESSION_STORAGE_KEY, JSON.stringify(safeAdmin));
@@ -334,17 +353,16 @@ export function loginUser(email: string, password?: string): { user?: User; erro
     localStorage.setItem(USERS_STORAGE_KEY, JSON.stringify(users));
   }
 
-  const safeUser: User = {
-    id: user.id,
-    name: user.name,
-    email: user.email,
-    role: user.role === "admin" && cleanEmail === ADMIN_EMAIL ? "admin" : "user",
-    createdAt: user.createdAt,
-    targetCtc: user.targetCtc,
-    preferredLocation: user.preferredLocation,
-    targetRole: user.targetRole,
-    skills: user.skills
-  };
+  // CRITICAL: Preserve all candidate profile fields including resumeFile, phone, skills, etc.
+  const { passwordHash: _, ...safeUser } = user;
+  safeUser.role = user.role === "admin" && cleanEmail === ADMIN_EMAIL ? "admin" : "user";
+
+  if (safeUser.resumeFile && !safeUser.resumeFile.dataUrl) {
+    const dedicatedDataUrl = localStorage.getItem(`jobhighway_resume_data_${safeUser.id}`);
+    if (dedicatedDataUrl) {
+      safeUser.resumeFile.dataUrl = dedicatedDataUrl;
+    }
+  }
 
   localStorage.setItem(SESSION_STORAGE_KEY, JSON.stringify(safeUser));
   window.dispatchEvent(new Event("jobhighway_auth_change"));
@@ -564,21 +582,77 @@ export function logoutUser(): void {
 
 export function updateUserProfile(userId: string, updates: Partial<User>): User | null {
   if (!isBrowser()) return null;
-  const users = getStoredUsers();
-  const index = users.findIndex(u => u.id === userId);
-  if (index === -1) return null;
+  try {
+    const users = getStoredUsers();
+    const index = users.findIndex(u => u.id === userId);
+    if (index === -1) return null;
 
-  const updated: User = { ...users[index], ...updates };
-  users[index] = updated;
-  localStorage.setItem(USERS_STORAGE_KEY, JSON.stringify(users));
+    // Handle resume dataUrl: store in dedicated key so localStorage quota is not exceeded
+    if (updates.resumeFile && updates.resumeFile.dataUrl) {
+      try {
+        localStorage.setItem(`jobhighway_resume_data_${userId}`, updates.resumeFile.dataUrl);
+      } catch (e) {
+        console.warn("Storage warning when saving resume dataUrl");
+      }
+    } else if (updates.resumeFile === undefined && Object.prototype.hasOwnProperty.call(updates, "resumeFile")) {
+      try {
+        localStorage.removeItem(`jobhighway_resume_data_${userId}`);
+      } catch (e) {}
+    }
 
-  const current = getCurrentUser();
-  if (current && current.id === userId) {
-    localStorage.setItem(SESSION_STORAGE_KEY, JSON.stringify(updated));
-    window.dispatchEvent(new Event("jobhighway_auth_change"));
+    const updated: User = { ...users[index], ...updates };
+    users[index] = updated;
+
+    try {
+      localStorage.setItem(USERS_STORAGE_KEY, JSON.stringify(users));
+    } catch (e) {
+      // If quota exceeded, strip large dataUrls from the array
+      const strippedUsers = users.map(u => {
+        if (u.resumeFile && u.resumeFile.dataUrl && u.resumeFile.dataUrl.length > 50000) {
+          return { ...u, resumeFile: { ...u.resumeFile, dataUrl: undefined } };
+        }
+        return u;
+      });
+      localStorage.setItem(USERS_STORAGE_KEY, JSON.stringify(strippedUsers));
+    }
+
+    const current = getCurrentUser();
+    if (current && (current.id === userId || current.email.toLowerCase() === updated.email.toLowerCase())) {
+      try {
+        localStorage.setItem(SESSION_STORAGE_KEY, JSON.stringify(updated));
+      } catch (e) {
+        const strippedCurrent = {
+          ...updated,
+          resumeFile: updated.resumeFile ? { ...updated.resumeFile, dataUrl: undefined } : undefined
+        };
+        localStorage.setItem(SESSION_STORAGE_KEY, JSON.stringify(strippedCurrent));
+      }
+      window.dispatchEvent(new Event("jobhighway_auth_change"));
+    }
+
+    // Sync with backend PostgreSQL database asynchronously
+    try {
+      fetch("/api/admin/users", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          id: updated.id,
+          name: updated.name,
+          email: updated.email,
+          role: updated.role,
+          targetRole: updated.targetRole,
+          targetCtc: updated.targetCtc,
+          preferredLocation: updated.preferredLocation,
+          skills: updated.skills
+        })
+      }).catch(() => {});
+    } catch {}
+
+    return updated;
+  } catch (err) {
+    console.error("updateUserProfile error:", err);
+    return null;
   }
-
-  return updated;
 }
 
 // ---------------- Applied Jobs Management ----------------
