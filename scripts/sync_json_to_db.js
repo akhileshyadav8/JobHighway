@@ -35,8 +35,8 @@ async function main() {
       if (!companyMap.has(compSlug)) {
         try {
           const insertRes = await client.query(`
-            INSERT INTO companies (name, slug, website, logo_url, industry, headquarters, ats_type, is_active)
-            VALUES ($1, $2, $3, $4, $5, $6, 'ats', true)
+            INSERT INTO companies (name, slug, website, logo_url, industry, headquarters, ats_type, employee_count_range, is_active)
+            VALUES ($1, $2, $3, $4, $5, $6, 'ats', '1–50', true)
             ON CONFLICT (slug) DO UPDATE SET name = EXCLUDED.name
             RETURNING id
           `, [
@@ -129,7 +129,16 @@ async function main() {
 
     console.log(`[+] Finished syncing ${added} jobs to Supabase!`);
 
-    // 4. Verify new max posted_at
+    // 4. Purge jobs older than 14 days to preserve Supabase free tier storage (<500MB)
+    console.log('[*] Purging jobs older than 14 days to preserve Supabase free tier storage (<500MB)...');
+    const purgeRes = await client.query(`
+      DELETE FROM jobs 
+      WHERE (posted_at IS NOT NULL AND posted_at < NOW() - INTERVAL '14 DAYS') 
+         OR (posted_at IS NULL AND first_seen_at < NOW() - INTERVAL '14 DAYS');
+    `);
+    console.log(`[+] Purged ${purgeRes.rowCount || 0} stale jobs.`);
+
+    // 5. Verify new max posted_at & count
     const finalStats = await client.query('SELECT count(*), max(posted_at), min(posted_at) FROM jobs WHERE status = \'active\'');
     console.log('[+] Final Supabase Jobs Stats:', finalStats.rows[0]);
 

@@ -203,6 +203,7 @@ export function InteractiveJobFeed({ initialJobs, stats, initialTotal, initialTo
   const [selectedCompany, setSelectedCompany] = useState("All");
   type SortBy = "newest" | "fresher_highest_salary" | "high_salary_newest" | "oldest" | "salary_high" | "salary_low";
   const [sortBy, setSortBy] = useState<SortBy>("newest");
+  const [freshOnly, setFreshOnly] = useState(false);
   const [viewMode, setViewMode] = useState<"cards" | "list">("cards");
   const [isMobileFilterOpen, setIsMobileFilterOpen] = useState(false);
   const [showMoreCountries, setShowMoreCountries] = useState(false);
@@ -270,6 +271,7 @@ export function InteractiveJobFeed({ initialJobs, stats, initialTotal, initialTo
       params.set("page", String(targetPage));
       params.set("limit", "50");
       if (searchQuery.trim()) params.set("search", searchQuery.trim());
+      if (freshOnly) params.set("fresh", "true");
       if (selectedCountry !== "All") params.set("country", selectedCountry);
       if (selectedState !== "All") params.set("state", selectedState);
       if (selectedCity !== "All") params.set("city", selectedCity);
@@ -294,7 +296,7 @@ export function InteractiveJobFeed({ initialJobs, stats, initialTotal, initialTo
     } finally {
       setIsFetchingPage(false);
     }
-  }, [searchQuery, selectedCountry, selectedState, selectedCity, selectedCompany, activeFilters, sortBy]);
+  }, [searchQuery, freshOnly, selectedCountry, selectedState, selectedCity, selectedCompany, activeFilters, sortBy]);
 
   // When filters or search or sort change, reset to Page 1 and query server (debounced for search)
   useEffect(() => {
@@ -306,7 +308,7 @@ export function InteractiveJobFeed({ initialJobs, stats, initialTotal, initialTo
       fetchPageData(1);
     }, 300);
     return () => clearTimeout(timer);
-  }, [searchQuery, selectedCountry, selectedState, selectedCity, selectedCompany, activeFilters, sortBy, fetchPageData]);
+  }, [searchQuery, freshOnly, selectedCountry, selectedState, selectedCity, selectedCompany, activeFilters, sortBy, fetchPageData]);
 
   const handlePageChange = (targetPage: number) => {
     if (targetPage < 1 || targetPage > totalPages || targetPage === currentPage) return;
@@ -695,6 +697,7 @@ export function InteractiveJobFeed({ initialJobs, stats, initialTotal, initialTo
         selectedState,
         selectedCity,
         selectedCompany,
+        freshOnly,
         sortBy,
         activeFilters,
         currentPage
@@ -703,6 +706,7 @@ export function InteractiveJobFeed({ initialJobs, stats, initialTotal, initialTo
 
       const params = new URLSearchParams();
       if (searchQuery.trim()) params.set("q", searchQuery.trim());
+      if (freshOnly) params.set("fresh", "true");
       if (selectedCountry !== "All") params.set("country", selectedCountry);
       if (selectedState !== "All") params.set("state", selectedState);
       if (selectedCity !== "All") params.set("city", selectedCity);
@@ -718,10 +722,11 @@ export function InteractiveJobFeed({ initialJobs, stats, initialTotal, initialTo
     } catch (e) {
       // ignore
     }
-  }, [searchQuery, selectedCountry, selectedState, selectedCity, selectedCompany, sortBy, activeFilters, currentPage]);
+  }, [searchQuery, freshOnly, selectedCountry, selectedState, selectedCity, selectedCompany, sortBy, activeFilters, currentPage]);
 
   const resetFilters = () => {
     setSearchQuery("");
+    setFreshOnly(false);
     setSelectedCountry("All");
     setSelectedState("All");
     setSelectedCity("All");
@@ -788,6 +793,7 @@ export function InteractiveJobFeed({ initialJobs, stats, initialTotal, initialTo
   const isFiltered = useMemo(() => {
     return (
       searchQuery.trim() !== "" ||
+      freshOnly ||
       selectedCountry !== "All" ||
       selectedState !== "All" ||
       selectedCity !== "All" ||
@@ -795,7 +801,7 @@ export function InteractiveJobFeed({ initialJobs, stats, initialTotal, initialTo
       sortBy !== "newest" ||
       Object.values(activeFilters).some(v => v !== "All")
     );
-  }, [searchQuery, selectedCountry, selectedState, selectedCity, selectedCompany, sortBy, activeFilters]);
+  }, [searchQuery, freshOnly, selectedCountry, selectedState, selectedCity, selectedCompany, sortBy, activeFilters]);
 
   const displayedJobs = jobsList;
 
@@ -1336,10 +1342,10 @@ export function InteractiveJobFeed({ initialJobs, stats, initialTotal, initialTo
               {/* Fresh (<24h) */}
               <button
                 type="button"
-                onClick={() => setSortBy(sortBy === "newest" ? "high_salary_newest" : "newest")}
+                onClick={() => setFreshOnly(prev => !prev)}
                 className={`px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition-colors cursor-pointer border ${
-                  sortBy === "newest"
-                    ? "bg-emerald-50 text-emerald-800 border-emerald-300"
+                  freshOnly
+                    ? "bg-emerald-50 text-emerald-800 border-emerald-300 ring-2 ring-emerald-400/20"
                     : "bg-white text-slate-700 border-slate-200 hover:bg-slate-50 hover:border-slate-300"
                 }`}
               >
@@ -1483,16 +1489,16 @@ export function InteractiveJobFeed({ initialJobs, stats, initialTotal, initialTo
                 </div>
                 {[
                   { label: "All Countries", value: "All", count: totalJobs },
-                  { label: "India", value: "India", count: Math.round(totalJobs * 0.384) },
-                  { label: "United States", value: "United States", count: Math.round(totalJobs * 0.282) },
-                  { label: "Canada", value: "Canada", count: Math.round(totalJobs * 0.081) },
-                  { label: "United Kingdom", value: "United Kingdom", count: Math.round(totalJobs * 0.071) },
-                  { label: "Germany", value: "Germany", count: Math.round(totalJobs * 0.052) },
+                  { label: "United States", value: "United States", count: stats?.filter_counts?.us || Math.round(totalJobs * 0.104) },
+                  { label: "India", value: "India", count: stats?.filter_counts?.india || Math.round(totalJobs * 0.044) },
+                  { label: "Canada", value: "Canada", count: Math.round(totalJobs * 0.038) },
+                  { label: "United Kingdom", value: "United Kingdom", count: Math.round(totalJobs * 0.035) },
+                  { label: "Germany", value: "Germany", count: Math.round(totalJobs * 0.028) },
                   ...(showMoreCountries ? [
-                    { label: "Australia", value: "Australia", count: Math.round(totalJobs * 0.038) },
-                    { label: "Singapore", value: "Singapore", count: Math.round(totalJobs * 0.026) },
-                    { label: "Netherlands", value: "Netherlands", count: Math.round(totalJobs * 0.024) },
-                    { label: "France", value: "France", count: Math.round(totalJobs * 0.022) }
+                    { label: "Australia", value: "Australia", count: Math.round(totalJobs * 0.021) },
+                    { label: "Singapore", value: "Singapore", count: Math.round(totalJobs * 0.018) },
+                    { label: "Netherlands", value: "Netherlands", count: Math.round(totalJobs * 0.015) },
+                    { label: "France", value: "France", count: Math.round(totalJobs * 0.012) }
                   ] : [])
                 ].map((c) => {
                   const isChecked = selectedCountry === c.value || (c.value === "All" && selectedCountry === "All");
@@ -1532,10 +1538,10 @@ export function InteractiveJobFeed({ initialJobs, stats, initialTotal, initialTo
                 </div>
                 {[
                   { label: "All Types", value: "All", count: totalJobs },
-                  { label: "Full-time", value: "Full Time", count: Math.round(totalJobs * 0.812) },
-                  { label: "Part-time", value: "Part Time", count: Math.round(totalJobs * 0.046) },
-                  { label: "Contract", value: "Contract", count: Math.round(totalJobs * 0.082) },
-                  { label: "Internship", value: "Internship", count: Math.round(totalJobs * 0.060) }
+                  { label: "Full-time", value: "Full Time", count: stats?.filter_counts?.full_time || Math.round(totalJobs * 0.96) },
+                  { label: "Part-time", value: "Part Time", count: stats?.filter_counts?.part_time || Math.round(totalJobs * 0.016) },
+                  { label: "Contract", value: "Contract", count: stats?.filter_counts?.contract || Math.round(totalJobs * 0.026) },
+                  { label: "Internship", value: "Internship", count: stats?.filter_counts?.internship || Math.round(totalJobs * 0.019) }
                 ].map((t) => {
                   const isChecked = activeFilters["Job Type"] === t.value || (t.value === "All" && activeFilters["Job Type"] === "All");
                   return (
@@ -1567,9 +1573,9 @@ export function InteractiveJobFeed({ initialJobs, stats, initialTotal, initialTo
                 </div>
                 {[
                   { label: "All Modes", value: "All", count: totalJobs },
-                  { label: "On-site", value: "Onsite", count: Math.round(totalJobs * 0.442) },
-                  { label: "Remote", value: "Remote", count: Math.round(totalJobs * 0.318) },
-                  { label: "Hybrid", value: "Hybrid", count: Math.round(totalJobs * 0.240) }
+                  { label: "On-site", value: "Onsite", count: stats?.filter_counts?.onsite || Math.round(totalJobs * 0.856) },
+                  { label: "Remote", value: "Remote", count: stats?.filter_counts?.remote || Math.round(totalJobs * 0.106) },
+                  { label: "Hybrid", value: "Hybrid", count: stats?.filter_counts?.hybrid || Math.round(totalJobs * 0.047) }
                 ].map((w) => {
                   const isChecked = activeFilters["Work Mode"] === w.value || (w.value === "All" && activeFilters["Work Mode"] === "All");
                   return (

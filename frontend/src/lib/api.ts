@@ -68,6 +68,9 @@ export interface Company {
   employee_count_range: string | null;
   description: string | null;
   active_job_count: number;
+  remote_job_count?: number;
+  internship_job_count?: number;
+  fresher_job_count?: number;
 }
 
 export interface PaginatedResponse<T> {
@@ -78,6 +81,18 @@ export interface PaginatedResponse<T> {
   total_pages: number;
 }
 
+export interface FilterCounts {
+  full_time: number;
+  part_time: number;
+  contract: number;
+  internship: number;
+  onsite: number;
+  remote: number;
+  hybrid: number;
+  india?: number;
+  us?: number;
+}
+
 export interface OverviewStats {
   total_jobs: number;
   total_companies: number;
@@ -86,6 +101,7 @@ export interface OverviewStats {
   new_7d?: number;
   expired_jobs?: number;
   ats_sources?: any[];
+  filter_counts?: FilterCounts;
   last_updated: string;
 }
 
@@ -118,8 +134,9 @@ export async function getJobs(params?: Record<string, string>): Promise<Paginate
         experience: params?.experience,
         salary: params?.salary,
         sort: params?.sort,
+        fresh: params?.fresh,
       });
-      if (paginatedRes && paginatedRes.items.length > 0) {
+      if (paginatedRes !== null) {
         return {
           items: paginatedRes.items,
           total: paginatedRes.total,

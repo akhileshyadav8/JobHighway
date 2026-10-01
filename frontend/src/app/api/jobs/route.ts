@@ -23,6 +23,7 @@ export async function GET(request: NextRequest) {
     experience: searchParams.get('experience') || undefined,
     salary: searchParams.get('salary') || undefined,
     sort: searchParams.get('sort') || undefined,
+    fresh: searchParams.get('fresh') === 'true' || searchParams.get('fresh') === '1' || searchParams.get('postedWithin') === '24h' ? true : undefined,
   };
 
   try {
@@ -100,13 +101,39 @@ export async function GET(request: NextRequest) {
   if (filterParams.company && filterParams.company !== 'All') {
     filtered = filtered.filter(j => j.company.slug === filterParams.company || j.company.name.toLowerCase() === filterParams.company?.toLowerCase());
   }
+  if (filterParams.fresh) {
+    const oneDayAgo = Date.now() - 24 * 60 * 60 * 1000;
+    filtered = filtered.filter(j => {
+      const pt = j.posted_at ? new Date(j.posted_at).getTime() : (j.first_seen_at ? new Date(j.first_seen_at).getTime() : 0);
+      return pt >= oneDayAgo;
+    });
+  }
   if (filterParams.jobType && filterParams.jobType !== 'All') {
-    const jt = filterParams.jobType.toLowerCase();
-    filtered = filtered.filter(j => (j.employment_type || '').toLowerCase().includes(jt) || j.title.toLowerCase().includes(jt));
+    const jtRaw = filterParams.jobType.toLowerCase().replace(/[-_]/g, ' ').trim();
+    if (jtRaw.includes('full')) {
+      filtered = filtered.filter(j => (j.employment_type || '').toLowerCase().includes('full') || /full[- ]time/i.test(j.title));
+    } else if (jtRaw.includes('part')) {
+      filtered = filtered.filter(j => (j.employment_type || '').toLowerCase().includes('part') || /part[- ]time/i.test(j.title));
+    } else if (jtRaw.includes('intern')) {
+      filtered = filtered.filter(j => (j.employment_type || '').toLowerCase().includes('intern') || /intern/i.test(j.title));
+    } else if (jtRaw.includes('contract')) {
+      filtered = filtered.filter(j => (j.employment_type || '').toLowerCase().includes('contract') || /contract/i.test(j.title));
+    } else {
+      filtered = filtered.filter(j => (j.employment_type || '').toLowerCase().includes(jtRaw));
+    }
   }
   if (filterParams.workMode && filterParams.workMode !== 'All') {
-    const wm = filterParams.workMode.toLowerCase();
-    filtered = filtered.filter(j => (j.work_mode || '').toLowerCase().includes(wm) || j.location.some((l: string) => l.toLowerCase().includes(wm)));
+    const wmRaw = filterParams.workMode.toLowerCase().replace(/[-_]/g, '').trim();
+    if (wmRaw.includes('onsite') || wmRaw.includes('inoffice') || wmRaw.includes('office')) {
+      filtered = filtered.filter(j => {
+        const m = (j.work_mode || '').toLowerCase();
+        return m.includes('office') || m.includes('onsite') || m.includes('on-site') || j.location.some((l: string) => /office|onsite|on-site/i.test(l));
+      });
+    } else if (wmRaw.includes('remote')) {
+      filtered = filtered.filter(j => (j.work_mode || '').toLowerCase().includes('remote') || j.location.some((l: string) => l.toLowerCase().includes('remote')));
+    } else if (wmRaw.includes('hybrid')) {
+      filtered = filtered.filter(j => (j.work_mode || '').toLowerCase().includes('hybrid') || j.location.some((l: string) => l.toLowerCase().includes('hybrid')));
+    }
   }
   if (filterParams.experience && filterParams.experience !== 'All') {
     if (filterParams.experience === '0-1') {

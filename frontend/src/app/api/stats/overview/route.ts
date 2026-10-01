@@ -17,7 +17,14 @@ export async function GET() {
           (SELECT count(*) FROM jobs WHERE status = 'active' AND posted_at >= NOW() - INTERVAL '24 HOURS') as new_today,
           (SELECT count(*) FROM jobs WHERE status = 'active' AND posted_at >= NOW() - INTERVAL '1 HOUR') as new_this_hour,
           (SELECT count(*) FROM jobs WHERE status = 'active' AND posted_at >= NOW() - INTERVAL '7 DAYS') as new_7d,
-          (SELECT count(*) FROM jobs WHERE status = 'expired' OR ((posted_at IS NOT NULL AND posted_at < NOW() - INTERVAL '14 DAYS') OR (posted_at IS NULL AND first_seen_at < NOW() - INTERVAL '14 DAYS'))) as expired_jobs;
+          (SELECT count(*) FROM jobs WHERE status = 'expired' OR ((posted_at IS NOT NULL AND posted_at < NOW() - INTERVAL '14 DAYS') OR (posted_at IS NULL AND first_seen_at < NOW() - INTERVAL '14 DAYS'))) as expired_jobs,
+          (SELECT count(*) FROM jobs WHERE status = 'active' AND ((posted_at IS NOT NULL AND posted_at >= NOW() - INTERVAL '14 DAYS') OR (posted_at IS NULL AND first_seen_at >= NOW() - INTERVAL '14 DAYS')) AND (employment_type ILIKE '%full%' OR title ILIKE '%full-time%' OR title ILIKE '%full time%')) as count_full_time,
+          (SELECT count(*) FROM jobs WHERE status = 'active' AND ((posted_at IS NOT NULL AND posted_at >= NOW() - INTERVAL '14 DAYS') OR (posted_at IS NULL AND first_seen_at >= NOW() - INTERVAL '14 DAYS')) AND (employment_type ILIKE '%part%' OR title ILIKE '%part-time%' OR title ILIKE '%part time%')) as count_part_time,
+          (SELECT count(*) FROM jobs WHERE status = 'active' AND ((posted_at IS NOT NULL AND posted_at >= NOW() - INTERVAL '14 DAYS') OR (posted_at IS NULL AND first_seen_at >= NOW() - INTERVAL '14 DAYS')) AND (employment_type ILIKE '%contract%' OR title ILIKE '%contract%')) as count_contract,
+          (SELECT count(*) FROM jobs WHERE status = 'active' AND ((posted_at IS NOT NULL AND posted_at >= NOW() - INTERVAL '14 DAYS') OR (posted_at IS NULL AND first_seen_at >= NOW() - INTERVAL '14 DAYS')) AND (employment_type ILIKE '%intern%' OR title ILIKE '%intern%')) as count_internship,
+          (SELECT count(*) FROM jobs WHERE status = 'active' AND ((posted_at IS NOT NULL AND posted_at >= NOW() - INTERVAL '14 DAYS') OR (posted_at IS NULL AND first_seen_at >= NOW() - INTERVAL '14 DAYS')) AND (work_mode IN ('In-Office', 'On-site', 'Onsite', 'Office') OR work_mode ILIKE '%office%' OR work_mode ILIKE '%onsite%' OR location::text ILIKE '%in-office%' OR location::text ILIKE '%on-site%')) as count_onsite,
+          (SELECT count(*) FROM jobs WHERE status = 'active' AND ((posted_at IS NOT NULL AND posted_at >= NOW() - INTERVAL '14 DAYS') OR (posted_at IS NULL AND first_seen_at >= NOW() - INTERVAL '14 DAYS')) AND (work_mode ILIKE '%remote%' OR location::text ILIKE '%remote%')) as count_remote,
+          (SELECT count(*) FROM jobs WHERE status = 'active' AND ((posted_at IS NOT NULL AND posted_at >= NOW() - INTERVAL '14 DAYS') OR (posted_at IS NULL AND first_seen_at >= NOW() - INTERVAL '14 DAYS')) AND (work_mode ILIKE '%hybrid%' OR location::text ILIKE '%hybrid%')) as count_hybrid;
       `);
       
       const row = res.rows[0];
@@ -39,6 +46,15 @@ export async function GET() {
         new_7d: new7d > 0 ? new7d : Math.round(totalJobs * 0.31),
         expired_jobs: expiredJobs,
         ats_sources: atsDistribution,
+        filter_counts: {
+          full_time: Number(row?.count_full_time || 0),
+          part_time: Number(row?.count_part_time || 0),
+          contract: Number(row?.count_contract || 0),
+          internship: Number(row?.count_internship || 0),
+          onsite: Number(row?.count_onsite || 0),
+          remote: Number(row?.count_remote || 0),
+          hybrid: Number(row?.count_hybrid || 0),
+        },
         source: 'database',
         last_updated: new Date().toISOString()
       }, {

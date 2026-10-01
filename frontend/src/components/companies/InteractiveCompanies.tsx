@@ -179,44 +179,44 @@ export function InteractiveCompanies({ initialCompanies, initialStats, initialSe
     return Array.from(map.entries()).sort((a, b) => b[1] - a[1]);
   }, [initialCompanies]);
 
+function matchesCompanySize(rangeStr: string | null | undefined, bucketKey: string): boolean {
+  if (!rangeStr) return bucketKey === '1-50';
+  const r = rangeStr.replace(/\s/g, '').toLowerCase();
+  if (bucketKey === '1-50') {
+    return r.includes('1–50') || r.includes('1-50') || r.includes('1to50');
+  }
+  if (bucketKey === '51-200') {
+    return r.includes('51–200') || r.includes('51-200');
+  }
+  if (bucketKey === '201-1000') {
+    return r.includes('201–1,000') || r.includes('201-1000') || r.includes('201–1000') || r.includes('201-1,000');
+  }
+  if (bucketKey === '1001-5000') {
+    return r.includes('1,001–5,000') || r.includes('1001-5000') || r.includes('1001–5000') || r.includes('1,001-5,000');
+  }
+  if (bucketKey === '5000+') {
+    return r.includes('5,000+') || r.includes('5000+') || r.includes('10,001+') || r.includes('10001+') || r.includes('10k');
+  }
+  return false;
+}
+
   // Company size categories with counts
   const sizeBuckets = useMemo(() => {
-    let s1_50 = 0;
-    let s51_200 = 0;
-    let s201_1000 = 0;
-    let s1001_5000 = 0;
-    let s5000_plus = 0;
-
-    initialCompanies.forEach(c => {
-      const range = (c.employee_count_range || "").toLowerCase();
-      if (range.includes("10k") || range.includes("10,001") || range.includes("5,000+") || range.includes("5000+")) {
-        s5000_plus++;
-      } else if (range.includes("1,001") || range.includes("1000-5000") || range.includes("1k-10k") || range.includes("5,001")) {
-        s1001_5000++;
-      } else if (range.includes("201") || range.includes("500")) {
-        s201_1000++;
-      } else if (range.includes("51-200") || range.includes("100")) {
-        s51_200++;
-      } else {
-        s1_50++;
-      }
-    });
-
     return [
-      { key: "1-50", label: "1–50", count: s1_50 || 4231 },
-      { key: "51-200", label: "51–200", count: s51_200 || 3876 },
-      { key: "201-1000", label: "201–1,000", count: s201_1000 || 4982 },
-      { key: "1001-5000", label: "1,001–5,000", count: s1001_5000 || 3410 },
-      { key: "5000+", label: "5,000+", count: s5000_plus || 3376 },
+      { key: "1-50", label: "1–50", count: initialCompanies.filter(c => matchesCompanySize(c.employee_count_range, "1-50")).length },
+      { key: "51-200", label: "51–200", count: initialCompanies.filter(c => matchesCompanySize(c.employee_count_range, "51-200")).length },
+      { key: "201-1000", label: "201–1,000", count: initialCompanies.filter(c => matchesCompanySize(c.employee_count_range, "201-1000")).length },
+      { key: "1001-5000", label: "1,001–5,000", count: initialCompanies.filter(c => matchesCompanySize(c.employee_count_range, "1001-5000")).length },
+      { key: "5000+", label: "5,000+", count: initialCompanies.filter(c => matchesCompanySize(c.employee_count_range, "5000+")).length },
     ];
   }, [initialCompanies]);
 
   // Feature counts
   const featureBuckets = useMemo(() => {
-    const hiring = initialCompanies.filter(c => (c.active_job_count || 0) > 0).length || initialCompanies.length;
-    const remote = Math.round(initialCompanies.length * 0.42) || 8432;
-    const internship = Math.round(initialCompanies.length * 0.16) || 3210;
-    const fresher = Math.round(initialCompanies.length * 0.31) || 6124;
+    const hiring = initialCompanies.filter(c => (c.active_job_count || 0) > 0).length;
+    const remote = initialCompanies.filter(c => (c.remote_job_count || 0) > 0 || (c.headquarters || "").toLowerCase().includes("remote")).length;
+    const internship = initialCompanies.filter(c => (c.internship_job_count || 0) > 0).length;
+    const fresher = initialCompanies.filter(c => (c.fresher_job_count || 0) > 0).length;
 
     return [
       { key: "hiring", label: "Currently Hiring", count: hiring },
@@ -254,31 +254,20 @@ export function InteractiveCompanies({ initialCompanies, initialStats, initialSe
 
     // Size filter
     if (selectedSize !== "All") {
-      if (selectedSize === "5000+") {
-        list = list.filter(c => {
-          const r = (c.employee_count_range || "").toLowerCase();
-          return r.includes("10k") || r.includes("10,001") || r.includes("5,000+") || r.includes("5000+");
-        });
-      } else if (selectedSize === "1001-5000") {
-        list = list.filter(c => {
-          const r = (c.employee_count_range || "").toLowerCase();
-          return r.includes("1,001") || r.includes("1000-5000") || r.includes("1k-10k") || r.includes("5,001");
-        });
-      } else if (selectedSize === "201-1000") {
-        list = list.filter(c => (c.employee_count_range || "").includes("201") || (c.employee_count_range || "").includes("500"));
-      } else if (selectedSize === "51-200") {
-        list = list.filter(c => (c.employee_count_range || "").includes("51") || (c.employee_count_range || "").includes("100"));
-      } else if (selectedSize === "1-50") {
-        list = list.filter(c => (c.employee_count_range || "").includes("1-50") || (c.employee_count_range || "").includes("10"));
-      }
+      list = list.filter(c => matchesCompanySize(c.employee_count_range, selectedSize));
     }
 
     // Feature filter
     if (selectedFeature !== "All") {
       if (selectedFeature === "hiring") {
         list = list.filter(c => (c.active_job_count || 0) > 0);
+      } else if (selectedFeature === "remote") {
+        list = list.filter(c => (c.remote_job_count || 0) > 0 || (c.headquarters || "").toLowerCase().includes("remote"));
+      } else if (selectedFeature === "internship") {
+        list = list.filter(c => (c.internship_job_count || 0) > 0);
+      } else if (selectedFeature === "fresher") {
+        list = list.filter(c => (c.fresher_job_count || 0) > 0);
       }
-      // Note: other feature filters operate over current active companies
     }
 
     // Sorting
@@ -546,7 +535,7 @@ export function InteractiveCompanies({ initialCompanies, initialStats, initialSe
               <div className="flex items-center gap-2">
                 <input
                   type="checkbox"
-                  checked={selectedFeature === bucket.key || (bucket.key === "hiring" && selectedFeature === "All")}
+                  checked={selectedFeature === bucket.key}
                   onChange={() => setSelectedFeature(selectedFeature === bucket.key ? "All" : bucket.key)}
                   className="w-3.5 h-3.5 rounded text-teal-600 focus:ring-teal-500 border-slate-300"
                 />

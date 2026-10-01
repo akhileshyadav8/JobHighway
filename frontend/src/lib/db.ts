@@ -50,6 +50,7 @@ export interface JobFilterParams {
   experience?: string;
   salary?: string;
   sort?: string;
+  fresh?: boolean | string;
 }
 
 export interface PaginatedJobResult {
@@ -210,20 +211,51 @@ export async function getLiveJobsPaginated(params: JobFilterParams = {}): Promis
       paramIdx++;
     }
 
-    // 6. Job Type
-    if (params.jobType && params.jobType !== 'All') {
-      const jt = `%${params.jobType}%`;
-      conditions.push(`j.employment_type ILIKE $${paramIdx}`);
-      values.push(jt);
-      paramIdx++;
+    // 6. Fresh (<24h) Filter
+    if (params.fresh === true || params.fresh === 'true' || params.fresh === '1') {
+      conditions.push("(j.posted_at >= NOW() - INTERVAL '24 HOURS' OR (j.posted_at IS NULL AND j.first_seen_at >= NOW() - INTERVAL '24 HOURS'))");
     }
 
-    // 7. Work Mode
+    // 7. Job Type (Normalized matching for Full-time, Part-time, Contract, Internship)
+    if (params.jobType && params.jobType !== 'All') {
+      const jtRaw = params.jobType.toLowerCase().replace(/[-_]/g, ' ').trim();
+      if (jtRaw.includes('full')) {
+        conditions.push(`(j.employment_type ILIKE '%full%' OR j.title ILIKE '%full-time%' OR j.title ILIKE '%full time%')`);
+      } else if (jtRaw.includes('part')) {
+        conditions.push(`(j.employment_type ILIKE '%part%' OR j.title ILIKE '%part-time%' OR j.title ILIKE '%part time%')`);
+      } else if (jtRaw.includes('intern')) {
+        conditions.push(`(j.employment_type ILIKE '%intern%' OR j.title ILIKE '%intern%')`);
+      } else if (jtRaw.includes('contract')) {
+        conditions.push(`(j.employment_type ILIKE '%contract%' OR j.title ILIKE '%contract%')`);
+      } else {
+        const jt = `%${params.jobType}%`;
+        conditions.push(`(j.employment_type ILIKE $${paramIdx} OR j.title ILIKE $${paramIdx})`);
+        values.push(jt);
+        paramIdx++;
+      }
+    }
+
+    // 8. Work Mode (Normalized matching: On-site / In-Office, Remote, Hybrid)
     if (params.workMode && params.workMode !== 'All') {
-      const wm = `%${params.workMode}%`;
-      conditions.push(`(j.work_mode ILIKE $${paramIdx} OR j.location::text ILIKE $${paramIdx})`);
-      values.push(wm);
-      paramIdx++;
+      const wmRaw = params.workMode.toLowerCase().replace(/[-_]/g, '').trim();
+      if (wmRaw.includes('onsite') || wmRaw.includes('inoffice') || wmRaw.includes('office')) {
+        conditions.push(`(
+          j.work_mode IN ('In-Office', 'On-site', 'Onsite', 'Office') 
+          OR j.work_mode ILIKE '%office%' 
+          OR j.work_mode ILIKE '%onsite%' 
+          OR j.location::text ILIKE '%in-office%' 
+          OR j.location::text ILIKE '%on-site%'
+        )`);
+      } else if (wmRaw.includes('remote')) {
+        conditions.push(`(j.work_mode ILIKE '%remote%' OR j.location::text ILIKE '%remote%')`);
+      } else if (wmRaw.includes('hybrid')) {
+        conditions.push(`(j.work_mode ILIKE '%hybrid%' OR j.location::text ILIKE '%hybrid%')`);
+      } else {
+        const wm = `%${params.workMode}%`;
+        conditions.push(`(j.work_mode ILIKE $${paramIdx} OR j.location::text ILIKE $${paramIdx})`);
+        values.push(wm);
+        paramIdx++;
+      }
     }
 
     // 8. Experience Level
@@ -469,7 +501,16 @@ export async function getLiveStatsFromDb(): Promise<OverviewStats | null> {
         (SELECT count(*) FROM jobs WHERE status = 'active' AND ((posted_at IS NOT NULL AND posted_at >= NOW() - INTERVAL '14 DAYS') OR (posted_at IS NULL AND first_seen_at >= NOW() - INTERVAL '14 DAYS'))) as total_jobs,
         (SELECT count(DISTINCT company_id) FROM jobs WHERE status = 'active' AND ((posted_at IS NOT NULL AND posted_at >= NOW() - INTERVAL '14 DAYS') OR (posted_at IS NULL AND first_seen_at >= NOW() - INTERVAL '14 DAYS'))) as total_companies,
         (SELECT count(*) FROM jobs WHERE status = 'active' AND posted_at >= NOW() - INTERVAL '24 HOURS') as new_today,
-        (SELECT count(*) FROM jobs WHERE status = 'active' AND posted_at >= NOW() - INTERVAL '1 HOUR') as new_this_hour;
+        (SELECT count(*) FROM jobs WHERE status = 'active' AND posted_at >= NOW() - INTERVAL '1 HOUR') as new_this_hour,
+        (SELECT count(*) FROM jobs WHERE status = 'active' AND posted_at >= NOW() - INTERVAL '7 DAYS') as new_7d,
+        (SELECT count(*) FROM jobs WHERE status = 'expired' OR ((posted_at IS NOT NULL AND posted_at < NOW() - INTERVAL '14 DAYS') OR (posted_at IS NULL AND first_seen_at < NOW() - INTERVAL '14 DAYS'))) as expired_jobs,
+        (SELECT count(*) FROM jobs WHERE status = 'active' AND ((posted_at IS NOT NULL AND posted_at >= NOW() - INTERVAL '14 DAYS') OR (posted_at IS NULL AND first_seen_at >= NOW() - INTERVAL '14 DAYS')) AND (employment_type ILIKE '%full%' OR title ILIKE '%full-time%' OR title ILIKE '%full time%')) as count_full_time,
+        (SELECT count(*) FROM jobs WHERE status = 'active' AND ((posted_at IS NOT NULL AND posted_at >= NOW() - INTERVAL '14 DAYS') OR (posted_at IS NULL AND first_seen_at >= NOW() - INTERVAL '14 DAYS')) AND (employment_type ILIKE '%part%' OR title ILIKE '%part-time%' OR title ILIKE '%part time%')) as count_part_time,
+        (SELECT count(*) FROM jobs WHERE status = 'active' AND ((posted_at IS NOT NULL AND posted_at >= NOW() - INTERVAL '14 DAYS') OR (posted_at IS NULL AND first_seen_at >= NOW() - INTERVAL '14 DAYS')) AND (employment_type ILIKE '%contract%' OR title ILIKE '%contract%')) as count_contract,
+        (SELECT count(*) FROM jobs WHERE status = 'active' AND ((posted_at IS NOT NULL AND posted_at >= NOW() - INTERVAL '14 DAYS') OR (posted_at IS NULL AND first_seen_at >= NOW() - INTERVAL '14 DAYS')) AND (employment_type ILIKE '%intern%' OR title ILIKE '%intern%')) as count_internship,
+        (SELECT count(*) FROM jobs WHERE status = 'active' AND ((posted_at IS NOT NULL AND posted_at >= NOW() - INTERVAL '14 DAYS') OR (posted_at IS NULL AND first_seen_at >= NOW() - INTERVAL '14 DAYS')) AND (work_mode IN ('In-Office', 'On-site', 'Onsite', 'Office') OR work_mode ILIKE '%office%' OR work_mode ILIKE '%onsite%' OR location::text ILIKE '%in-office%' OR location::text ILIKE '%on-site%')) as count_onsite,
+        (SELECT count(*) FROM jobs WHERE status = 'active' AND ((posted_at IS NOT NULL AND posted_at >= NOW() - INTERVAL '14 DAYS') OR (posted_at IS NULL AND first_seen_at >= NOW() - INTERVAL '14 DAYS')) AND (work_mode ILIKE '%remote%' OR location::text ILIKE '%remote%')) as count_remote,
+        (SELECT count(*) FROM jobs WHERE status = 'active' AND ((posted_at IS NOT NULL AND posted_at >= NOW() - INTERVAL '14 DAYS') OR (posted_at IS NULL AND first_seen_at >= NOW() - INTERVAL '14 DAYS')) AND (work_mode ILIKE '%hybrid%' OR location::text ILIKE '%hybrid%')) as count_hybrid;
     `);
     const row = res.rows[0];
     const stats: OverviewStats = {
@@ -477,6 +518,17 @@ export async function getLiveStatsFromDb(): Promise<OverviewStats | null> {
       total_companies: Number(row?.total_companies || 0),
       new_today: Number(row?.new_today || 0),
       new_this_hour: Number(row?.new_this_hour || 0),
+      new_7d: Number(row?.new_7d || 0),
+      expired_jobs: Number(row?.expired_jobs || 0),
+      filter_counts: {
+        full_time: Number(row?.count_full_time || 0),
+        part_time: Number(row?.count_part_time || 0),
+        contract: Number(row?.count_contract || 0),
+        internship: Number(row?.count_internship || 0),
+        onsite: Number(row?.count_onsite || 0),
+        remote: Number(row?.count_remote || 0),
+        hybrid: Number(row?.count_hybrid || 0),
+      },
       last_updated: new Date().toISOString(),
     };
     cachedOverviewStats = {
@@ -619,11 +671,14 @@ export async function getLiveCompaniesFromDb(): Promise<Company[] | null> {
         c.headquarters, 
         c.employee_count_range, 
         c.description,
-        count(j.id) as active_job_count
+        count(j.id) as active_job_count,
+        count(CASE WHEN j.work_mode ILIKE '%remote%' OR j.location::text ILIKE '%remote%' THEN 1 END) as remote_job_count,
+        count(CASE WHEN j.employment_type ILIKE '%intern%' OR j.title ILIKE '%intern%' THEN 1 END) as internship_job_count,
+        count(CASE WHEN (j.experience_min = 0 OR j.experience_min IS NULL OR j.title ILIKE '%intern%' OR j.title ILIKE '%fresher%' OR j.title ILIKE '%trainee%' OR j.title ILIKE '%graduate%') AND (j.title NOT ILIKE '%senior%' AND j.title NOT ILIKE '%sr.%' AND j.title NOT ILIKE '%lead%') THEN 1 END) as fresher_job_count
       FROM companies c
       JOIN jobs j ON j.company_id = c.id
       WHERE j.status = 'active'
-      AND (j.posted_at >= NOW() - INTERVAL '14 DAYS' OR j.first_seen_at >= NOW() - INTERVAL '14 DAYS')
+      AND ((j.posted_at IS NOT NULL AND j.posted_at >= NOW() - INTERVAL '14 DAYS') OR (j.posted_at IS NULL AND j.first_seen_at >= NOW() - INTERVAL '14 DAYS'))
       GROUP BY c.id
       HAVING count(j.id) > 0
       ORDER BY active_job_count DESC;
@@ -640,9 +695,12 @@ export async function getLiveCompaniesFromDb(): Promise<Company[] | null> {
       logo_url: row.logo_url || null,
       industry: row.industry || 'Technology',
       headquarters: row.headquarters || null,
-      employee_count_range: row.employee_count_range || null,
+      employee_count_range: row.employee_count_range || '1–50',
       description: row.description || `${row.name} is actively hiring verified talent worldwide on official career portals.`,
-      active_job_count: Number(row.active_job_count || 0)
+      active_job_count: Number(row.active_job_count || 0),
+      remote_job_count: Number(row.remote_job_count || 0),
+      internship_job_count: Number(row.internship_job_count || 0),
+      fresher_job_count: Number(row.fresher_job_count || 0),
     }));
   } catch (error) {
     console.error('getLiveCompaniesFromDb error:', error);
