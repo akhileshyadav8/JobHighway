@@ -560,6 +560,207 @@ export async function getLiveStatsFromDb(): Promise<OverviewStats | null> {
   }
 }
 
+// JobFacets type (same shape as JobFacets in api.ts — kept in sync manually to avoid circular import)
+type JobFacets = {
+  total: number;
+  full_time: number; part_time: number; contract: number; internship: number;
+  onsite: number; remote: number; hybrid: number;
+  us: number; india: number; canada: number; uk: number; germany: number;
+  australia: number; singapore: number; netherlands: number; france: number;
+};
+
+/**
+ * Builds the 14-day base WHERE conditions + any active filter conditions (same logic as getLiveJobsPaginated)
+ * but EXCLUDES a specific dimension so we can count that dimension cross-tabulated.
+ * Returns { whereClause, values } ready to use in SQL.
+ */
+function buildFacetConditions(
+  params: JobFilterParams,
+  excludeDimension?: 'country' | 'jobType' | 'workMode'
+): { conditions: string[]; values: any[]; paramIdx: number } {
+  const conditions: string[] = [
+    "j.status = 'active'",
+    "((j.posted_at IS NOT NULL AND j.posted_at >= NOW() - INTERVAL '14 DAYS') OR (j.posted_at IS NULL AND j.first_seen_at >= NOW() - INTERVAL '14 DAYS'))"
+  ];
+  const values: any[] = [];
+  let paramIdx = 1;
+
+  // Search
+  if (params.search && params.search.trim()) {
+    const term = `%${params.search.trim()}%`;
+    conditions.push(`(j.title ILIKE $${paramIdx} OR j.description_text ILIKE $${paramIdx} OR j.skills_required::text ILIKE $${paramIdx} OR j.location::text ILIKE $${paramIdx})`);
+    values.push(term);
+    paramIdx++;
+  }
+
+  // Country (excluded when counting country facets)
+  if (excludeDimension !== 'country' && params.country && params.country !== 'All') {
+    if (params.country === 'Remote') {
+      conditions.push(`(j.work_mode ILIKE '%remote%' OR j.location::text ILIKE '%remote%')`);
+    } else if (params.country.toLowerCase() === 'india') {
+      conditions.push(`(j.location::text ~* '\\mIndia\\M' OR j.location::text ILIKE '%bengaluru%' OR j.location::text ILIKE '%bangalore%' OR j.location::text ILIKE '%mumbai%' OR j.location::text ILIKE '%delhi%' OR j.location::text ILIKE '%hyderabad%' OR j.location::text ILIKE '%pune%' OR j.location::text ILIKE '%chennai%' OR j.location::text ILIKE '%noida%' OR j.location::text ILIKE '%gurgaon%' OR j.location::text ILIKE '%gurugram%')`);
+    } else if (params.country.toLowerCase() === 'united states' || params.country.toLowerCase() === 'usa') {
+      conditions.push(`(j.location::text ~* '\\m(United States|USA|US)\\M' OR j.location::text ILIKE '%san francisco%' OR j.location::text ILIKE '%new york%' OR j.location::text ILIKE '%seattle%' OR j.location::text ILIKE '%california%' OR j.location::text ILIKE '%austin%')`);
+    } else {
+      const cTerm = `%${params.country}%`;
+      conditions.push(`j.location::text ILIKE $${paramIdx}`);
+      values.push(cTerm);
+      paramIdx++;
+    }
+  }
+
+  // Job Type (excluded when counting job type facets)
+  if (excludeDimension !== 'jobType' && params.jobType && params.jobType !== 'All') {
+    const jtRaw = params.jobType.toLowerCase().replace(/[-_]/g, ' ').trim();
+    if (jtRaw.includes('full')) {
+      conditions.push(`(j.employment_type ILIKE '%full%' OR j.title ILIKE '%full-time%' OR j.title ILIKE '%full time%')`);
+    } else if (jtRaw.includes('part')) {
+      conditions.push(`(j.employment_type ILIKE '%part%' OR j.title ILIKE '%part-time%' OR j.title ILIKE '%part time%')`);
+    } else if (jtRaw.includes('intern')) {
+      conditions.push(`(j.employment_type ILIKE '%intern%' OR j.title ILIKE '%intern%')`);
+    } else if (jtRaw.includes('contract')) {
+      conditions.push(`(j.employment_type ILIKE '%contract%' OR j.title ILIKE '%contract%')`);
+    } else {
+      const jt = `%${params.jobType}%`;
+      conditions.push(`(j.employment_type ILIKE $${paramIdx} OR j.title ILIKE $${paramIdx})`);
+      values.push(jt);
+      paramIdx++;
+    }
+  }
+
+  // Work Mode (excluded when counting work mode facets)
+  if (excludeDimension !== 'workMode' && params.workMode && params.workMode !== 'All') {
+    const wmRaw = params.workMode.toLowerCase().replace(/[-_]/g, '').trim();
+    if (wmRaw.includes('onsite') || wmRaw.includes('inoffice') || wmRaw.includes('office')) {
+      conditions.push(`(j.work_mode IN ('In-Office', 'On-site', 'Onsite', 'Office') OR j.work_mode ILIKE '%office%' OR j.work_mode ILIKE '%onsite%' OR j.location::text ILIKE '%in-office%' OR j.location::text ILIKE '%on-site%')`);
+    } else if (wmRaw.includes('remote')) {
+      conditions.push(`(j.work_mode ILIKE '%remote%' OR j.location::text ILIKE '%remote%')`);
+    } else if (wmRaw.includes('hybrid')) {
+      conditions.push(`(j.work_mode ILIKE '%hybrid%' OR j.location::text ILIKE '%hybrid%')`);
+    } else {
+      const wm = `%${params.workMode}%`;
+      conditions.push(`(j.work_mode ILIKE $${paramIdx} OR j.location::text ILIKE $${paramIdx})`);
+      values.push(wm);
+      paramIdx++;
+    }
+  }
+
+  // Fresh filter
+  if (params.fresh === true || params.fresh === 'true' || params.fresh === '1') {
+    conditions.push("(j.posted_at >= NOW() - INTERVAL '24 HOURS' OR (j.posted_at IS NULL AND j.first_seen_at >= NOW() - INTERVAL '24 HOURS'))");
+  }
+
+  // Experience
+  if (params.experience && params.experience !== 'All') {
+    if (params.experience === '0-1') {
+      conditions.push(`((j.experience_min = 0 OR j.experience_min IS NULL OR j.title ILIKE '%intern%' OR j.title ILIKE '%fresher%' OR j.title ILIKE '%trainee%' OR j.title ILIKE '%graduate%') AND (j.title NOT ILIKE '%senior%' AND j.title NOT ILIKE '%sr.%' AND j.title NOT ILIKE '%lead%' AND j.title NOT ILIKE '%principal%' AND j.title NOT ILIKE '%director%' AND j.title NOT ILIKE '%manager%'))`);
+    } else if (params.experience === '1-3') {
+      conditions.push(`(j.experience_min >= 1 AND j.experience_min <= 3)`);
+    } else if (params.experience === '3-5') {
+      conditions.push(`(j.experience_min >= 3 AND j.experience_min <= 5)`);
+    } else if (params.experience === '5+') {
+      conditions.push(`(j.experience_min >= 5 OR j.title ILIKE '%senior%' OR j.title ILIKE '%sr.%' OR j.title ILIKE '%lead%' OR j.title ILIKE '%principal%' OR j.title ILIKE '%director%')`);
+    }
+  }
+
+  return { conditions, values, paramIdx };
+}
+
+export async function getLiveJobFacets(params: JobFilterParams = {}): Promise<JobFacets | null> {
+  const p = getPool();
+  if (!p) return null;
+
+  try {
+    // Base context: all active filters combined (for the total count)
+    const baseCtx = buildFacetConditions(params);
+    const baseWhere = `WHERE ${baseCtx.conditions.join(' AND ')}`;
+
+    // Context without country filter — for counting country facets
+    const ctxNoCountry = buildFacetConditions(params, 'country');
+    const whereNoCountry = `WHERE ${ctxNoCountry.conditions.join(' AND ')}`;
+
+    // Context without jobType filter — for counting jobType facets
+    const ctxNoJobType = buildFacetConditions(params, 'jobType');
+    const whereNoJobType = `WHERE ${ctxNoJobType.conditions.join(' AND ')}`;
+
+    // Context without workMode filter — for counting workMode facets
+    const ctxNoWorkMode = buildFacetConditions(params, 'workMode');
+    const whereNoWorkMode = `WHERE ${ctxNoWorkMode.conditions.join(' AND ')}`;
+
+    // Run all counts in a single SQL statement using inline subqueries per filtered context.
+    // IMPORTANT: Each subquery uses its own parameter set — we embed each WHERE clause
+    // using separate queries to avoid paramIdx collision across different CTEs.
+    // We batch them into 4 DB calls (one per dimension context) and combine results.
+
+    const [totalRes, jobTypeRes, workModeRes, countryRes] = await Promise.all([
+      // 1. Total count under full filter
+      p.query(`SELECT count(*)::int as total FROM jobs j ${baseWhere}`, baseCtx.values),
+
+      // 2. Job Type counts (with country + workMode + experience applied, but NOT jobType)
+      p.query(`
+        SELECT
+          count(*) FILTER (WHERE j.employment_type ILIKE '%full%' OR j.title ILIKE '%full-time%' OR j.title ILIKE '%full time%')::int as full_time,
+          count(*) FILTER (WHERE j.employment_type ILIKE '%part%' OR j.title ILIKE '%part-time%' OR j.title ILIKE '%part time%')::int as part_time,
+          count(*) FILTER (WHERE j.employment_type ILIKE '%contract%' OR j.title ILIKE '%contract%')::int as contract,
+          count(*) FILTER (WHERE j.employment_type ILIKE '%intern%' OR j.title ILIKE '%intern%')::int as internship
+        FROM jobs j ${whereNoJobType}
+      `, ctxNoJobType.values),
+
+      // 3. Work Mode counts (with country + jobType + experience applied, but NOT workMode)
+      p.query(`
+        SELECT
+          count(*) FILTER (WHERE j.work_mode IN ('In-Office', 'On-site', 'Onsite', 'Office') OR j.work_mode ILIKE '%office%' OR j.work_mode ILIKE '%onsite%' OR j.location::text ILIKE '%in-office%' OR j.location::text ILIKE '%on-site%')::int as onsite,
+          count(*) FILTER (WHERE j.work_mode ILIKE '%remote%' OR j.location::text ILIKE '%remote%')::int as remote,
+          count(*) FILTER (WHERE j.work_mode ILIKE '%hybrid%' OR j.location::text ILIKE '%hybrid%')::int as hybrid
+        FROM jobs j ${whereNoWorkMode}
+      `, ctxNoWorkMode.values),
+
+      // 4. Country counts (with jobType + workMode + experience applied, but NOT country)
+      p.query(`
+        SELECT
+          count(*) FILTER (WHERE j.location::text ~* '\\m(United States|USA|US)\\M' OR j.location::text ILIKE '%san francisco%' OR j.location::text ILIKE '%new york%' OR j.location::text ILIKE '%seattle%' OR j.location::text ILIKE '%california%' OR j.location::text ILIKE '%austin%')::int as us,
+          count(*) FILTER (WHERE j.location::text ~* '\\mIndia\\M' OR j.location::text ILIKE '%bengaluru%' OR j.location::text ILIKE '%bangalore%' OR j.location::text ILIKE '%mumbai%' OR j.location::text ILIKE '%delhi%' OR j.location::text ILIKE '%hyderabad%' OR j.location::text ILIKE '%pune%' OR j.location::text ILIKE '%chennai%' OR j.location::text ILIKE '%noida%' OR j.location::text ILIKE '%gurgaon%' OR j.location::text ILIKE '%gurugram%')::int as india,
+          count(*) FILTER (WHERE j.location::text ILIKE '%canada%' OR j.location::text ILIKE '%toronto%' OR j.location::text ILIKE '%vancouver%')::int as canada,
+          count(*) FILTER (WHERE j.location::text ILIKE '%united kingdom%' OR j.location::text ILIKE '%london%' OR j.location::text ~* '\\mUK\\M')::int as uk,
+          count(*) FILTER (WHERE j.location::text ILIKE '%germany%' OR j.location::text ILIKE '%berlin%' OR j.location::text ILIKE '%munich%')::int as germany,
+          count(*) FILTER (WHERE j.location::text ILIKE '%australia%' OR j.location::text ILIKE '%sydney%' OR j.location::text ILIKE '%melbourne%')::int as australia,
+          count(*) FILTER (WHERE j.location::text ILIKE '%singapore%')::int as singapore,
+          count(*) FILTER (WHERE j.location::text ILIKE '%netherlands%' OR j.location::text ILIKE '%amsterdam%')::int as netherlands,
+          count(*) FILTER (WHERE j.location::text ILIKE '%france%' OR j.location::text ILIKE '%paris%')::int as france
+        FROM jobs j ${whereNoCountry}
+      `, ctxNoCountry.values),
+    ]);
+
+    const tr = totalRes.rows[0];
+    const jtr = jobTypeRes.rows[0];
+    const wmr = workModeRes.rows[0];
+    const cr = countryRes.rows[0];
+
+    return {
+      total: Number(tr?.total || 0),
+      full_time: Number(jtr?.full_time || 0),
+      part_time: Number(jtr?.part_time || 0),
+      contract: Number(jtr?.contract || 0),
+      internship: Number(jtr?.internship || 0),
+      onsite: Number(wmr?.onsite || 0),
+      remote: Number(wmr?.remote || 0),
+      hybrid: Number(wmr?.hybrid || 0),
+      us: Number(cr?.us || 0),
+      india: Number(cr?.india || 0),
+      canada: Number(cr?.canada || 0),
+      uk: Number(cr?.uk || 0),
+      germany: Number(cr?.germany || 0),
+      australia: Number(cr?.australia || 0),
+      singapore: Number(cr?.singapore || 0),
+      netherlands: Number(cr?.netherlands || 0),
+      france: Number(cr?.france || 0),
+    };
+  } catch (error) {
+    console.error('getLiveJobFacets error:', error);
+    return null;
+  }
+}
+
 export async function getLiveJobBySlugFromDb(slug: string): Promise<Job | null> {
   const p = getPool();
   if (!p) return null;

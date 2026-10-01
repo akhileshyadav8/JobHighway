@@ -100,6 +100,26 @@ export interface FilterCounts {
   france?: number;
 }
 
+export interface JobFacets {
+  total: number;
+  full_time: number;
+  part_time: number;
+  contract: number;
+  internship: number;
+  onsite: number;
+  remote: number;
+  hybrid: number;
+  us: number;
+  india: number;
+  canada: number;
+  uk: number;
+  germany: number;
+  australia: number;
+  singapore: number;
+  netherlands: number;
+  france: number;
+}
+
 export interface OverviewStats {
   total_jobs: number;
   total_companies: number;

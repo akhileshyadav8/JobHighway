@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useMemo, useEffect, useCallback, useRef } from "react";
-import { Job, OverviewStats } from "@/lib/api";
+import { Job, OverviewStats, JobFacets } from "@/lib/api";
 import { JobCard } from "@/components/jobs/JobCard";
 import { Search, X, RotateCcw, MapPin, Globe, Building2, ArrowUpDown, Navigation, Briefcase, GraduationCap, Laptop, Zap, ShieldCheck, Clock, Bookmark, ChevronRight, ChevronLeft, ChevronDown, ChevronUp, ArrowLeftRight, Check, LayoutGrid, List, SlidersHorizontal, CheckSquare, Square, Star } from "lucide-react";
 import { ALL_WORLD_COUNTRIES, COUNTRY_STATES, STATE_CITIES } from "@/lib/world_locations";
@@ -207,6 +207,7 @@ export function InteractiveJobFeed({ initialJobs, stats, initialTotal, initialTo
   const [viewMode, setViewMode] = useState<"cards" | "list">("cards");
   const [isMobileFilterOpen, setIsMobileFilterOpen] = useState(false);
   const [showMoreCountries, setShowMoreCountries] = useState(false);
+  const [facets, setFacets] = useState<JobFacets | null | undefined>(undefined);
   const [activeFilters, setActiveFilters] = useState<Record<string, string>>({
     "Job Type": "All",
     "Work Mode": "All",
@@ -309,6 +310,38 @@ export function InteractiveJobFeed({ initialJobs, stats, initialTotal, initialTo
     }, 300);
     return () => clearTimeout(timer);
   }, [searchQuery, freshOnly, selectedCountry, selectedState, selectedCity, selectedCompany, activeFilters, sortBy, fetchPageData]);
+
+  // Fetch dynamic facet counts whenever filters change
+  const fetchFacets = useCallback(async () => {
+    try {
+      const params = new URLSearchParams();
+      if (searchQuery.trim()) params.set("search", searchQuery.trim());
+      if (freshOnly) params.set("fresh", "true");
+      if (selectedCountry !== "All") params.set("country", selectedCountry);
+      if (selectedState !== "All") params.set("state", selectedState);
+      if (selectedCity !== "All") params.set("city", selectedCity);
+      if (selectedCompany !== "All") params.set("company", selectedCompany);
+      if (activeFilters["Job Type"] !== "All") params.set("jobType", activeFilters["Job Type"]);
+      if (activeFilters["Work Mode"] !== "All") params.set("workMode", activeFilters["Work Mode"]);
+      if (activeFilters["Experience"] !== "All") params.set("experience", activeFilters["Experience"]);
+
+      const res = await fetch(`/api/jobs/facets?${params.toString()}`);
+      if (res.ok) {
+        const data = await res.json();
+        setFacets(data);
+      }
+    } catch (e) {
+      console.warn("Failed to fetch facets:", e);
+    }
+  }, [searchQuery, freshOnly, selectedCountry, selectedState, selectedCity, selectedCompany, activeFilters]);
+
+  // Fetch facets on mount and when filters change (same deps as fetchPageData, debounced)
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      fetchFacets();
+    }, 300);
+    return () => clearTimeout(timer);
+  }, [fetchFacets]);
 
   const handlePageChange = (targetPage: number) => {
     if (targetPage < 1 || targetPage > totalPages || targetPage === currentPage) return;
@@ -1489,17 +1522,17 @@ export function InteractiveJobFeed({ initialJobs, stats, initialTotal, initialTo
                   </span>
                 </div>
                 {[
-                  { label: "All Countries", value: "All", count: stats?.total_jobs || (totalJobs > 1000 ? totalJobs : 28766) },
-                  { label: "United States", value: "United States", count: stats?.filter_counts?.us ?? 3005 },
-                  { label: "India", value: "India", count: stats?.filter_counts?.india ?? 1277 },
-                  { label: "Canada", value: "Canada", count: stats?.filter_counts?.canada ?? 1407 },
-                  { label: "United Kingdom", value: "United Kingdom", count: stats?.filter_counts?.uk ?? 2568 },
-                  { label: "Germany", value: "Germany", count: stats?.filter_counts?.germany ?? 2311 },
+                  { label: "All Countries", value: "All", count: facets != null ? facets.total : (stats?.total_jobs || totalJobs) },
+                  { label: "United States", value: "United States", count: facets != null ? facets.us : (stats?.filter_counts?.us ?? 3005) },
+                  { label: "India", value: "India", count: facets != null ? facets.india : (stats?.filter_counts?.india ?? 1277) },
+                  { label: "Canada", value: "Canada", count: facets != null ? facets.canada : (stats?.filter_counts?.canada ?? 1407) },
+                  { label: "United Kingdom", value: "United Kingdom", count: facets != null ? facets.uk : (stats?.filter_counts?.uk ?? 2568) },
+                  { label: "Germany", value: "Germany", count: facets != null ? facets.germany : (stats?.filter_counts?.germany ?? 2311) },
                   ...(showMoreCountries ? [
-                    { label: "Australia", value: "Australia", count: stats?.filter_counts?.australia ?? 351 },
-                    { label: "Singapore", value: "Singapore", count: stats?.filter_counts?.singapore ?? 1089 },
-                    { label: "Netherlands", value: "Netherlands", count: stats?.filter_counts?.netherlands ?? 110 },
-                    { label: "France", value: "France", count: stats?.filter_counts?.france ?? 2592 }
+                    { label: "Australia", value: "Australia", count: facets != null ? facets.australia : (stats?.filter_counts?.australia ?? 351) },
+                    { label: "Singapore", value: "Singapore", count: facets != null ? facets.singapore : (stats?.filter_counts?.singapore ?? 1089) },
+                    { label: "Netherlands", value: "Netherlands", count: facets != null ? facets.netherlands : (stats?.filter_counts?.netherlands ?? 110) },
+                    { label: "France", value: "France", count: facets != null ? facets.france : (stats?.filter_counts?.france ?? 2592) }
                   ] : [])
                 ].map((c) => {
                   const isChecked = selectedCountry === c.value || (c.value === "All" && selectedCountry === "All");
@@ -1515,7 +1548,7 @@ export function InteractiveJobFeed({ initialJobs, stats, initialTotal, initialTo
                         <span className={isChecked ? "font-bold text-teal-900" : "font-medium"}>{c.label}</span>
                       </span>
                       <span className="text-[11px] font-mono text-slate-400 group-hover:text-slate-600">
-                        {c.count.toLocaleString()}
+                        {facets === undefined ? "…" : c.count.toLocaleString()}
                       </span>
                     </label>
                   );
@@ -1538,11 +1571,11 @@ export function InteractiveJobFeed({ initialJobs, stats, initialTotal, initialTo
                   </span>
                 </div>
                 {[
-                  { label: "All Types", value: "All", count: stats?.total_jobs || (totalJobs > 1000 ? totalJobs : 28766) },
-                  { label: "Full-time", value: "Full Time", count: stats?.filter_counts?.full_time ?? 27720 },
-                  { label: "Part-time", value: "Part Time", count: stats?.filter_counts?.part_time ?? 458 },
-                  { label: "Contract", value: "Contract", count: stats?.filter_counts?.contract ?? 762 },
-                  { label: "Internship", value: "Internship", count: stats?.filter_counts?.internship ?? 542 }
+                  { label: "All Types", value: "All", count: facets != null ? facets.total : (stats?.total_jobs || totalJobs) },
+                  { label: "Full-time", value: "Full Time", count: facets != null ? facets.full_time : (stats?.filter_counts?.full_time ?? 27720) },
+                  { label: "Part-time", value: "Part Time", count: facets != null ? facets.part_time : (stats?.filter_counts?.part_time ?? 458) },
+                  { label: "Contract", value: "Contract", count: facets != null ? facets.contract : (stats?.filter_counts?.contract ?? 762) },
+                  { label: "Internship", value: "Internship", count: facets != null ? facets.internship : (stats?.filter_counts?.internship ?? 542) }
                 ].map((t) => {
                   const isChecked = activeFilters["Job Type"] === t.value || (t.value === "All" && activeFilters["Job Type"] === "All");
                   return (
@@ -1557,7 +1590,7 @@ export function InteractiveJobFeed({ initialJobs, stats, initialTotal, initialTo
                         <span className={isChecked ? "font-bold text-teal-900" : "font-medium"}>{t.label}</span>
                       </span>
                       <span className="text-[11px] font-mono text-slate-400 group-hover:text-slate-600">
-                        {t.count.toLocaleString()}
+                        {facets === undefined ? "…" : t.count.toLocaleString()}
                       </span>
                     </label>
                   );
@@ -1573,10 +1606,10 @@ export function InteractiveJobFeed({ initialJobs, stats, initialTotal, initialTo
                   </span>
                 </div>
                 {[
-                  { label: "All Modes", value: "All", count: stats?.total_jobs || (totalJobs > 1000 ? totalJobs : 28766) },
-                  { label: "On-site", value: "Onsite", count: stats?.filter_counts?.onsite ?? 24657 },
-                  { label: "Remote", value: "Remote", count: stats?.filter_counts?.remote ?? 3068 },
-                  { label: "Hybrid", value: "Hybrid", count: stats?.filter_counts?.hybrid ?? 1364 }
+                  { label: "All Modes", value: "All", count: facets != null ? facets.total : (stats?.total_jobs || totalJobs) },
+                  { label: "On-site", value: "Onsite", count: facets != null ? facets.onsite : (stats?.filter_counts?.onsite ?? 24657) },
+                  { label: "Remote", value: "Remote", count: facets != null ? facets.remote : (stats?.filter_counts?.remote ?? 3068) },
+                  { label: "Hybrid", value: "Hybrid", count: facets != null ? facets.hybrid : (stats?.filter_counts?.hybrid ?? 1364) }
                 ].map((w) => {
                   const isChecked = activeFilters["Work Mode"] === w.value || (w.value === "All" && activeFilters["Work Mode"] === "All");
                   return (
@@ -1591,13 +1624,14 @@ export function InteractiveJobFeed({ initialJobs, stats, initialTotal, initialTo
                         <span className={isChecked ? "font-bold text-teal-900" : "font-medium"}>{w.label}</span>
                       </span>
                       <span className="text-[11px] font-mono text-slate-400 group-hover:text-slate-600">
-                        {w.count.toLocaleString()}
+                        {facets === undefined ? "…" : w.count.toLocaleString()}
                       </span>
                     </label>
                   );
                 })}
               </div>
             </aside>
+
 
             {/* ------------------------------------------ */}
             {/* RIGHT CONTENT COLUMN: FEED + PAGINATION   */}
