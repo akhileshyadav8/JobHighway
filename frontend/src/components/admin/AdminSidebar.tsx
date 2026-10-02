@@ -82,7 +82,7 @@ const NAV_SECTIONS: NavSection[] = [
   {
     title: "PREPARATION",
     items: [
-      { name: "Preparation Hub", href: "/prepare", icon: GraduationCap }
+      { name: "Prepare Management", href: "/mastermindak/prepare", icon: GraduationCap }
     ]
   },
   {

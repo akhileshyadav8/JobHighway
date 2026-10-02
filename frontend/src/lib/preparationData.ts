@@ -2915,6 +2915,19 @@ export const FRONTEND_DEVELOPER_ROLE: PrepRole = {
   ]
 };
 
+import {
+  BACKEND_DEVELOPER_ROLE,
+  ML_ENGINEER_ROLE,
+  QA_ENGINEER_ROLE,
+  SUPPLEMENTARY_ROLES
+} from "./preparationDataRoles";
+
+export {
+  BACKEND_DEVELOPER_ROLE,
+  ML_ENGINEER_ROLE,
+  QA_ENGINEER_ROLE
+};
+
 // Map of all supported roles
 export const PREPARATION_ROLES_MAP: Record<string, PrepRole> = {
   "software-engineer": SOFTWARE_ENGINEER_ROLE,
@@ -2923,7 +2936,10 @@ export const PREPARATION_ROLES_MAP: Record<string, PrepRole> = {
   "devops-engineer": DEVOPS_ENGINEER_ROLE,
   "product-manager": PRODUCT_MANAGER_ROLE,
   "frontend-developer": FRONTEND_DEVELOPER_ROLE,
-  "data-engineer": DATA_ENGINEER_ROLE
+  "data-engineer": DATA_ENGINEER_ROLE,
+  "backend-developer": BACKEND_DEVELOPER_ROLE,
+  "ml-engineer": ML_ENGINEER_ROLE,
+  "qa-engineer": QA_ENGINEER_ROLE
 };
 
 export const ALL_PREPARATION_ROLES: PrepRole[] = [
@@ -2933,7 +2949,10 @@ export const ALL_PREPARATION_ROLES: PrepRole[] = [
   DEVOPS_ENGINEER_ROLE,
   PRODUCT_MANAGER_ROLE,
   FRONTEND_DEVELOPER_ROLE,
-  DATA_ENGINEER_ROLE
+  DATA_ENGINEER_ROLE,
+  BACKEND_DEVELOPER_ROLE,
+  ML_ENGINEER_ROLE,
+  QA_ENGINEER_ROLE
 ];
 
 // Helper to look up a role with smart fuzzy fallback
@@ -2947,6 +2966,9 @@ export function getPrepRoleById(roleId?: string | null): PrepRole {
   }
   
   // Fuzzy match aliases
+  if (cleanId.includes("qa") || cleanId.includes("test") || cleanId.includes("sdet") || cleanId.includes("quality")) return QA_ENGINEER_ROLE;
+  if (cleanId.includes("ml") || cleanId.includes("machine-learn")) return ML_ENGINEER_ROLE;
+  if (cleanId.includes("backend") || cleanId.includes("api") || cleanId.includes("server")) return BACKEND_DEVELOPER_ROLE;
   if (cleanId.includes("devops") || cleanId.includes("cloud") || cleanId.includes("sre") || cleanId.includes("infra")) return DEVOPS_ENGINEER_ROLE;
   if (cleanId.includes("frontend") || cleanId.includes("ui") || cleanId.includes("react") || cleanId.includes("web")) return FRONTEND_DEVELOPER_ROLE;
   if (cleanId.includes("data") && cleanId.includes("scien")) return DATA_SCIENTIST_ROLE;
@@ -2954,9 +2976,10 @@ export function getPrepRoleById(roleId?: string | null): PrepRole {
   if (cleanId.includes("data") && cleanId.includes("engin")) return DATA_ENGINEER_ROLE;
   if (cleanId.includes("product") && cleanId.includes("manage")) return PRODUCT_MANAGER_ROLE;
   if (cleanId.includes("software") || cleanId.includes("sde") || cleanId.includes("develop") || cleanId.includes("engineer")) return SOFTWARE_ENGINEER_ROLE;
-  if (cleanId.includes("ai") || cleanId.includes("ml") || cleanId.includes("machine")) return DATA_SCIENTIST_ROLE;
+  if (cleanId.includes("ai")) return ML_ENGINEER_ROLE;
   if (cleanId.includes("bi") || cleanId.includes("business-intel")) return DATA_ANALYST_ROLE;
-  if (cleanId.includes("pm") || cleanId.includes("product")) return PRODUCT_MANAGER_ROLE;
+  if (cleanId.includes("pm")) return PRODUCT_MANAGER_ROLE;
 
   return SOFTWARE_ENGINEER_ROLE;
 }
+

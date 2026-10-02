@@ -27,6 +27,7 @@ interface QuizTestModalProps {
   onClose: () => void;
   onAttemptCompleted?: (record: QuizAttemptRecord) => void;
   onQuizCompleted?: (record?: QuizAttemptRecord) => void;
+  fullPage?: boolean; // When true, renders without modal overlay (for new-tab experience)
 }
 
 export function QuizTestModal({
@@ -36,7 +37,8 @@ export function QuizTestModal({
   currentUser: propUser,
   onClose,
   onAttemptCompleted,
-  onQuizCompleted
+  onQuizCompleted,
+  fullPage = false
 }: QuizTestModalProps) {
   const quiz: QuizTest = useMemo(() => {
     if (propQuiz) return propQuiz;
@@ -187,12 +189,11 @@ export function QuizTestModal({
 
   if (!isOpen || !quiz) return null;
 
-  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-slate-900/70 backdrop-blur-xs animate-in fade-in duration-200">
-      <div 
-        className="w-full max-w-4xl bg-white rounded-2xl shadow-2xl border border-slate-200 overflow-hidden flex flex-col max-h-[92vh]"
-        onClick={(e) => e.stopPropagation()}
-      >
+  const content = (
+    <div
+      className="w-full bg-white rounded-2xl shadow-2xl border border-slate-200 overflow-hidden flex flex-col max-h-[92vh]"
+      onClick={(e) => e.stopPropagation()}
+    >
         {/* Header Bar */}
         <div className="px-5 py-4 bg-slate-900 text-white flex items-center justify-between shrink-0">
           <div>
@@ -581,6 +582,23 @@ export function QuizTestModal({
             </div>
           </div>
         )}
+      </div>
+  );
+
+  if (fullPage) {
+    return (
+      <div className="min-h-screen bg-slate-50 flex items-start justify-center p-4 sm:p-8">
+        <div className="w-full max-w-4xl">
+          {content}
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-slate-900/70 backdrop-blur-xs animate-in fade-in duration-200">
+      <div className="w-full max-w-4xl">
+        {content}
       </div>
     </div>
   );

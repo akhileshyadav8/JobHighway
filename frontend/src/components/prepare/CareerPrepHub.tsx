@@ -41,7 +41,8 @@ import {
   CheckSquare,
   Users,
   PieChart,
-  Lightbulb
+  Lightbulb,
+  Terminal
 } from "lucide-react";
 import {
   PrepRole,
@@ -56,6 +57,12 @@ import { getCurrentUser, updateUserProfile, User } from "@/lib/auth";
 import { QuizTestModal } from "./QuizTestModal";
 import { CodingEnvironmentModal } from "./CodingEnvironmentModal";
 import { QuestionVaultModal } from "./QuestionVaultModal";
+import { SqlEnvironmentModal } from "./SqlEnvironmentModal";
+import { QuizTest, getRandomizedQuiz } from "@/lib/quizData";
+import { ALL_CODING_PROBLEMS } from "@/lib/codingProblemsData";
+import { parseResumeFile } from "@/lib/resumeParser";
+
+
 
 export function CareerPrepHub({ initialRoleId }: { initialRoleId?: string }) {
   const router = useRouter();
@@ -71,11 +78,18 @@ export function CareerPrepHub({ initialRoleId }: { initialRoleId?: string }) {
   // 2. Interactive Modals State
   const [selectedCompany, setSelectedCompany] = useState<CompanyPrepItem | null>(null);
   const [quizModalOpen, setQuizModalOpen] = useState(false);
-  const [activeQuizId, setActiveQuizId] = useState<string>("quiz-sde-screening");
+  const [activeQuizId, setActiveQuizId] = useState<string>("swe-tech-assessment-1");
+  const [randomizedQuiz, setRandomizedQuiz] = useState<QuizTest | null>(null);
   const [codingModalOpen, setCodingModalOpen] = useState(false);
   const [activeCodingProblemId, setActiveCodingProblemId] = useState<string | undefined>(undefined);
+  const [sqlModalOpen, setSqlModalOpen] = useState(false);
+  const [activeSqlProblemId, setActiveSqlProblemId] = useState<string | undefined>(undefined);
   const [vaultModalOpen, setVaultModalOpen] = useState(false);
   const [vaultInitialCategory, setVaultInitialCategory] = useState<string>("All");
+
+  // Resume Upload State & Ref
+  const [isUploadingResume, setIsUploadingResume] = useState(false);
+  const resumeInputRef = useRef<HTMLInputElement>(null);
 
   // 3. User Progress Persistence State (stored in localStorage)
   const [completedSteps, setCompletedSteps] = useState<Set<string>>(new Set());
@@ -99,18 +113,30 @@ export function CareerPrepHub({ initialRoleId }: { initialRoleId?: string }) {
   // Deep dive container ref for smooth scrolling
   const deepDivesRef = useRef<HTMLDivElement>(null);
 
-  // Load auth state and user preference on mount
+  // Load auth state and user preference on mount & keep in sync with app-wide auth/resume changes
   useEffect(() => {
-    const user = getCurrentUser();
-    setCurrentUser(user);
+    const syncUser = () => {
+      const user = getCurrentUser();
+      setCurrentUser(user);
 
-    if (!queryRole && user?.targetRole) {
-      const matched = getPrepRoleById(user.targetRole);
-      setSelectedRole(matched);
-    } else if (queryRole) {
-      setSelectedRole(getPrepRoleById(queryRole));
-    }
+      if (!queryRole && user?.targetRole) {
+        const matched = getPrepRoleById(user.targetRole);
+        setSelectedRole(matched);
+      } else if (queryRole) {
+        setSelectedRole(getPrepRoleById(queryRole));
+      }
+    };
+
+    syncUser();
+    window.addEventListener("jobhighway_auth_change", syncUser);
+    window.addEventListener("storage", syncUser);
+
+    return () => {
+      window.removeEventListener("jobhighway_auth_change", syncUser);
+      window.removeEventListener("storage", syncUser);
+    };
   }, [queryRole]);
+
 
   // Load progress from localStorage for this specific role and user
   useEffect(() => {
@@ -286,6 +312,9 @@ export function CareerPrepHub({ initialRoleId }: { initialRoleId?: string }) {
     switch (roleId) {
       case "software-engineer": return Code2;
       case "frontend-developer": return Laptop;
+      case "backend-developer": return Terminal;
+      case "ml-engineer": return Sparkles;
+      case "qa-engineer": return CheckSquare;
       case "data-analyst": return BarChart3;
       case "data-scientist": return Database;
       case "data-engineer": return Layers;
@@ -299,6 +328,9 @@ export function CareerPrepHub({ initialRoleId }: { initialRoleId?: string }) {
   const getRoleSubtitle = (roleId: string) => {
     switch (roleId) {
       case "software-engineer": return "DSA, System Design, Tech Interviews";
+      case "backend-developer": return "APIs, PostgreSQL, Redis, Kafka";
+      case "ml-engineer": return "PyTorch, Transformers, MLOps";
+      case "qa-engineer": return "Playwright, API Testing, CI/CD";
       case "data-analyst": return "SQL, Power BI, Analytics";
       case "data-scientist": return "ML, Statistics, Python";
       case "devops-engineer": return "Cloud, CI/CD, Docker";
@@ -312,6 +344,33 @@ export function CareerPrepHub({ initialRoleId }: { initialRoleId?: string }) {
   // Role-aware roadmap topics checklist for the center card
   const roadmapChecklistTopics = useMemo(() => {
     switch (selectedRole.id) {
+      case "backend-developer":
+        return [
+          { name: "APIs, Node.js/Go & Concurrency", total: 20 },
+          { name: "PostgreSQL, Indexing & Query Tuning", total: 18 },
+          { name: "Redis Caching & Lock Strategies", total: 14 },
+          { name: "Kafka Event-Driven Architecture", total: 16 },
+          { name: "Microservices & Distributed Systems", total: 12 },
+          { name: "System Design & Scalability", total: 8 }
+        ];
+      case "ml-engineer":
+        return [
+          { name: "NumPy Vectorization & Math Proofs", total: 16 },
+          { name: "PyTorch & Deep Neural Architectures", total: 22 },
+          { name: "Transformers, Attention & LoRA", total: 18 },
+          { name: "FastAPI / Triton Model Serving", total: 14 },
+          { name: "RAG & Vector Search (FAISS)", total: 12 },
+          { name: "Machine Learning System Design", total: 10 }
+        ];
+      case "qa-engineer":
+        return [
+          { name: "Test Case Design & Boundary Analysis", total: 18 },
+          { name: "Playwright / Selenium Automation", total: 22 },
+          { name: "REST Assured & API Contract Testing", total: 16 },
+          { name: "k6 / JMeter Load & Stress Testing", total: 12 },
+          { name: "CI/CD Test Gates (GitHub Actions)", total: 10 },
+          { name: "Behavioral & Bug Triaging Scenarios", total: 8 }
+        ];
       case "data-analyst":
         return [
           { name: "Advanced SQL & Window Functions", total: 20 },
@@ -378,16 +437,32 @@ export function CareerPrepHub({ initialRoleId }: { initialRoleId?: string }) {
     }
   }, [selectedRole.id]);
 
+
   // Handler for Launching Appropriate Quiz Test
   const handleOpenQuiz = (quizId?: string) => {
     if (quizId) {
+      // Specific quiz by ID - open in modal
+      setRandomizedQuiz(null);
       setActiveQuizId(quizId);
-    } else if (selectedRole.id === "data-analyst" || selectedRole.id === "data-scientist") {
-      setActiveQuizId("quiz-data-analyst-sql");
-    } else {
-      setActiveQuizId("quiz-sde-screening");
+      setQuizModalOpen(true);
+      return;
     }
-    setQuizModalOpen(true);
+    // Use role-based randomized quiz - try new tab first
+    const randomized = getRandomizedQuiz(selectedRole.id, "all", 30);
+    if (randomized) {
+      try {
+        sessionStorage.setItem('jobhighway_active_mock_test', JSON.stringify(randomized));
+        window.open('/prepare/mock-test', '_blank');
+      } catch {
+        setRandomizedQuiz(randomized);
+        setQuizModalOpen(true);
+      }
+    } else {
+      // Fallback to first available quiz
+      setRandomizedQuiz(null);
+      setActiveQuizId("swe-tech-assessment-1");
+      setQuizModalOpen(true);
+    }
   };
 
   // Handler for Launching Code Practice
@@ -395,6 +470,50 @@ export function CareerPrepHub({ initialRoleId }: { initialRoleId?: string }) {
     setActiveCodingProblemId(problemId);
     setCodingModalOpen(true);
   };
+
+  // Handler for Launching SQL Environment
+  const handleOpenSql = (problemId?: string) => {
+    setActiveSqlProblemId(problemId);
+    setSqlModalOpen(true);
+  };
+
+  // Resume Upload & Remove Handlers for ATS Guide Tab
+  const handleResumeFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file || !currentUser) return;
+    setIsUploadingResume(true);
+    try {
+      const extracted = await parseResumeFile(file);
+      const fileData = {
+        name: file.name,
+        size: file.size,
+        uploadedAt: new Date().toISOString(),
+        fileType: file.type || "application/pdf",
+        status: "Parsed",
+        atsScore: 92
+      };
+      const updated = updateUserProfile(currentUser.id, {
+        resumeFile: fileData,
+        skills: Array.from(new Set([...(currentUser.skills || []), ...(extracted.skills || [])])),
+        currentRole: extracted.currentRole || currentUser.currentRole,
+        yearsExperience: extracted.yearsExperience || currentUser.yearsExperience
+      });
+      if (updated) setCurrentUser(updated);
+    } catch (err) {
+      console.error("Resume parse error", err);
+    } finally {
+      setIsUploadingResume(false);
+    }
+  };
+
+  const handleRemoveResume = () => {
+    if (!currentUser) return;
+    if (confirm("Remove your stored resume?")) {
+      const updated = updateUserProfile(currentUser.id, { resumeFile: undefined });
+      if (updated) setCurrentUser(updated);
+    }
+  };
+
 
   // Handler for Question Vault
   const handleOpenVault = (cat: string = "All") => {
@@ -576,23 +695,34 @@ export function CareerPrepHub({ initialRoleId }: { initialRoleId?: string }) {
                 </svg>
               </div>
 
-              {/* 4 Interactive Floating Action Chips Matching Reference UI */}
-              
-              {/* Chip 1: Practice DSA (Top-Left) */}
+              {/* Chip 1: Practice DSA or SQL (Top-Left) */}
               <button
-                onClick={() => handleOpenCoding()}
+                onClick={() => {
+                  if (["data-analyst", "data-scientist", "data-engineer"].includes(selectedRole.id)) {
+                    handleOpenSql();
+                  } else {
+                    handleOpenCoding();
+                  }
+                }}
                 className="absolute top-2 left-0 sm:-left-4 bg-white/95 backdrop-blur-xs border border-slate-200/90 hover:border-teal-400 p-2.5 rounded-xl shadow-md hover:shadow-lg transition-all flex items-center gap-2.5 text-left group cursor-pointer animate-in fade-in slide-in-from-left-4 duration-300"
               >
                 <div className="w-8 h-8 rounded-lg bg-teal-50 text-teal-600 flex items-center justify-center shrink-0 group-hover:bg-teal-600 group-hover:text-white transition-colors">
-                  <Code2 className="w-4 h-4" />
+                  {["data-analyst", "data-scientist", "data-engineer"].includes(selectedRole.id) ? (
+                    <Database className="w-4 h-4" />
+                  ) : (
+                    <Code2 className="w-4 h-4" />
+                  )}
                 </div>
                 <div>
-                  <div className="text-xs font-bold text-slate-900 group-hover:text-teal-700">Practice DSA</div>
+                  <div className="text-xs font-bold text-slate-900 group-hover:text-teal-700">
+                    {["data-analyst", "data-scientist", "data-engineer"].includes(selectedRole.id) ? "Practice SQL" : "Practice DSA"}
+                  </div>
                   <div className="w-16 h-1.5 bg-slate-100 rounded-full mt-1 overflow-hidden">
                     <div className="w-10 h-full bg-teal-500 rounded-full" />
                   </div>
                 </div>
               </button>
+
 
               {/* Chip 2: System Design (Top-Right) */}
               <button
@@ -666,8 +796,8 @@ export function CareerPrepHub({ initialRoleId }: { initialRoleId?: string }) {
           </button>
         </div>
 
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 sm:gap-4">
-          {ALL_PREPARATION_ROLES.slice(0, 6).map((role) => {
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3 sm:gap-4">
+          {ALL_PREPARATION_ROLES.map((role) => {
             const isSelected = selectedRole.id === role.id;
             const Icon = getRoleIcon(role.id);
 
@@ -737,32 +867,63 @@ export function CareerPrepHub({ initialRoleId }: { initialRoleId?: string }) {
                   {
                     stepNum: 1,
                     title: "Core Fundamentals",
-                    sub: "Languages, basic concepts, problem solving"
+                    sub: "Languages, basic concepts, problem solving",
+                    action: () => handleSwitchTab("roadmap")
                   },
                   {
                     stepNum: 2,
                     title: "Important Topics",
-                    sub: "In-depth concepts with examples"
+                    sub: "In-depth concepts with examples",
+                    action: () => handleSwitchTab("skills")
                   },
                   {
                     stepNum: 3,
                     title: "Practice Questions",
-                    sub: "Topic-wise and company-wise questions"
+                    sub: "Topic-wise and company-wise questions",
+                    action: () => handleOpenCoding()
                   },
                   {
                     stepNum: 4,
                     title: "Mock Tests",
-                    sub: "Timed tests and detailed solutions"
+                    sub: "Timed tests and detailed solutions",
+                    action: () => {
+                      const randomized = getRandomizedQuiz(selectedRole.id, "all", 30);
+                      if (randomized) {
+                        try {
+                          sessionStorage.setItem('jobhighway_active_mock_test', JSON.stringify(randomized));
+                          window.open('/prepare/mock-test', '_blank');
+                        } catch {
+                          setRandomizedQuiz(randomized);
+                          setQuizModalOpen(true);
+                        }
+                      } else {
+                        setActiveQuizId("swe-tech-assessment-1");
+                        setQuizModalOpen(true);
+                      }
+                    }
                   },
                   {
                     stepNum: 5,
-                    title: "System Design (if applicable)",
-                    sub: "Design concepts, real-world case studies"
+                    title: selectedRole.id === "product-manager" ? "Case Studies" : 
+                           ["data-analyst", "data-scientist", "data-engineer"].includes(selectedRole.id) ? "SQL Practice & Schemas" : 
+                           "System Design",
+                    sub: selectedRole.id === "product-manager" ? "Product sense, strategy and metrics" :
+                         ["data-analyst", "data-scientist", "data-engineer"].includes(selectedRole.id) ? "Interactive SQL sandbox, tables & queries" :
+                         "Design concepts, real-world case studies",
+                    action: () => {
+                      if (["data-analyst", "data-scientist", "data-engineer"].includes(selectedRole.id)) {
+                        handleOpenSql();
+                      } else {
+                        handleSwitchTab("interview");
+                      }
+                    }
                   },
+
                   {
                     stepNum: 6,
                     title: "Interview Tips",
-                    sub: "Resume, behavioral, HR and final preparation"
+                    sub: "Resume, behavioral, HR and final preparation",
+                    action: () => handleSwitchTab("resume")
                   }
                 ].map((item, idx) => {
                   const isCurrent = activeStepIndex === idx;
@@ -772,8 +933,7 @@ export function CareerPrepHub({ initialRoleId }: { initialRoleId?: string }) {
                       key={item.stepNum}
                       onClick={() => {
                         setActiveStepIndex(idx);
-                        if (idx === 2) handleOpenCoding();
-                        else if (idx === 3) handleOpenQuiz();
+                        item.action();
                       }}
                       className={`w-full p-3 rounded-xl border text-left transition-all cursor-pointer flex items-center justify-between gap-3 ${
                         isCurrent
@@ -807,6 +967,7 @@ export function CareerPrepHub({ initialRoleId }: { initialRoleId?: string }) {
                     </button>
                   );
                 })}
+
               </div>
 
               {/* Center Roadmap Card (Matching Reference UI active card) */}
@@ -950,10 +1111,11 @@ export function CareerPrepHub({ initialRoleId }: { initialRoleId?: string }) {
 
                     <div className="flex items-center gap-1.5 shrink-0">
                       <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-teal-50 text-teal-700 border border-teal-200/80">
-                        {company.totalQuestions}+ Questions
+                        Interview Guide
                       </span>
                       <ChevronRight className="w-3.5 h-3.5 text-slate-400 group-hover:text-teal-600 transition-colors" />
                     </div>
+
                   </button>
                 );
               })}
@@ -989,7 +1151,7 @@ export function CareerPrepHub({ initialRoleId }: { initialRoleId?: string }) {
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4">
           
-          {/* Card 1: DSA Sheets */}
+            {/* Card 1: DSA Sheets */}
           <div className="bg-white border border-slate-200/90 rounded-2xl p-4 shadow-2xs flex flex-col justify-between hover:border-teal-300 transition-colors">
             <div>
               <div className="w-8 h-8 rounded-lg bg-teal-50 text-teal-600 flex items-center justify-center mb-3">
@@ -1006,7 +1168,7 @@ export function CareerPrepHub({ initialRoleId }: { initialRoleId?: string }) {
               onClick={() => handleOpenCoding()}
               className="text-xs font-bold text-teal-600 hover:text-teal-700 inline-flex items-center gap-1 cursor-pointer pt-2 border-t border-slate-100"
             >
-              <span>120+ questions</span>
+              <span>{ALL_CODING_PROBLEMS.length}+ problems</span>
               <ArrowRight className="w-3.5 h-3.5" />
             </button>
           </div>
@@ -1028,7 +1190,7 @@ export function CareerPrepHub({ initialRoleId }: { initialRoleId?: string }) {
               onClick={() => handleOpenVault("System Design")}
               className="text-xs font-bold text-teal-600 hover:text-teal-700 inline-flex items-center gap-1 cursor-pointer pt-2 border-t border-slate-100"
             >
-              <span>50+ resources</span>
+              <span>View resources</span>
               <ArrowRight className="w-3.5 h-3.5" />
             </button>
           </div>
@@ -1047,12 +1209,13 @@ export function CareerPrepHub({ initialRoleId }: { initialRoleId?: string }) {
               </p>
             </div>
             <button
-              onClick={() => handleOpenVault("SQL")}
+              onClick={() => handleOpenSql()}
               className="text-xs font-bold text-teal-600 hover:text-teal-700 inline-flex items-center gap-1 cursor-pointer pt-2 border-t border-slate-100"
             >
-              <span>100+ questions</span>
+              <span>Practice SQL</span>
               <ArrowRight className="w-3.5 h-3.5" />
             </button>
+
           </div>
 
           {/* Card 4: Aptitude */}
@@ -1069,13 +1232,14 @@ export function CareerPrepHub({ initialRoleId }: { initialRoleId?: string }) {
               </p>
             </div>
             <button
-              onClick={() => handleOpenQuiz("quiz-aptitude-screening")}
+              onClick={() => handleOpenQuiz("aptitude-screening-1")}
               className="text-xs font-bold text-teal-600 hover:text-teal-700 inline-flex items-center gap-1 cursor-pointer pt-2 border-t border-slate-100"
             >
-              <span>200+ questions</span>
+              <span>Take test</span>
               <ArrowRight className="w-3.5 h-3.5" />
             </button>
           </div>
+
 
           {/* Card 5: Behavioral Questions */}
           <div className="bg-white border border-slate-200/90 rounded-2xl p-4 shadow-2xs flex flex-col justify-between hover:border-teal-300 transition-colors">
@@ -1717,6 +1881,86 @@ export function CareerPrepHub({ initialRoleId }: { initialRoleId?: string }) {
             {/* TAB 5: ATS RESUME GUIDANCE */}
             {activeTab === "resume" && (
               <div className="space-y-4">
+                {/* 1. Resume Persistence & Management Card (Requirement 16) */}
+                <div className="bg-white border border-slate-200/90 rounded-2xl p-5 shadow-xs">
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                    {currentUser?.resumeFile ? (
+                      <div className="flex items-start gap-3.5">
+                        <div className="w-10 h-10 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center shrink-0 border border-emerald-200">
+                          <FileText className="w-5 h-5" />
+                        </div>
+                        <div>
+                          <div className="flex flex-wrap items-center gap-2 mb-1">
+                            <span className="font-bold text-slate-900 text-sm">{currentUser.resumeFile.name}</span>
+                            <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200">
+                              Resume Uploaded
+                            </span>
+                            <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-teal-50 text-teal-700 border border-teal-200">
+                              {currentUser.resumeFile.atsScore || 92}% ATS Score
+                            </span>
+                          </div>
+                          <p className="text-xs text-slate-500">
+                            Uploaded on {new Date(currentUser.resumeFile.uploadedAt).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })} · {(currentUser.resumeFile.size / 1024).toFixed(0)} KB
+                          </p>
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="flex items-start gap-3.5">
+                        <div className="w-10 h-10 rounded-xl bg-slate-100 text-slate-500 flex items-center justify-center shrink-0">
+                          <FileText className="w-5 h-5" />
+                        </div>
+                        <div>
+                          <div className="font-bold text-slate-900 text-sm">No Resume Uploaded</div>
+                          <p className="text-xs text-slate-500 mt-0.5">
+                            Upload your resume (PDF/DOCX) to auto-verify keywords against {selectedRole.name} requirements.
+                          </p>
+                        </div>
+                      </div>
+                    )}
+
+                    <div className="flex items-center gap-2 shrink-0">
+                      <input
+                        ref={resumeInputRef}
+                        type="file"
+                        accept=".pdf,.docx,.doc"
+                        onChange={handleResumeFileChange}
+                        className="hidden"
+                      />
+                      {currentUser?.resumeFile ? (
+                        <>
+                          <button
+                            onClick={() => resumeInputRef.current?.click()}
+                            disabled={isUploadingResume}
+                            className="px-3.5 py-2 rounded-xl bg-teal-600 hover:bg-teal-700 text-white font-bold text-xs shadow-xs transition-colors cursor-pointer disabled:opacity-50"
+                          >
+                            {isUploadingResume ? "Parsing..." : "Replace Resume"}
+                          </button>
+                          <button
+                            onClick={handleRemoveResume}
+                            className="px-3.5 py-2 rounded-xl bg-slate-100 hover:bg-rose-50 text-slate-600 hover:text-rose-600 font-bold text-xs border border-slate-200 transition-colors cursor-pointer"
+                          >
+                            Remove Resume
+                          </button>
+                        </>
+                      ) : (
+                        <button
+                          onClick={() => {
+                            if (!currentUser) {
+                              window.location.href = "/login";
+                            } else {
+                              resumeInputRef.current?.click();
+                            }
+                          }}
+                          disabled={isUploadingResume}
+                          className="px-4 py-2 rounded-xl bg-teal-600 hover:bg-teal-700 text-white font-bold text-xs shadow-xs transition-colors cursor-pointer disabled:opacity-50"
+                        >
+                          {isUploadingResume ? "Parsing Resume..." : currentUser ? "Upload Resume" : "Sign In to Upload"}
+                        </button>
+                      )}
+                    </div>
+                  </div>
+                </div>
+
                 <div className="bg-white border border-slate-200/90 rounded-2xl p-5 shadow-xs">
                   <div className="flex items-center justify-between mb-3 pb-2 border-b border-slate-100">
                     <div>
@@ -1727,6 +1971,7 @@ export function CareerPrepHub({ initialRoleId }: { initialRoleId?: string }) {
                         Ensure these exact terms appear naturally in your resume
                       </p>
                     </div>
+
                     <button
                       onClick={handleCopyKeywords}
                       className="px-3 py-1.5 rounded-lg bg-teal-50 hover:bg-teal-100 text-teal-700 border border-teal-200 text-xs font-bold inline-flex items-center gap-1.5 transition-colors cursor-pointer"
@@ -1830,9 +2075,10 @@ export function CareerPrepHub({ initialRoleId }: { initialRoleId?: string }) {
 
                     <div>
                       <span className="font-bold text-slate-800 uppercase tracking-wider block mb-2">
-                        Frequently Asked Questions at {selectedCompany.name}:
+                        Reported Questions &amp; Interview Experiences at {selectedCompany.name}:
                       </span>
                       <div className="space-y-2">
+
                         {roleData.frequentlyAsked.map((faq, idx) => (
                           <div key={idx} className="p-2.5 rounded-lg bg-slate-50 border border-slate-200 text-slate-800 font-medium">
                             • &ldquo;{faq}&rdquo;
@@ -1873,13 +2119,16 @@ export function CareerPrepHub({ initialRoleId }: { initialRoleId?: string }) {
       {/* 8. MODALS CONNECTIVITY */}
       {/* Quiz / Assessment Test Modal */}
       <QuizTestModal
+        quiz={randomizedQuiz || undefined}
         isOpen={quizModalOpen}
-        onClose={() => setQuizModalOpen(false)}
-        initialQuizId={activeQuizId}
+        onClose={() => { setQuizModalOpen(false); setRandomizedQuiz(null); }}
+        initialQuizId={randomizedQuiz ? undefined : activeQuizId}
         onQuizCompleted={() => {
-          // Progress can be refreshed
+          setQuizModalOpen(false);
+          setRandomizedQuiz(null);
         }}
       />
+
 
       {/* Coding Environment Modal */}
       <CodingEnvironmentModal
@@ -1891,6 +2140,17 @@ export function CareerPrepHub({ initialRoleId }: { initialRoleId?: string }) {
           toggleQuestion(probId);
         }}
       />
+
+      {/* SQL Practice Environment Modal */}
+      <SqlEnvironmentModal
+        isOpen={sqlModalOpen}
+        onClose={() => setSqlModalOpen(false)}
+        initialProblemId={activeSqlProblemId}
+        onProblemSolved={(probId) => {
+          toggleQuestion(probId);
+        }}
+      />
+
 
       {/* Question Vault Modal */}
       <QuestionVaultModal

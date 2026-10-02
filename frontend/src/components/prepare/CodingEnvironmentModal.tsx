@@ -25,7 +25,6 @@ import {
   CodingSubmissionRecord
 } from "@/lib/codingProblemsData";
 import {
-  executeJavascriptCode,
   CodeExecutionReport,
   TestCaseResult
 } from "@/lib/codingRunner";
@@ -38,6 +37,22 @@ interface CodingEnvironmentModalProps {
   selectedRoleId?: string;
   onProblemSolved?: (problemId: string) => void;
 }
+
+type Language = "python" | "c" | "cpp" | "java";
+
+const LANGUAGE_LABELS: Record<Language, string> = {
+  python: "Python",
+  c: "C",
+  cpp: "C++",
+  java: "Java"
+};
+
+const LANGUAGE_EXTENSIONS: Record<Language, string> = {
+  python: "py",
+  c: "c",
+  cpp: "cpp",
+  java: "java"
+};
 
 export function CodingEnvironmentModal({
   isOpen,
@@ -63,8 +78,8 @@ export function CodingEnvironmentModal({
     return filteredProblems[0] || ALL_CODING_PROBLEMS[0];
   });
 
-  const [language, setLanguage] = useState<"javascript" | "python">("javascript");
-  const [code, setCode] = useState<string>(activeProblem.starterCode.javascript);
+  const [language, setLanguage] = useState<Language>("python");
+  const [code, setCode] = useState<string>(activeProblem.starterCode.python);
   const [isRunning, setIsRunning] = useState(false);
   const [executionReport, setExecutionReport] = useState<CodeExecutionReport | null>(null);
   const [activeTab, setActiveTab] = useState<"description" | "submissions">("description");
@@ -123,64 +138,62 @@ export function CodingEnvironmentModal({
 
   if (!isOpen) return null;
 
-  const handleRunCode = () => {
-    setIsRunning(true);
-    setActiveConsoleTab("results");
+  /** Call backend Piston-based execution API */
+  const callExecuteAPI = async (runPublicOnly: boolean): Promise<CodeExecutionReport> => {
+    const res = await fetch("/api/prepare/execute", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        language,
+        code,
+        problemId: activeProblem.id,
+        runPublicOnly
+      })
+    });
 
-    setTimeout(() => {
-      if (language === "javascript") {
-        const report = executeJavascriptCode(code, activeProblem, true);
-        setExecutionReport(report);
-      } else {
-        // Python simulated client execution
-        setExecutionReport({
-          status: "Accepted",
-          passedTestCases: activeProblem.testCases.filter(t => !t.isHidden).length,
-          totalTestCases: activeProblem.testCases.filter(t => !t.isHidden).length,
-          totalRuntimeMs: 42,
-          results: activeProblem.testCases.filter(t => !t.isHidden).map((tc, idx) => ({
-            caseNumber: idx + 1,
-            passed: true,
-            inputStr: JSON.stringify(tc.input),
-            expectedStr: JSON.stringify(tc.expected),
-            actualStr: JSON.stringify(tc.expected),
-            executionTimeMs: 14
-          }))
-        });
-      }
-      setIsRunning(false);
-    }, 400);
+    if (!res.ok) {
+      const errData = await res.json().catch(() => ({}));
+      return {
+        status: "Runtime Error",
+        passedTestCases: 0,
+        totalTestCases: activeProblem.testCases.filter(t => runPublicOnly ? !t.isHidden : true).length,
+        totalRuntimeMs: 0,
+        errorMessage: errData.error || "Code execution service unavailable. Ensure your solution is correct before submitting.",
+        results: []
+      };
+    }
+
+    return res.json();
   };
 
-  const handleSubmitSolution = () => {
+  const handleRunCode = async () => {
     setIsRunning(true);
     setActiveConsoleTab("results");
 
-    setTimeout(() => {
-      let report: CodeExecutionReport;
-
-      if (language === "javascript") {
-        report = executeJavascriptCode(code, activeProblem, false);
-      } else {
-        report = {
-          status: "Accepted",
-          passedTestCases: activeProblem.testCases.length,
-          totalTestCases: activeProblem.testCases.length,
-          totalRuntimeMs: 65,
-          results: activeProblem.testCases.map((tc, idx) => ({
-            caseNumber: idx + 1,
-            passed: true,
-            inputStr: JSON.stringify(tc.input),
-            expectedStr: JSON.stringify(tc.expected),
-            actualStr: JSON.stringify(tc.expected),
-            executionTimeMs: 12,
-            isHidden: tc.isHidden
-          }))
-        };
-      }
-
+    try {
+      const report = await callExecuteAPI(true);
       setExecutionReport(report);
+    } catch {
+      setExecutionReport({
+        status: "Runtime Error",
+        passedTestCases: 0,
+        totalTestCases: activeProblem.testCases.filter(t => !t.isHidden).length,
+        totalRuntimeMs: 0,
+        errorMessage: "Network error: Could not reach execution service. Check your connection.",
+        results: []
+      });
+    } finally {
       setIsRunning(false);
+    }
+  };
+
+  const handleSubmitSolution = async () => {
+    setIsRunning(true);
+    setActiveConsoleTab("results");
+
+    try {
+      const report = await callExecuteAPI(false);
+      setExecutionReport(report);
 
       // Save submission record
       const record: CodingSubmissionRecord = {
@@ -200,7 +213,18 @@ export function CodingEnvironmentModal({
       if (report.status === "Accepted" && onProblemSolved) {
         onProblemSolved(activeProblem.id);
       }
-    }, 600);
+    } catch {
+      setExecutionReport({
+        status: "Runtime Error",
+        passedTestCases: 0,
+        totalTestCases: activeProblem.testCases.length,
+        totalRuntimeMs: 0,
+        errorMessage: "Network error: Could not reach execution service. Check your connection.",
+        results: []
+      });
+    } finally {
+      setIsRunning(false);
+    }
   };
 
   const handleResetCode = () => {
@@ -228,13 +252,13 @@ export function CodingEnvironmentModal({
   const publicTestCases = activeProblem.testCases.filter(t => !t.isHidden);
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-2 sm:p-4 bg-slate-950/70 backdrop-blur-xs animate-in fade-in duration-150">
-      <div className="w-full max-w-[1400px] h-[94vh] bg-slate-900 text-slate-100 rounded-2xl shadow-2xl border border-slate-700/80 flex flex-col overflow-hidden animate-in zoom-in-95 duration-150">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-2 sm:p-4 bg-slate-900/50 backdrop-blur-sm animate-in fade-in duration-150">
+      <div className="w-full max-w-[1400px] h-[94vh] bg-white text-slate-800 rounded-2xl shadow-2xl border border-slate-200 flex flex-col overflow-hidden animate-in zoom-in-95 duration-150">
         
         {/* Top Navbar */}
-        <div className="px-4 py-3 bg-slate-900 border-b border-slate-800 flex items-center justify-between gap-4 shrink-0">
+        <div className="px-4 py-3 bg-white border-b border-slate-200 flex items-center justify-between gap-4 shrink-0">
           <div className="flex items-center gap-3">
-            <div className="w-8 h-8 rounded-lg bg-teal-500/20 text-teal-400 flex items-center justify-center font-bold">
+            <div className="w-8 h-8 rounded-lg bg-teal-500/20 text-teal-600 flex items-center justify-center font-bold">
               <Code2 className="w-5 h-5" />
             </div>
             
@@ -246,7 +270,7 @@ export function CodingEnvironmentModal({
                   const p = ALL_CODING_PROBLEMS.find(x => x.id === e.target.value);
                   if (p) setActiveProblem(p);
                 }}
-                className="bg-slate-800 border border-slate-700 text-slate-100 font-bold text-sm rounded-lg px-3 py-1.5 pr-8 appearance-none focus:outline-none focus:border-teal-500 cursor-pointer"
+                className="bg-slate-100 border border-slate-300 text-slate-800 font-bold text-sm rounded-lg px-3 py-1.5 pr-8 appearance-none focus:outline-none focus:border-teal-500 cursor-pointer"
               >
                 {ALL_CODING_PROBLEMS.map(prob => (
                   <option key={prob.id} value={prob.id}>
@@ -254,21 +278,21 @@ export function CodingEnvironmentModal({
                   </option>
                 ))}
               </select>
-              <ChevronDown className="w-4 h-4 text-slate-400 absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+              <ChevronDown className="w-4 h-4 text-slate-500 absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
             </div>
 
-            <span className={`text-[11px] font-bold px-2.5 py-0.5 rounded-full ${
-              activeProblem.difficulty === "Easy" ? "bg-emerald-500/20 text-emerald-400 border border-emerald-500/30" :
-              activeProblem.difficulty === "Medium" ? "bg-amber-500/20 text-amber-400 border border-amber-500/30" :
-              "bg-rose-500/20 text-rose-400 border border-rose-500/30"
+            <span className={`text-[11px] font-bold px-2.5 py-0.5 rounded-full border ${
+              activeProblem.difficulty === "Easy" ? "bg-emerald-50 text-emerald-700 border-emerald-200" :
+              activeProblem.difficulty === "Medium" ? "bg-amber-50 text-amber-700 border-amber-200" :
+              "bg-rose-50 text-rose-700 border-rose-200"
             }`}>
               {activeProblem.difficulty}
             </span>
 
-            <div className="hidden md:flex items-center gap-1.5 text-xs text-slate-400">
+            <div className="hidden md:flex items-center gap-1.5 text-xs text-slate-500">
               <span>Tags:</span>
               {activeProblem.topics.map(t => (
-                <span key={t} className="px-2 py-0.5 rounded bg-slate-800 border border-slate-700 text-slate-300">
+                <span key={t} className="px-2 py-0.5 rounded bg-slate-100 border border-slate-200 text-slate-600">
                   {t}
                 </span>
               ))}
@@ -277,32 +301,27 @@ export function CodingEnvironmentModal({
 
           <div className="flex items-center gap-3">
             {/* Language Selector */}
-            <div className="flex items-center bg-slate-800 rounded-lg p-0.5 border border-slate-700 text-xs font-semibold">
-              <button
-                onClick={() => setLanguage("javascript")}
-                className={`px-3 py-1 rounded-md transition-colors ${
-                  language === "javascript" ? "bg-teal-600 text-white" : "text-slate-400 hover:text-slate-200"
-                }`}
-              >
-                JavaScript
-              </button>
-              <button
-                onClick={() => setLanguage("python")}
-                className={`px-3 py-1 rounded-md transition-colors ${
-                  language === "python" ? "bg-teal-600 text-white" : "text-slate-400 hover:text-slate-200"
-                }`}
-              >
-                Python
-              </button>
+            <div className="flex items-center bg-slate-100 rounded-lg p-0.5 border border-slate-200 text-xs font-semibold">
+              {(["python", "c", "cpp", "java"] as Language[]).map((lang) => (
+                <button
+                  key={lang}
+                  onClick={() => setLanguage(lang)}
+                  className={`px-3 py-1 rounded-md transition-colors ${
+                    language === lang ? "bg-teal-600 text-white" : "text-slate-500 hover:text-slate-800"
+                  }`}
+                >
+                  {LANGUAGE_LABELS[lang]}
+                </button>
+              ))}
             </div>
 
             {/* Run & Submit Buttons */}
             <button
               onClick={handleRunCode}
               disabled={isRunning}
-              className="px-3.5 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 active:bg-slate-650 border border-slate-700 text-xs font-bold text-slate-200 flex items-center gap-1.5 transition-colors cursor-pointer disabled:opacity-50"
+              className="px-3.5 py-1.5 rounded-lg bg-white hover:bg-slate-50 active:bg-slate-100 border border-slate-300 text-xs font-bold text-slate-700 flex items-center gap-1.5 transition-colors cursor-pointer disabled:opacity-50"
             >
-              <Play className="w-3.5 h-3.5 fill-current text-emerald-400" />
+              <Play className="w-3.5 h-3.5 fill-current text-emerald-500" />
               <span>Run Code</span>
             </button>
 
@@ -317,7 +336,7 @@ export function CodingEnvironmentModal({
 
             <button
               onClick={onClose}
-              className="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition-colors ml-1 cursor-pointer"
+              className="p-1.5 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition-colors ml-1 cursor-pointer"
               title="Close Coding Workspace"
             >
               <X className="w-5 h-5" />
@@ -329,15 +348,15 @@ export function CodingEnvironmentModal({
         <div className="flex-1 grid grid-cols-1 lg:grid-cols-12 overflow-hidden">
           
           {/* Left Column: Problem Description & Submissions Tabs */}
-          <div className="lg:col-span-5 border-r border-slate-800 flex flex-col overflow-hidden bg-slate-900/60">
+          <div className="lg:col-span-5 border-r border-slate-200 flex flex-col overflow-hidden bg-white">
             {/* Tab Header */}
-            <div className="flex items-center border-b border-slate-800 px-4 shrink-0 bg-slate-900">
+            <div className="flex items-center border-b border-slate-200 px-4 shrink-0 bg-white">
               <button
                 onClick={() => setActiveTab("description")}
                 className={`py-2.5 px-3 font-semibold text-xs border-b-2 transition-colors cursor-pointer flex items-center gap-2 ${
                   activeTab === "description"
-                    ? "border-teal-500 text-teal-400"
-                    : "border-transparent text-slate-400 hover:text-slate-200"
+                    ? "border-teal-500 text-teal-600"
+                    : "border-transparent text-slate-400 hover:text-slate-700"
                 }`}
               >
                 <FileCode className="w-4 h-4" />
@@ -347,8 +366,8 @@ export function CodingEnvironmentModal({
                 onClick={() => setActiveTab("submissions")}
                 className={`py-2.5 px-3 font-semibold text-xs border-b-2 transition-colors cursor-pointer flex items-center gap-2 ${
                   activeTab === "submissions"
-                    ? "border-teal-500 text-teal-400"
-                    : "border-transparent text-slate-400 hover:text-slate-200"
+                    ? "border-teal-500 text-teal-600"
+                    : "border-transparent text-slate-400 hover:text-slate-700"
                 }`}
               >
                 <Clock className="w-4 h-4" />
@@ -357,17 +376,17 @@ export function CodingEnvironmentModal({
             </div>
 
             {/* Tab Body */}
-            <div className="flex-1 overflow-y-auto p-5 text-sm space-y-5 leading-relaxed text-slate-300">
+            <div className="flex-1 overflow-y-auto p-5 text-sm space-y-5 leading-relaxed text-slate-700">
               {activeTab === "description" ? (
                 <>
                   <div>
-                    <h2 className="text-xl font-black text-slate-100 mb-2">
+                    <h2 className="text-xl font-black text-slate-800 mb-2">
                       {activeProblem.title}
                     </h2>
-                    <div className="flex flex-wrap items-center gap-2 mb-4 text-xs text-slate-400">
+                    <div className="flex flex-wrap items-center gap-2 mb-4 text-xs text-slate-500">
                       <span>Frequently asked at:</span>
                       {activeProblem.companyTags.map(c => (
-                        <span key={c} className="px-2 py-0.5 rounded-full bg-slate-800 text-slate-200 font-semibold border border-slate-700">
+                        <span key={c} className="px-2 py-0.5 rounded-full bg-slate-100 text-slate-700 font-semibold border border-slate-200">
                           {c}
                         </span>
                       ))}
@@ -375,21 +394,21 @@ export function CodingEnvironmentModal({
                   </div>
 
                   {/* Description Markdown-style */}
-                  <div className="prose prose-invert max-w-none text-slate-300 whitespace-pre-line text-xs sm:text-sm">
+                  <div className="prose max-w-none text-slate-700 whitespace-pre-line text-xs sm:text-sm">
                     {activeProblem.description}
                   </div>
 
                   {/* Examples */}
                   <div className="space-y-3 pt-2">
-                    <span className="text-xs font-bold uppercase tracking-wider text-slate-400 block">
+                    <span className="text-xs font-bold uppercase tracking-wider text-slate-500 block">
                       Examples:
                     </span>
                     {activeProblem.examples.map((ex, idx) => (
-                      <div key={idx} className="p-3 bg-slate-800/80 rounded-xl border border-slate-700/80 text-xs font-mono space-y-1">
-                        <div><strong className="text-slate-400">Input:</strong> {ex.input}</div>
-                        <div><strong className="text-teal-400">Output:</strong> {ex.output}</div>
+                      <div key={idx} className="p-3 bg-slate-50 rounded-xl border border-slate-200 text-xs font-mono space-y-1">
+                        <div><strong className="text-slate-500">Input:</strong> {ex.input}</div>
+                        <div><strong className="text-teal-600">Output:</strong> {ex.output}</div>
                         {ex.explanation && (
-                          <div className="text-slate-400 font-sans text-[11px] pt-1 border-t border-slate-700/60">
+                          <div className="text-slate-500 font-sans text-[11px] pt-1 border-t border-slate-200">
                             <strong>Explanation:</strong> {ex.explanation}
                           </div>
                         )}
@@ -399,10 +418,10 @@ export function CodingEnvironmentModal({
 
                   {/* Constraints */}
                   <div className="pt-2">
-                    <span className="text-xs font-bold uppercase tracking-wider text-slate-400 block mb-2">
+                    <span className="text-xs font-bold uppercase tracking-wider text-slate-500 block mb-2">
                       Constraints:
                     </span>
-                    <ul className="list-disc list-inside space-y-1 text-xs text-slate-400 font-mono">
+                    <ul className="list-disc list-inside space-y-1 text-xs text-slate-500 font-mono">
                       {activeProblem.constraints.map((c, idx) => (
                         <li key={idx}>{c}</li>
                       ))}
@@ -412,35 +431,35 @@ export function CodingEnvironmentModal({
               ) : (
                 /* Submissions History */
                 <div className="space-y-3">
-                  <span className="text-xs font-bold text-slate-400 uppercase tracking-wider block">
+                  <span className="text-xs font-bold text-slate-500 uppercase tracking-wider block">
                     Your Past Attempts for this Problem:
                   </span>
                   {submissions.filter(s => s.problemId === activeProblem.id).length === 0 ? (
-                    <div className="text-center py-10 text-slate-500 text-xs">
+                    <div className="text-center py-10 text-slate-400 text-xs">
                       No submissions recorded yet for this challenge. Click <strong>Submit Solution</strong> when you&apos;re ready!
                     </div>
                   ) : (
                     submissions
                       .filter(s => s.problemId === activeProblem.id)
                       .map((sub) => (
-                        <div key={sub.id} className="p-3 rounded-xl bg-slate-800 border border-slate-700 flex items-center justify-between text-xs">
+                        <div key={sub.id} className="p-3 rounded-xl bg-slate-50 border border-slate-200 flex items-center justify-between text-xs">
                           <div>
                             <div className="flex items-center gap-2">
                               <span className={`font-bold ${
-                                sub.status === "Accepted" ? "text-emerald-400" : "text-rose-400"
+                                sub.status === "Accepted" ? "text-emerald-600" : "text-rose-600"
                               }`}>
                                 {sub.status}
                               </span>
-                              <span className="text-slate-400 font-mono text-[11px]">
+                              <span className="text-slate-500 font-mono text-[11px]">
                                 {sub.passedTestCases}/{sub.totalTestCases} Passed
                               </span>
                             </div>
-                            <div className="text-[10px] text-slate-500 mt-0.5">
+                            <div className="text-[10px] text-slate-400 mt-0.5">
                               {new Date(sub.submittedAt).toLocaleString()} · {sub.language}
                             </div>
                           </div>
                           <div className="text-right">
-                            <span className="text-slate-400 font-mono">{sub.runtimeMs}ms</span>
+                            <span className="text-slate-500 font-mono">{sub.runtimeMs}ms</span>
                           </div>
                         </div>
                       ))
@@ -451,17 +470,17 @@ export function CodingEnvironmentModal({
           </div>
 
           {/* Right Column: Code Editor & Execution Results Console */}
-          <div className="lg:col-span-7 flex flex-col overflow-hidden bg-slate-950">
+          <div className="lg:col-span-7 flex flex-col overflow-hidden bg-slate-50">
             
             {/* Editor Action Bar */}
-            <div className="px-4 py-2 bg-slate-900 border-b border-slate-800 flex items-center justify-between text-xs shrink-0">
-              <div className="flex items-center gap-2 text-slate-400 font-mono">
-                <Terminal className="w-3.5 h-3.5 text-teal-400" />
-                <span>solution.{language === "javascript" ? "js" : "py"}</span>
+            <div className="px-4 py-2 bg-white border-b border-slate-200 flex items-center justify-between text-xs shrink-0">
+              <div className="flex items-center gap-2 text-slate-500 font-mono">
+                <Terminal className="w-3.5 h-3.5 text-teal-600" />
+                <span>solution.{LANGUAGE_EXTENSIONS[language]}</span>
               </div>
               <button
                 onClick={handleResetCode}
-                className="text-slate-400 hover:text-slate-200 flex items-center gap-1 transition-colors cursor-pointer"
+                className="text-slate-400 hover:text-slate-700 flex items-center gap-1 transition-colors cursor-pointer"
                 title="Reset code template"
               >
                 <RotateCcw className="w-3.5 h-3.5" />
@@ -470,29 +489,29 @@ export function CodingEnvironmentModal({
             </div>
 
             {/* Code Textarea Editor */}
-            <div className="flex-1 relative overflow-hidden bg-[#0d1117]">
+            <div className="flex-1 relative overflow-hidden bg-white">
               <textarea
                 value={code}
                 onChange={(e) => setCode(e.target.value)}
                 onKeyDown={handleKeyDown}
                 spellCheck={false}
-                className="w-full h-full p-4 font-mono text-xs sm:text-sm bg-transparent text-slate-100 resize-none outline-none leading-relaxed border-0 selection:bg-teal-500/30"
+                className="w-full h-full p-4 font-mono text-xs sm:text-sm bg-white text-slate-900 resize-none outline-none leading-relaxed border-0 selection:bg-teal-500/30"
                 placeholder="// Write your code here..."
               />
             </div>
 
             {/* Bottom Panel: Test Cases & Execution Results */}
-            <div className="h-60 border-t border-slate-800 bg-slate-900 flex flex-col shrink-0">
+            <div className="h-60 border-t border-slate-200 bg-slate-50 flex flex-col shrink-0">
               
               {/* Console Tabs */}
-              <div className="flex items-center justify-between border-b border-slate-800 px-4 bg-slate-900/90 shrink-0">
+              <div className="flex items-center justify-between border-b border-slate-200 px-4 bg-white shrink-0">
                 <div className="flex items-center">
                   <button
                     onClick={() => setActiveConsoleTab("testcases")}
                     className={`py-2 px-3 text-xs font-semibold border-b-2 transition-colors cursor-pointer ${
                       activeConsoleTab === "testcases"
-                        ? "border-teal-500 text-teal-400"
-                        : "border-transparent text-slate-400 hover:text-slate-200"
+                        ? "border-teal-500 text-teal-600"
+                        : "border-transparent text-slate-400 hover:text-slate-700"
                     }`}
                   >
                     Test Cases ({publicTestCases.length})
@@ -501,23 +520,23 @@ export function CodingEnvironmentModal({
                     onClick={() => setActiveConsoleTab("results")}
                     className={`py-2 px-3 text-xs font-semibold border-b-2 transition-colors cursor-pointer flex items-center gap-1.5 ${
                       activeConsoleTab === "results"
-                        ? "border-teal-500 text-teal-400"
-                        : "border-transparent text-slate-400 hover:text-slate-200"
+                        ? "border-teal-500 text-teal-600"
+                        : "border-transparent text-slate-400 hover:text-slate-700"
                     }`}
                   >
                     <span>Test Results</span>
                     {executionReport && (
                       <span className={`w-2 h-2 rounded-full ${
-                        executionReport.status === "Accepted" ? "bg-emerald-400" : "bg-rose-400"
+                        executionReport.status === "Accepted" ? "bg-emerald-500" : "bg-rose-500"
                       }`} />
                     )}
                   </button>
                 </div>
 
                 {executionReport && (
-                  <div className="text-[11px] font-mono text-slate-400 flex items-center gap-3">
-                    <span>Runtime: <strong className="text-slate-200">{executionReport.totalRuntimeMs}ms</strong></span>
-                    <span>Passed: <strong className={executionReport.status === "Accepted" ? "text-emerald-400" : "text-rose-400"}>
+                  <div className="text-[11px] font-mono text-slate-500 flex items-center gap-3">
+                    <span>Runtime: <strong className="text-slate-700">{executionReport.totalRuntimeMs}ms</strong></span>
+                    <span>Passed: <strong className={executionReport.status === "Accepted" ? "text-emerald-600" : "text-rose-600"}>
                       {executionReport.passedTestCases}/{executionReport.totalTestCases}
                     </strong></span>
                   </div>
@@ -536,8 +555,8 @@ export function CodingEnvironmentModal({
                           onClick={() => setSelectedTestCaseIdx(idx)}
                           className={`px-3 py-1 rounded-lg text-xs font-semibold transition-colors cursor-pointer ${
                             selectedTestCaseIdx === idx
-                              ? "bg-slate-800 text-teal-400 border border-teal-500/50"
-                              : "bg-slate-800/60 text-slate-400 border border-slate-700/60 hover:text-slate-200"
+                              ? "bg-teal-50 text-teal-700 border border-teal-300"
+                              : "bg-white text-slate-500 border border-slate-200 hover:text-slate-700"
                           }`}
                         >
                           Case {idx + 1}
@@ -547,16 +566,16 @@ export function CodingEnvironmentModal({
 
                     {/* Selected Test Case Inputs & Expected */}
                     {publicTestCases[selectedTestCaseIdx] && (
-                      <div className="space-y-2 bg-slate-950 p-3 rounded-xl border border-slate-800">
+                      <div className="space-y-2 bg-white p-3 rounded-xl border border-slate-200">
                         <div>
-                          <div className="text-[10px] uppercase font-bold text-slate-500 mb-0.5">Input:</div>
-                          <div className="text-slate-200 font-mono">
+                          <div className="text-[10px] uppercase font-bold text-slate-400 mb-0.5">Input:</div>
+                          <div className="text-slate-700 font-mono">
                             {JSON.stringify(publicTestCases[selectedTestCaseIdx].input)}
                           </div>
                         </div>
                         <div>
-                          <div className="text-[10px] uppercase font-bold text-slate-500 mb-0.5">Expected Output:</div>
-                          <div className="text-teal-400 font-mono">
+                          <div className="text-[10px] uppercase font-bold text-slate-400 mb-0.5">Expected Output:</div>
+                          <div className="text-teal-600 font-mono">
                             {JSON.stringify(publicTestCases[selectedTestCaseIdx].expected)}
                           </div>
                         </div>
@@ -567,7 +586,7 @@ export function CodingEnvironmentModal({
                   /* Execution Results Tab */
                   <div>
                     {isRunning ? (
-                      <div className="flex items-center gap-3 py-6 justify-center text-slate-400">
+                      <div className="flex items-center gap-3 py-6 justify-center text-slate-500">
                         <div className="w-5 h-5 border-2 border-teal-500 border-t-transparent rounded-full animate-spin" />
                         <span>Executing test suite...</span>
                       </div>
@@ -576,14 +595,18 @@ export function CodingEnvironmentModal({
                         {/* Overall Banner */}
                         <div className={`p-3 rounded-xl border flex items-center justify-between ${
                           executionReport.status === "Accepted"
-                            ? "bg-emerald-950/40 border-emerald-500/30 text-emerald-300"
-                            : "bg-rose-950/40 border-rose-500/30 text-rose-300"
+                            ? "bg-emerald-50 border-emerald-200 text-emerald-700"
+                            : executionReport.status === "Runtime Error"
+                            ? "bg-amber-50 border-amber-200 text-amber-700"
+                            : "bg-rose-50 border-rose-200 text-rose-700"
                         }`}>
                           <div className="flex items-center gap-2">
                             {executionReport.status === "Accepted" ? (
-                              <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
+                              <CheckCircle2 className="w-4 h-4 text-emerald-500 shrink-0" />
+                            ) : executionReport.status === "Runtime Error" ? (
+                              <AlertTriangle className="w-4 h-4 text-amber-500 shrink-0" />
                             ) : (
-                              <XCircle className="w-4 h-4 text-rose-400 shrink-0" />
+                              <XCircle className="w-4 h-4 text-rose-500 shrink-0" />
                             )}
                             <span className="font-bold text-sm">{executionReport.status}</span>
                             <span className="text-xs opacity-80">
@@ -595,7 +618,7 @@ export function CodingEnvironmentModal({
 
                         {/* Error Message if any */}
                         {executionReport.errorMessage && (
-                          <div className="p-3 rounded-xl bg-rose-950/30 border border-rose-800 text-rose-300 text-xs font-mono whitespace-pre-wrap">
+                          <div className="p-3 rounded-xl bg-amber-50 border border-amber-200 text-amber-800 text-xs font-mono whitespace-pre-wrap">
                             {executionReport.errorMessage}
                           </div>
                         )}
@@ -607,13 +630,13 @@ export function CodingEnvironmentModal({
                               key={idx}
                               className={`p-2.5 rounded-lg border text-xs flex items-center justify-between ${
                                 r.passed 
-                                  ? "bg-slate-950/60 border-slate-800 text-slate-300" 
-                                  : "bg-rose-950/20 border-rose-800/60 text-rose-200"
+                                  ? "bg-white border-slate-200 text-slate-700" 
+                                  : "bg-rose-50 border-rose-200 text-rose-700"
                               }`}
                             >
                               <div className="flex items-center gap-2 min-w-0">
                                 <span className={`w-4 h-4 rounded-full flex items-center justify-center text-[10px] font-bold shrink-0 ${
-                                  r.passed ? "bg-emerald-500/20 text-emerald-400" : "bg-rose-500/20 text-rose-400"
+                                  r.passed ? "bg-emerald-100 text-emerald-600" : "bg-rose-100 text-rose-600"
                                 }`}>
                                   {r.passed ? "✓" : "✗"}
                                 </span>
@@ -621,12 +644,12 @@ export function CodingEnvironmentModal({
                                   Test Case {r.caseNumber} {r.isHidden ? "(Hidden)" : ""}
                                 </span>
                                 {!r.passed && (
-                                  <span className="text-[11px] text-rose-400 font-mono truncate">
+                                  <span className="text-[11px] text-rose-600 font-mono truncate">
                                     Expected: {r.expectedStr} | Got: {r.actualStr}
                                   </span>
                                 )}
                               </div>
-                              <span className="text-slate-500 font-mono text-[11px] shrink-0">
+                              <span className="text-slate-400 font-mono text-[11px] shrink-0">
                                 {r.executionTimeMs}ms
                               </span>
                             </div>
@@ -634,7 +657,7 @@ export function CodingEnvironmentModal({
                         </div>
                       </div>
                     ) : (
-                      <div className="text-center py-6 text-slate-500 text-xs">
+                      <div className="text-center py-6 text-slate-400 text-xs">
                         Click <strong>Run Code</strong> to test against sample cases, or <strong>Submit Solution</strong> to run the full test suite.
                       </div>
                     )}

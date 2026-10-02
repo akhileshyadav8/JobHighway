@@ -24,8 +24,10 @@ export interface CodingProblem {
     explanation?: string;
   }[];
   starterCode: {
-    javascript: string;
     python: string;
+    c: string;
+    cpp: string;
+    java: string;
   };
   functionName: string;
   testCases: CodingTestCase[];
@@ -35,7 +37,7 @@ export interface CodingSubmissionRecord {
   id: string;
   problemId: string;
   problemTitle: string;
-  language: "javascript" | "python";
+  language: "python" | "c" | "cpp" | "java";
   code: string;
   status: "Accepted" | "Wrong Answer" | "Runtime Error" | "Time Limit Exceeded";
   passedTestCases: number;
@@ -80,32 +82,36 @@ Return the answer with the indices in ascending order.`,
       }
     ],
     starterCode: {
-      javascript: `/**
- * @param {number[]} nums
- * @param {number} target
- * @return {number[]}
- */
-function twoSum(nums, target) {
-  // Your solution here
-  const map = new Map();
-  for (let i = 0; i < nums.length; i++) {
-    const complement = target - nums[i];
-    if (map.has(complement)) {
-      return [map.get(complement), i];
-    }
-    map.set(nums[i], i);
-  }
-  return [];
-}`,
       python: `def twoSum(nums, target):
-    # Your solution here
-    seen = {}
-    for i, num in enumerate(nums):
-        complement = target - num
-        if complement in seen:
-            return [seen[complement], i]
-        seen[num] = i
-    return []`
+    # Write your solution here
+    pass`,
+      c: `#include <stdio.h>
+#include <stdlib.h>
+
+int* twoSum(int* nums, int numsSize, int target, int* returnSize) {
+    *returnSize = 2;
+    int* result = (int*)malloc(2 * sizeof(int));
+    // Write your solution here
+    return result;
+}`,
+      cpp: `#include <bits/stdc++.h>
+using namespace std;
+
+class Solution {
+public:
+    vector<int> twoSum(vector<int>& nums, int target) {
+        // Write your solution here
+        return {};
+    }
+};`,
+      java: `import java.util.*;
+
+class Solution {
+    public int[] twoSum(int[] nums, int target) {
+        // Write your solution here
+        return new int[]{};
+    }
+}`
     },
     functionName: "twoSum",
     testCases: [
@@ -181,35 +187,36 @@ An input string is valid if:
       }
     ],
     starterCode: {
-      javascript: `/**
- * @param {string} s
- * @return {boolean}
- */
-function isValid(s) {
-  // Your solution here
-  const stack = [];
-  const map = { ')': '(', '}': '{', ']': '[' };
-  for (let ch of s) {
-    if (ch in map) {
-      if (stack.pop() !== map[ch]) return false;
-    } else {
-      stack.push(ch);
-    }
-  }
-  return stack.length === 0;
-}`,
       python: `def isValid(s):
-    # Your solution here
-    stack = []
-    mapping = {")": "(", "}": "{", "]": "["}
-    for char in s:
-        if char in mapping:
-            top = stack.pop() if stack else '#'
-            if mapping[char] != top:
-                return False
-        else:
-            stack.append(char)
-    return not stack`
+    # Write your solution here
+    pass`,
+      c: `#include <stdio.h>
+#include <stdlib.h>
+#include <stdbool.h>
+#include <string.h>
+
+bool isValid(char* s) {
+    // Write your solution here
+    return false;
+}`,
+      cpp: `#include <bits/stdc++.h>
+using namespace std;
+
+class Solution {
+public:
+    bool isValid(string s) {
+        // Write your solution here
+        return false;
+    }
+};`,
+      java: `import java.util.*;
+
+class Solution {
+    public boolean isValid(String s) {
+        // Write your solution here
+        return false;
+    }
+}`
     },
     functionName: "isValid",
     testCases: [
@@ -282,27 +289,33 @@ A subarray is a contiguous non-empty sequence of elements within an array.`,
       }
     ],
     starterCode: {
-      javascript: `/**
- * @param {number[]} nums
- * @return {number}
- */
-function maxSubArray(nums) {
-  // Your solution here using Kadane's Algorithm
-  let maxSum = nums[0];
-  let currentSum = nums[0];
-  for (let i = 1; i < nums.length; i++) {
-    currentSum = Math.max(nums[i], currentSum + nums[i]);
-    maxSum = Math.max(maxSum, currentSum);
-  }
-  return maxSum;
-}`,
       python: `def maxSubArray(nums):
-    # Your solution here using Kadane's Algorithm
-    max_sum = current_sum = nums[0]
-    for num in nums[1:]:
-        current_sum = max(num, current_sum + num)
-        max_sum = max(max_sum, current_sum)
-    return max_sum`
+    # Write your solution here using Kadane's Algorithm
+    pass`,
+      c: `#include <stdio.h>
+
+int maxSubArray(int* nums, int numsSize) {
+    // Write your solution here using Kadane's Algorithm
+    return 0;
+}`,
+      cpp: `#include <bits/stdc++.h>
+using namespace std;
+
+class Solution {
+public:
+    int maxSubArray(vector<int>& nums) {
+        // Write your solution here using Kadane's Algorithm
+        return 0;
+    }
+};`,
+      java: `import java.util.*;
+
+class Solution {
+    public int maxSubArray(int[] nums) {
+        // Write your solution here using Kadane's Algorithm
+        return 0;
+    }
+}`
     },
     functionName: "maxSubArray",
     testCases: [
@@ -368,36 +381,51 @@ Return an object mapping department names to \`{ totalRevenue, orderCount, aov }
       }
     ],
     starterCode: {
-      javascript: `/**
- * @param {Array<{department: string, revenue: number, orderId: string}>} orders
- * @return {Record<string, {totalRevenue: number, orderCount: number, aov: number}>}
- */
-function aggregateDepartmentMetrics(orders) {
-  const result = {};
-  for (const order of orders) {
-    if (!result[order.department]) {
-      result[order.department] = { totalRevenue: 0, orderCount: 0, aov: 0 };
-    }
-    result[order.department].totalRevenue += order.revenue;
-    result[order.department].orderCount += 1;
-  }
-  for (const dept in result) {
-    result[dept].aov = Number((result[dept].totalRevenue / result[dept].orderCount).toFixed(2));
-  }
-  return result;
-}`,
       python: `def aggregateDepartmentMetrics(orders):
-    # Your solution here
-    res = {}
-    for o in orders:
-        dept = o['department']
-        if dept not in res:
-            res[dept] = {'totalRevenue': 0, 'orderCount': 0, 'aov': 0}
-        res[dept]['totalRevenue'] += o['revenue']
-        res[dept]['orderCount'] += 1
-    for dept in res:
-        res[dept]['aov'] = round(res[dept]['totalRevenue'] / res[dept]['orderCount'], 2)
-    return res`
+    # Write your solution here
+    pass`,
+      c: `// This problem is best solved in Python due to its data-wrangling nature.
+// A full C implementation requires manual hash map management.
+#include <stdio.h>
+#include <string.h>
+#include <stdlib.h>
+
+// Write your solution here
+// Tip: Use Python for a cleaner solution.
+void aggregateDepartmentMetrics(/* orders array */ void* orders, int size) {
+    // Write your solution here
+}`,
+      cpp: `// This problem is best solved in Python due to its data-wrangling nature.
+// A C++ implementation can use std::unordered_map for grouping.
+#include <bits/stdc++.h>
+using namespace std;
+
+struct Order {
+    string department;
+    double revenue;
+    string orderId;
+};
+
+struct Metrics {
+    double totalRevenue;
+    int orderCount;
+    double aov;
+};
+
+map<string, Metrics> aggregateDepartmentMetrics(vector<Order>& orders) {
+    // Write your solution here
+    return {};
+}`,
+      java: `// This problem is best solved in Python due to its data-wrangling nature.
+// A Java implementation can use HashMap for grouping.
+import java.util.*;
+
+class Solution {
+    public Map<String, Map<String, Object>> aggregateDepartmentMetrics(List<Map<String, Object>> orders) {
+        // Write your solution here
+        return new HashMap<>();
+    }
+}`
     },
     functionName: "aggregateDepartmentMetrics",
     testCases: [
