@@ -696,11 +696,22 @@ export function scoreJobForCandidate(
     job.title
   );
 
-  // Negative Guardrail: If candidate explicitly has a target role or skills,
-  // and BOTH role score is 0 AND skill score is 0, completely exclude this job!
-  const hasProfileSignal = (profile.targetRole && profile.targetRole.trim().length > 0) ||
-                           (profile.skills && profile.skills.length > 0);
-  if (hasProfileSignal && roleResult.score === 0 && skillResult.score === 0) {
+  // Negative Guardrail: Strict rejection for unrelated roles
+  const hasRoleSignal = !!((profile.targetRole && profile.targetRole.trim().length > 0) || (profile.currentRole && profile.currentRole.trim().length > 0));
+  const hasSkillSignal = !!(profile.skills && profile.skills.length > 0);
+
+  // If candidate explicitly stated their role, but this job has 0 role relevance, exclude it.
+  if (hasRoleSignal && roleResult.score < 10) {
+    return null;
+  }
+
+  // If candidate listed their skills, and this job has specific skill requirements, but 0 overlap, exclude it.
+  if (hasSkillSignal && skillResult.score === 0) {
+    return null;
+  }
+
+  // General low-quality match fallback
+  if (hasRoleSignal && hasSkillSignal && roleResult.score < 15 && skillResult.score < 15) {
     return null;
   }
 

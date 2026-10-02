@@ -107,7 +107,7 @@ function normalizeCompanyCountry(hq: string | null | undefined): string {
 }
 
 function matchesCompanySize(rangeStr: string | null | undefined, bucketKey: string): boolean {
-  if (!rangeStr) return bucketKey === '1-50';
+  if (!rangeStr) return bucketKey === 'Unknown';
   const clean = rangeStr.replace(/[\u2013\u2014]/g, '-').replace(/[\s,]/g, '').toLowerCase();
   
   if (bucketKey === '1-50') {
@@ -124,6 +124,9 @@ function matchesCompanySize(rangeStr: string | null | undefined, bucketKey: stri
   }
   if (bucketKey === '5000+') {
     return clean.includes('5000+') || clean.includes('10001+') || clean.includes('10000+') || clean.includes('10k') || clean.includes('5k+');
+  }
+  if (bucketKey === 'Unknown') {
+    return false;
   }
   return false;
 }
@@ -226,7 +229,7 @@ export function InteractiveCompanies({ initialCompanies, initialStats, initialSe
 
   const matchIndustry = useCallback((c: Company) => {
     if (selectedIndustry === "All") return true;
-    return (c.industry || "Technology").toLowerCase() === selectedIndustry.toLowerCase();
+    return (c.industry || "Unknown").toLowerCase() === selectedIndustry.toLowerCase();
   }, [selectedIndustry]);
 
   const matchSize = useCallback((c: Company) => {
@@ -259,7 +262,7 @@ export function InteractiveCompanies({ initialCompanies, initialStats, initialSe
     const pool = initialCompanies.filter(c => matchSearch(c) && matchCountry(c) && matchSize(c) && matchFeature(c));
     const map = new Map<string, number>();
     pool.forEach(c => {
-      const ind = (c.industry && c.industry.trim()) ? c.industry.trim() : "Technology";
+      const ind = (c.industry && c.industry.trim()) ? c.industry.trim() : "Unknown";
       map.set(ind, (map.get(ind) || 0) + 1);
     });
     return Array.from(map.entries()).sort((a, b) => b[1] - a[1]);
@@ -274,6 +277,7 @@ export function InteractiveCompanies({ initialCompanies, initialStats, initialSe
       { key: "201-1000", label: "201–1,000", count: pool.filter(c => matchesCompanySize(c.employee_count_range, "201-1000")).length },
       { key: "1001-5000", label: "1,001–5,000", count: pool.filter(c => matchesCompanySize(c.employee_count_range, "1001-5000")).length },
       { key: "5000+", label: "5,000+", count: pool.filter(c => matchesCompanySize(c.employee_count_range, "5000+")).length },
+      { key: "Unknown", label: "Unknown", count: pool.filter(c => matchesCompanySize(c.employee_count_range, "Unknown")).length },
     ];
   }, [initialCompanies, matchSearch, matchCountry, matchIndustry, matchFeature]);
 
@@ -334,7 +338,7 @@ export function InteractiveCompanies({ initialCompanies, initialStats, initialSe
 
     // Industry filter
     if (selectedIndustry !== "All") {
-      list = list.filter(c => (c.industry || "Technology").toLowerCase() === selectedIndustry.toLowerCase());
+      list = list.filter(c => (c.industry || "Unknown").toLowerCase() === selectedIndustry.toLowerCase());
     }
 
     // Size filter
