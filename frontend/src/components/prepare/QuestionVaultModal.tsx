@@ -22,6 +22,11 @@ import {
 import { PrepRole, PREP_COMPANIES, PracticeQuestion } from "@/lib/preparationData";
 import { ALL_CODING_PROBLEMS } from "@/lib/codingProblemsData";
 import { ALL_SQL_PROBLEMS } from "@/lib/sqlProblemsData";
+import {
+  EXTENDED_BEHAVIORAL_QUESTIONS,
+  EXTENDED_SYSTEM_DESIGN_QUESTIONS,
+  EXTENDED_APTITUDE_QUESTIONS
+} from "@/lib/vaultQuestionsData";
 
 export interface VaultQuestionItem {
   id: string;
@@ -191,7 +196,7 @@ export function QuestionVaultModal({
         solutionHint: "Show empathy, diagnosis of blocker (tooling, context, domain), pairing sessions, and celebrating their eventual independent delivery."
       }
     ];
-    list.push(...behavioralMaster);
+    list.push(...behavioralMaster, ...EXTENDED_BEHAVIORAL_QUESTIONS);
 
     // 4. System Design Questions
     const systemDesignMaster: VaultQuestionItem[] = [
@@ -226,7 +231,7 @@ export function QuestionVaultModal({
         solutionHint: "Explain Operational Transformation (OT) vs Conflict-free Replicated Data Types (CRDTs). Long-polling vs WebSockets. Event sourcing with Kafka."
       }
     ];
-    list.push(...systemDesignMaster);
+    list.push(...systemDesignMaster, ...EXTENDED_SYSTEM_DESIGN_QUESTIONS);
 
     // 5. Aptitude & Reasoning questions
     const aptitudeMaster: VaultQuestionItem[] = [
@@ -251,7 +256,7 @@ export function QuestionVaultModal({
         solutionHint: "Rate A = 300 jobs/hr. Rate B = 200 jobs/hr. Combined rate = 500 jobs/hr. Time for 3,000 jobs = 3000 / 500 = 6 hours."
       }
     ];
-    list.push(...aptitudeMaster);
+    list.push(...aptitudeMaster, ...EXTENDED_APTITUDE_QUESTIONS);
 
     // 6. Company specific real questions from PREP_COMPANIES
     PREP_COMPANIES.forEach(comp => {

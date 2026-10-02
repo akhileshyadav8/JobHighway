@@ -85,23 +85,10 @@ function MockTestContent() {
         return;
       }
 
-      // If URL params were provided, auto-start that test
+      // If URL params were provided, update launcher defaults without auto-starting the test
       if (queryRole) {
-        const generated = getRandomizedQuiz(queryRole, queryCategory, 30);
-        if (generated) {
-          const newSession: ActiveTestSession = {
-            quiz: generated,
-            userAnswers: {},
-            markedForReview: [],
-            currentQuestionIndex: 0,
-            secondsRemaining: generated.durationMinutes * 60,
-            startedAt: new Date().toISOString()
-          };
-          localStorage.setItem(ACTIVE_TEST_STORAGE_KEY, JSON.stringify(newSession));
-          setSession(newSession);
-          setLoading(false);
-          return;
-        }
+        setSelectedRole(queryRole);
+        setSelectedCategory(queryCategory || "all");
       }
     } catch (e) {
       console.error("Error loading test session:", e);

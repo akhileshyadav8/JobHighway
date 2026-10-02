@@ -60,6 +60,12 @@ import { QuestionVaultModal } from "./QuestionVaultModal";
 import { SqlEnvironmentModal } from "./SqlEnvironmentModal";
 import { QuizTest, getRandomizedQuiz } from "@/lib/quizData";
 import { ALL_CODING_PROBLEMS } from "@/lib/codingProblemsData";
+import { ALL_SQL_PROBLEMS } from "@/lib/sqlProblemsData";
+import {
+  EXTENDED_BEHAVIORAL_QUESTIONS,
+  EXTENDED_SYSTEM_DESIGN_QUESTIONS,
+  EXTENDED_APTITUDE_QUESTIONS
+} from "@/lib/vaultQuestionsData";
 import { parseResumeFile, computeAtsMatch } from "@/lib/resumeParser";
 import {
   COMMON_HR_QUESTIONS,
@@ -456,31 +462,8 @@ export function CareerPrepHub({ initialRoleId }: { initialRoleId?: string }) {
       setQuizModalOpen(true);
       return;
     }
-    // Use role-based randomized quiz - try new tab first
-    const randomized = getRandomizedQuiz(selectedRole.id, "all", 30);
-    if (randomized) {
-      try {
-        const sessionPayload = {
-          quiz: randomized,
-          userAnswers: {},
-          markedForReview: [],
-          currentQuestionIndex: 0,
-          secondsRemaining: randomized.durationMinutes * 60,
-          startedAt: new Date().toISOString()
-        };
-        localStorage.setItem("jobhighway_active_test_session", JSON.stringify(sessionPayload));
-        sessionStorage.setItem("jobhighway_active_mock_test", JSON.stringify(randomized));
-        window.open(`/prepare/mock-test?role=${selectedRole.id}&category=all`, "_blank");
-      } catch {
-        setRandomizedQuiz(randomized);
-        setQuizModalOpen(true);
-      }
-    } else {
-      // Fallback to first available quiz
-      setRandomizedQuiz(null);
-      setActiveQuizId("swe-tech-assessment-1");
-      setQuizModalOpen(true);
-    }
+    // Open mock test configuration and launcher portal for selected role
+    window.open(`/prepare/mock-test?role=${selectedRole.id}&category=all`, "_blank");
   };
 
   // Handler for Launching Code Practice
@@ -906,97 +889,52 @@ export function CareerPrepHub({ initialRoleId }: { initialRoleId?: string }) {
             {/* Split Stepper (Left 6 Step Rows + Center Role Roadmap Card matching Reference UI) */}
             <div className="grid grid-cols-1 md:grid-cols-12 gap-4 items-start">
               
-              {/* Left 6 Step Rows */}
+              {/* Left Dynamic Stepper Rows (Driven directly by selectedRole.roadmap) */}
               <div className="md:col-span-5 space-y-2">
-                {[
-                  {
-                    stepNum: 1,
-                    title: "Core Fundamentals",
-                    sub: "Languages, basic concepts, problem solving",
-                    action: () => handleSwitchTab("roadmap")
-                  },
-                  {
-                    stepNum: 2,
-                    title: "Important Topics",
-                    sub: "In-depth concepts with examples",
-                    action: () => handleSwitchTab("skills")
-                  },
-                  {
-                    stepNum: 3,
-                    title: "Practice Questions",
-                    sub: selectedRole.id === "data-analyst"
-                      ? "Interactive SQL queries and table schemas"
-                      : "Topic-wise and company-wise coding challenges",
-                    action: () => {
-                      if (selectedRole.id === "data-analyst") {
-                        handleOpenVault("SQL");
-                      } else {
-                        handleOpenVault("DSA");
-                      }
-                    }
-                  },
-                  {
-                    stepNum: 4,
-                    title: "Mock Tests",
-                    sub: "Timed tests and detailed solutions",
-                    action: () => {
-                      const randomized = getRandomizedQuiz(selectedRole.id, "all", 30);
-                      if (randomized) {
-                        try {
-                          const sessionPayload = {
-                            quiz: randomized,
-                            userAnswers: {},
-                            markedForReview: [],
-                            currentQuestionIndex: 0,
-                            secondsRemaining: randomized.durationMinutes * 60,
-                            startedAt: new Date().toISOString()
-                          };
-                          localStorage.setItem("jobhighway_active_test_session", JSON.stringify(sessionPayload));
-                          sessionStorage.setItem("jobhighway_active_mock_test", JSON.stringify(randomized));
-                          window.open(`/prepare/mock-test?role=${selectedRole.id}&category=all`, "_blank");
-                        } catch {
-                          setRandomizedQuiz(randomized);
-                          setQuizModalOpen(true);
-                        }
-                      } else {
-                        setActiveQuizId("swe-tech-assessment-1");
-                        setQuizModalOpen(true);
-                      }
-                    }
-                  },
-                  {
-                    stepNum: 5,
-                    title: selectedRole.id === "product-manager" ? "Case Studies" : 
-                           ["data-analyst", "data-scientist", "data-engineer"].includes(selectedRole.id) ? "SQL Practice & Schemas" : 
-                           "System Design",
-                    sub: selectedRole.id === "product-manager" ? "Product sense, strategy and metrics" :
-                         ["data-analyst", "data-scientist", "data-engineer"].includes(selectedRole.id) ? "Interactive SQL sandbox, tables & queries" :
-                         "Design concepts, real-world case studies",
-                    action: () => {
-                      if (["data-analyst", "data-scientist", "data-engineer"].includes(selectedRole.id)) {
-                        handleOpenSql();
-                      } else {
-                        handleOpenVault("System Design");
-                      }
-                    }
-                  },
-
-                  {
-                    stepNum: 6,
-                    title: "Interview Tips",
-                    sub: "HR questions, behavioral STAR, etiquette and common mistakes",
-                    action: () => handleSwitchTab("interview")
-                  }
-                ].map((item, idx) => {
+                {selectedRole.roadmap.map((step, idx) => {
                   const isCurrent = activeStepIndex === idx;
+                  const isCompleted = completedSteps.has(step.id);
+
+                  // Dynamic contextual action based on step title and role
+                  const handleStepClick = () => {
+                    setActiveStepIndex(idx);
+                    const titleLower = step.title.toLowerCase();
+                    const focusLower = step.focus.toLowerCase();
+
+                    if (titleLower.includes("sql") || focusLower.includes("sql") || titleLower.includes("relational")) {
+                      if (["data-analyst", "data-scientist", "data-engineer", "backend-developer"].includes(selectedRole.id)) {
+                        handleOpenSql();
+                        return;
+                      }
+                    }
+
+                    if (titleLower.includes("algorithm") || titleLower.includes("data structure") || titleLower.includes("dsa") || titleLower.includes("problem solving")) {
+                      handleOpenVault("DSA");
+                      return;
+                    }
+
+                    if (titleLower.includes("system design") || focusLower.includes("system design") || titleLower.includes("architecture")) {
+                      handleOpenVault("System Design");
+                      return;
+                    }
+
+                    if (titleLower.includes("mock") || titleLower.includes("interview") || titleLower.includes("assessment")) {
+                      handleSwitchTab("interview");
+                      return;
+                    }
+
+                    if (titleLower.includes("topic") || titleLower.includes("concept") || titleLower.includes("deep dive")) {
+                      handleSwitchTab("skills");
+                      return;
+                    }
+
+                    handleSwitchTab("roadmap");
+                  };
 
                   return (
                     <button
-                      key={item.stepNum}
-                      onClick={() => {
-                        setActiveStepIndex(idx);
-                        item.action();
-                      }}
+                      key={step.id}
+                      onClick={handleStepClick}
                       className={`w-full p-3 rounded-xl border text-left transition-all cursor-pointer flex items-center justify-between gap-3 ${
                         isCurrent
                           ? "bg-white border-teal-500 shadow-xs ring-1 ring-teal-500/20"
@@ -1005,20 +943,22 @@ export function CareerPrepHub({ initialRoleId }: { initialRoleId?: string }) {
                     >
                       <div className="flex items-center gap-3 min-w-0">
                         <div className={`w-6 h-6 rounded-full flex items-center justify-center shrink-0 text-xs font-bold ${
-                          isCurrent
-                            ? "bg-teal-600 text-white"
-                            : "bg-teal-50 text-teal-700 border border-teal-200"
+                          isCompleted
+                            ? "bg-emerald-500 text-white"
+                            : isCurrent
+                              ? "bg-teal-600 text-white"
+                              : "bg-teal-50 text-teal-700 border border-teal-200"
                         }`}>
-                          {item.stepNum}
+                          {isCompleted ? <Check className="w-3.5 h-3.5 stroke-[3]" /> : idx + 1}
                         </div>
                         <div className="min-w-0">
                           <div className={`text-xs font-bold truncate ${
                             isCurrent ? "text-teal-900" : "text-slate-900"
                           }`}>
-                            {item.title}
+                            {step.title}
                           </div>
                           <div className="text-[10px] text-slate-500 truncate">
-                            {item.sub}
+                            {step.focus}
                           </div>
                         </div>
                       </div>
@@ -1029,7 +969,6 @@ export function CareerPrepHub({ initialRoleId }: { initialRoleId?: string }) {
                     </button>
                   );
                 })}
-
               </div>
 
               {/* Center Roadmap Card (Matching Reference UI active card) */}
@@ -1213,7 +1152,7 @@ export function CareerPrepHub({ initialRoleId }: { initialRoleId?: string }) {
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4">
           
-            {/* Card 1: DSA Sheets */}
+          {/* Card 1: DSA Sheets */}
           <div className="bg-white border border-slate-200/90 rounded-2xl p-4 shadow-2xs flex flex-col justify-between hover:border-teal-300 transition-colors">
             <div>
               <div className="w-8 h-8 rounded-lg bg-teal-50 text-teal-600 flex items-center justify-center mb-3">
@@ -1230,7 +1169,7 @@ export function CareerPrepHub({ initialRoleId }: { initialRoleId?: string }) {
               onClick={() => handleOpenVault("DSA")}
               className="text-xs font-bold text-teal-600 hover:text-teal-700 inline-flex items-center gap-1 cursor-pointer pt-2 border-t border-slate-100"
             >
-              <span>{ALL_CODING_PROBLEMS.length}+ problems</span>
+              <span>{ALL_CODING_PROBLEMS.length} curated problems</span>
               <ArrowRight className="w-3.5 h-3.5" />
             </button>
           </div>
@@ -1252,7 +1191,7 @@ export function CareerPrepHub({ initialRoleId }: { initialRoleId?: string }) {
               onClick={() => handleOpenVault("System Design")}
               className="text-xs font-bold text-teal-600 hover:text-teal-700 inline-flex items-center gap-1 cursor-pointer pt-2 border-t border-slate-100"
             >
-              <span>View resources</span>
+              <span>{3 + EXTENDED_SYSTEM_DESIGN_QUESTIONS.length} architectures</span>
               <ArrowRight className="w-3.5 h-3.5" />
             </button>
           </div>
@@ -1274,10 +1213,9 @@ export function CareerPrepHub({ initialRoleId }: { initialRoleId?: string }) {
               onClick={() => handleOpenVault("SQL")}
               className="text-xs font-bold text-teal-600 hover:text-teal-700 inline-flex items-center gap-1 cursor-pointer pt-2 border-t border-slate-100"
             >
-              <span>Practice SQL</span>
+              <span>{ALL_SQL_PROBLEMS.length} SQL challenges</span>
               <ArrowRight className="w-3.5 h-3.5" />
             </button>
-
           </div>
 
           {/* Card 4: Aptitude */}
@@ -1294,14 +1232,13 @@ export function CareerPrepHub({ initialRoleId }: { initialRoleId?: string }) {
               </p>
             </div>
             <button
-              onClick={() => handleOpenQuiz("aptitude-screening-1")}
+              onClick={() => handleOpenVault("Aptitude")}
               className="text-xs font-bold text-teal-600 hover:text-teal-700 inline-flex items-center gap-1 cursor-pointer pt-2 border-t border-slate-100"
             >
-              <span>Take test</span>
+              <span>{2 + EXTENDED_APTITUDE_QUESTIONS.length} practice problems</span>
               <ArrowRight className="w-3.5 h-3.5" />
             </button>
           </div>
-
 
           {/* Card 5: Behavioral Questions */}
           <div className="bg-white border border-slate-200/90 rounded-2xl p-4 shadow-2xs flex flex-col justify-between hover:border-teal-300 transition-colors">
@@ -1320,7 +1257,7 @@ export function CareerPrepHub({ initialRoleId }: { initialRoleId?: string }) {
               onClick={() => handleOpenVault("Behavioral")}
               className="text-xs font-bold text-teal-600 hover:text-teal-700 inline-flex items-center gap-1 cursor-pointer pt-2 border-t border-slate-100"
             >
-              <span>80+ questions</span>
+              <span>{4 + EXTENDED_BEHAVIORAL_QUESTIONS.length} STAR questions</span>
               <ArrowRight className="w-3.5 h-3.5" />
             </button>
           </div>
@@ -1342,7 +1279,7 @@ export function CareerPrepHub({ initialRoleId }: { initialRoleId?: string }) {
               onClick={() => handleOpenVault("Company Specific")}
               className="text-xs font-bold text-teal-600 hover:text-teal-700 inline-flex items-center gap-1 cursor-pointer pt-2 border-t border-slate-100"
             >
-              <span>300+ questions</span>
+              <span>{PREP_COMPANIES.reduce((sum, c) => sum + Object.values(c.roleQuestions).reduce((s2, r) => s2 + r.frequentlyAsked.length, 0), 0)} verified questions</span>
               <ArrowRight className="w-3.5 h-3.5" />
             </button>
           </div>

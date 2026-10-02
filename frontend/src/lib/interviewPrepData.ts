@@ -155,6 +155,22 @@ export const COMMON_HR_QUESTIONS: HrInterviewQuestion[] = [
       "data-engineer": {
         fresher: "I want to be a Data Engineer because without reliable data infrastructure, neither data analysts nor machine learning models can function. I love systems-level thinking—designing schemas, building automated pipelines, optimizing SQL queries, and ensuring data reaches consumers cleanly and reliably. I get great satisfaction from knowing the data pipelines I build are robust, scalable, and fail-safe.",
         experienced: "I chose Data Engineering because data reliability and infrastructure scalability are the backbone of modern tech companies. I love building fault-tolerant architectures that handle billions of records seamlessly."
+      },
+      "software-engineer": {
+        fresher: "I chose Software Engineering because I genuinely enjoy breaking down complex problems and turning logical algorithms into clean, production-grade applications that users interact with. In college, building full-stack web applications and optimizing database queries taught me how rewarding it is to build reliable, scalable software. I want to build features that solve real customer problems and master distributed systems architecture.",
+        experienced: "I chose Software Engineering because it sits at the intersection of technical complexity and tangible business leverage. I enjoy solving distributed concurrency challenges, designing clean microservices, and elevating team velocity."
+      },
+      "devops-engineer": {
+        fresher: "I want to be a DevOps Engineer because I find infrastructure automation, container orchestration, and CI/CD pipelines fascinating. In college, seeing manual deployment errors inspired me to automate container builds with Docker and GitHub Actions. I love the idea of empowering developer teams to ship faster, more securely, and with zero downtime.",
+        experienced: "I chose DevOps and Platform Engineering because reliability and developer velocity are critical competitive advantages. I enjoy architecting self-healing Kubernetes clusters, implementing GitOps, and eliminating manual operational toil."
+      },
+      "frontend-developer": {
+        fresher: "I chose Frontend Development because I am deeply passionate about building intuitive, responsive, and accessible user interfaces. I love translating design mockups into fast, interactive React and Next.js applications where every millisecond of render performance and smooth transition directly enhances the user's experience.",
+        experienced: "I chose Frontend Engineering because the web interface is where technical excellence directly meets customer satisfaction. I enjoy solving frontend state synchronization, rendering optimization, and designing scalable component libraries."
+      },
+      "product-manager": {
+        fresher: "I chose Product Management because I love bridging user needs, business strategy, and engineering capabilities. During university projects, I discovered that building the right product through customer discovery, metric formulation, and prioritization is just as critical as how the code is written.",
+        experienced: "I chose Product Management because of the opportunity to drive strategic outcomes through cross-functional leadership. I thrive on translating ambiguous customer pain points into high-velocity product execution."
       }
     },
     whatToAvoid: [
