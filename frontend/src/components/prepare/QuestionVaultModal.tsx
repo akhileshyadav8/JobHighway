@@ -37,6 +37,7 @@ export interface VaultQuestionItem {
   companies: string[];
   questionText: string;
   solutionHint: string;
+  fullAnswer?: string;
   codeProblemId?: string;
   sqlProblemId?: string;
 }
@@ -148,7 +149,8 @@ export function QuestionVaultModal({
         topics: [sp.category, ...sp.companyTags],
         companies: sp.companyTags,
         questionText: sp.description,
-        solutionHint: `Topic: ${sp.category}. Tables: ${sp.schemas.map(s => s.tableName).join(", ")}.`,
+        solutionHint: `Topic: ${sp.category}. Schema: ${sp.schemas.map(s => s.tableName).join(", ")}.`,
+        fullAnswer: sp.solutionQuery,
         sqlProblemId: sp.id
       });
     });
@@ -532,10 +534,23 @@ export function QuestionVaultModal({
                         </p>
                       </div>
 
-                      <div className="p-3 bg-teal-50/70 rounded-lg border border-teal-200/80 text-teal-900">
-                        <strong className="block mb-1">💡 Expected Approach &amp; Solution Strategy:</strong>
-                        <p className="text-slate-700 leading-relaxed font-sans">{item.solutionHint}</p>
-                      </div>
+                      {item.fullAnswer ? (
+                        <div className="space-y-2">
+                          <div className="p-3 bg-teal-50/70 rounded-lg border border-teal-200/80 text-teal-900">
+                            <strong className="block mb-1">💡 Expected Approach &amp; Solution Strategy:</strong>
+                            <p className="text-slate-700 leading-relaxed font-sans">{item.solutionHint}</p>
+                          </div>
+                          <div className="p-3 bg-slate-900 rounded-lg border border-slate-800 text-slate-100">
+                            <strong className="block mb-1 text-emerald-400 font-mono text-xs">✓ Complete Solution Query / Code:</strong>
+                            <pre className="text-slate-200 font-mono text-xs overflow-x-auto whitespace-pre-wrap">{item.fullAnswer}</pre>
+                          </div>
+                        </div>
+                      ) : (
+                        <div className="p-3 bg-teal-50/70 rounded-lg border border-teal-200/80 text-teal-900">
+                          <strong className="block mb-1">💡 Expected Approach &amp; Solution Strategy:</strong>
+                          <p className="text-slate-700 leading-relaxed font-sans whitespace-pre-line">{item.solutionHint}</p>
+                        </div>
+                      )}
 
                       <div className="flex items-center justify-between pt-1">
                         <div className="flex items-center gap-1.5 text-slate-500 text-[11px]">

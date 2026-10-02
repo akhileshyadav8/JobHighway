@@ -286,8 +286,10 @@ export function computeAtsMatch(
   missingKeywords: string[];
   atsScore: number;
 } {
-  const textLower = (resumeText || "").toLowerCase();
+  const textRaw = resumeText || "";
+  const textNormalized = textRaw.toLowerCase().replace(/[\s\-_]+/g, " ");
   const skillsLower = new Set(resumeSkills.map((s) => s.toLowerCase().trim()));
+  const skillsNormalized = new Set(resumeSkills.map((s) => s.toLowerCase().replace(/[\s\-_]+/g, " ").trim()));
 
   const matched: string[] = [];
   const missing: string[] = [];
@@ -296,18 +298,25 @@ export function computeAtsMatch(
     const kwTrimmed = kw.trim();
     if (!kwTrimmed) continue;
     const kwLower = kwTrimmed.toLowerCase();
+    const kwNorm = kwLower.replace(/[\s\-_]+/g, " ");
 
-    // Check if in detected skills
-    if (skillsLower.has(kwLower)) {
+    // 1. Check if in detected skills (both exact and normalized)
+    if (skillsLower.has(kwLower) || skillsNormalized.has(kwNorm)) {
       matched.push(kwTrimmed);
       continue;
     }
 
-    // Check if whole phrase or regex word boundary matches in raw text
+    // 2. Check normalized multi-word substring match (catches line breaks & spacing variances)
+    if (textNormalized.includes(kwNorm)) {
+      matched.push(kwTrimmed);
+      continue;
+    }
+
+    // 3. Check regex word boundary in original text
     const escaped = kwLower.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
     const regex = new RegExp(`(?:^|[^a-zA-Z0-9#+])${escaped}(?:$|[^a-zA-Z0-9#+])`, "i");
 
-    if (regex.test(textLower) || textLower.includes(kwLower)) {
+    if (regex.test(textRaw)) {
       matched.push(kwTrimmed);
     } else {
       missing.push(kwTrimmed);

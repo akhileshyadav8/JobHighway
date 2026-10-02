@@ -152,6 +152,33 @@ export function CareerPrepHub({ initialRoleId }: { initialRoleId?: string }) {
     };
   }, [queryRole]);
 
+  // Support direct URL query navigation: /prepare?category=behavioral or ?tab=practice
+  useEffect(() => {
+    const queryCategory = searchParams.get("category") || searchParams.get("vaultCategory");
+    const queryTab = searchParams.get("tab");
+
+    if (queryCategory) {
+      const catMap: Record<string, string> = {
+        "behavioral": "Behavioral",
+        "system-design": "System Design",
+        "systemdesign": "System Design",
+        "sql": "SQL",
+        "dsa": "DSA",
+        "aptitude": "Aptitude",
+        "company": "Company Specific",
+        "company-specific": "Company Specific"
+      };
+      const mapped = catMap[queryCategory.toLowerCase()] || queryCategory;
+      setVaultInitialCategory(mapped);
+      setVaultModalOpen(true);
+    }
+
+    if (queryTab && ["roadmap", "skills", "interview", "practice", "projects", "resume"].includes(queryTab)) {
+      setActiveTab(queryTab as any);
+      setShowDeepDives(true);
+    }
+  }, [searchParams]);
+
 
   // Load progress from localStorage for this specific role and user
   useEffect(() => {
@@ -503,7 +530,7 @@ export function CareerPrepHub({ initialRoleId }: { initialRoleId?: string }) {
       };
       const updated = updateUserProfile(currentUser.id, {
         resumeFile: fileData,
-        skills: Array.from(new Set([...(currentUser.skills || []), ...(extracted.skills || [])])),
+        skills: extracted.skills && extracted.skills.length > 0 ? extracted.skills : (currentUser.skills || []),
         currentRole: extracted.currentRole || currentUser.currentRole,
         yearsExperience: extracted.yearsExperience || currentUser.yearsExperience
       });
@@ -1101,11 +1128,9 @@ export function CareerPrepHub({ initialRoleId }: { initialRoleId?: string }) {
                           {company.name}
                         </div>
                         <div className="text-[10px] text-slate-500 truncate">
-                          {company.id === "microsoft" ? "SDE, Data, PM, Cloud" :
-                           company.id === "netflix" ? "SDE, Data, PM" :
-                           company.id === "meta" ? "SDE, Data, Infra" :
-                           company.id === "adobe" ? "SDE, Data, Product" :
-                           "SDE, Data, PM, DevOps"}
+                          {company.roleQuestions?.[selectedRole.id]?.focusAreas?.slice(0, 3)?.join(", ") ||
+                           company.roleQuestions?.["software-engineer"]?.focusAreas?.slice(0, 3)?.join(", ") ||
+                           "Technical Assessment, Core Skills"}
                         </div>
                       </div>
                     </div>
@@ -2180,7 +2205,7 @@ export function CareerPrepHub({ initialRoleId }: { initialRoleId?: string }) {
                             </span>
                           </div>
                           <p className="text-xs text-slate-500">
-                            Uploaded on {new Date(currentUser.resumeFile.uploadedAt).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })} · {(currentUser.resumeFile.size / 1024).toFixed(0)} KB
+                            Last parsed on {new Date(currentUser.resumeFile.uploadedAt).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })} at {new Date(currentUser.resumeFile.uploadedAt).toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit' })} · {(currentUser.resumeFile.size / 1024).toFixed(0)} KB
                           </p>
                         </div>
                       </div>
