@@ -28,6 +28,9 @@ export interface User {
     fileType?: string;
     status?: string;
     atsScore?: number;
+    rawText?: string;
+    matchedKeywords?: string[];
+    missingKeywords?: string[];
   };
   resumeExtractedNotice?: boolean;
 }

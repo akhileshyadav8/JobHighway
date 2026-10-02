@@ -21,6 +21,7 @@ import {
 } from "lucide-react";
 import { PrepRole, PREP_COMPANIES, PracticeQuestion } from "@/lib/preparationData";
 import { ALL_CODING_PROBLEMS } from "@/lib/codingProblemsData";
+import { ALL_SQL_PROBLEMS } from "@/lib/sqlProblemsData";
 
 export interface VaultQuestionItem {
   id: string;
@@ -32,6 +33,7 @@ export interface VaultQuestionItem {
   questionText: string;
   solutionHint: string;
   codeProblemId?: string;
+  sqlProblemId?: string;
 }
 
 interface QuestionVaultModalProps {
@@ -39,8 +41,9 @@ interface QuestionVaultModalProps {
   onClose: () => void;
   selectedRole: PrepRole;
   initialCategory?: string;
-  onOpenCodingProblem?: (problemId: string) => void;
-  onOpenQuizTest?: (quizId: string) => void;
+  onOpenCodingProblem?: (problemId?: string) => void;
+  onOpenSqlProblem?: (problemId?: string) => void;
+  onOpenQuizTest?: (quizId?: string) => void;
 }
 
 export function QuestionVaultModal({
@@ -49,6 +52,7 @@ export function QuestionVaultModal({
   selectedRole,
   initialCategory = "All",
   onOpenCodingProblem,
+  onOpenSqlProblem,
   onOpenQuizTest
 }: QuestionVaultModalProps) {
   const [searchTerm, setSearchTerm] = useState("");
@@ -56,6 +60,13 @@ export function QuestionVaultModal({
   const [selectedDifficulty, setSelectedDifficulty] = useState<string>("All");
   const [selectedCompany, setSelectedCompany] = useState<string>("All");
   const [expandedId, setExpandedId] = useState<string | null>(null);
+
+  // Sync category whenever modal opens or initialCategory changes
+  React.useEffect(() => {
+    if (isOpen) {
+      setSelectedCategory(initialCategory);
+    }
+  }, [isOpen, initialCategory]);
 
   // Solved state from localStorage
   const [solvedIds, setSolvedIds] = useState<Set<string>>(() => {
@@ -101,11 +112,13 @@ export function QuestionVaultModal({
         topics: [q.topic],
         companies: q.companyTags,
         questionText: q.questionText,
-        solutionHint: q.solutionHint
+        solutionHint: q.solutionHint,
+        codeProblemId: q.type === "Coding" ? q.id : undefined,
+        sqlProblemId: q.type === "SQL" ? q.id : undefined
       });
     });
 
-    // 2. Coding problems
+    // 2. Coding problems (DSA: Python, Java, C, C++)
     ALL_CODING_PROBLEMS.forEach(cp => {
       list.push({
         id: `coding_${cp.id}`,
@@ -117,6 +130,21 @@ export function QuestionVaultModal({
         questionText: cp.description,
         solutionHint: `Function signature: ${cp.functionName}(). Constraints: ${cp.constraints.join("; ")}`,
         codeProblemId: cp.id
+      });
+    });
+
+    // 2b. SQL Practice Problems (Interactive Database Queries)
+    ALL_SQL_PROBLEMS.forEach(sp => {
+      list.push({
+        id: `sql_${sp.id}`,
+        title: sp.title,
+        category: "SQL",
+        difficulty: sp.difficulty,
+        topics: [sp.category, ...sp.companyTags],
+        companies: sp.companyTags,
+        questionText: sp.description,
+        solutionHint: `Topic: ${sp.category}. Tables: ${sp.schemas.map(s => s.tableName).join(", ")}.`,
+        sqlProblemId: sp.id
       });
     });
 
@@ -451,17 +479,35 @@ export function QuestionVaultModal({
                     </div>
 
                     <div className="flex items-center gap-2 shrink-0">
-                      {item.codeProblemId && onOpenCodingProblem && (
+                      {/* DSA Coding Action */}
+                      {(item.codeProblemId || item.category === "DSA") && onOpenCodingProblem && (
                         <button
                           onClick={(e) => {
                             e.stopPropagation();
                             onClose();
-                            onOpenCodingProblem(item.codeProblemId!);
+                            onOpenCodingProblem(item.codeProblemId);
                           }}
                           className="px-2.5 py-1 rounded-lg bg-teal-600 hover:bg-teal-700 text-white text-[11px] font-bold inline-flex items-center gap-1 cursor-pointer transition-colors shadow-2xs"
+                          title="Open DSA Coding Sandbox (Python, Java, C, C++)"
                         >
                           <Code2 className="w-3 h-3" />
-                          <span>Code Live</span>
+                          <span>Solve (DSA)</span>
+                        </button>
+                      )}
+
+                      {/* SQL Database Action */}
+                      {(item.sqlProblemId || item.category === "SQL") && onOpenSqlProblem && (
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            onClose();
+                            onOpenSqlProblem(item.sqlProblemId);
+                          }}
+                          className="px-2.5 py-1 rounded-lg bg-teal-700 hover:bg-teal-800 text-white text-[11px] font-bold inline-flex items-center gap-1 cursor-pointer transition-colors shadow-2xs"
+                          title="Open SQL Sandbox (MySQL, PostgreSQL, SQL Server)"
+                        >
+                          <Database className="w-3 h-3" />
+                          <span>Solve (SQL)</span>
                         </button>
                       )}
 
@@ -494,15 +540,28 @@ export function QuestionVaultModal({
                           ))}
                         </div>
 
-                        {item.codeProblemId && onOpenCodingProblem && (
+                        {(item.codeProblemId || item.category === "DSA") && onOpenCodingProblem && (
                           <button
                             onClick={() => {
                               onClose();
-                              onOpenCodingProblem(item.codeProblemId!);
+                              onOpenCodingProblem(item.codeProblemId);
                             }}
                             className="text-teal-700 font-bold hover:underline inline-flex items-center gap-1"
                           >
-                            <span>Open Code Runner</span>
+                            <span>Open DSA Sandbox (Python, Java, C, C++)</span>
+                            <ArrowRight className="w-3 h-3" />
+                          </button>
+                        )}
+
+                        {(item.sqlProblemId || item.category === "SQL") && onOpenSqlProblem && (
+                          <button
+                            onClick={() => {
+                              onClose();
+                              onOpenSqlProblem(item.sqlProblemId);
+                            }}
+                            className="text-teal-700 font-bold hover:underline inline-flex items-center gap-1"
+                          >
+                            <span>Open SQL Sandbox (MySQL, PostgreSQL, SQL Server)</span>
                             <ArrowRight className="w-3 h-3" />
                           </button>
                         )}

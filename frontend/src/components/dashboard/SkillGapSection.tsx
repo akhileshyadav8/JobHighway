@@ -489,13 +489,17 @@ export function SkillGapSection({
   const roleRequiredSkills = resolveSkillsForRole(selectedRole);
   const userSkillsLower = userSkills.map((s) => s.toLowerCase().trim());
 
-  const matchedSkills = roleRequiredSkills.filter((s) =>
-    userSkillsLower.includes(s.toLowerCase().trim())
-  );
+  const isSkillMatched = (reqSkill: string) => {
+    const sLower = reqSkill.toLowerCase().trim();
+    if (userSkillsLower.includes(sLower)) return true;
+    // Smart equivalence
+    if (sLower === "statistical analysis" && (userSkillsLower.includes("statistics") || userSkillsLower.includes("data analysis"))) return true;
+    if (sLower === "business intelligence" && (userSkillsLower.includes("bi") || userSkillsLower.includes("power bi") || userSkillsLower.includes("tableau"))) return true;
+    return false;
+  };
 
-  const missingSkills = roleRequiredSkills.filter(
-    (s) => !userSkillsLower.includes(s.toLowerCase().trim())
-  );
+  const matchedSkills = roleRequiredSkills.filter(isSkillMatched);
+  const missingSkills = roleRequiredSkills.filter((s) => !isSkillMatched(s));
 
   const matchScore = roleRequiredSkills.length > 0
     ? Math.min(100, Math.round((matchedSkills.length / roleRequiredSkills.length) * 100))

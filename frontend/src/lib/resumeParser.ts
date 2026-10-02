@@ -15,13 +15,14 @@ export interface ExtractedResumeData {
   education?: string;
   graduationYear?: string;
   skills: string[];
+  rawText?: string;
   linkedinUrl?: string;
   githubUrl?: string;
   portfolioUrl?: string;
 }
 
 // Comprehensive dictionary of modern tech and industry skills
-const COMMON_SKILLS_DICTIONARY = [
+export const COMMON_SKILLS_DICTIONARY = [
   // Programming Languages
   "Python", "JavaScript", "TypeScript", "Java", "C++", "C#", "Go", "Rust", 
   "Ruby", "PHP", "Swift", "Kotlin", "SQL", "R", "Bash", "Shell", "HTML", "CSS",
@@ -31,21 +32,28 @@ const COMMON_SKILLS_DICTIONARY = [
   "LlamaIndex", "TensorFlow", "PyTorch", "Keras", "Scikit-Learn", "Pandas", 
   "NumPy", "SciPy", "Matplotlib", "Seaborn", "OpenCV", "Hugging Face", "Transformers", 
   "XGBoost", "LightGBM", "Data Analysis", "Data Visualization", "ETL", "Statistics",
+  "Statistical Analysis", "Descriptive Statistics", "Inferential Statistics",
   "Feature Engineering", "Time Series", "MLOps", "Model Evaluation",
+  "Predictive Modeling", "Hypothesis Testing", "A/B Testing", "Exploratory Data Analysis", "EDA",
+  // Business Intelligence & Data Analytics
+  "Business Intelligence", "BI", "Power BI", "Tableau", "Looker", "Metabase",
+  "Excel", "Data Modeling", "Dimensional Modeling", "Star Schema",
+  "DAX", "Power Query", "Cohort Analysis", "KPI Tracking", "Data Governance",
   // Web Frameworks & Libraries
   "React", "Next.js", "Vue.js", "Angular", "Node.js", "Express", "FastAPI", 
   "Flask", "Django", "Spring Boot", "Tailwind CSS", "Redux", "Zustand", 
   "GraphQL", "REST APIs", "Microservices", "System Design",
   // Databases & Storage
   "PostgreSQL", "MySQL", "MongoDB", "Redis", "Elasticsearch", "Supabase", 
-  "Firebase", "Snowflake", "BigQuery", "DynamoDB", "SQLite", "Cassandra",
+  "Firebase", "Snowflake", "BigQuery", "DynamoDB", "SQLite", "Cassandra", "SQL Server",
   // Cloud & DevOps
   "AWS", "GCP", "Google Cloud", "Azure", "Docker", "Kubernetes", "Terraform", 
   "CI/CD", "GitHub Actions", "Jenkins", "Linux", "Nginx", "Ansible", "Helm",
   // Big Data & Data Eng
   "Apache Spark", "PySpark", "Kafka", "Airflow", "Hadoop", "Databricks", "dbt",
+  "Data Pipelines", "Data Warehousing",
   // Analytics, Tools & Testing
-  "Power BI", "Tableau", "Excel", "Git", "Jira", "Postman", "Selenium", 
+  "Git", "GitHub", "Jira", "Postman", "Selenium", 
   "Cypress", "Jest", "Pytest", "Figma"
 ];
 
@@ -261,7 +269,57 @@ export function extractDataFromResumeText(
   }
 
   result.skills = Array.from(detectedSkills);
+  result.rawText = rawText;
   return result;
+}
+
+/**
+ * Computes exact ATS keyword match and percentage score between
+ * extracted resume text/skills and a role's target ATS keywords.
+ */
+export function computeAtsMatch(
+  resumeText: string = "",
+  resumeSkills: string[] = [],
+  roleAtsKeywords: string[] = []
+): {
+  matchedKeywords: string[];
+  missingKeywords: string[];
+  atsScore: number;
+} {
+  const textLower = (resumeText || "").toLowerCase();
+  const skillsLower = new Set(resumeSkills.map((s) => s.toLowerCase().trim()));
+
+  const matched: string[] = [];
+  const missing: string[] = [];
+
+  for (const kw of roleAtsKeywords) {
+    const kwTrimmed = kw.trim();
+    if (!kwTrimmed) continue;
+    const kwLower = kwTrimmed.toLowerCase();
+
+    // Check if in detected skills
+    if (skillsLower.has(kwLower)) {
+      matched.push(kwTrimmed);
+      continue;
+    }
+
+    // Check if whole phrase or regex word boundary matches in raw text
+    const escaped = kwLower.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+    const regex = new RegExp(`(?:^|[^a-zA-Z0-9#+])${escaped}(?:$|[^a-zA-Z0-9#+])`, "i");
+
+    if (regex.test(textLower) || textLower.includes(kwLower)) {
+      matched.push(kwTrimmed);
+    } else {
+      missing.push(kwTrimmed);
+    }
+  }
+
+  const atsScore =
+    roleAtsKeywords.length > 0
+      ? Math.round((matched.length / roleAtsKeywords.length) * 100)
+      : 0;
+
+  return { matchedKeywords: matched, missingKeywords: missing, atsScore };
 }
 
 /**
