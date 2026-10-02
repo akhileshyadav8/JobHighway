@@ -523,6 +523,18 @@ export const DATA_SCIENTIST_ROLE: PrepRole = {
     {
       id: "ds_step_3",
       stepNumber: 3,
+      title: "Data Structures & Algorithmic Problem Solving in Python",
+      focus: "Arrays, Hash Tables, Two Pointers, Binary Search, Trees & Complexity Optimization",
+      description: "Crack mandatory coding assessment screens at top technology and data companies. Master core data structures and algorithmic patterns in pure Python: array manipulation, hash maps for fast lookups, two pointers, sliding window, binary search, recursion, and tree traversals.",
+      difficulty: "Intermediate",
+      subtopics: ["Time & Space Complexity (Big-O Proofs)", "Arrays, Strings, Hash Maps & Hash Sets", "Two Pointers & Sliding Window on Sequences", "Binary Search & Divide-and-Conquer", "Binary Trees & Graph Traversals (BFS/DFS)"],
+      recommendedAction: "Solve 75 curated LeetCode Easy/Medium problems in Python focusing on arrays, strings, hash maps, and trees.",
+      resourceName: "NeetCode 150 - Core Python Problem Solving",
+      resourceUrl: "https://neetcode.io/practice"
+    },
+    {
+      id: "ds_step_4",
+      stepNumber: 4,
       title: "Advanced SQL & Feature Engineering",
       focus: "Window Functions, Aggregations, Imputation & Encoding",
       description: "Extract complex training datasets using recursive SQL CTEs. Master feature engineering: one-hot encoding, target encoding, outlier handling, and scaling.",
@@ -533,8 +545,8 @@ export const DATA_SCIENTIST_ROLE: PrepRole = {
       resourceUrl: "https://leetcode.com/studyplan/top-sql-50/"
     },
     {
-      id: "ds_step_4",
-      stepNumber: 4,
+      id: "ds_step_5",
+      stepNumber: 5,
       title: "Classical Machine Learning Algorithms",
       focus: "Supervised & Unsupervised Modeling, Scikit-Learn & Math",
       description: "Deep dive into decision trees, Random Forests, Gradient Boosted Trees (XGBoost, LightGBM), SVMs, K-Means clustering, and PCA dimensionality reduction.",
@@ -545,8 +557,8 @@ export const DATA_SCIENTIST_ROLE: PrepRole = {
       resourceUrl: "https://github.com/ageron/handson-ml3"
     },
     {
-      id: "ds_step_5",
-      stepNumber: 5,
+      id: "ds_step_6",
+      stepNumber: 6,
       title: "A/B Testing, Experimentation & Causal Inference",
       focus: "Experiment Design, Guardrail Metrics, Sample Size & Pitfalls",
       description: "Design real-world A/B tests for product features. Learn sample ratio mismatch (SRM), variance reduction (CUPED), network interference, and difference-in-differences.",
@@ -557,8 +569,8 @@ export const DATA_SCIENTIST_ROLE: PrepRole = {
       resourceUrl: "https://experimentguide.com/"
     },
     {
-      id: "ds_step_6",
-      stepNumber: 6,
+      id: "ds_step_7",
+      stepNumber: 7,
       title: "ML System Design, Production MLOps & Case Studies",
       focus: "Feature Stores, Model Serving, Drift Detection & Real-World Case Studies",
       description: "Architect production ML systems. Learn batch vs real-time prediction, latency vs accuracy trade-offs, model drift monitoring, and presentation of findings to leadership.",
@@ -941,134 +953,98 @@ export const DATA_ANALYST_ROLE: PrepRole = {
     {
       id: "da_step_1",
       stepNumber: 1,
-      title: "Placement Coding & Problem Solving Foundations",
-      focus: "Python / Logic Building, Strings, Math & Control Structures",
-      description: "Build ironclad problem-solving instincts for company initial screening rounds. Master loop constructs, string manipulations, number theory, and functional programming.",
+      title: "Advanced Excel & Financial Modeling",
+      focus: "XLOOKUP, INDEX/MATCH, Dynamic Arrays & Pivot Tables",
+      description: "Master enterprise Excel. Learn nested formulas, conditional aggregations (SUMIFS, COUNTIFS), pivot charts, scenario planning, and financial statement modeling.",
       difficulty: "Beginner",
-      subtopics: ["Control Flow, Loops & Conditionals", "String Formatting, Slicing & Parsing", "Basic Math & Number Theory Logic", "Clean Modular Python Functions"],
-      recommendedAction: "Solve 20 fundamental logic and string manipulation problems without looking at solutions.",
-      resourceName: "HackerRank Python Problem Solving",
-      resourceUrl: "https://www.hackerrank.com/domains/python"
+      subtopics: ["XLOOKUP, INDEX/MATCH & Lookup Formulas", "Multi-condition Aggregations (SUMIFS/COUNTIFS)", "Pivot Tables, Slicers & Calculated Fields", "Data Validation & Conditional Formatting"],
+      recommendedAction: "Build a dynamic financial dashboard in Excel using only formulas and pivot slicers.",
+      resourceName: "Excel Exposure Free Masterclass",
+      resourceUrl: "https://excelexposure.com/"
     },
     {
       id: "da_step_2",
       stepNumber: 2,
-      title: "DSA Fundamentals for Campus & Placement Rounds",
-      focus: "Arrays, Two Pointers, Hash Maps, Searching & Time Complexity",
-      description: "Data Analyst freshers frequently encounter programming rounds in placements. Master frequency counting with Hash Maps, Two Pointers, and Binary Search with O(n) space-time optimization.",
-      difficulty: "Beginner",
-      subtopics: ["Arrays & Dynamic Lists", "Two-Pointer Technique & Sliding Window", "Hash Maps & Hash Sets for O(1) Lookups", "Binary Search on Sorted Lists", "Time & Space Complexity (Big-O)"],
-      recommendedAction: "Master Two Sum, Valid Anagram, Longest Substring, and Binary Search in Python.",
-      resourceName: "NeetCode Core Data Structures",
-      resourceUrl: "https://neetcode.io/roadmap"
-    },
-    {
-      id: "da_step_3",
-      stepNumber: 3,
-      title: "Relational Databases & SQL Mastery",
+      title: "SQL Mastery: From Basics to Window Functions",
       focus: "Multi-table Joins, CTEs, Window Functions & Subqueries",
       description: "The core skill of every Data Analyst. Master ranking (ROW_NUMBER, DENSE_RANK), lead/lag analysis, rolling moving averages, cumulative sums, and self-joins.",
       difficulty: "Intermediate",
-      subtopics: ["SELECT, WHERE, GROUP BY & HAVING", "INNER, LEFT, RIGHT, FULL & CROSS Joins", "Common Table Expressions (WITH clauses)", "Window Functions (ROW_NUMBER, RANK, DENSE_RANK, LAG, LEAD)", "Cumulative Sums & Partitioning"],
+      subtopics: ["SELECT, WHERE, GROUP BY & HAVING", "INNER, LEFT, RIGHT, FULL & CROSS Joins", "Common Table Expressions (WITH clauses)", "Window Functions (ROW_NUMBER, RANK, LAG, LEAD)", "Cumulative Sums & Moving Averages"],
       recommendedAction: "Solve all 50 questions in LeetCode Top SQL 50 study plan.",
       resourceName: "Mode Analytics SQL Tutorial for Data Analysis",
       resourceUrl: "https://mode.com/sql-tutorial/"
     },
     {
-      id: "da_step_4",
-      stepNumber: 4,
-      title: "Advanced Excel & Spreadsheet Analytics",
-      focus: "XLOOKUP, INDEX/MATCH, Dynamic Arrays, Pivot Tables & Power Query",
-      description: "Master enterprise spreadsheet analysis. Build multi-condition aggregations (SUMIFS, COUNTIFS), pivot charts, scenario planning, and financial statement modeling.",
-      difficulty: "Beginner",
-      subtopics: ["XLOOKUP, INDEX/MATCH & Lookup Formulas", "Multi-condition Aggregations (SUMIFS/COUNTIFS)", "Pivot Tables, Slicers & Calculated Fields", "Power Query for Ingestion & Transformation"],
-      recommendedAction: "Build a dynamic financial and sales dashboard in Excel using nested formulas and pivot slicers.",
-      resourceName: "Excel Exposure Free Masterclass",
-      resourceUrl: "https://excelexposure.com/"
-    },
-    {
-      id: "da_step_5",
-      stepNumber: 5,
-      title: "Python for Data Analysis & Manipulation",
-      focus: "Pandas DataFrames, NumPy Arrays & Vectorized Transformations",
-      description: "Use Python to automate repetitive data transformations, handle large tabular datasets beyond Excel's limit, and perform vectorized operations.",
-      difficulty: "Intermediate",
-      subtopics: ["Pandas DataFrames & Series Indexing", "Handling Missing Values & Imputation", "Merging, Joins, GroupBy & Pivot Tables in Pandas", "NumPy Vectorized Array Operations"],
-      recommendedAction: "Write a Python script that ingests 12 monthly sales reports and outputs an executive summary table.",
-      resourceName: "Kaggle Micro-courses: Pandas & NumPy",
-      resourceUrl: "https://www.kaggle.com/learn/pandas"
-    },
-    {
-      id: "da_step_6",
-      stepNumber: 6,
-      title: "Applied Statistics & Probability for Business",
-      focus: "Descriptive Stats, Normal Distribution, Hypothesis Testing & Correlation",
-      description: "Understand the mathematical rigor behind data observations. Learn mean/median skewness, variance, p-values, z-scores, confidence intervals, and avoiding Simpson's Paradox.",
-      difficulty: "Intermediate",
-      subtopics: ["Measures of Central Tendency & Dispersion", "Normal Distribution, Z-scores & Confidence Intervals", "Hypothesis Testing (t-tests, Chi-square)", "Correlation vs Causation & Simpson's Paradox"],
-      recommendedAction: "Conduct an A/B test statistical significance calculation on simulated conversion rate data.",
-      resourceName: "Khan Academy Statistics & Probability",
-      resourceUrl: "https://www.khanacademy.org/math/statistics-probability"
-    },
-    {
-      id: "da_step_7",
-      stepNumber: 7,
-      title: "Data Cleaning, Transformation & Exploratory Analysis (EDA)",
-      focus: "Anomaly Detection, Outlier Treatment, Feature Encoding & Seaborn",
-      description: "Transform messy real-world data into clean analytical datasets. Identify distribution shapes, detect outliers using IQR, and visualize multivariate relationships.",
-      difficulty: "Intermediate",
-      subtopics: ["Outlier Detection (IQR & Z-Score)", "Data Standardization & Type Casting", "Exploratory Visualizations (Seaborn / Matplotlib)", "Univariate & Bivariate Feature Analysis"],
-      recommendedAction: "Perform an end-to-end EDA notebook on the Kaggle Titanic or Ames Housing dataset.",
-      resourceName: "Kaggle Exploratory Data Analysis Course",
-      resourceUrl: "https://www.kaggle.com/learn/data-visualization"
-    },
-    {
-      id: "da_step_8",
-      stepNumber: 8,
-      title: "BI Dashboards & Visual Storytelling (Power BI / Tableau)",
+      id: "da_step_3",
+      stepNumber: 3,
+      title: "Data Visualization & BI Tools (Power BI / Tableau)",
       focus: "Star Schema Modeling, DAX Measures & Executive Dashboards",
       description: "Design clean, interactive business intelligence dashboards. Understand dimensional modeling (Fact vs Dimension tables), DAX calculations, and visual storytelling.",
       difficulty: "Intermediate",
-      subtopics: ["Dimensional Data Modeling (Star & Snowflake Schema)", "DAX Measures (CALCULATE, RELATED, FILTER, ALL)", "Visual Hierarchy, Color Palettes & Layout", "Interactive Filters, Slicers & Tooltips"],
+      subtopics: ["Dimensional Data Modeling (Star & Snowflake Schema)", "DAX Measures (CALCULATE, RELATED, FILTER, ALL)", "Visual Hierarchy, Color Palettes & Layout", "Row-Level Security & Workspace Publishing"],
       recommendedAction: "Build a 3-page interactive Power BI dashboard on customer acquisition cost and lifetime value.",
       resourceName: "Microsoft Power BI Guided Learning",
       resourceUrl: "https://learn.microsoft.com/en-us/training/powerplatform/power-bi"
     },
     {
-      id: "da_step_9",
-      stepNumber: 9,
-      title: "Business & Product Metrics",
-      focus: "SaaS, E-commerce, Marketing Funnels, CAC, LTV & Churn",
-      description: "Learn how modern businesses evaluate performance. Master Customer Acquisition Cost (CAC), Lifetime Value (LTV), Monthly Recurring Revenue (MRR), Churn Rate, and Return on Ad Spend (ROAS).",
+      id: "da_step_4",
+      stepNumber: 4,
+      title: "Applied Statistics & Probability for Business",
+      focus: "Descriptive Stats, Distributions, Hypothesis Testing & Correlation",
+      description: "Understand the statistical rigor behind business insights. Master mean/median skewness, variance, standard deviation, normal distributions, p-values, z-tests, and correlation vs causation.",
       difficulty: "Intermediate",
-      subtopics: ["SaaS Metrics (ARR, MRR, Churn, NRR, LTV:CAC)", "E-Commerce Metrics (AOV, Conversion Rate, Cart Abandonment)", "Marketing Funnels & Multi-Touch Attribution", "Metric Tree Formulation"],
+      subtopics: ["Measures of Central Tendency & Dispersion", "Normal Distribution, Z-Scores & Confidence Intervals", "Hypothesis Testing (t-tests, Chi-Square)", "Correlation vs Causation & Simpson's Paradox"],
+      recommendedAction: "Conduct an A/B test statistical significance test on conversion rate data in Python or Excel.",
+      resourceName: "Khan Academy Statistics & Probability",
+      resourceUrl: "https://www.khanacademy.org/math/statistics-probability"
+    },
+    {
+      id: "da_step_5",
+      stepNumber: 5,
+      title: "Exploratory Data Analysis with Python (Pandas & NumPy)",
+      focus: "Pandas DataFrames, NumPy Arrays, Cleaning & Seaborn",
+      description: "Use Python to automate repetitive data cleaning, merge disparate CSV/Excel files, handle missing data, detect anomalies, and generate exploratory visualizations.",
+      difficulty: "Intermediate",
+      subtopics: ["Data Ingestion & Cleaning in Pandas", "Handling Missing Values & Format Inconsistencies", "Merging, Joins, GroupBy & Pivot Tables in Pandas", "Exploratory Visualizations with Seaborn & Matplotlib"],
+      recommendedAction: "Write a Python script that ingests 12 monthly sales reports and outputs an executive summary table.",
+      resourceName: "Kaggle Micro-courses: Pandas & Data Visualization",
+      resourceUrl: "https://www.kaggle.com/learn/pandas"
+    },
+    {
+      id: "da_step_6",
+      stepNumber: 6,
+      title: "Data Structures, Logic & Algorithmic Problem Solving for Analytics",
+      focus: "Lists, Dicts, Sets, String Parsing, Two Pointers & Logical Coding in Python",
+      description: "Master fundamental data structures and algorithmic thinking tested in technical data screens: hash maps for frequency counting, two pointers, string parsing, set lookups, and algorithmic transformations in pure Python without third-party libraries.",
+      difficulty: "Intermediate",
+      subtopics: ["Built-in Python Data Structures (Lists, Dictionaries, Sets, Tuples)", "Hash Maps & Frequency Counting", "Two Pointers & Sliding Window Basics", "String Parsing, Anagrams & Palindromes", "Algorithmic Logic for Data Filtering & Transformation"],
+      recommendedAction: "Solve 40 beginner-to-intermediate algorithmic and logical problem-solving questions on LeetCode/HackerRank in Python.",
+      resourceName: "NeetCode Beginner DSA & LeetCode 75 (Easy/Medium)",
+      resourceUrl: "https://neetcode.io/roadmap"
+    },
+    {
+      id: "da_step_7",
+      stepNumber: 7,
+      title: "Business Metrics & Domain-Specific KPIs",
+      focus: "SaaS, E-commerce, Marketing & Financial Unit Economics",
+      description: "Learn how businesses make money. Master Customer Acquisition Cost (CAC), Lifetime Value (LTV), Monthly Recurring Revenue (MRR), Churn Rate, and Return on Ad Spend (ROAS).",
+      difficulty: "Intermediate",
+      subtopics: ["SaaS Metrics (ARR, MRR, Churn, NRR, LTV:CAC)", "E-Commerce Metrics (AOV, Conversion Rate, Cart Abandonment)", "Marketing Funnels & Multi-Touch Attribution", "Root Cause Analysis when Metrics Drop"],
       recommendedAction: "Document a complete metric tree for an Uber or Airbnb business model.",
       resourceName: "Reforge Product & Growth Metrics Guide",
       resourceUrl: "https://www.reforge.com/blog"
     },
     {
-      id: "da_step_10",
-      stepNumber: 10,
-      title: "Case Studies, Guesstimates & Root Cause Analysis",
-      focus: "MECE Framework, Metric Drop Diagnosis & Analytical Case Studies",
-      description: "Tackle interview case studies systematically. Use MECE trees to break down 'Why did revenue drop 15% last month?' and conduct guesstimate estimation questions.",
+      id: "da_step_8",
+      stepNumber: 8,
+      title: "Business Case Studies & Interview Presentation",
+      focus: "Root-Cause Triage, Executive Summaries & Live SQL Screening",
+      description: "Prepare for live interview scenario questions. Learn the MECE framework to diagnose metric drops and present clear recommendations to leadership.",
       difficulty: "Advanced",
-      subtopics: ["MECE Framework for Structured Breakdown", "Metric Drop Root Cause Trees (Internal vs External Factors)", "Market Sizing & Guesstimates", "Actionable Recommendation Synthesis"],
+      subtopics: ["Diagnosing Metric Drops (Root Cause Tree)", "MECE Framework for Structured Thinking", "Live SQL Screen Coding under Pressure", "Executive Summary Writing"],
       recommendedAction: "Practice diagnosing a 15% revenue drop scenario with a mock peer interviewer.",
       resourceName: "Interview Query Data Analyst Practice",
       resourceUrl: "https://www.interviewquery.com/"
-    },
-    {
-      id: "da_step_11",
-      stepNumber: 11,
-      title: "Behavioral & Mock Interview Preparation",
-      focus: "STAR Framework, Fresher Project Walkthroughs & Stakeholder Comms",
-      description: "Prepare for HR and technical managerial interviews. Master the STAR method for project discussions, explaining technical insights to non-technical stakeholders, and live SQL screening.",
-      difficulty: "Advanced",
-      subtopics: ["STAR Framework for Resume Project Stories", "Explaining Technical Insights to Non-Tech Stakeholders", "Live SQL Whiteboard / CoderPad Sprints", "Handling Tough Situational Interview Questions"],
-      recommendedAction: "Prepare 4 STAR stories based on your capstone projects highlighting metric business impact.",
-      resourceName: "Pramp Peer Data Mock Interviews",
-      resourceUrl: "https://www.pramp.com/"
     }
   ],
   skills: {
@@ -1439,6 +1415,18 @@ export const DATA_ENGINEER_ROLE: PrepRole = {
     {
       id: "de_step_2",
       stepNumber: 2,
+      title: "Data Structures & Algorithmic Problem Solving for Data Pipelines",
+      focus: "Hash Tables, Queues, Heaps, Graph Algorithms (DAGs) & Stream Buffering in Python/Java",
+      description: "Clear algorithmic screening rounds for data engineering roles. Master data structures vital for pipeline design: hash maps for grouping/lookups, queues/priority queues for task scheduling, graph traversals and topological sort for DAG dependencies (Airflow/Spark), and sliding windows for stream processing.",
+      difficulty: "Intermediate",
+      subtopics: ["Hash Tables & In-Memory Indexing", "Queues, Ring Buffers & Producer-Consumer Patterns", "Graphs, Topological Sort & DAG Dependency Resolution", "Heaps / Priority Queues for Top-K Data Extraction", "Two Pointers & Sliding Windows for Stream Analytics"],
+      recommendedAction: "Solve 60 curated LeetCode Medium problems focusing on hash maps, queues, heaps, and graphs.",
+      resourceName: "LeetCode 75 for Data Engineers",
+      resourceUrl: "https://leetcode.com/studyplan/leetcode-75/"
+    },
+    {
+      id: "de_step_3",
+      stepNumber: 3,
       title: "Data Modeling & Cloud Data Warehousing",
       focus: "Star Schema, Snowflake, BigQuery & SCD Type 2",
       description: "Master Kimball dimensional modeling (Facts, Dimensions, Conformed Dimensions, Grain). Learn Snowflake micro-partitioning, clustering keys, zero-copy cloning, and time travel.",
@@ -1449,8 +1437,8 @@ export const DATA_ENGINEER_ROLE: PrepRole = {
       resourceUrl: "https://www.kimballgroup.com/data-warehouse-business-intelligence-resources/books/data-warehouse-toolkit/"
     },
     {
-      id: "de_step_3",
-      stepNumber: 3,
+      id: "de_step_4",
+      stepNumber: 4,
       title: "Distributed Data Processing with Apache Spark",
       focus: "PySpark, DataFrames, Memory Management & Skew Handling",
       description: "Master distributed computing. Understand DAG execution, lazy evaluation, wide vs narrow transformations, shuffles, broadcast joins, and resolving data skew bottlenecks.",
@@ -1461,8 +1449,8 @@ export const DATA_ENGINEER_ROLE: PrepRole = {
       resourceUrl: "https://github.com/databricks/Spark-The-Definitive-Guide"
     },
     {
-      id: "de_step_4",
-      stepNumber: 4,
+      id: "de_step_5",
+      stepNumber: 5,
       title: "Workflow Orchestration & Modern Data Stack (dbt + Airflow)",
       focus: "Apache Airflow DAGs, dbt Transformations & Idempotency",
       description: "Build reliable, idempotent data pipelines. Write Python Airflow DAGs with retries and SLAs. Use dbt to write modular, tested, version-controlled SQL transformations.",
@@ -1473,8 +1461,8 @@ export const DATA_ENGINEER_ROLE: PrepRole = {
       resourceUrl: "https://www.astronomer.io/docs/"
     },
     {
-      id: "de_step_5",
-      stepNumber: 5,
+      id: "de_step_6",
+      stepNumber: 6,
       title: "Real-Time Streaming Systems (Kafka & Flink)",
       focus: "Event Streaming, Pub/Sub, Exactly-Once Semantics & Windowing",
       description: "Build sub-second event ingestion systems with Apache Kafka. Learn topic partitions, consumer groups, offsets, compaction, and streaming stateful windowing with Apache Flink.",
@@ -1485,8 +1473,8 @@ export const DATA_ENGINEER_ROLE: PrepRole = {
       resourceUrl: "https://developer.confluent.io/tutorials/"
     },
     {
-      id: "de_step_6",
-      stepNumber: 6,
+      id: "de_step_7",
+      stepNumber: 7,
       title: "Modern Lakehouse Architectures & System Design",
       focus: "Delta Lake, Apache Iceberg, Cost Optimization & Security",
       description: "Architect petabyte-scale lakehouses. Master ACID transactions on object storage with Apache Iceberg/Delta Lake, cloud compute cost optimization, and GDPR compliance.",
@@ -2306,6 +2294,18 @@ export const DEVOPS_ENGINEER_ROLE: PrepRole = {
     {
       id: "devops_step_2",
       stepNumber: 2,
+      title: "Data Structures & Algorithmic Problem Solving for Systems Automation",
+      focus: "Python / Go Scripting, Hash Maps, Stacks, Queues, Graphs & Systems Problem Solving",
+      description: "Pass mandatory algorithmic and systems coding screens at top tech companies. Master algorithmic problem solving in Python or Go: hash tables for log analytics and de-duplication, stacks/queues for job scheduling and backpressure, graph algorithms for dependency trees, and string parsing.",
+      difficulty: "Intermediate",
+      subtopics: ["Time & Space Complexity in Automation Scripts", "Hash Maps & Sets for Log Analysis & De-duplication", "Stacks & Queues for Task Scheduling & Backpressure", "Graph Traversal & Dependency Tree Resolution", "String Algorithms, Regex & Structured Log Parsing"],
+      recommendedAction: "Solve 45 LeetCode Easy & Medium problems in Python or Go focusing on strings, hash tables, and graphs.",
+      resourceName: "LeetCode Algorithms for SRE & DevOps",
+      resourceUrl: "https://leetcode.com/problemset/all/"
+    },
+    {
+      id: "devops_step_3",
+      stepNumber: 3,
       title: "Git, Version Control & CI/CD Pipelines",
       focus: "GitHub Actions, GitLab CI, Automated Testing & Branching Strategies",
       description: "Implement continuous integration and continuous delivery workflows. Automate unit tests, linting, security scanning, artifact versioning, and environment promotions.",
@@ -2316,8 +2316,8 @@ export const DEVOPS_ENGINEER_ROLE: PrepRole = {
       resourceUrl: "https://docs.github.com/en/actions"
     },
     {
-      id: "devops_step_3",
-      stepNumber: 3,
+      id: "devops_step_4",
+      stepNumber: 4,
       title: "Containerization with Docker & Container Security",
       focus: "Multi-stage Builds, Distroless Images, Networking & Docker Compose",
       description: "Master Docker containerization. Create optimized production images under 50MB, manage multi-container services with Docker Compose, and scan images for CVE vulnerabilities.",
@@ -2328,8 +2328,8 @@ export const DEVOPS_ENGINEER_ROLE: PrepRole = {
       resourceUrl: "https://docker-curriculum.com/"
     },
     {
-      id: "devops_step_4",
-      stepNumber: 4,
+      id: "devops_step_5",
+      stepNumber: 5,
       title: "Container Orchestration with Kubernetes (K8s)",
       focus: "Pods, Deployments, Services, Ingress, ConfigMaps, Secrets & Helm",
       description: "Architect, deploy, and manage distributed workloads on Kubernetes. Master declarative manifests, ingress controllers, autoscaling (HPA/VPA), persistent volumes, and Helm packaging.",
@@ -2340,8 +2340,8 @@ export const DEVOPS_ENGINEER_ROLE: PrepRole = {
       resourceUrl: "https://github.com/kelseyhightower/kubernetes-the-hard-way"
     },
     {
-      id: "devops_step_5",
-      stepNumber: 5,
+      id: "devops_step_6",
+      stepNumber: 6,
       title: "Infrastructure as Code (Terraform) & Cloud (AWS/GCP)",
       focus: "Declarative Cloud Provisioning, State Management & Modular IaC",
       description: "Automate cloud provisioning across AWS/GCP using Terraform. Master remote state locking with S3 and DynamoDB, reusable modules, VPC networking, and IAM least privilege.",
@@ -2352,8 +2352,8 @@ export const DEVOPS_ENGINEER_ROLE: PrepRole = {
       resourceUrl: "https://developer.hashicorp.com/terraform/tutorials"
     },
     {
-      id: "devops_step_6",
-      stepNumber: 6,
+      id: "devops_step_7",
+      stepNumber: 7,
       title: "Monitoring, Observability & Site Reliability (SRE)",
       focus: "Prometheus, Grafana, Distributed Tracing, Alerting & Incident Management",
       description: "Implement full-stack observability. Collect system and application metrics, build executive Grafana dashboards, configure alert routing (PagerDuty), and practice post-mortems.",
@@ -2659,6 +2659,18 @@ export const FRONTEND_DEVELOPER_ROLE: PrepRole = {
     {
       id: "fe_step_2",
       stepNumber: 2,
+      title: "Data Structures & Algorithmic Problem Solving in JavaScript / TypeScript",
+      focus: "Arrays, Strings, Hash Maps, Stacks, Queues, Recursion & Tree Traversals (DOM Trees)",
+      description: "Ace frontend technical coding rounds and machine coding interviews. Master DSA fundamentals using JavaScript and TypeScript: two pointers, sliding window on strings/arrays, hash maps for state caches, stacks for history tracking, and tree traversals for nested DOM/component hierarchies.",
+      difficulty: "Intermediate",
+      subtopics: ["Array & String Algorithms (Two Pointers, Sliding Window)", "Hash Maps & Sets for Object Lookups and Caching", "Stacks & Queues (Undo/Redo History, Event Queues)", "Recursion & Tree Traversals on Nested DOM / Object Hierarchies", "Sorting, Searching & Time-Space Complexity in JS"],
+      recommendedAction: "Solve 60+ algorithmic challenges in JavaScript/TypeScript on LeetCode focusing on arrays, strings, hash maps, and trees.",
+      resourceName: "GreatFrontEnd & LeetCode 75 in JavaScript",
+      resourceUrl: "https://www.greatfrontend.com/"
+    },
+    {
+      id: "fe_step_3",
+      stepNumber: 3,
       title: "Advanced CSS, Tailwind CSS & Responsive Layouts",
       focus: "Flexbox, CSS Grid, Transitions, Keyframes & Responsive Typography",
       description: "Craft modern, accessible, and responsive user interfaces. Master Flexbox alignment, CSS Grid 2D layouts, Tailwind utility classes, fluid typography, and smooth CSS animations.",
@@ -2669,8 +2681,8 @@ export const FRONTEND_DEVELOPER_ROLE: PrepRole = {
       resourceUrl: "https://www.youtube.com/@KevinPowell"
     },
     {
-      id: "fe_step_3",
-      stepNumber: 3,
+      id: "fe_step_4",
+      stepNumber: 4,
       title: "React Fundamentals, Hooks & Component Architecture",
       focus: "JSX, Virtual DOM, useState, useEffect, useMemo, useCallback & Custom Hooks",
       description: "Master declarative UI development with React. Understand how the Virtual DOM works, avoid redundant re-renders, master hook rules, and write reusable custom hooks.",
@@ -2681,8 +2693,8 @@ export const FRONTEND_DEVELOPER_ROLE: PrepRole = {
       resourceUrl: "https://react.dev/"
     },
     {
-      id: "fe_step_4",
-      stepNumber: 4,
+      id: "fe_step_5",
+      stepNumber: 5,
       title: "Next.js App Router, SSR, SSG & Server Components",
       focus: "Server-Side Rendering, Static Generation, Streaming & SEO",
       description: "Build full-stack production web applications with Next.js. Master Server Components, Client Components, dynamic routing, route handlers, metadata optimization, and image performance.",
@@ -2693,8 +2705,8 @@ export const FRONTEND_DEVELOPER_ROLE: PrepRole = {
       resourceUrl: "https://nextjs.org/learn"
     },
     {
-      id: "fe_step_5",
-      stepNumber: 5,
+      id: "fe_step_6",
+      stepNumber: 6,
       title: "TypeScript Mastery, State Management & Testing",
       focus: "Generics, Utility Types, Zustand / Redux Toolkit, Jest & RTL",
       description: "Enforce type safety across large web codebases with TypeScript. Implement scalable global state management with Zustand, and write automated tests with React Testing Library.",
@@ -2705,8 +2717,8 @@ export const FRONTEND_DEVELOPER_ROLE: PrepRole = {
       resourceUrl: "https://www.totaltypescript.com/"
     },
     {
-      id: "fe_step_6",
-      stepNumber: 6,
+      id: "fe_step_7",
+      stepNumber: 7,
       title: "Web Performance, Core Web Vitals & Accessibility (a11y)",
       focus: "LCP, INP, CLS, Code Splitting, Bundle Analysis & ARIA Roles",
       description: "Optimize applications for maximum user speed and international accessibility compliance. Eliminate layout shifts, optimize images with next/gen formats, and support screen readers.",
@@ -2979,13 +2991,15 @@ import {
   BACKEND_DEVELOPER_ROLE,
   ML_ENGINEER_ROLE,
   QA_ENGINEER_ROLE,
+  FULL_STACK_DEVELOPER_ROLE,
   SUPPLEMENTARY_ROLES
 } from "./preparationDataRoles";
 
 export {
   BACKEND_DEVELOPER_ROLE,
   ML_ENGINEER_ROLE,
-  QA_ENGINEER_ROLE
+  QA_ENGINEER_ROLE,
+  FULL_STACK_DEVELOPER_ROLE
 };
 
 // Map of all supported roles
@@ -2999,20 +3013,25 @@ export const PREPARATION_ROLES_MAP: Record<string, PrepRole> = {
   "data-engineer": DATA_ENGINEER_ROLE,
   "backend-developer": BACKEND_DEVELOPER_ROLE,
   "ml-engineer": ML_ENGINEER_ROLE,
-  "qa-engineer": QA_ENGINEER_ROLE
+  "qa-engineer": QA_ENGINEER_ROLE,
+  "fullstack-developer": FULL_STACK_DEVELOPER_ROLE,
+  "full-stack-developer": FULL_STACK_DEVELOPER_ROLE,
+  "fullstack": FULL_STACK_DEVELOPER_ROLE,
+  "full-stack": FULL_STACK_DEVELOPER_ROLE
 };
 
 export const ALL_PREPARATION_ROLES: PrepRole[] = [
   SOFTWARE_ENGINEER_ROLE,
+  FULL_STACK_DEVELOPER_ROLE,
+  FRONTEND_DEVELOPER_ROLE,
+  BACKEND_DEVELOPER_ROLE,
   DATA_ANALYST_ROLE,
   DATA_SCIENTIST_ROLE,
-  DEVOPS_ENGINEER_ROLE,
-  PRODUCT_MANAGER_ROLE,
-  FRONTEND_DEVELOPER_ROLE,
   DATA_ENGINEER_ROLE,
-  BACKEND_DEVELOPER_ROLE,
   ML_ENGINEER_ROLE,
-  QA_ENGINEER_ROLE
+  DEVOPS_ENGINEER_ROLE,
+  QA_ENGINEER_ROLE,
+  PRODUCT_MANAGER_ROLE
 ];
 
 // Helper to look up a role with smart fuzzy fallback
@@ -3026,6 +3045,7 @@ export function getPrepRoleById(roleId?: string | null): PrepRole {
   }
   
   // Fuzzy match aliases
+  if (cleanId.includes("full") || cleanId.includes("mern") || cleanId.includes("mean")) return FULL_STACK_DEVELOPER_ROLE;
   if (cleanId.includes("qa") || cleanId.includes("test") || cleanId.includes("sdet") || cleanId.includes("quality")) return QA_ENGINEER_ROLE;
   if (cleanId.includes("ml") || cleanId.includes("machine-learn")) return ML_ENGINEER_ROLE;
   if (cleanId.includes("backend") || cleanId.includes("api") || cleanId.includes("server")) return BACKEND_DEVELOPER_ROLE;

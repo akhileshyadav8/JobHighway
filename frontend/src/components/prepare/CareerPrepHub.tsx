@@ -152,33 +152,6 @@ export function CareerPrepHub({ initialRoleId }: { initialRoleId?: string }) {
     };
   }, [queryRole]);
 
-  // Support direct URL query navigation: /prepare?category=behavioral or ?tab=practice
-  useEffect(() => {
-    const queryCategory = searchParams.get("category") || searchParams.get("vaultCategory");
-    const queryTab = searchParams.get("tab");
-
-    if (queryCategory) {
-      const catMap: Record<string, string> = {
-        "behavioral": "Behavioral",
-        "system-design": "System Design",
-        "systemdesign": "System Design",
-        "sql": "SQL",
-        "dsa": "DSA",
-        "aptitude": "Aptitude",
-        "company": "Company Specific",
-        "company-specific": "Company Specific"
-      };
-      const mapped = catMap[queryCategory.toLowerCase()] || queryCategory;
-      setVaultInitialCategory(mapped);
-      setVaultModalOpen(true);
-    }
-
-    if (queryTab && ["roadmap", "skills", "interview", "practice", "projects", "resume"].includes(queryTab)) {
-      setActiveTab(queryTab as any);
-      setShowDeepDives(true);
-    }
-  }, [searchParams]);
-
 
   // Load progress from localStorage for this specific role and user
   useEffect(() => {
@@ -386,59 +359,68 @@ export function CareerPrepHub({ initialRoleId }: { initialRoleId?: string }) {
   // Role-aware roadmap topics checklist for the center card
   const roadmapChecklistTopics = useMemo(() => {
     switch (selectedRole.id) {
+      case "fullstack-developer":
+        return [
+          { name: "Web Architecture & Protocols", total: 16 },
+          { name: "DSA & Problem Solving", total: 24 },
+          { name: "React, Next.js & TypeScript UI", total: 20 },
+          { name: "Node.js/Go APIs & Microservices", total: 18 },
+          { name: "PostgreSQL, Indexing & Redis Caching", total: 15 },
+          { name: "Full-Stack System Design & DevOps", total: 12 }
+        ];
       case "backend-developer":
         return [
           { name: "APIs, Node.js/Go & Concurrency", total: 20 },
+          { name: "DSA & Problem Solving", total: 24 },
           { name: "PostgreSQL, Indexing & Query Tuning", total: 18 },
           { name: "Redis Caching & Lock Strategies", total: 14 },
           { name: "Kafka Event-Driven Architecture", total: 16 },
-          { name: "Microservices & Distributed Systems", total: 12 },
-          { name: "System Design & Scalability", total: 8 }
+          { name: "System Design & Microservices", total: 12 }
         ];
       case "ml-engineer":
         return [
           { name: "NumPy Vectorization & Math Proofs", total: 16 },
+          { name: "DSA & Problem Solving (Python)", total: 20 },
           { name: "PyTorch & Deep Neural Architectures", total: 22 },
           { name: "Transformers, Attention & LoRA", total: 18 },
           { name: "FastAPI / Triton Model Serving", total: 14 },
-          { name: "RAG & Vector Search (FAISS)", total: 12 },
           { name: "Machine Learning System Design", total: 10 }
         ];
       case "qa-engineer":
         return [
-          { name: "Test Case Design & Boundary Analysis", total: 18 },
+          { name: "Testing Fundamentals & Boundary Analysis", total: 18 },
+          { name: "DSA & Problem Solving for SDETs", total: 20 },
           { name: "Playwright / Selenium Automation", total: 22 },
           { name: "REST Assured & API Contract Testing", total: 16 },
           { name: "k6 / JMeter Load & Stress Testing", total: 12 },
-          { name: "CI/CD Test Gates (GitHub Actions)", total: 10 },
-          { name: "Behavioral & Bug Triaging Scenarios", total: 8 }
+          { name: "CI/CD Test Gates & Reporting", total: 10 }
         ];
       case "data-analyst":
         return [
           { name: "Advanced SQL & Window Functions", total: 20 },
           { name: "Power BI & Tableau Dashboards", total: 12 },
-          { name: "Business Metrics & Cohort Retention", total: 15 },
-          { name: "Python for Data Analysis (Pandas)", total: 14 },
-          { name: "Product Analytics & A/B Testing", total: 10 },
-          { name: "Behavioral & Stakeholder Comms", total: 8 }
+          { name: "Applied Statistics & Probability", total: 14 },
+          { name: "Python EDA (Pandas & NumPy)", total: 16 },
+          { name: "DSA & Analytical Problem Solving", total: 18 },
+          { name: "Business Metrics & Case Studies", total: 15 }
         ];
       case "data-scientist":
         return [
           { name: "Probability & Inferential Statistics", total: 16 },
-          { name: "Machine Learning Algorithms & Loss", total: 22 },
-          { name: "Feature Engineering & Data Cleansing", total: 14 },
-          { name: "Deep Learning & Transformer Models", total: 12 },
-          { name: "A/B Testing & Causal Inference", total: 10 },
-          { name: "ML System Design & Deployment", total: 8 }
+          { name: "DSA & Problem Solving in Python", total: 22 },
+          { name: "Advanced SQL & Feature Engineering", total: 16 },
+          { name: "Machine Learning Algorithms & Loss", total: 20 },
+          { name: "A/B Testing & Causal Inference", total: 12 },
+          { name: "ML System Design & MLOps", total: 10 }
         ];
       case "devops-engineer":
         return [
           { name: "Linux Internals & Bash Scripting", total: 18 },
+          { name: "DSA & Automation Problem Solving", total: 20 },
           { name: "Docker & Container Runtime", total: 14 },
           { name: "Kubernetes Cluster Architecture", total: 20 },
-          { name: "CI/CD Pipelines (GitHub / Jenkins)", total: 12 },
-          { name: "Infrastructure as Code (Terraform)", total: 15 },
-          { name: "SRE, Observability & Incident Response", total: 10 }
+          { name: "CI/CD Pipelines & Terraform (IaC)", total: 16 },
+          { name: "SRE, Observability & Incident Response", total: 12 }
         ];
       case "product-manager":
         return [
@@ -452,20 +434,20 @@ export function CareerPrepHub({ initialRoleId }: { initialRoleId?: string }) {
       case "frontend-developer":
         return [
           { name: "Core JavaScript Internals & Event Loop", total: 24 },
+          { name: "DSA & Problem Solving (JS/TS)", total: 22 },
           { name: "React, Next.js & Server Components", total: 20 },
           { name: "CSS Architecture, Tailwind & Layouts", total: 16 },
           { name: "Web Performance & Core Web Vitals", total: 14 },
-          { name: "Frontend System Design & State", total: 12 },
-          { name: "Behavioral & Culture Fit", total: 8 }
+          { name: "Frontend System Design & State", total: 12 }
         ];
       case "data-engineer":
         return [
-          { name: "Data Modeling & Normalization", total: 16 },
-          { name: "Distributed Computing (Apache Spark)", total: 22 },
+          { name: "Python, Linux & PostgreSQL", total: 18 },
+          { name: "DSA & Problem Solving (DAGs/Pipelines)", total: 22 },
+          { name: "Data Modeling & Cloud Warehousing", total: 16 },
+          { name: "Distributed Computing (Apache Spark)", total: 20 },
           { name: "ETL & Streaming Pipelines (Kafka)", total: 18 },
-          { name: "Data Warehousing (Snowflake / BigQuery)", total: 15 },
-          { name: "Airflow Orchestration & Idempotency", total: 12 },
-          { name: "Behavioral & Problem Solving", total: 8 }
+          { name: "Airflow Orchestration & Lakehouse", total: 14 }
         ];
       default: // software-engineer
         return [
@@ -530,7 +512,7 @@ export function CareerPrepHub({ initialRoleId }: { initialRoleId?: string }) {
       };
       const updated = updateUserProfile(currentUser.id, {
         resumeFile: fileData,
-        skills: extracted.skills && extracted.skills.length > 0 ? extracted.skills : (currentUser.skills || []),
+        skills: Array.from(new Set([...(currentUser.skills || []), ...(extracted.skills || [])])),
         currentRole: extracted.currentRole || currentUser.currentRole,
         yearsExperience: extracted.yearsExperience || currentUser.yearsExperience
       });
@@ -1128,9 +1110,11 @@ export function CareerPrepHub({ initialRoleId }: { initialRoleId?: string }) {
                           {company.name}
                         </div>
                         <div className="text-[10px] text-slate-500 truncate">
-                          {company.roleQuestions?.[selectedRole.id]?.focusAreas?.slice(0, 3)?.join(", ") ||
-                           company.roleQuestions?.["software-engineer"]?.focusAreas?.slice(0, 3)?.join(", ") ||
-                           "Technical Assessment, Core Skills"}
+                          {company.id === "microsoft" ? "SDE, Data, PM, Cloud" :
+                           company.id === "netflix" ? "SDE, Data, PM" :
+                           company.id === "meta" ? "SDE, Data, Infra" :
+                           company.id === "adobe" ? "SDE, Data, Product" :
+                           "SDE, Data, PM, DevOps"}
                         </div>
                       </div>
                     </div>
@@ -2205,7 +2189,7 @@ export function CareerPrepHub({ initialRoleId }: { initialRoleId?: string }) {
                             </span>
                           </div>
                           <p className="text-xs text-slate-500">
-                            Last parsed on {new Date(currentUser.resumeFile.uploadedAt).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })} at {new Date(currentUser.resumeFile.uploadedAt).toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit' })} · {(currentUser.resumeFile.size / 1024).toFixed(0)} KB
+                            Uploaded on {new Date(currentUser.resumeFile.uploadedAt).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })} · {(currentUser.resumeFile.size / 1024).toFixed(0)} KB
                           </p>
                         </div>
                       </div>
