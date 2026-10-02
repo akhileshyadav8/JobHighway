@@ -456,6 +456,192 @@ class Solution {
         isHidden: true
       }
     ]
+  },
+
+  // Problem 5: Binary Search (LeetCode #704)
+  {
+    id: "prob-binary-search",
+    slug: "binary-search",
+    title: "Binary Search",
+    difficulty: "Easy",
+    roleIds: ["software-engineer", "frontend-developer", "data-scientist"],
+    topics: ["Binary Search", "Arrays"],
+    companyTags: ["Google", "Amazon", "Microsoft", "Apple"],
+    description: `Given an array of integers \`nums\` which is sorted in **ascending order**, and an integer \`target\`, write a function to search \`target\` in \`nums\`.
+
+If \`target\` exists, return its index. Otherwise, return \`-1\`.
+
+You must write an algorithm with \`O(log n)\` runtime complexity.`,
+    inputFormat: "A sorted array of integers `nums` and an integer `target`.",
+    outputFormat: "The integer index of `target`, or `-1` if not found.",
+    constraints: [
+      "1 <= nums.length <= 10^4",
+      "-10^4 < nums[i], target < 10^4",
+      "All the integers in nums are unique.",
+      "nums is sorted in ascending order."
+    ],
+    examples: [
+      {
+        input: "nums = [-1, 0, 3, 5, 9, 12], target = 9",
+        output: "4",
+        explanation: "9 exists in nums and its index is 4."
+      },
+      {
+        input: "nums = [-1, 0, 3, 5, 9, 12], target = 2",
+        output: "-1",
+        explanation: "2 does not exist in nums so return -1."
+      }
+    ],
+    starterCode: {
+      python: `def search(nums, target):
+    # Write your solution here
+    pass`,
+      c: `#include <stdio.h>
+
+int search(int* nums, int numsSize, int target) {
+    // Write your solution here
+    return -1;
+}`,
+      cpp: `#include <bits/stdc++.h>
+using namespace std;
+
+class Solution {
+public:
+    int search(vector<int>& nums, int target) {
+        // Write your solution here
+        return -1;
+    }
+};`,
+      java: `class Solution {
+    public int search(int[] nums, int target) {
+        // Write your solution here
+        return -1;
+    }
+}`
+    },
+    functionName: "search",
+    testCases: [
+      {
+        id: 1,
+        input: [[-1, 0, 3, 5, 9, 12], 9],
+        expected: 4,
+        description: "Target present in right half",
+        isHidden: false
+      },
+      {
+        id: 2,
+        input: [[-1, 0, 3, 5, 9, 12], 2],
+        expected: -1,
+        description: "Target not present",
+        isHidden: false
+      },
+      {
+        id: 3,
+        input: [[5], 5],
+        expected: 0,
+        description: "Single element present",
+        isHidden: true
+      },
+      {
+        id: 4,
+        input: [[2, 5], 5],
+        expected: 1,
+        description: "Two elements target right",
+        isHidden: true
+      }
+    ]
+  },
+
+  // Problem 6: Best Time to Buy and Sell Stock (LeetCode #121)
+  {
+    id: "prob-buy-sell-stock",
+    slug: "best-time-to-buy-and-sell-stock",
+    title: "Best Time to Buy and Sell Stock",
+    difficulty: "Easy",
+    roleIds: ["software-engineer", "frontend-developer", "data-analyst", "data-scientist"],
+    topics: ["Arrays", "Dynamic Programming", "Greedy"],
+    companyTags: ["Amazon", "Meta", "Google", "Goldman Sachs"],
+    description: `You are given an array \`prices\` where \`prices[i]\` is the price of a given stock on the \`i-th\` day.
+
+You want to maximize your profit by choosing a **single day** to buy one stock and choosing a **different day in the future** to sell that stock.
+
+Return the **maximum profit** you can achieve from this transaction. If you cannot achieve any profit, return \`0\`.`,
+    inputFormat: "An array of numbers `prices`.",
+    outputFormat: "An integer representing maximum achievable profit.",
+    constraints: [
+      "1 <= prices.length <= 10^5",
+      "0 <= prices[i] <= 10^4"
+    ],
+    examples: [
+      {
+        input: "prices = [7, 1, 5, 3, 6, 4]",
+        output: "5",
+        explanation: "Buy on day 2 (price = 1) and sell on day 5 (price = 6), profit = 6 - 1 = 5."
+      },
+      {
+        input: "prices = [7, 6, 4, 3, 1]",
+        output: "0",
+        explanation: "In this case, no transactions are done and the max profit = 0."
+      }
+    ],
+    starterCode: {
+      python: `def maxProfit(prices):
+    # Write your solution here
+    pass`,
+      c: `#include <stdio.h>
+
+int maxProfit(int* prices, int pricesSize) {
+    // Write your solution here
+    return 0;
+}`,
+      cpp: `#include <bits/stdc++.h>
+using namespace std;
+
+class Solution {
+public:
+    int maxProfit(vector<int>& prices) {
+        // Write your solution here
+        return 0;
+    }
+};`,
+      java: `class Solution {
+    public int maxProfit(int[] prices) {
+        // Write your solution here
+        return 0;
+    }
+}`
+    },
+    functionName: "maxProfit",
+    testCases: [
+      {
+        id: 1,
+        input: [[7, 1, 5, 3, 6, 4]],
+        expected: 5,
+        description: "Standard ascending valley to peak",
+        isHidden: false
+      },
+      {
+        id: 2,
+        input: [[7, 6, 4, 3, 1]],
+        expected: 0,
+        description: "Monotonically decreasing prices",
+        isHidden: false
+      },
+      {
+        id: 3,
+        input: [[1, 2]],
+        expected: 1,
+        description: "Two prices with profit",
+        isHidden: true
+      },
+      {
+        id: 4,
+        input: [[2, 4, 1]],
+        expected: 2,
+        description: "Lowest price at end cannot be sold",
+        isHidden: true
+      }
+    ]
   }
 ];
 

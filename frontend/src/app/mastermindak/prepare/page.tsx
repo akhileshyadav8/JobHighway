@@ -380,8 +380,8 @@ export default function AdminPreparePage() {
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-slate-100 font-mono">
-                    {allAttempts.map((att) => (
-                      <tr key={att.id} className="hover:bg-slate-50">
+                    {allAttempts.map((att, index) => (
+                      <tr key={`${att.id}-${index}`} className="hover:bg-slate-50">
                         <td className="px-4 py-3 text-slate-500">{new Date(att.completedAt).toLocaleString()}</td>
                         <td className="px-4 py-3 font-bold text-slate-900 font-sans">{att.quizTitle}</td>
                         <td className="px-4 py-3 font-bold">{att.score} / {att.totalQuestions}</td>

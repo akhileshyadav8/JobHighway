@@ -97,30 +97,24 @@ export const ALL_SQL_PROBLEMS: SqlProblem[] = [
       mysql: `-- Write your MySQL query here
 SELECT
   d.dept_name,
-  COUNT(e.id) AS emp_count,
-  ROUND(AVG(e.salary), 2) AS avg_salary
+  -- TODO: Calculate emp_count and avg_salary
 FROM departments d
-JOIN employees e ON d.id = e.dept_id
-GROUP BY d.dept_name
-ORDER BY avg_salary DESC;`,
+-- TODO: Join with employees and group by department
+;`,
       postgresql: `-- Write your PostgreSQL query here
 SELECT
   d.dept_name,
-  COUNT(e.id) AS emp_count,
-  ROUND(AVG(e.salary), 2) AS avg_salary
+  -- TODO: Calculate emp_count and avg_salary
 FROM departments d
-JOIN employees e ON d.id = e.dept_id
-GROUP BY d.dept_name
-ORDER BY avg_salary DESC;`,
+-- TODO: Join with employees and group by department
+;`,
       sqlserver: `-- Write your SQL Server query here
 SELECT
   d.dept_name,
-  COUNT(e.id) AS emp_count,
-  ROUND(AVG(e.salary), 2) AS avg_salary
+  -- TODO: Calculate emp_count and avg_salary
 FROM departments d
-JOIN employees e ON d.id = e.dept_id
-GROUP BY d.dept_name
-ORDER BY avg_salary DESC;`
+-- TODO: Join with employees and group by department
+;`
     }
   },
 
@@ -197,11 +191,26 @@ Order by \`dept_name\` ascending, then \`salary\` descending.`,
     `,
     starterCode: {
       mysql: `-- Write your MySQL query using DENSE_RANK()
-SELECT NULL;`,
+WITH RankedEmployees AS (
+  -- TODO: Partition by department and rank by salary
+)
+SELECT dept_name, employee_name, salary
+FROM RankedEmployees
+WHERE rnk = 1;`,
       postgresql: `-- Write your PostgreSQL query using CTE and DENSE_RANK()
-SELECT NULL;`,
+WITH RankedEmployees AS (
+  -- TODO: Partition by department and rank by salary
+)
+SELECT dept_name, employee_name, salary
+FROM RankedEmployees
+WHERE rnk = 1;`,
       sqlserver: `-- Write your SQL Server query
-SELECT NULL;`
+WITH RankedEmployees AS (
+  -- TODO: Partition by department and rank by salary
+)
+SELECT dept_name, employee_name, salary
+FROM RankedEmployees
+WHERE rnk = 1;`
     }
   },
 
@@ -262,11 +271,20 @@ Order alphabetically by customer name.`,
     `,
     starterCode: {
       mysql: `-- Write your query using LEFT JOIN or NOT EXISTS
-SELECT name AS Customers FROM Customers;`,
-      postgresql: `-- Write your query
-SELECT name AS Customers FROM Customers;`,
-      sqlserver: `-- Write your query
-SELECT name AS Customers FROM Customers;`
+SELECT c.name AS Customers
+FROM Customers c
+-- TODO: Filter out customers with existing orders
+;`,
+      postgresql: `-- Write your query using LEFT JOIN or NOT EXISTS
+SELECT c.name AS Customers
+FROM Customers c
+-- TODO: Filter out customers with existing orders
+;`,
+      sqlserver: `-- Write your query using LEFT JOIN or NOT EXISTS
+SELECT c.name AS Customers
+FROM Customers c
+-- TODO: Filter out customers with existing orders
+;`
     }
   },
 
@@ -310,15 +328,326 @@ Return column:
     `,
     starterCode: {
       mysql: `-- Write your query to find SecondHighestSalary
-SELECT NULL AS SecondHighestSalary;`,
+SELECT
+  -- TODO: Query the second distinct highest salary
+  MAX(salary) AS SecondHighestSalary
+FROM Employee;`,
       postgresql: `-- Write your query to find SecondHighestSalary
-SELECT NULL AS SecondHighestSalary;`,
+SELECT
+  -- TODO: Query the second distinct highest salary
+  MAX(salary) AS SecondHighestSalary
+FROM Employee;`,
       sqlserver: `-- Write your query to find SecondHighestSalary
-SELECT NULL AS SecondHighestSalary;`
+SELECT
+  -- TODO: Query the second distinct highest salary
+  MAX(salary) AS SecondHighestSalary
+FROM Employee;`
+    }
+  },
+
+  // Problem 5: Employees Earning More Than Their Managers (Self Join)
+  {
+    id: "sql-more-than-manager",
+    title: "Employees Earning More Than Their Managers",
+    difficulty: "Easy",
+    category: "Joins",
+    roleIds: ["data-analyst", "software-engineer", "data-engineer"],
+    companyTags: ["Facebook", "Microsoft", "Amazon"],
+    description: `Write a SQL query to find the employees who earn **more than their direct managers**.
+
+Return column:
+- \`Employee\` (the name of the employee)
+
+Order alphabetically by employee name.`,
+    schemas: [
+      {
+        tableName: "Employee",
+        columns: [
+          { name: "id", type: "INT", description: "Employee ID" },
+          { name: "name", type: "VARCHAR", description: "Employee Name" },
+          { name: "salary", type: "INT", description: "Monthly salary" },
+          { name: "managerId", type: "INT", description: "Manager's employee ID" }
+        ],
+        sampleRows: [
+          { id: 1, name: "Joe", salary: 70000, managerId: 3 },
+          { id: 2, name: "Henry", salary: 80000, managerId: 4 },
+          { id: 3, name: "Sam", salary: 60000, managerId: null },
+          { id: 4, name: "Max", salary: 90000, managerId: null }
+        ]
+      }
+    ],
+    createTableSql: `
+      CREATE TABLE Employee (id INTEGER PRIMARY KEY, name TEXT, salary REAL, managerId INTEGER);
+    `,
+    seedDataSql: `
+      INSERT INTO Employee VALUES
+        (1, 'Joe', 70000, 3),
+        (2, 'Henry', 80000, 4),
+        (3, 'Sam', 60000, NULL),
+        (4, 'Max', 90000, NULL);
+    `,
+    solutionQuery: `
+      SELECT e.name AS Employee
+      FROM Employee e
+      JOIN Employee m ON e.managerId = m.id
+      WHERE e.salary > m.salary
+      ORDER BY e.name ASC;
+    `,
+    starterCode: {
+      mysql: `-- Perform a Self Join between Employee as employee and manager
+SELECT e.name AS Employee
+FROM Employee e
+-- TODO: Join with manager and compare salaries
+;`,
+      postgresql: `-- Perform a Self Join between Employee as employee and manager
+SELECT e.name AS Employee
+FROM Employee e
+-- TODO: Join with manager and compare salaries
+;`,
+      sqlserver: `-- Perform a Self Join between Employee as employee and manager
+SELECT e.name AS Employee
+FROM Employee e
+-- TODO: Join with manager and compare salaries
+;`
+    }
+  },
+
+  // Problem 6: Consecutive Active Logins (Window Functions & LEAD/LAG)
+  {
+    id: "sql-consecutive-logins",
+    title: "Active Users with Consecutive Logins",
+    difficulty: "Hard",
+    category: "Window Functions",
+    roleIds: ["data-analyst", "data-scientist", "data-engineer"],
+    companyTags: ["Netflix", "Spotify", "Meta"],
+    description: `Find all users who logged in at least **3 consecutive times** with the same active status.
+
+Return column:
+- \`user_id\`
+
+Deduplicate results and order by \`user_id\` ascending.`,
+    schemas: [
+      {
+        tableName: "Logins",
+        columns: [
+          { name: "id", type: "INT" },
+          { name: "user_id", type: "INT" },
+          { name: "login_date", type: "DATE" }
+        ],
+        sampleRows: [
+          { id: 1, user_id: 101, login_date: "2026-03-01" },
+          { id: 2, user_id: 101, login_date: "2026-03-02" },
+          { id: 3, user_id: 101, login_date: "2026-03-03" },
+          { id: 4, user_id: 102, login_date: "2026-03-01" },
+          { id: 5, user_id: 102, login_date: "2026-03-04" }
+        ]
+      }
+    ],
+    createTableSql: `
+      CREATE TABLE Logins (id INTEGER PRIMARY KEY, user_id INTEGER, login_date TEXT);
+    `,
+    seedDataSql: `
+      INSERT INTO Logins VALUES
+        (1, 101, '2026-03-01'),
+        (2, 101, '2026-03-02'),
+        (3, 101, '2026-03-03'),
+        (4, 102, '2026-03-01'),
+        (5, 102, '2026-03-04');
+    `,
+    solutionQuery: `
+      SELECT DISTINCT l1.user_id
+      FROM Logins l1
+      JOIN Logins l2 ON l1.user_id = l2.user_id AND l2.id = l1.id + 1
+      JOIN Logins l3 ON l1.user_id = l3.user_id AND l3.id = l1.id + 2
+      ORDER BY l1.user_id ASC;
+    `,
+    starterCode: {
+      mysql: `-- Write your query to find users with at least 3 consecutive records
+SELECT DISTINCT user_id
+FROM Logins;`,
+      postgresql: `-- Write your query to find users with at least 3 consecutive records
+SELECT DISTINCT user_id
+FROM Logins;`,
+      sqlserver: `-- Write your query to find users with at least 3 consecutive records
+SELECT DISTINCT user_id
+FROM Logins;`
+    }
+  },
+
+  // Problem 7: High Volume Departments (HAVING & Aggregations)
+  {
+    id: "sql-high-volume-dept",
+    title: "High Headcount Departments",
+    difficulty: "Easy",
+    category: "Aggregations",
+    roleIds: ["data-analyst", "business-analyst"],
+    companyTags: ["Salesforce", "Atlassian", "LinkedIn"],
+    description: `Find all department names that have **at least 2 employees** and an average salary strictly greater than **$80,000**.
+
+Return columns:
+- \`dept_name\`
+- \`total_staff\`
+- \`avg_sal\` (rounded to 2 decimal places)
+
+Order by \`avg_sal\` descending.`,
+    schemas: [
+      {
+        tableName: "departments",
+        columns: [
+          { name: "id", type: "INT" },
+          { name: "dept_name", type: "VARCHAR" }
+        ],
+        sampleRows: [
+          { id: 1, dept_name: "Engineering" },
+          { id: 2, dept_name: "Analytics" },
+          { id: 3, dept_name: "Operations" }
+        ]
+      },
+      {
+        tableName: "staff",
+        columns: [
+          { name: "id", type: "INT" },
+          { name: "dept_id", type: "INT" },
+          { name: "salary", type: "INT" }
+        ],
+        sampleRows: [
+          { id: 1, dept_id: 1, salary: 95000 },
+          { id: 2, dept_id: 1, salary: 90000 },
+          { id: 3, dept_id: 2, salary: 82000 },
+          { id: 4, dept_id: 2, salary: 84000 },
+          { id: 5, dept_id: 3, salary: 60000 }
+        ]
+      }
+    ],
+    createTableSql: `
+      CREATE TABLE departments (id INTEGER PRIMARY KEY, dept_name TEXT);
+      CREATE TABLE staff (id INTEGER PRIMARY KEY, dept_id INTEGER, salary REAL);
+    `,
+    seedDataSql: `
+      INSERT INTO departments VALUES (1, 'Engineering'), (2, 'Analytics'), (3, 'Operations');
+      INSERT INTO staff VALUES
+        (1, 1, 95000), (2, 1, 90000),
+        (3, 2, 82000), (4, 2, 84000),
+        (5, 3, 60000);
+    `,
+    solutionQuery: `
+      SELECT d.dept_name, COUNT(s.id) AS total_staff, ROUND(AVG(s.salary), 2) AS avg_sal
+      FROM departments d
+      JOIN staff s ON d.id = s.dept_id
+      GROUP BY d.dept_name
+      HAVING COUNT(s.id) >= 2 AND AVG(s.salary) > 80000
+      ORDER BY avg_sal DESC;
+    `,
+    starterCode: {
+      mysql: `-- Write your query using GROUP BY and HAVING clauses
+SELECT d.dept_name
+FROM departments d
+-- TODO: Join and filter using HAVING
+;`,
+      postgresql: `-- Write your query using GROUP BY and HAVING clauses
+SELECT d.dept_name
+FROM departments d
+-- TODO: Join and filter using HAVING
+;`,
+      sqlserver: `-- Write your query using GROUP BY and HAVING clauses
+SELECT d.dept_name
+FROM departments d
+-- TODO: Join and filter using HAVING
+;`
+    }
+  },
+
+  // Problem 8: Department Highest and Lowest Salary Gap (CTEs)
+  {
+    id: "sql-salary-gap",
+    title: "Department Salary Spread & Gap",
+    difficulty: "Medium",
+    category: "CTEs",
+    roleIds: ["data-analyst", "data-engineer", "data-scientist"],
+    companyTags: ["Airbnb", "Goldman Sachs", "Morgan Stanley"],
+    description: `Write a SQL query using a CTE to calculate the **salary spread** (difference between maximum salary and minimum salary) for each department.
+
+Return columns:
+- \`dept_name\`
+- \`max_salary\`
+- \`min_salary\`
+- \`salary_gap\`
+
+Order by \`salary_gap\` descending.`,
+    schemas: [
+      {
+        tableName: "dept",
+        columns: [
+          { name: "id", type: "INT" },
+          { name: "name", type: "VARCHAR" }
+        ],
+        sampleRows: [
+          { id: 1, name: "Engineering" },
+          { id: 2, name: "Marketing" }
+        ]
+      },
+      {
+        tableName: "salaries",
+        columns: [
+          { name: "id", type: "INT" },
+          { name: "dept_id", type: "INT" },
+          { name: "amount", type: "INT" }
+        ],
+        sampleRows: [
+          { id: 1, dept_id: 1, amount: 120000 },
+          { id: 2, dept_id: 1, amount: 80000 },
+          { id: 3, dept_id: 2, amount: 75000 },
+          { id: 4, dept_id: 2, amount: 65000 }
+        ]
+      }
+    ],
+    createTableSql: `
+      CREATE TABLE dept (id INTEGER PRIMARY KEY, name TEXT);
+      CREATE TABLE salaries (id INTEGER PRIMARY KEY, dept_id INTEGER, amount REAL);
+    `,
+    seedDataSql: `
+      INSERT INTO dept VALUES (1, 'Engineering'), (2, 'Marketing');
+      INSERT INTO salaries VALUES
+        (1, 1, 120000), (2, 1, 80000),
+        (3, 2, 75000), (4, 2, 65000);
+    `,
+    solutionQuery: `
+      WITH DeptAgg AS (
+        SELECT dept_id, MAX(amount) AS max_salary, MIN(amount) AS min_salary
+        FROM salaries
+        GROUP BY dept_id
+      )
+      SELECT d.name AS dept_name, a.max_salary, a.min_salary, (a.max_salary - a.min_salary) AS salary_gap
+      FROM DeptAgg a
+      JOIN dept d ON a.dept_id = d.id
+      ORDER BY salary_gap DESC;
+    `,
+    starterCode: {
+      mysql: `-- Write your CTE query to find the salary gap
+WITH DeptAgg AS (
+  SELECT dept_id, MAX(amount) AS max_salary, MIN(amount) AS min_salary
+  FROM salaries
+  GROUP BY dept_id
+)
+SELECT * FROM DeptAgg;`,
+      postgresql: `-- Write your CTE query to find the salary gap
+WITH DeptAgg AS (
+  SELECT dept_id, MAX(amount) AS max_salary, MIN(amount) AS min_salary
+  FROM salaries
+  GROUP BY dept_id
+)
+SELECT * FROM DeptAgg;`,
+      sqlserver: `-- Write your CTE query to find the salary gap
+WITH DeptAgg AS (
+  SELECT dept_id, MAX(amount) AS max_salary, MIN(amount) AS min_salary
+  FROM salaries
+  GROUP BY dept_id
+)
+SELECT * FROM DeptAgg;`
     }
   }
 ];
 
 export function getSqlProblemById(id: string): SqlProblem | undefined {
-  return ALL_SQL_PROBLEMS.find(p => p.id === id);
+  return ALL_SQL_PROBLEMS.find((p) => p.id === id);
 }

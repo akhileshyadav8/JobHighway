@@ -61,6 +61,7 @@ import { SqlEnvironmentModal } from "./SqlEnvironmentModal";
 import { QuizTest, getRandomizedQuiz } from "@/lib/quizData";
 import { ALL_CODING_PROBLEMS } from "@/lib/codingProblemsData";
 import { parseResumeFile } from "@/lib/resumeParser";
+import { COMMON_HR_QUESTIONS, INTERVIEW_ETIQUETTE_GUIDE, COMMON_INTERVIEW_MISTAKES } from "@/lib/interviewPrepData";
 
 
 
@@ -105,6 +106,8 @@ export function CareerPrepHub({ initialRoleId }: { initialRoleId?: string }) {
   // 5. Active Tab for Deep Dives
   const [activeTab, setActiveTab] = useState<"roadmap" | "skills" | "interview" | "practice" | "projects" | "resume">("roadmap");
   const [showDeepDives, setShowDeepDives] = useState(false);
+  const [interviewSubTab, setInterviewSubTab] = useState<"rounds" | "hr" | "etiquette" | "mistakes">("rounds");
+  const [expandedHrId, setExpandedHrId] = useState<string | null>("hr-tell-me-about-yourself");
 
   // 6. Roadmap Stepper View State
   const [activeStepIndex, setActiveStepIndex] = useState<number>(0);
@@ -451,8 +454,17 @@ export function CareerPrepHub({ initialRoleId }: { initialRoleId?: string }) {
     const randomized = getRandomizedQuiz(selectedRole.id, "all", 30);
     if (randomized) {
       try {
-        sessionStorage.setItem('jobhighway_active_mock_test', JSON.stringify(randomized));
-        window.open('/prepare/mock-test', '_blank');
+        const sessionPayload = {
+          quiz: randomized,
+          userAnswers: {},
+          markedForReview: [],
+          currentQuestionIndex: 0,
+          secondsRemaining: randomized.durationMinutes * 60,
+          startedAt: new Date().toISOString()
+        };
+        localStorage.setItem("jobhighway_active_test_session", JSON.stringify(sessionPayload));
+        sessionStorage.setItem("jobhighway_active_mock_test", JSON.stringify(randomized));
+        window.open(`/prepare/mock-test?role=${selectedRole.id}&category=all`, "_blank");
       } catch {
         setRandomizedQuiz(randomized);
         setQuizModalOpen(true);
@@ -879,8 +891,16 @@ export function CareerPrepHub({ initialRoleId }: { initialRoleId?: string }) {
                   {
                     stepNum: 3,
                     title: "Practice Questions",
-                    sub: "Topic-wise and company-wise questions",
-                    action: () => handleOpenCoding()
+                    sub: ["data-analyst", "data-scientist", "data-engineer"].includes(selectedRole.id)
+                      ? "Interactive SQL queries and table schemas"
+                      : "Topic-wise and company-wise coding challenges",
+                    action: () => {
+                      if (["data-analyst", "data-scientist", "data-engineer"].includes(selectedRole.id)) {
+                        handleOpenSql();
+                      } else {
+                        handleOpenCoding();
+                      }
+                    }
                   },
                   {
                     stepNum: 4,
@@ -890,8 +910,17 @@ export function CareerPrepHub({ initialRoleId }: { initialRoleId?: string }) {
                       const randomized = getRandomizedQuiz(selectedRole.id, "all", 30);
                       if (randomized) {
                         try {
-                          sessionStorage.setItem('jobhighway_active_mock_test', JSON.stringify(randomized));
-                          window.open('/prepare/mock-test', '_blank');
+                          const sessionPayload = {
+                            quiz: randomized,
+                            userAnswers: {},
+                            markedForReview: [],
+                            currentQuestionIndex: 0,
+                            secondsRemaining: randomized.durationMinutes * 60,
+                            startedAt: new Date().toISOString()
+                          };
+                          localStorage.setItem("jobhighway_active_test_session", JSON.stringify(sessionPayload));
+                          sessionStorage.setItem("jobhighway_active_mock_test", JSON.stringify(randomized));
+                          window.open(`/prepare/mock-test?role=${selectedRole.id}&category=all`, "_blank");
                         } catch {
                           setRandomizedQuiz(randomized);
                           setQuizModalOpen(true);
@@ -914,7 +943,7 @@ export function CareerPrepHub({ initialRoleId }: { initialRoleId?: string }) {
                       if (["data-analyst", "data-scientist", "data-engineer"].includes(selectedRole.id)) {
                         handleOpenSql();
                       } else {
-                        handleSwitchTab("interview");
+                        handleOpenVault("System Design");
                       }
                     }
                   },
@@ -922,8 +951,8 @@ export function CareerPrepHub({ initialRoleId }: { initialRoleId?: string }) {
                   {
                     stepNum: 6,
                     title: "Interview Tips",
-                    sub: "Resume, behavioral, HR and final preparation",
-                    action: () => handleSwitchTab("resume")
+                    sub: "HR questions, behavioral STAR, etiquette and common mistakes",
+                    action: () => handleSwitchTab("interview")
                   }
                 ].map((item, idx) => {
                   const isCurrent = activeStepIndex === idx;
@@ -1727,38 +1756,257 @@ export function CareerPrepHub({ initialRoleId }: { initialRoleId?: string }) {
 
             {/* TAB 2: INTERVIEW ROUNDS & ASSESSMENT */}
             {activeTab === "interview" && (
-              <div className="space-y-4">
-                <div className="bg-white border border-slate-200/90 rounded-2xl p-5 shadow-xs">
-                  <h3 className="text-base font-bold text-slate-900 mb-3">
-                    Standard Interview Loop for {selectedRole.name}
-                  </h3>
-                  <div className="space-y-3">
-                    {selectedRole.interviewRounds.map((rnd, idx) => (
-                      <div key={idx} className="p-4 rounded-xl bg-slate-50 border border-slate-100">
-                        <div className="flex items-center justify-between mb-1">
-                          <span className="text-xs font-bold text-teal-700 bg-teal-50 px-2 py-0.5 rounded border border-teal-200/60">
-                            {rnd.step}
-                          </span>
-                          <span className="text-xs font-semibold text-slate-500">{rnd.focus}</span>
-                        </div>
-                        <h4 className="text-sm font-bold text-slate-900 mb-1">{rnd.title}</h4>
-                        <p className="text-xs text-slate-600 mb-3">{rnd.description}</p>
-                        
-                        <div className="pt-2 border-t border-slate-200/60 space-y-1">
-                          <span className="text-[10px] font-bold uppercase tracking-wider text-slate-500 block">
-                            Key Questions &amp; Preparation Tip:
-                          </span>
-                          {rnd.keyQuestions.map((kq, kIdx) => (
-                            <div key={kIdx} className="text-xs text-slate-700 flex items-start gap-1.5">
-                              <span className="text-teal-600 font-bold">•</span>
-                              <span>{kq}</span>
-                            </div>
-                          ))}
-                        </div>
-                      </div>
-                    ))}
-                  </div>
+              <div className="space-y-6">
+                {/* Interview Sub-Navigation */}
+                <div className="flex flex-wrap items-center gap-2 p-1.5 bg-slate-100 rounded-2xl border border-slate-200">
+                  {[
+                    { id: "rounds", label: `Standard Loop (${selectedRole.interviewRounds.length} Rounds)` },
+                    { id: "hr", label: `Common HR Questions (${COMMON_HR_QUESTIONS.length})` },
+                    { id: "etiquette", label: "Interview Etiquette & Protocol" },
+                    { id: "mistakes", label: "Common Interview Mistakes" }
+                  ].map((st) => (
+                    <button
+                      key={st.id}
+                      onClick={() => setInterviewSubTab(st.id as any)}
+                      className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+                        interviewSubTab === st.id
+                          ? "bg-white text-teal-800 shadow-xs border border-slate-200/80"
+                          : "text-slate-600 hover:text-slate-900"
+                      }`}
+                    >
+                      {st.label}
+                    </button>
+                  ))}
                 </div>
+
+                {/* Subtab 1: Standard Interview Loop */}
+                {interviewSubTab === "rounds" && (
+                  <div className="bg-white border border-slate-200/90 rounded-2xl p-5 sm:p-6 shadow-xs space-y-4">
+                    <div>
+                      <h3 className="text-base font-bold text-slate-900">
+                        Standard Interview Loop for {selectedRole.name}
+                      </h3>
+                      <p className="text-xs text-slate-500">
+                        Typical stages, technical competencies, and questions evaluated by tier-1 hiring committees.
+                      </p>
+                    </div>
+
+                    <div className="space-y-3 pt-1">
+                      {selectedRole.interviewRounds.map((rnd, idx) => (
+                        <div key={idx} className="p-4 rounded-xl bg-slate-50 border border-slate-100">
+                          <div className="flex items-center justify-between mb-1">
+                            <span className="text-xs font-bold text-teal-700 bg-teal-50 px-2 py-0.5 rounded border border-teal-200/60">
+                              {rnd.step}
+                            </span>
+                            <span className="text-xs font-semibold text-slate-500">{rnd.focus}</span>
+                          </div>
+                          <h4 className="text-sm font-bold text-slate-900 mb-1">{rnd.title}</h4>
+                          <p className="text-xs text-slate-600 mb-3">{rnd.description}</p>
+                          
+                          <div className="pt-2 border-t border-slate-200/60 space-y-1">
+                            <span className="text-[10px] font-bold uppercase tracking-wider text-slate-500 block">
+                              Key Questions &amp; Preparation Tip:
+                            </span>
+                            {rnd.keyQuestions.map((kq, kIdx) => (
+                              <div key={kIdx} className="text-xs text-slate-700 flex items-start gap-1.5">
+                                <span className="text-teal-600 font-bold">•</span>
+                                <span>{kq}</span>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* Subtab 2: Common HR Questions & Frameworks */}
+                {interviewSubTab === "hr" && (
+                  <div className="bg-white border border-slate-200/90 rounded-2xl p-5 sm:p-6 shadow-xs space-y-5">
+                    <div>
+                      <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-md bg-teal-50 text-teal-700 text-xs font-bold border border-teal-200/60 mb-2">
+                        <Lightbulb className="w-3.5 h-3.5" />
+                        <span>Behavioral &amp; HR Excellence</span>
+                      </div>
+                      <h3 className="text-base font-bold text-slate-900">
+                        Common HR &amp; Cultural Fit Interview Questions
+                      </h3>
+                      <p className="text-xs text-slate-500">
+                        Evaluation criteria, structural answer frameworks (STAR), model answers, and fatal pitfalls to avoid.
+                      </p>
+                    </div>
+
+                    <div className="space-y-3">
+                      {COMMON_HR_QUESTIONS.map((item, idx) => {
+                        const isOpen = expandedHrId === item.id;
+
+                        return (
+                          <div
+                            key={item.id}
+                            className={`rounded-2xl border transition-all ${
+                              isOpen ? "border-teal-400 bg-teal-50/10 shadow-xs" : "border-slate-200 bg-slate-50/50 hover:border-slate-300"
+                            }`}
+                          >
+                            <button
+                              onClick={() => setExpandedHrId(isOpen ? null : item.id)}
+                              className="w-full p-4 flex items-center justify-between gap-3 text-left cursor-pointer"
+                            >
+                              <div className="flex items-center gap-3 min-w-0">
+                                <span className="w-6 h-6 rounded-full bg-slate-200 text-slate-700 text-xs font-bold flex items-center justify-center shrink-0">
+                                  {idx + 1}
+                                </span>
+                                <div>
+                                  <h4 className="text-sm font-bold text-slate-900">{item.question}</h4>
+                                  <span className="text-[10px] font-semibold text-teal-700 uppercase tracking-wider">{item.category}</span>
+                                </div>
+                              </div>
+                              <ChevronDown className={`w-4 h-4 text-slate-400 transition-transform ${isOpen ? "rotate-180" : ""}`} />
+                            </button>
+
+                            {isOpen && (
+                              <div className="px-5 pb-5 pt-1 space-y-4 text-xs border-t border-slate-100">
+                                {/* Evaluator expectations */}
+                                <div className="p-3 rounded-xl bg-slate-100 border border-slate-200">
+                                  <strong className="text-slate-900 block mb-1">🎯 What the Interviewer is Evaluating:</strong>
+                                  <p className="text-slate-700 leading-relaxed">{item.whatEvaluated}</p>
+                                </div>
+
+                                {/* Answer structure */}
+                                <div>
+                                  <strong className="text-slate-900 block mb-1.5">📐 Recommended Answer Structure:</strong>
+                                  <div className="space-y-1.5">
+                                    {item.howToStructure.map((step, sIdx) => (
+                                      <div key={sIdx} className="flex items-start gap-2 text-slate-700">
+                                        <span className="w-4 h-4 rounded-full bg-teal-100 text-teal-800 text-[10px] font-bold flex items-center justify-center shrink-0 mt-0.5">
+                                          {sIdx + 1}
+                                        </span>
+                                        <span>{step}</span>
+                                      </div>
+                                    ))}
+                                  </div>
+                                </div>
+
+                                {/* Model Benchmark Answer */}
+                                <div className="p-4 rounded-xl bg-teal-50/60 border border-teal-200">
+                                  <strong className="text-teal-900 block mb-1 flex items-center gap-1.5">
+                                    <Sparkles className="w-3.5 h-3.5 text-teal-600" />
+                                    <span>Benchmark Candidate Answer:</span>
+                                  </strong>
+                                  <p className="text-slate-800 leading-relaxed italic">&ldquo;{item.sampleAnswer}&rdquo;</p>
+                                  <div className="mt-2 pt-2 border-t border-teal-200/60 text-[11px] text-teal-800 font-semibold">
+                                    Tone: {item.toneGuidance}
+                                  </div>
+                                </div>
+
+                                {/* Pitfalls to avoid */}
+                                <div className="p-3 rounded-xl bg-rose-50/70 border border-rose-200">
+                                  <strong className="text-rose-900 block mb-1">⚠️ What to Avoid Saying:</strong>
+                                  <ul className="list-disc list-inside text-rose-800 space-y-1">
+                                    {item.whatToAvoid.map((pitfall, pIdx) => (
+                                      <li key={pIdx}>{pitfall}</li>
+                                    ))}
+                                  </ul>
+                                </div>
+                              </div>
+                            )}
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+                )}
+
+                {/* Subtab 3: Interview Etiquette & Body Language */}
+                {interviewSubTab === "etiquette" && (
+                  <div className="bg-white border border-slate-200/90 rounded-2xl p-5 sm:p-6 shadow-xs space-y-5">
+                    <div>
+                      <h3 className="text-base font-bold text-slate-900">
+                        Professional Interview Etiquette &amp; Executive Presence
+                      </h3>
+                      <p className="text-xs text-slate-500">
+                        Behavioral cues, voice pacing, body language, and protocols that distinguish top candidates.
+                      </p>
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      {INTERVIEW_ETIQUETTE_GUIDE.map((eti, idx) => (
+                        <div key={idx} className="p-5 rounded-2xl bg-slate-50 border border-slate-200 space-y-3 text-xs">
+                          <div className="flex items-center justify-between">
+                            <h4 className="font-bold text-slate-900 text-sm">{eti.topic}</h4>
+                            <span className="text-[10px] font-bold text-teal-700 bg-teal-50 px-2 py-0.5 rounded border border-teal-200">
+                              {eti.category}
+                            </span>
+                          </div>
+                          <p className="text-slate-600 leading-relaxed">{eti.guidance}</p>
+
+                          <div className="pt-2 border-t border-slate-200/60 space-y-2">
+                            <div>
+                              <strong className="text-emerald-800 font-bold block mb-1">✓ What to Do:</strong>
+                              <ul className="space-y-1 text-slate-700">
+                                {eti.doList.map((d, dIdx) => (
+                                  <li key={dIdx} className="flex items-start gap-1.5">
+                                    <span className="text-emerald-600 font-bold">•</span>
+                                    <span>{d}</span>
+                                  </li>
+                                ))}
+                              </ul>
+                            </div>
+
+                            <div>
+                              <strong className="text-rose-800 font-bold block mb-1">✕ What to Avoid:</strong>
+                              <ul className="space-y-1 text-slate-700">
+                                {eti.dontList.map((d, dIdx) => (
+                                  <li key={dIdx} className="flex items-start gap-1.5">
+                                    <span className="text-rose-500 font-bold">•</span>
+                                    <span>{d}</span>
+                                  </li>
+                                ))}
+                              </ul>
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* Subtab 4: Common Interview Mistakes */}
+                {interviewSubTab === "mistakes" && (
+                  <div className="bg-white border border-slate-200/90 rounded-2xl p-5 sm:p-6 shadow-xs space-y-5">
+                    <div>
+                      <h3 className="text-base font-bold text-slate-900">
+                        Top 5 Fatal Interview Mistakes &amp; How to Prevent Them
+                      </h3>
+                      <p className="text-xs text-slate-500">
+                        Critical behavioral and technical mistakes identified by engineering hiring managers.
+                      </p>
+                    </div>
+
+                    <div className="space-y-3">
+                      {COMMON_INTERVIEW_MISTAKES.map((mst, idx) => (
+                        <div key={idx} className="p-4 rounded-2xl bg-slate-50 border border-slate-200 space-y-2 text-xs">
+                          <div className="flex items-center gap-2">
+                            <span className="w-5 h-5 rounded-full bg-rose-100 text-rose-700 text-xs font-bold flex items-center justify-center shrink-0">
+                              {idx + 1}
+                            </span>
+                            <h4 className="font-bold text-slate-900 text-sm">{mst.mistake}</h4>
+                          </div>
+
+                          <div className="pl-7 space-y-1.5">
+                            <div className="text-slate-600">
+                              <strong className="text-rose-700">Why It Hurts: </strong>
+                              {mst.impact}
+                            </div>
+                            <div className="p-2.5 rounded-xl bg-emerald-50/70 border border-emerald-200 text-emerald-900">
+                              <strong>✓ The High-Impact Fix: </strong>
+                              {mst.howToFix}
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
               </div>
             )}
 

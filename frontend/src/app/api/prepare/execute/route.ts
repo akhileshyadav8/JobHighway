@@ -58,9 +58,7 @@ export async function POST(req: NextRequest) {
       ].join("\n");
 
       try {
-        const { execFile } = await import("child_process");
-        const { promisify } = await import("util");
-        const execFileAsync = promisify(execFile);
+        const { runPythonScript } = await import("@/lib/pythonRunner");
 
         // Security check: block dangerous calls
         if (
@@ -81,16 +79,26 @@ export async function POST(req: NextRequest) {
         }
 
         const startTime = Date.now();
-        const { stdout, stderr } = await execFileAsync(
-          "python",
-          ["-c", wrappedCode],
-          { timeout: 4000, maxBuffer: 1024 * 512 }
-        );
+        const pyResult = await runPythonScript(wrappedCode, 4000);
         const execTime = Date.now() - startTime;
-        const cleanStdout = (stdout ?? "").trim();
-        const cleanStderr = (stderr ?? "").trim();
+        const cleanStdout = pyResult.stdout.trim();
+        const cleanStderr = pyResult.stderr.trim();
 
-        if (cleanStderr) {
+        if (pyResult.timedOut) {
+          results.push({
+            caseNumber: results.length + 1,
+            passed: false,
+            inputStr: JSON.stringify(tc.input),
+            expectedStr: JSON.stringify(tc.expected),
+            actualStr: "Error",
+            error: "Time Limit Exceeded (4.0s)",
+            executionTimeMs: execTime,
+            isHidden: tc.isHidden
+          });
+          continue;
+        }
+
+        if (cleanStderr && !cleanStdout) {
           results.push({
             caseNumber: results.length + 1,
             passed: false,

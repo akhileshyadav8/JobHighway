@@ -80,7 +80,8 @@ export function SqlEnvironmentModal({
         body: JSON.stringify({
           problemId: activeProblem.id,
           query,
-          dialect
+          dialect,
+          isSubmit: Boolean(isSubmit)
         })
       });
       const data = await res.json();
@@ -196,7 +197,7 @@ export function SqlEnvironmentModal({
               className="bg-teal-600 hover:bg-teal-700 text-white font-bold px-4 py-1.5 rounded-xl flex items-center gap-1.5 text-xs shadow-xs transition-colors cursor-pointer disabled:opacity-50"
             >
               <Send className="w-3.5 h-3.5" />
-              <span>Test Solution</span>
+              <span>Submit Solution</span>
             </button>
 
             <button
@@ -343,15 +344,17 @@ export function SqlEnvironmentModal({
 
                   {result?.status && (
                     <span
-                      className={`text-[10px] font-black px-2 py-0.5 rounded-full ${
+                      className={`text-[10px] font-black px-2.5 py-0.5 rounded-full ${
                         result.status === "Accepted"
                           ? "bg-emerald-50 text-emerald-700 border border-emerald-200"
+                          : result.status === "Success"
+                          ? "bg-teal-50 text-teal-700 border border-teal-200"
                           : result.status === "Wrong Answer"
                           ? "bg-rose-50 text-rose-700 border border-rose-200"
                           : "bg-amber-50 text-amber-700 border border-amber-200"
                       }`}
                     >
-                      {result.status}
+                      {result.status === "Success" ? "Query Executed" : result.status}
                     </span>
                   )}
                 </div>
@@ -374,11 +377,11 @@ export function SqlEnvironmentModal({
                   <div className="h-full flex flex-col items-center justify-center text-slate-400 text-center">
                     <Database className="w-8 h-8 text-slate-300 mb-2" />
                     <p className="font-medium text-slate-500">No query executed yet.</p>
-                    <p className="text-[11px] text-slate-400">Click &ldquo;Run Query&rdquo; or &ldquo;Test Solution&rdquo; to test your query.</p>
+                    <p className="text-[11px] text-slate-400">Click &ldquo;Run Query&rdquo; to explore or &ldquo;Submit Solution&rdquo; to test against expected answer.</p>
                   </div>
-                ) : result.errorMessage ? (
+                ) : (result.errorMessage || (result as any).error) ? (
                   <div className="p-3 bg-rose-50 border border-rose-200 rounded-xl text-rose-700 font-mono text-xs whitespace-pre-wrap">
-                    ⚠️ {result.errorMessage}
+                    ⚠️ {result.errorMessage || (result as any).error}
                   </div>
                 ) : (
                   <div className="space-y-4">
