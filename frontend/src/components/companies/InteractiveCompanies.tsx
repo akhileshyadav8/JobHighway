@@ -691,8 +691,8 @@ export function InteractiveCompanies({ initialCompanies, initialStats, initialSe
             {/* Left Content Column */}
             <div className="lg:col-span-5 flex flex-col items-start text-left">
               {/* Eyebrow badge */}
-              <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-teal-50/80 border border-teal-200/80 text-teal-800 text-xs font-semibold uppercase tracking-wider mb-4 shadow-2xs">
-                <ShieldCheck className="w-3.5 h-3.5 text-teal-600 shrink-0" />
+              <div className="flex items-center gap-2 mb-4 text-xs font-semibold tracking-wider uppercase text-teal-700">
+                <ShieldCheck className="w-4 h-4 text-teal-600 shrink-0" />
                 <span>Verified Direct ATS Companies</span>
               </div>
 

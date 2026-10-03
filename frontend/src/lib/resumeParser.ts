@@ -288,6 +288,7 @@ export function computeAtsMatch(
 } {
   const textLower = (resumeText || "").toLowerCase();
   const skillsLower = new Set(resumeSkills.map((s) => s.toLowerCase().trim()));
+  const normalizedText = textLower.replace(/[\s\-_/\\,.]+/g, " ");
 
   const matched: string[] = [];
   const missing: string[] = [];
@@ -296,18 +297,47 @@ export function computeAtsMatch(
     const kwTrimmed = kw.trim();
     if (!kwTrimmed) continue;
     const kwLower = kwTrimmed.toLowerCase();
+    const kwNormalized = kwLower.replace(/[\s\-_/\\,.]+/g, " ");
 
-    // Check if in detected skills
-    if (skillsLower.has(kwLower)) {
+    // 1. Direct or normalized match in detected skills
+    if (skillsLower.has(kwLower) || Array.from(skillsLower).some(s => s.replace(/[\s\-_/\\,.]+/g, " ") === kwNormalized)) {
       matched.push(kwTrimmed);
       continue;
     }
 
-    // Check if whole phrase or regex word boundary matches in raw text
+    // 2. Direct or normalized phrase match in raw text
+    if (textLower.includes(kwLower) || normalizedText.includes(kwNormalized)) {
+      matched.push(kwTrimmed);
+      continue;
+    }
+
+    // 3. Compact space-less match (e.g. "powerbi" in text matching "Power BI", or "scikitlearn" matching "Scikit-Learn")
+    const kwCompact = kwLower.replace(/[\s\-_/\\,.]+/g, "");
+    const textCompact = textLower.replace(/[\s\-_/\\,.]+/g, "");
+    if (kwCompact.length >= 4 && textCompact.includes(kwCompact)) {
+      matched.push(kwTrimmed);
+      continue;
+    }
+
+    // 4. Word boundary regex match
     const escaped = kwLower.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
     const regex = new RegExp(`(?:^|[^a-zA-Z0-9#+])${escaped}(?:$|[^a-zA-Z0-9#+])`, "i");
+    if (regex.test(textLower)) {
+      matched.push(kwTrimmed);
+      continue;
+    }
 
-    if (regex.test(textLower) || textLower.includes(kwLower)) {
+    // 5. Common industry abbreviations / synonyms
+    let synonymMatched = false;
+    if (kwLower === "postgresql" && (textLower.includes("postgres") || skillsLower.has("postgres"))) synonymMatched = true;
+    else if (kwLower === "scikit-learn" && (textLower.includes("sklearn") || skillsLower.has("sklearn"))) synonymMatched = true;
+    else if (kwLower === "business intelligence" && (skillsLower.has("bi") || textLower.includes(" bi ") || textLower.includes("bi developer") || textLower.includes("bi reporting"))) synonymMatched = true;
+    else if (kwLower === "statistical analysis" && (textLower.includes("statistics") || skillsLower.has("statistics") || textLower.includes("statistical"))) synonymMatched = true;
+    else if (kwLower === "data visualization" && (textLower.includes("data visualisation") || textLower.includes("dashboards") || textLower.includes("dashboarding"))) synonymMatched = true;
+    else if (kwLower === "rest apis" && (textLower.includes("rest api") || textLower.includes("restful") || skillsLower.has("rest api"))) synonymMatched = true;
+    else if (kwLower === "microservices" && (textLower.includes("microservice") || textLower.includes("micro-service"))) synonymMatched = true;
+
+    if (synonymMatched) {
       matched.push(kwTrimmed);
     } else {
       missing.push(kwTrimmed);

@@ -41,6 +41,11 @@ import {
 
 import { Job } from "@/lib/api";
 import { parseResumeFile } from "@/lib/resumeParser";
+import {
+  useSharedResumeAnalysis,
+  processResumeUpload,
+  refreshResumeAnalysis
+} from "@/lib/resumeAnalysisService";
 
 import { DashboardSidebar } from "@/components/dashboard/DashboardSidebar";
 import { DashboardHero } from "@/components/dashboard/DashboardHero";
@@ -672,60 +677,22 @@ export default function DashboardPage() {
     setBookmarks(getBookmarks(user.id));
   };
 
-  // Resume Upload Handler (Parses, extracts data, auto-populates profile & updates skills)
+  // Single source of truth shared resume analysis
+  const activeTargetRole = user?.targetRole || "Data Analyst";
+  const {
+    analysis: sharedResumeAnalysis,
+    isAnalyzing: isAnalyzingResume,
+    refreshAnalysis: handleRefreshResumeAnalysis,
+    removeResume: handleRemoveResumeShared
+  } = useSharedResumeAnalysis(activeTargetRole, user?.id);
+
+  // Resume Upload Handler (Parses, extracts data, auto-populates profile & updates shared ATS analysis)
   const handleResumeUpload = async (file: File) => {
     if (!user) return;
 
     try {
-      // 1. Intelligent resume text and metadata parsing
-      const extracted = await parseResumeFile(file);
-
-      // 2. Read as data URL for persistence and viewing
-      const reader = new FileReader();
-      reader.onload = () => {
-        const dataUrl = reader.result as string;
-        const fileExt = file.name.substring(file.name.lastIndexOf(".")).replace(".", "").toUpperCase() || "PDF";
-
-        const fileData = {
-          name: file.name,
-          size: file.size,
-          uploadedAt: new Date().toISOString(),
-          dataUrl,
-          fileType: fileExt,
-          status: "Active ATS Resume",
-          atsScore: 94
-        };
-
-        // 3. Intelligently merge skills without duplicates (case-insensitive deduplication)
-        const currentSkills = user.skills || [];
-        const currentLowerSet = new Set(currentSkills.map((s) => s.toLowerCase().trim()));
-        const uniqueNewSkills = (extracted.skills || []).filter(
-          (s) => !currentLowerSet.has(s.toLowerCase().trim())
-        );
-        const mergedSkills = [...currentSkills, ...uniqueNewSkills];
-
-        // 4. Pre-fill profile fields that are missing or enhance them
-        const profileUpdates: Partial<User> = {
-          resumeFile: fileData,
-          skills: mergedSkills,
-          resumeExtractedNotice: true
-        };
-
-        if (!user.name && extracted.name) profileUpdates.name = extracted.name;
-        if (!user.phone && extracted.phone) profileUpdates.phone = extracted.phone;
-        if (!user.targetRole && extracted.targetRole) profileUpdates.targetRole = extracted.targetRole;
-        if (!user.currentRole && extracted.currentRole) profileUpdates.currentRole = extracted.currentRole;
-        if (!user.preferredLocation && extracted.preferredLocation) profileUpdates.preferredLocation = extracted.preferredLocation;
-        if (!user.yearsExperience && extracted.yearsExperience) profileUpdates.yearsExperience = extracted.yearsExperience;
-        if (!user.education && extracted.education) profileUpdates.education = extracted.education;
-        if (!user.graduationYear && extracted.graduationYear) profileUpdates.graduationYear = extracted.graduationYear;
-        if (!user.linkedinUrl && extracted.linkedinUrl) profileUpdates.linkedinUrl = extracted.linkedinUrl;
-        if (!user.githubUrl && extracted.githubUrl) profileUpdates.githubUrl = extracted.githubUrl;
-
-        const updated = updateUserProfile(user.id, profileUpdates);
-        if (updated) setUser(updated);
-      };
-      reader.readAsDataURL(file);
+      const res = await processResumeUpload(file, user.id, activeTargetRole);
+      if (res.user) setUser(res.user);
     } catch (e) {
       console.error("Resume parsing error:", e);
     }
@@ -734,6 +701,7 @@ export default function DashboardPage() {
   // Resume Remove Handler (Removes reference after user confirms)
   const handleResumeRemove = () => {
     if (!user) return;
+    handleRemoveResumeShared();
     const updated = updateUserProfile(user.id, { resumeFile: undefined, resumeExtractedNotice: false });
     if (updated) setUser(updated);
   };
@@ -797,7 +765,10 @@ export default function DashboardPage() {
   const handleTargetRoleChange = (newRole: string) => {
     if (!user) return;
     const updated = updateUserProfile(user.id, { targetRole: newRole });
-    if (updated) setUser(updated);
+    if (updated) {
+      setUser(updated);
+      refreshResumeAnalysis(user.id, newRole);
+    }
   };
 
   // Helper for smooth scrolling with sticky header offset
@@ -976,9 +947,12 @@ export default function DashboardPage() {
                 <div id="resume-analysis-section" className="scroll-mt-24">
                   <ResumeAnalysisSection
                     resume={user?.resumeFile || null}
+                    analysis={sharedResumeAnalysis}
+                    isAnalyzing={isAnalyzingResume}
+                    targetRole={activeTargetRole}
                     onUploadResume={handleResumeUpload}
                     onRemoveResume={handleResumeRemove}
-                    onAnalyzeResume={() => {}}
+                    onRefreshAnalysis={handleRefreshResumeAnalysis}
                   />
                 </div>
               </div>
@@ -1032,9 +1006,12 @@ export default function DashboardPage() {
                 {/* 5. Skill Gap Analysis */}
                 <div id="skill-gap-section" className="scroll-mt-24">
                   <SkillGapSection
-                    targetRole={user?.targetRole || "Data Scientist"}
+                    targetRole={activeTargetRole}
                     userSkills={user?.skills || []}
+                    analysis={sharedResumeAnalysis}
+                    isAnalyzing={isAnalyzingResume}
                     onTargetRoleChange={handleTargetRoleChange}
+                    onRefreshAnalysis={handleRefreshResumeAnalysis}
                     onViewDetailedAnalysis={() => setIsUpgradeModalOpen(true)}
                   />
                 </div>

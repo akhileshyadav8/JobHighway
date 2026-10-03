@@ -55,57 +55,68 @@ export function CareerPrepWidget({ targetRole = "Software Engineer", userId }: C
   });
 
   useEffect(() => {
-    try {
-      const userPrefix = userId ? `user_${userId}_` : "guest_";
-      const key = `jobhighway_prep_${userPrefix}${activeRole.id}`;
-      const saved = localStorage.getItem(key);
-      if (saved) {
-        const parsed = JSON.parse(saved);
-        setCompletedStepsCount(Array.isArray(parsed.completedSteps) ? parsed.completedSteps.length : 0);
-        setCompletedSkillsCount(Array.isArray(parsed.completedSkills) ? parsed.completedSkills.length : 0);
-      } else {
-        setCompletedStepsCount(2);
-        setCompletedSkillsCount(4);
-      }
-
-      // Load quiz attempts from localStorage
-      const quizKey = `jobhighway_quiz_history_${userPrefix}`;
-      const savedQuizzes = localStorage.getItem(quizKey);
-      if (savedQuizzes) {
-        const parsedQuizzes = JSON.parse(savedQuizzes);
-        setTestAttempts(parsedQuizzes);
-        if (parsedQuizzes.length > 0) {
-          const total = parsedQuizzes.length;
-          const passed = parsedQuizzes.filter((q: any) => q.passed).length;
-          const avg = Math.round(parsedQuizzes.reduce((s: number, q: any) => s + (q.percentage || 0), 0) / total);
-          const best = parsedQuizzes.reduce((m: number, q: any) => Math.max(m, q.percentage || 0), 0);
-          setAnalytics(prev => ({
-            ...prev,
-            totalAttempts: total,
-            passedAttempts: passed,
-            averagePercentage: avg,
-            bestScore: best,
-            latestScore: parsedQuizzes[0].percentage
-          }));
+    const loadPrepProgress = () => {
+      try {
+        const userPrefix = userId ? `user_${userId}_` : "guest_";
+        const key = `jobhighway_prep_${userPrefix}${activeRole.id}`;
+        const saved = localStorage.getItem(key);
+        if (saved) {
+          const parsed = JSON.parse(saved);
+          setCompletedStepsCount(Array.isArray(parsed.completedSteps) ? parsed.completedSteps.length : 0);
+          setCompletedSkillsCount(Array.isArray(parsed.completedSkills) ? parsed.completedSkills.length : 0);
+        } else {
+          setCompletedStepsCount(0);
+          setCompletedSkillsCount(0);
         }
-      }
 
-      // Also fetch server-side attempts
-      fetch(`/api/prepare/attempts?userId=${userId || "guest"}&limit=10`)
-        .then(res => res.json())
-        .then(data => {
-          if (data?.analytics && data.analytics.totalAttempts > 0) {
-            setAnalytics(data.analytics);
-            if (data.attempts && data.attempts.length > 0) {
-              setTestAttempts(data.attempts);
-            }
+        // Load quiz attempts from localStorage
+        const quizKey = `jobhighway_quiz_history_${userPrefix}`;
+        const savedQuizzes = localStorage.getItem(quizKey);
+        if (savedQuizzes) {
+          const parsedQuizzes = JSON.parse(savedQuizzes);
+          setTestAttempts(parsedQuizzes);
+          if (parsedQuizzes.length > 0) {
+            const total = parsedQuizzes.length;
+            const passed = parsedQuizzes.filter((q: any) => q.passed).length;
+            const avg = Math.round(parsedQuizzes.reduce((s: number, q: any) => s + (q.percentage || 0), 0) / total);
+            const best = parsedQuizzes.reduce((m: number, q: any) => Math.max(m, q.percentage || 0), 0);
+            setAnalytics(prev => ({
+              ...prev,
+              totalAttempts: total,
+              passedAttempts: passed,
+              averagePercentage: avg,
+              bestScore: best,
+              latestScore: parsedQuizzes[0].percentage
+            }));
           }
-        })
-        .catch(() => {});
-    } catch {
-      setCompletedStepsCount(2);
-      setCompletedSkillsCount(4);
-    }
+        }
+
+        // Also fetch server-side attempts
+        fetch(`/api/prepare/attempts?userId=${userId || "guest"}&limit=10`)
+          .then(res => res.json())
+          .then(data => {
+            if (data?.analytics && data.analytics.totalAttempts > 0) {
+              setAnalytics(data.analytics);
+              if (data.attempts && data.attempts.length > 0) {
+                setTestAttempts(data.attempts);
+              }
+            }
+          })
+          .catch(() => {});
+      } catch {
+        setCompletedStepsCount(0);
+        setCompletedSkillsCount(0);
+      }
+    };
+
+    loadPrepProgress();
+    window.addEventListener("storage", loadPrepProgress);
+    window.addEventListener("jobhighway_prep_progress_updated", loadPrepProgress);
+
+    return () => {
+      window.removeEventListener("storage", loadPrepProgress);
+      window.removeEventListener("jobhighway_prep_progress_updated", loadPrepProgress);
+    };
   }, [userId, activeRole.id]);
 
   const totalSteps = activeRole.roadmap.length || 6;
@@ -151,7 +162,7 @@ export function CareerPrepWidget({ targetRole = "Software Engineer", userId }: C
         <div className="w-full h-2 rounded-full bg-slate-100 overflow-hidden">
           <div 
             className="h-full rounded-full bg-gradient-to-r from-teal-500 to-emerald-500 transition-all duration-500"
-            style={{ width: `${Math.max(10, roadmapPercent)}%` }}
+            style={{ width: `${roadmapPercent}%` }}
           />
         </div>
       </div>

@@ -1,13 +1,19 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
-import { BarChart3, ArrowRight, Target, Search, CheckCircle2, AlertCircle, Sparkles } from "lucide-react";
+import React, { useState, useEffect, useMemo } from "react";
+import { BarChart3, ArrowRight, Target, Search, CheckCircle2, AlertCircle, Sparkles, RefreshCw } from "lucide-react";
+import { getPrepRoleById } from "@/lib/preparationData";
+import { ResumeAnalysisResult, getResumeRawText } from "@/lib/resumeAnalysisService";
+import { computeAtsMatch } from "@/lib/resumeParser";
 
 export interface SkillGapSectionProps {
   targetRole: string;
   userSkills: string[];
+  analysis?: ResumeAnalysisResult | null;
   onTargetRoleChange?: (newRole: string) => void;
   onViewDetailedAnalysis?: () => void;
+  onRefreshAnalysis?: () => void;
+  isAnalyzing?: boolean;
 }
 
 // Comprehensive industry standard skills matrix across ALL business and tech domains
@@ -137,17 +143,31 @@ const COMMON_ROLE_SKILLS: Record<string, string[]> = {
   ],
 
   // Software & Web Engineering
+  "Full Stack Developer": [
+    "React", "Next.js", "TypeScript", "Node.js", "JavaScript", 
+    "PostgreSQL", "MongoDB", "REST APIs", "GraphQL", "Redis", 
+    "Docker", "Git", "Tailwind CSS", "System Design", "CI/CD"
+  ],
   "Full Stack Engineer": [
-    "React", "TypeScript", "Node.js", "PostgreSQL", "Next.js", 
-    "Docker", "Tailwind CSS", "Redis", "REST APIs"
+    "React", "Next.js", "TypeScript", "Node.js", "JavaScript", 
+    "PostgreSQL", "MongoDB", "REST APIs", "GraphQL", "Redis", 
+    "Docker", "Git", "Tailwind CSS", "System Design", "CI/CD"
   ],
   "Frontend Developer": [
     "React", "TypeScript", "JavaScript", "HTML", "CSS", 
-    "Next.js", "Tailwind CSS", "REST APIs", "State Management"
+    "Next.js", "Tailwind CSS", "REST APIs", "Git", "State Management"
+  ],
+  "Backend Developer": [
+    "Python", "PostgreSQL", "Node.js", "Docker", "System Design", 
+    "Redis", "Kafka", "AWS", "REST APIs", "Microservices"
   ],
   "Backend Engineer": [
     "Python", "PostgreSQL", "Node.js", "Docker", "System Design", 
     "Redis", "Kafka", "AWS", "REST APIs", "Microservices"
+  ],
+  "Software Developer": [
+    "Python", "Java", "Data Structures", "System Design", "Git", 
+    "SQL", "Docker", "REST APIs", "Problem Solving"
   ],
   "Software Engineer": [
     "Python", "Java", "Data Structures", "System Design", "Git", 
@@ -190,6 +210,10 @@ const COMMON_ROLE_SKILLS: Record<string, string[]> = {
   "QA Automation Engineer": [
     "Selenium", "Cypress", "Python", "Test Automation", "CI/CD", 
     "Git", "Jira", "Postman", "API Testing"
+  ],
+  "QA Engineer": [
+    "Playwright", "Selenium", "API Testing", "Postman", "CI/CD", 
+    "Python", "Git", "Test Automation", "Jira"
   ]
 };
 
@@ -213,20 +237,49 @@ function resolveSkillsForRole(roleName: string): string[] {
   const trimmed = roleName.trim();
   if (!trimmed) return COMMON_ROLE_SKILLS["Data Scientist"];
 
-  // 1. Direct dictionary match
+  const lower = trimmed.toLowerCase();
+  const cleanInput = lower.replace(/[-_]/g, " ");
+
+  // 1. Check canonical PrepRole definitions (single source of truth for all IT and Data roles)
+  const prepRole = getPrepRoleById(trimmed);
+  if (prepRole && prepRole.resumeGuidance?.atsKeywords && prepRole.resumeGuidance.atsKeywords.length > 0) {
+    const roleIdClean = prepRole.id.toLowerCase().replace(/[-_]/g, " ");
+    const roleNameClean = prepRole.name.toLowerCase().replace(/[-_]/g, " ");
+    if (
+      roleIdClean === cleanInput ||
+      roleNameClean === cleanInput ||
+      cleanInput.includes(roleIdClean) ||
+      cleanInput.includes(roleNameClean) ||
+      roleNameClean.includes(cleanInput) ||
+      (cleanInput.includes("full") && (cleanInput.includes("stack") || cleanInput.includes("mern") || cleanInput.includes("developer") || cleanInput.includes("engineer"))) ||
+      (cleanInput.includes("software") && (cleanInput.includes("developer") || cleanInput.includes("engineer") || cleanInput.includes("sde"))) ||
+      (cleanInput.includes("frontend") || cleanInput.includes("front end")) ||
+      (cleanInput.includes("backend") || cleanInput.includes("back end")) ||
+      (cleanInput.includes("data") && cleanInput.includes("analyst")) ||
+      (cleanInput.includes("data") && cleanInput.includes("scientist")) ||
+      (cleanInput.includes("data") && cleanInput.includes("engineer")) ||
+      (cleanInput.includes("machine") && cleanInput.includes("learn")) ||
+      cleanInput.includes("devops") ||
+      (cleanInput.includes("qa") || cleanInput.includes("test") || cleanInput.includes("sdet")) ||
+      (cleanInput.includes("product") && cleanInput.includes("manag"))
+    ) {
+      return prepRole.resumeGuidance.atsKeywords;
+    }
+  }
+
+  // 2. Direct dictionary match
   if (COMMON_ROLE_SKILLS[trimmed]) {
     return COMMON_ROLE_SKILLS[trimmed];
   }
 
-  // 2. Case-insensitive dictionary match
-  const lower = trimmed.toLowerCase();
+  // 3. Case-insensitive dictionary match
   for (const [key, skills] of Object.entries(COMMON_ROLE_SKILLS)) {
     if (key.toLowerCase() === lower || lower.includes(key.toLowerCase()) || key.toLowerCase().includes(lower)) {
       return skills;
     }
   }
 
-  // 3. Domain-specific keyword classifier across all industries
+  // 4. Domain-specific keyword classifier across all industries
   // -----------------------------------------------------------------
   // A. Sales, Business Development & Deals
   if (
@@ -455,8 +508,11 @@ function resolveSkillsForRole(roleName: string): string[] {
 export function SkillGapSection({
   targetRole = "Data Scientist",
   userSkills = [],
+  analysis,
   onTargetRoleChange,
-  onViewDetailedAnalysis
+  onViewDetailedAnalysis,
+  onRefreshAnalysis,
+  isAnalyzing = false
 }: SkillGapSectionProps) {
   const [selectedRole, setSelectedRole] = useState(targetRole || "Data Scientist");
   const [inputRole, setInputRole] = useState(targetRole || "Data Scientist");
@@ -485,25 +541,53 @@ export function SkillGapSection({
     }
   };
 
-  // Dynamic skills derived from dictionary or smart domain classifier
-  const roleRequiredSkills = resolveSkillsForRole(selectedRole);
-  const userSkillsLower = userSkills.map((s) => s.toLowerCase().trim());
+  // Dynamic skills derived from dictionary or canonical PrepRole
+  const roleRequiredSkills = useMemo(() => resolveSkillsForRole(selectedRole), [selectedRole]);
+  const userSkillsLower = useMemo(() => userSkills.map((s) => s.toLowerCase().trim()), [userSkills]);
 
-  const isSkillMatched = (reqSkill: string) => {
-    const sLower = reqSkill.toLowerCase().trim();
-    if (userSkillsLower.includes(sLower)) return true;
-    // Smart equivalence
-    if (sLower === "statistical analysis" && (userSkillsLower.includes("statistics") || userSkillsLower.includes("data analysis"))) return true;
-    if (sLower === "business intelligence" && (userSkillsLower.includes("bi") || userSkillsLower.includes("power bi") || userSkillsLower.includes("tableau"))) return true;
-    return false;
-  };
+  const prepRole = useMemo(() => getPrepRoleById(selectedRole), [selectedRole]);
+  const isAnalysisMatchingRole = Boolean(
+    analysis && (
+      analysis.targetRole?.id === prepRole.id ||
+      analysis.targetRole?.name.toLowerCase() === selectedRole.toLowerCase() ||
+      selectedRole.toLowerCase().includes(analysis.targetRole?.name.toLowerCase()) ||
+      (analysis.targetRole?.name.toLowerCase().includes("analyst") && selectedRole.toLowerCase().includes("analyst"))
+    )
+  );
 
-  const matchedSkills = roleRequiredSkills.filter(isSkillMatched);
-  const missingSkills = roleRequiredSkills.filter((s) => !isSkillMatched(s));
+  // Resume raw text fallback: check analysis object first, then persistent localStorage
+  const resumeRawText = useMemo(() => {
+    return analysis?.uploadedResume?.rawText || getResumeRawText();
+  }, [analysis]);
 
-  const matchScore = roleRequiredSkills.length > 0
-    ? Math.min(100, Math.round((matchedSkills.length / roleRequiredSkills.length) * 100))
-    : 0;
+  // Compute matched and missing skills dynamically for ANY role selected
+  const { matchedSkills, missingSkills, matchScore } = useMemo(() => {
+    // If analysis matches current role exactly, use stored analysis keywords for single-source-of-truth parity
+    if (isAnalysisMatchingRole && analysis && analysis.matchedKeywords) {
+      return {
+        matchedSkills: analysis.matchedKeywords,
+        missingSkills: analysis.missingKeywords,
+        matchScore: analysis.atsScore
+      };
+    }
+
+    // Dynamically evaluate against uploaded resume + user skills for the selected role
+    if (resumeRawText || userSkills.length > 0) {
+      const match = computeAtsMatch(resumeRawText, userSkills, roleRequiredSkills);
+      return {
+        matchedSkills: match.matchedKeywords,
+        missingSkills: match.missingKeywords,
+        matchScore: match.atsScore
+      };
+    }
+
+    // Default when no resume or skills are provided
+    return {
+      matchedSkills: [],
+      missingSkills: roleRequiredSkills,
+      matchScore: 0
+    };
+  }, [isAnalysisMatchingRole, analysis, resumeRawText, userSkills, roleRequiredSkills]);
 
   return (
     <div className="rounded-2xl border border-slate-200/90 bg-white p-4 sm:p-4.5 lg:p-5 shadow-xs flex flex-col justify-between">
@@ -524,14 +608,28 @@ export function SkillGapSection({
             </div>
           </div>
 
-          <button
-            type="button"
-            onClick={onViewDetailedAnalysis}
-            className="text-xs font-bold text-teal-600 hover:text-teal-700 flex items-center gap-1 group transition-colors cursor-pointer shrink-0"
-          >
-            <span>Details</span>
-            <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform" />
-          </button>
+          <div className="flex items-center gap-2">
+            {onRefreshAnalysis && (
+              <button
+                type="button"
+                onClick={onRefreshAnalysis}
+                disabled={isAnalyzing}
+                title="Refresh analysis against current role"
+                className="p-1 rounded-lg hover:bg-slate-100 text-slate-400 hover:text-teal-600 transition-colors disabled:opacity-50 cursor-pointer"
+              >
+                <RefreshCw className={`w-3.5 h-3.5 ${isAnalyzing ? "animate-spin" : ""}`} />
+              </button>
+            )}
+
+            <button
+              type="button"
+              onClick={onViewDetailedAnalysis}
+              className="text-xs font-bold text-teal-600 hover:text-teal-700 flex items-center gap-1 group transition-colors cursor-pointer shrink-0"
+            >
+              <span>Details</span>
+              <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform" />
+            </button>
+          </div>
         </div>
 
         {/* Interactive Custom Role Input Field */}
@@ -618,7 +716,7 @@ export function SkillGapSection({
               <span>Acquired Skills ({matchedSkills.length})</span>
             </div>
             <div className="flex flex-wrap gap-1">
-              {matchedSkills.map((skill) => (
+              {matchedSkills.map((skill: string) => (
                 <span
                   key={skill}
                   className="text-[10px] font-medium px-2 py-0.5 rounded-md bg-emerald-50 text-emerald-700 border border-emerald-200/60"
@@ -643,7 +741,7 @@ export function SkillGapSection({
             </p>
           ) : (
             <div className="flex flex-wrap gap-1">
-              {missingSkills.map((skill) => (
+              {missingSkills.map((skill: string) => (
                 <span
                   key={skill}
                   className="text-[10px] font-semibold px-2 py-0.5 rounded-md bg-rose-50 text-rose-700 border border-rose-200/70"

@@ -38,6 +38,7 @@ import {
   Laptop,
   Play,
   RotateCcw,
+  RefreshCw,
   CheckSquare,
   Users,
   PieChart,
@@ -54,6 +55,12 @@ import {
   PracticeQuestion
 } from "@/lib/preparationData";
 import { getCurrentUser, updateUserProfile, User } from "@/lib/auth";
+import {
+  useSharedResumeAnalysis,
+  processResumeUpload,
+  refreshResumeAnalysis,
+  getResumeRawText
+} from "@/lib/resumeAnalysisService";
 import { QuizTestModal } from "./QuizTestModal";
 import { CodingEnvironmentModal } from "./CodingEnvironmentModal";
 import { QuestionVaultModal } from "./QuestionVaultModal";
@@ -192,6 +199,9 @@ export function CareerPrepHub({ initialRoleId }: { initialRoleId?: string }) {
           completedQuestions: Array.from(newQuestions)
         })
       );
+      if (typeof window !== "undefined") {
+        window.dispatchEvent(new Event("jobhighway_prep_progress_updated"));
+      }
     } catch {
       // ignore
     }
@@ -472,7 +482,14 @@ export function CareerPrepHub({ initialRoleId }: { initialRoleId?: string }) {
       return;
     }
     // Open mock test configuration and launcher portal for selected role
-    window.open(`/prepare/mock-test?role=${selectedRole.id}&category=all`, "_blank");
+    try {
+      const win = window.open(`/prepare/mock-test?role=${selectedRole.id}&category=all`, "_blank");
+      if (!win || win.closed || typeof win.closed === "undefined") {
+        router.push(`/prepare/mock-test?role=${selectedRole.id}&category=all`);
+      }
+    } catch {
+      router.push(`/prepare/mock-test?role=${selectedRole.id}&category=all`);
+    }
   };
 
   // Handler for Launching Code Practice
@@ -487,36 +504,22 @@ export function CareerPrepHub({ initialRoleId }: { initialRoleId?: string }) {
     setSqlModalOpen(true);
   };
 
+  // Single source of truth shared resume analysis
+  const {
+    analysis: sharedResumeAnalysis,
+    isAnalyzing: isAnalyzingSharedResume,
+    refreshAnalysis: handleRefreshResumeAnalysis,
+    removeResume: handleRemoveSharedResume
+  } = useSharedResumeAnalysis(selectedRole.name, currentUser?.id);
+
   // Resume Upload & Remove Handlers for ATS Guide Tab
   const handleResumeFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file || !currentUser) return;
     setIsUploadingResume(true);
     try {
-      const extracted = await parseResumeFile(file);
-      const match = computeAtsMatch(
-        extracted.rawText || "",
-        extracted.skills || [],
-        selectedRole.resumeGuidance.atsKeywords || []
-      );
-      const fileData = {
-        name: file.name,
-        size: file.size,
-        uploadedAt: new Date().toISOString(),
-        fileType: file.type || "application/pdf",
-        status: "Parsed",
-        atsScore: match.atsScore,
-        rawText: extracted.rawText,
-        matchedKeywords: match.matchedKeywords,
-        missingKeywords: match.missingKeywords
-      };
-      const updated = updateUserProfile(currentUser.id, {
-        resumeFile: fileData,
-        skills: Array.from(new Set([...(currentUser.skills || []), ...(extracted.skills || [])])),
-        currentRole: extracted.currentRole || currentUser.currentRole,
-        yearsExperience: extracted.yearsExperience || currentUser.yearsExperience
-      });
-      if (updated) setCurrentUser(updated);
+      const res = await processResumeUpload(file, currentUser.id, selectedRole.name);
+      if (res.user) setCurrentUser(res.user);
     } catch (err) {
       console.error("Resume parse error", err);
     } finally {
@@ -527,6 +530,7 @@ export function CareerPrepHub({ initialRoleId }: { initialRoleId?: string }) {
   const handleRemoveResume = () => {
     if (!currentUser) return;
     if (confirm("Remove your stored resume?")) {
+      handleRemoveSharedResume();
       const updated = updateUserProfile(currentUser.id, { resumeFile: undefined });
       if (updated) setCurrentUser(updated);
     }
@@ -534,22 +538,32 @@ export function CareerPrepHub({ initialRoleId }: { initialRoleId?: string }) {
 
   // Dynamic ATS match calculated live against the currently selected job role
   const atsMatchResult = useMemo(() => {
+    if (sharedResumeAnalysis && sharedResumeAnalysis.targetRole?.id === selectedRole.id) {
+      return {
+        matchedKeywords: sharedResumeAnalysis.matchedKeywords,
+        missingKeywords: sharedResumeAnalysis.missingKeywords,
+        score: sharedResumeAnalysis.atsScore,
+        timestamp: sharedResumeAnalysis.analysisTimestamp
+      };
+    }
     if (!currentUser?.resumeFile) {
       return {
         matchedKeywords: [],
         missingKeywords: selectedRole.resumeGuidance.atsKeywords || [],
-        score: 0
+        score: 0,
+        timestamp: undefined
       };
     }
-    const text = currentUser.resumeFile.rawText || "";
+    const text = currentUser.resumeFile.rawText || getResumeRawText(currentUser.id);
     const skills = currentUser.skills || [];
     const res = computeAtsMatch(text, skills, selectedRole.resumeGuidance.atsKeywords || []);
     return {
       matchedKeywords: res.matchedKeywords,
       missingKeywords: res.missingKeywords,
-      score: res.atsScore
+      score: res.atsScore,
+      timestamp: undefined
     };
-  }, [currentUser, selectedRole]);
+  }, [sharedResumeAnalysis, currentUser, selectedRole]);
 
 
   // Handler for Question Vault
@@ -571,9 +585,9 @@ export function CareerPrepHub({ initialRoleId }: { initialRoleId?: string }) {
             
             {/* Left Content Column */}
             <div className="lg:col-span-7 flex flex-col items-start text-left">
-              {/* Pill Tag */}
-              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-teal-50 border border-teal-200/80 text-teal-800 text-[11px] font-bold tracking-wider uppercase mb-5 shadow-2xs">
-                <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+              {/* Hub Title */}
+              <div className="flex items-center gap-2 mb-4 text-xs font-semibold tracking-wider uppercase text-teal-700">
+                <span className="w-2 h-2 rounded-full bg-emerald-500 shrink-0 animate-pulse" />
                 <span>JobHighway Career Preparation Hub</span>
               </div>
 
@@ -672,6 +686,36 @@ export function CareerPrepHub({ initialRoleId }: { initialRoleId?: string }) {
                     {r.name}{idx < 5 ? " ·" : ""}
                   </button>
                 ))}
+              </div>
+
+              {/* Primary Action Buttons in Hero */}
+              <div className="pt-4 flex flex-wrap items-center gap-2.5 sm:gap-3">
+                <button
+                  onClick={() => handleOpenQuiz()}
+                  className="px-5 py-2.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs sm:text-sm flex items-center gap-2 shadow-xs hover:shadow transition-all cursor-pointer group"
+                >
+                  <Award className="w-4 h-4 text-teal-400 group-hover:rotate-12 transition-transform" />
+                  <span>Take {selectedRole.name} Mock Test</span>
+                  <span className="text-[10px] font-semibold bg-teal-500/20 text-teal-300 px-2 py-0.5 rounded-full border border-teal-400/30">
+                    Timed 30 Qs
+                  </span>
+                </button>
+
+                <a
+                  href="#learning-roadmap"
+                  className="px-4 py-2.5 rounded-xl bg-teal-600 hover:bg-teal-700 text-white font-bold text-xs sm:text-sm flex items-center gap-2 shadow-xs transition-colors cursor-pointer"
+                >
+                  <Layers className="w-4 h-4" />
+                  <span>View Roadmap</span>
+                </a>
+
+                <button
+                  onClick={() => handleOpenVault("All")}
+                  className="px-4 py-2.5 rounded-xl bg-white border border-slate-200/90 hover:border-teal-400 text-slate-700 hover:text-teal-700 font-semibold text-xs sm:text-sm flex items-center gap-1.5 shadow-2xs transition-colors cursor-pointer"
+                >
+                  <BookOpen className="w-4 h-4 text-slate-400" />
+                  <span>Practice Questions</span>
+                </button>
               </div>
             </div>
 
@@ -1013,7 +1057,7 @@ export function CareerPrepHub({ initialRoleId }: { initialRoleId?: string }) {
                     <div className="w-full bg-slate-100 rounded-full h-2 overflow-hidden">
                       <div 
                         className="bg-teal-600 h-2 rounded-full transition-all duration-300"
-                        style={{ width: `${Math.max(5, roadmapPercent)}%` }}
+                        style={{ width: `${roadmapPercent}%` }}
                       />
                     </div>
                   </div>
@@ -1047,14 +1091,24 @@ export function CareerPrepHub({ initialRoleId }: { initialRoleId?: string }) {
                   </div>
                 </div>
 
-                {/* Continue Learning Action Button */}
-                <button
-                  onClick={() => handleSwitchTab("roadmap")}
-                  className="w-full py-2.5 rounded-xl bg-teal-600 hover:bg-teal-700 active:bg-teal-800 text-white font-bold text-xs sm:text-sm flex items-center justify-center gap-2 shadow-xs transition-colors cursor-pointer"
-                >
-                  <span>Continue Learning</span>
-                  <ArrowRight className="w-4 h-4" />
-                </button>
+                {/* Action Buttons */}
+                <div className="space-y-2">
+                  <button
+                    onClick={() => handleSwitchTab("roadmap")}
+                    className="w-full py-2.5 rounded-xl bg-teal-600 hover:bg-teal-700 active:bg-teal-800 text-white font-bold text-xs sm:text-sm flex items-center justify-center gap-2 shadow-xs transition-colors cursor-pointer"
+                  >
+                    <span>Continue Learning</span>
+                    <ArrowRight className="w-4 h-4" />
+                  </button>
+
+                  <button
+                    onClick={() => handleOpenQuiz()}
+                    className="w-full py-2.5 px-3 rounded-xl bg-slate-900 hover:bg-slate-800 active:bg-slate-950 text-white font-bold text-xs sm:text-sm flex items-center justify-center gap-2 shadow-xs transition-colors cursor-pointer group"
+                  >
+                    <Award className="w-4 h-4 text-teal-400 group-hover:rotate-12 transition-transform" />
+                    <span>Take {selectedRole.name} Mock Test</span>
+                  </button>
+                </div>
               </div>
 
             </div>
@@ -1777,6 +1831,27 @@ export function CareerPrepHub({ initialRoleId }: { initialRoleId?: string }) {
                       </p>
                     </div>
 
+                    {/* Simulated Assessment Callout */}
+                    <div className="p-4 rounded-xl bg-gradient-to-r from-teal-50 to-emerald-50 border border-teal-200/80 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                      <div>
+                        <div className="text-xs font-bold text-teal-950 flex items-center gap-1.5">
+                          <Award className="w-4 h-4 text-teal-600" />
+                          <span>Simulate the Technical Screening Round</span>
+                        </div>
+                        <p className="text-xs text-teal-700 mt-0.5">
+                          Practice with 30 randomized MCQs timed for 45 minutes to benchmark your interview readiness for {selectedRole.name}.
+                        </p>
+                      </div>
+                      <button
+                        onClick={() => handleOpenQuiz()}
+                        className="px-4 py-2 rounded-xl bg-teal-600 hover:bg-teal-700 text-white text-xs font-bold shrink-0 transition-colors cursor-pointer flex items-center gap-1.5 shadow-2xs group"
+                      >
+                        <Play className="w-3.5 h-3.5 fill-current" />
+                        <span>Start Mock Test</span>
+                        <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform" />
+                      </button>
+                    </div>
+
                     <div className="space-y-3 pt-1">
                       {selectedRole.interviewRounds.map((rnd, idx) => (
                         <div key={idx} className="p-4 rounded-xl bg-slate-50 border border-slate-100">
@@ -2218,15 +2293,26 @@ export function CareerPrepHub({ initialRoleId }: { initialRoleId?: string }) {
                       {currentUser?.resumeFile ? (
                         <>
                           <button
+                            type="button"
+                            onClick={handleRefreshResumeAnalysis}
+                            disabled={isUploadingResume || isAnalyzingSharedResume}
+                            className="px-3.5 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs border border-slate-200 transition-colors cursor-pointer disabled:opacity-50 inline-flex items-center gap-1.5"
+                            title="Re-read uploaded resume and run fresh analysis"
+                          >
+                            <RefreshCw className={`w-3.5 h-3.5 ${(isUploadingResume || isAnalyzingSharedResume) ? "animate-spin" : ""}`} />
+                            <span>{(isUploadingResume || isAnalyzingSharedResume) ? "Re-analyzing..." : "Refresh Analysis"}</span>
+                          </button>
+                          <button
                             onClick={() => resumeInputRef.current?.click()}
-                            disabled={isUploadingResume}
+                            disabled={isUploadingResume || isAnalyzingSharedResume}
                             className="px-3.5 py-2 rounded-xl bg-teal-600 hover:bg-teal-700 text-white font-bold text-xs shadow-xs transition-colors cursor-pointer disabled:opacity-50"
                           >
                             {isUploadingResume ? "Parsing..." : "Replace Resume"}
                           </button>
                           <button
                             onClick={handleRemoveResume}
-                            className="px-3.5 py-2 rounded-xl bg-slate-100 hover:bg-rose-50 text-slate-600 hover:text-rose-600 font-bold text-xs border border-slate-200 transition-colors cursor-pointer"
+                            disabled={isUploadingResume || isAnalyzingSharedResume}
+                            className="px-3.5 py-2 rounded-xl bg-slate-100 hover:bg-rose-50 text-slate-600 hover:text-rose-600 font-bold text-xs border border-slate-200 transition-colors cursor-pointer disabled:opacity-50"
                           >
                             Remove Resume
                           </button>
@@ -2258,15 +2344,22 @@ export function CareerPrepHub({ initialRoleId }: { initialRoleId?: string }) {
                           High-Frequency ATS Keywords for {selectedRole.name}
                         </h4>
                         {currentUser?.resumeFile && (
-                          <span className={`text-[11px] font-bold px-2 py-0.5 rounded-full border ${
-                            atsMatchResult.score >= 70
-                              ? "bg-emerald-50 text-emerald-800 border-emerald-200"
-                              : atsMatchResult.score >= 40
-                              ? "bg-amber-50 text-amber-800 border-amber-200"
-                              : "bg-rose-50 text-rose-800 border-rose-200"
-                          }`}>
-                            {atsMatchResult.score}% Matched
-                          </span>
+                          <>
+                            <span className={`text-[11px] font-bold px-2 py-0.5 rounded-full border ${
+                              atsMatchResult.score >= 70
+                                ? "bg-emerald-50 text-emerald-800 border-emerald-200"
+                                : atsMatchResult.score >= 40
+                                ? "bg-amber-50 text-amber-800 border-amber-200"
+                                : "bg-rose-50 text-rose-800 border-rose-200"
+                            }`}>
+                              {atsMatchResult.score}% Matched
+                            </span>
+                            {atsMatchResult.timestamp && (
+                              <span className="text-[10px] text-slate-400 font-mono hidden sm:inline">
+                                Synced {new Date(atsMatchResult.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                              </span>
+                            )}
+                          </>
                         )}
                       </div>
                       <p className="text-xs text-slate-500 mt-0.5">

@@ -19,6 +19,7 @@ import {
 } from "lucide-react";
 import { User, updateUserProfile } from "@/lib/auth";
 import { parseResumeFile } from "@/lib/resumeParser";
+import { processResumeUpload } from "@/lib/resumeAnalysisService";
 
 export interface ProfileEditModalProps {
   isOpen: boolean;
@@ -101,41 +102,27 @@ export function ProfileEditModal({
       const combined = [...existingSkills, ...newSkills];
       setSkillsStr(combined.join(", "));
 
-      // 4. Save file data to localStorage
-      const reader = new FileReader();
-      reader.onload = () => {
-        const dataUrl = reader.result as string;
-        const fileExt = file.name.substring(file.name.lastIndexOf(".")).replace(".", "").toUpperCase() || "PDF";
-        const fileData = {
-          name: file.name,
-          size: file.size,
-          uploadedAt: new Date().toISOString(),
-          dataUrl,
-          fileType: fileExt,
-          status: "Active ATS Resume",
-          atsScore: 94
-        };
-
-        const updated = updateUserProfile(user.id, {
-          resumeFile: fileData,
-          skills: combined,
-          name: user.name || name || "Candidate",
-          phone: phone || extracted.phone,
-          targetRole: targetRole || extracted.targetRole,
-          currentRole: currentRole || extracted.currentRole,
-          preferredLocation: preferredLocation || extracted.preferredLocation,
-          yearsExperience: yearsExperience || extracted.yearsExperience,
-          education: education || extracted.education,
-          graduationYear: graduationYear || extracted.graduationYear,
-          linkedinUrl: linkedinUrl || extracted.linkedinUrl,
-          githubUrl: githubUrl || extracted.githubUrl
-        });
-
-        if (updated) onProfileUpdated(updated);
-        setIsParsingResume(false);
-        setResumeNotice(`Resume parsed! Profile fields have been auto-populated from "${file.name}". You can review or edit any fields below.`);
+      // 4. Save file data and compute canonical shared analysis
+      const res = await processResumeUpload(file, user.id, targetRole || extracted.targetRole || "Data Analyst");
+      
+      const profileUpdates: Partial<User> = {
+        skills: combined,
+        name: user.name || name || "Candidate",
+        phone: phone || extracted.phone,
+        targetRole: targetRole || extracted.targetRole,
+        currentRole: currentRole || extracted.currentRole,
+        preferredLocation: preferredLocation || extracted.preferredLocation,
+        yearsExperience: yearsExperience || extracted.yearsExperience,
+        education: education || extracted.education,
+        graduationYear: graduationYear || extracted.graduationYear,
+        linkedinUrl: linkedinUrl || extracted.linkedinUrl,
+        githubUrl: githubUrl || extracted.githubUrl
       };
-      reader.readAsDataURL(file);
+
+      const updated = updateUserProfile(user.id, profileUpdates);
+      if (updated) onProfileUpdated(updated);
+      setIsParsingResume(false);
+      setResumeNotice(`Resume parsed! Profile fields have been auto-populated from "${file.name}". You can review or edit any fields below.`);
     } catch (err) {
       console.error("Resume parsing error:", err);
       setIsParsingResume(false);
@@ -232,7 +219,7 @@ export function ProfileEditModal({
             </div>
             {user?.resumeFile && (
               <span className="text-[11px] font-bold px-2.5 py-0.5 rounded-full bg-emerald-100 text-emerald-800 border border-emerald-200">
-                ATS Score: {user.resumeFile.atsScore || 94}%
+                ATS Score: {user.resumeFile.atsScore ?? 0}%
               </span>
             )}
           </div>

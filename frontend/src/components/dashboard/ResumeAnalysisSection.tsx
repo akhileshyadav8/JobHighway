@@ -13,6 +13,8 @@ import {
   FileCheck2
 } from "lucide-react";
 
+import { ResumeAnalysisResult } from "@/lib/resumeAnalysisService";
+
 export interface ResumeData {
   name: string;
   size: number;
@@ -25,25 +27,36 @@ export interface ResumeData {
 
 export interface ResumeAnalysisSectionProps {
   resume?: ResumeData | null;
+  analysis?: ResumeAnalysisResult | null;
+  isAnalyzing?: boolean;
+  targetRole?: string;
   onUploadResume?: (file: File) => void;
   onRemoveResume?: () => void;
   onAnalyzeResume?: () => void;
+  onRefreshAnalysis?: () => void;
   className?: string;
 }
 
 export function ResumeAnalysisSection({
   resume,
+  analysis,
+  isAnalyzing = false,
+  targetRole,
   onUploadResume,
   onRemoveResume,
   onAnalyzeResume,
+  onRefreshAnalysis,
   className = ""
 }: ResumeAnalysisSectionProps) {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [dragOver, setDragOver] = useState(false);
   const [errorMsg, setErrorMsg] = useState("");
-  const [isAnalyzing, setIsAnalyzing] = useState(false);
-  const [analysisResult, setAnalysisResult] = useState<string | null>(null);
+  const [localAnalyzing, setLocalAnalyzing] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [showKeywordsDetails, setShowKeywordsDetails] = useState(true);
+
+  const effectiveAnalyzing = isAnalyzing || localAnalyzing;
+  const currentScore = analysis ? analysis.atsScore : (resume?.atsScore || 0);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setErrorMsg("");
@@ -82,18 +95,21 @@ export function ResumeAnalysisSection({
     }
   };
 
-  const handleRunAnalysis = () => {
-    setIsAnalyzing(true);
-    setTimeout(() => {
-      setIsAnalyzing(false);
-      setAnalysisResult("ATS keyword check complete: 94% compatibility with live industry requisitions.");
-      onAnalyzeResume?.();
-    }, 900);
+  const handleRunAnalysis = async () => {
+    setLocalAnalyzing(true);
+    try {
+      if (onRefreshAnalysis) {
+        await onRefreshAnalysis();
+      } else if (onAnalyzeResume) {
+        await onAnalyzeResume();
+      }
+    } finally {
+      setLocalAnalyzing(false);
+    }
   };
 
   const handleDelete = () => {
     setShowDeleteConfirm(false);
-    setAnalysisResult(null);
     onRemoveResume?.();
   };
 
@@ -108,18 +124,26 @@ export function ResumeAnalysisSection({
     <div className={`rounded-2xl border border-slate-200/90 bg-white p-4 sm:p-4.5 lg:p-5 shadow-xs flex flex-col justify-between h-full ${className}`}>
       <div>
         {/* Header */}
-        <div className="flex items-start gap-3 pb-4 border-b border-slate-100">
-          <div className="w-8 h-8 rounded-xl bg-teal-50 text-teal-600 flex items-center justify-center shrink-0 mt-0.5">
-            <FileText className="w-4 h-4" />
+        <div className="flex items-start justify-between gap-3 pb-4 border-b border-slate-100">
+          <div className="flex items-start gap-3">
+            <div className="w-8 h-8 rounded-xl bg-teal-50 text-teal-600 flex items-center justify-center shrink-0 mt-0.5">
+              <FileText className="w-4 h-4" />
+            </div>
+            <div>
+              <h2 className="text-base sm:text-lg font-bold text-slate-900 tracking-tight">
+                Resume Analysis
+              </h2>
+              <p className="text-xs text-slate-500 mt-0.5">
+                Upload your resume to get AI-powered insights and improve your job matches.
+              </p>
+            </div>
           </div>
-          <div>
-            <h2 className="text-base sm:text-lg font-bold text-slate-900 tracking-tight">
-              Resume Analysis
-            </h2>
-            <p className="text-xs text-slate-500 mt-0.5">
-              Upload your resume to get AI-powered insights and improve your job matches.
-            </p>
-          </div>
+
+          {analysis && (
+            <span className="text-[11px] font-bold px-2.5 py-1 rounded-full bg-teal-50 text-teal-700 border border-teal-200/70 shrink-0">
+              {analysis.targetRole.name}
+            </span>
+          )}
         </div>
 
         {errorMsg && (
@@ -130,7 +154,7 @@ export function ResumeAnalysisSection({
         )}
 
         {/* Main Content Split: Left Upload / File Info, Right Checklist */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-5 lg:gap-6 mt-5 items-center">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-5 lg:gap-6 mt-5 items-start">
           {/* Left Side: Upload Area or Active Resume File Box */}
           <div>
             {resume ? (
@@ -153,14 +177,40 @@ export function ResumeAnalysisSection({
                     </div>
                   </div>
 
-                  <span className="shrink-0 px-2 py-0.5 rounded-full text-[11px] font-bold bg-emerald-100 text-emerald-800 border border-emerald-200 whitespace-nowrap">
-                    ATS: {resume.atsScore || 92}%
+                  <span className={`shrink-0 px-2.5 py-0.5 rounded-full text-[11px] font-bold border whitespace-nowrap ${
+                    currentScore >= 70
+                      ? "bg-emerald-100 text-emerald-800 border-emerald-300"
+                      : currentScore >= 40
+                      ? "bg-amber-100 text-amber-800 border-amber-300"
+                      : "bg-rose-100 text-rose-800 border-rose-300"
+                  }`}>
+                    ATS: {currentScore}%
                   </span>
                 </div>
 
-                {analysisResult && (
-                  <div className="text-xs text-emerald-800 bg-emerald-50/80 p-2.5 rounded-lg border border-emerald-200 font-medium">
-                    {analysisResult}
+                {/* Analysis result summary bar */}
+                {analysis && (
+                  <div className="text-xs text-slate-700 bg-white/90 p-3 rounded-xl border border-teal-200/80 space-y-1.5 shadow-2xs">
+                    <div className="flex items-center justify-between">
+                      <span className="font-bold text-slate-900">
+                        {analysis.targetRole.name} Compatibility
+                      </span>
+                      <span className="font-mono text-[11px] text-teal-700 font-bold">
+                        {analysis.totalMatchedKeywords}/{analysis.totalRequiredKeywords} Keywords
+                      </span>
+                    </div>
+
+                    <div className="w-full bg-slate-100 rounded-full h-1.5 overflow-hidden">
+                      <div
+                        className="bg-teal-500 h-full rounded-full transition-all duration-500"
+                        style={{ width: `${analysis.atsScore}%` }}
+                      />
+                    </div>
+
+                    <div className="flex items-center justify-between text-[10px] text-slate-400 pt-0.5">
+                      <span>Matches official ATS requisitions</span>
+                      <span>{new Date(analysis.analysisTimestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
+                    </div>
                   </div>
                 )}
 
@@ -182,20 +232,22 @@ export function ResumeAnalysisSection({
                   <button
                     type="button"
                     onClick={handleRunAnalysis}
-                    disabled={isAnalyzing}
-                    className="py-1.5 px-3 rounded-lg bg-teal-600 hover:bg-teal-700 text-white text-xs font-bold inline-flex items-center gap-1.5 transition-colors cursor-pointer shadow-2xs whitespace-nowrap"
+                    disabled={effectiveAnalyzing}
+                    className="py-1.5 px-3 rounded-lg bg-teal-600 hover:bg-teal-700 text-white text-xs font-bold inline-flex items-center gap-1.5 transition-colors cursor-pointer shadow-2xs whitespace-nowrap disabled:opacity-50"
+                    title="Re-read resume and run fresh keyword match"
                   >
-                    <Sparkles className={`w-3.5 h-3.5 ${isAnalyzing ? "animate-spin" : ""}`} />
-                    <span>{isAnalyzing ? "Analyzing..." : "Analyze"}</span>
+                    <RefreshCw className={`w-3.5 h-3.5 ${effectiveAnalyzing ? "animate-spin" : ""}`} />
+                    <span>{effectiveAnalyzing ? "Re-analyzing..." : "Re-analyze"}</span>
                   </button>
 
                   <button
                     type="button"
                     onClick={() => fileInputRef.current?.click()}
-                    className="py-1.5 px-2.5 rounded-lg bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 text-xs font-semibold inline-flex items-center gap-1.5 transition-colors cursor-pointer shadow-2xs whitespace-nowrap"
+                    disabled={effectiveAnalyzing}
+                    className="py-1.5 px-2.5 rounded-lg bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 text-xs font-semibold inline-flex items-center gap-1.5 transition-colors cursor-pointer shadow-2xs whitespace-nowrap disabled:opacity-50"
                     title="Replace with another file"
                   >
-                    <RefreshCw className="w-3.5 h-3.5 text-slate-400" />
+                    <Upload className="w-3.5 h-3.5 text-slate-400" />
                     <span>Replace</span>
                   </button>
 

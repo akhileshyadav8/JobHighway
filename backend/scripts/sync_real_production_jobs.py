@@ -1105,11 +1105,8 @@ def main():
                         return None
 
                 if job_slug in existing_job_slugs:
-                    # Job already exists - keep skills up-to-date
-                    session.execute(
-                        text("UPDATE jobs SET skills_required = CAST(:skills AS json) WHERE slug = :slug"),
-                        {"skills": json.dumps(item.get("skills_required", [])), "slug": job_slug}
-                    )
+                    # Skip individual updates to save network round trips!
+                    # We will do a bulk update of last_seen_at and status at the end.
                     updated_jobs += 1
                     continue
 
@@ -1151,6 +1148,21 @@ def main():
                     session.commit()
 
             session.commit()
+            
+            # Bulk update last_seen_at and status for all existing jobs that we just saw again
+            processed_slugs = [j.get("slug") for j in all_real_jobs if j.get("slug")]
+            existing_processed_slugs = list(set(processed_slugs).intersection(existing_job_slugs))
+            if existing_processed_slugs:
+                print(f"[*] Bulk updating {len(existing_processed_slugs)} existing jobs...", flush=True)
+                chunk_size = 500
+                for i in range(0, len(existing_processed_slugs), chunk_size):
+                    chunk = existing_processed_slugs[i:i + chunk_size]
+                    session.execute(
+                        text("UPDATE jobs SET status = 'active', last_seen_at = NOW() WHERE slug = ANY(:slugs)"),
+                        {"slugs": chunk}
+                    )
+                session.commit()
+
             print(f"[+] Synced with Supabase: {added_jobs} brand new jobs added, {updated_jobs} existing verified, {added_companies} new companies registered!", flush=True)
 
     except Exception as e:
